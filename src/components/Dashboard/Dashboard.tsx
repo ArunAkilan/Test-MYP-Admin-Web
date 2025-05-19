@@ -120,7 +120,7 @@ function Home() {
             
               <h3 data-bs-toggle="tooltip" data-bs-placement="bottom" title="Hooray!">Perambalur Green Enclave</h3>
               <p data-bs-toggle="tooltip" data-bs-placement="bottom" title="Thuraiyur road, Perambalur">
-                <img src="ICON_Location.svg" alt="location svg" />
+                <img src="ICON_Location.png" alt="location png" />
                 Thuraiyur road, Pera...
               </p>
             
@@ -150,7 +150,7 @@ function Home() {
            
               <h3 data-bs-toggle="tooltip" data-bs-placement="bottom" title="Sakthi Nagar Villa">Sakthi Nagar Villa</h3>
               <p data-bs-toggle="tooltip" data-bs-placement="bottom" title="Sakthi nagar, Perambalur">
-                <img src="ICON_Location.svg" alt="location svg" />
+                <img src="ICON_Location.png" alt="location png" />
                 Sakthi nagar, Peramb...
               </p>
            
@@ -179,7 +179,7 @@ function Home() {
          
               <h3 data-bs-toggle="tooltip" data-bs-placement="bottom" title="Muthu residency Flats">Muthu residency Flats</h3>
               <p data-bs-toggle="tooltip" data-bs-placement="bottom" title="Near old bus stand, Perambalur">
-                <img src="ICON_Location.svg" alt="location svg" />
+                <img src="ICON_Location.png" alt="location png" />
                 Near old Bus Stand,P...
               </p>
           
