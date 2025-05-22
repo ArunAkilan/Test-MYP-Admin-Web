@@ -1,7 +1,7 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: 'archivo' !important;
+  font-family: 'Open Sans';
 }
 
 .header-wrap {
@@ -93,6 +93,7 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  height: 100vh;
 }
 
 .bottom-list,.list-top {
@@ -112,7 +113,6 @@ body {
 .d-list a {
   text-decoration: none;
   color: #81868C;
-  font-family: Archivo;
   font-size: 16px;
   font-style: normal;
   font-weight: 500;
@@ -217,7 +217,6 @@ body {
 }
 .pa a {
   text-align: center;
-  font-family: Archivo;
   font-size: 16px;
   font-style: normal;
   font-weight: 500;
@@ -354,9 +353,7 @@ td {
 td  {
   overflow: hidden;
 color: #46494C;
-
 text-overflow: ellipsis;
-font-family: Archivo;
 font-size: 12px;
 font-style: normal;
 font-weight: 500;

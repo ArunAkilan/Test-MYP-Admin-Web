@@ -2,7 +2,8 @@
 import './App.css'
 import Header from './components/Common/Navbar/Navbar'
 import Sidebar from './components/Common/Sidebar/Sidebar'
-import Home from './components/Dashboard/Dashboard'
+import Profile from './components/Profile/Profile'
+// import Home from './components/Dashboard/Dashboard'
 
 function App() {
 
@@ -12,7 +13,8 @@ function App() {
       <div className="container">
         <div className="sidebar">
           <Sidebar/>
-          <Home/>
+          {/* <Home/> */}
+          <Profile/>
         </div>
       </div>
     </div>
