@@ -4,7 +4,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DoneIcon from '@mui/icons-material/Done';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import type User from './Dashboard.module';
+import type User from './Dashboard.model';
 
 function Home() {
   const [users, setUsers] = useState<User[]>([]); // ✅ Correct
