@@ -1,5 +1,4 @@
 import React from "react";
-// import type ProfileForm from './Profile.module'
 import profilePicture from "../../../public/ProPic.svg";
 import imagemap from "../../../public/imap.png";
 import "./profile.scss";
@@ -7,7 +6,9 @@ import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import verifiedProfile from "../../../public/ICON_Verified.svg";
 import locateMe from "../../../public/mingcute_location-line.svg";
 import GenericButton from "../Common/Button/button";
-import SaveIcon from "@mui/icons-material/Save";
+import CloseIcon from '@mui/icons-material/Close';
+import DoneIcon from '@mui/icons-material/Done';
+import './Profile.module'
 
 const Profile: React.FC = () => {
   return (
@@ -58,7 +59,7 @@ const Profile: React.FC = () => {
           <div className="gender profile-cmn">
             <label htmlFor="gender">Gender</label>
             <div>
-              <FormControl sx={{ pb: 2 }} fullWidth>
+              <FormControl sx={{ fontSize: 14 }} size="small" className="postformcontrol" fullWidth>
                 <InputLabel id="gender-label">Gender</InputLabel>
                 <Select labelId="gender-label" id="gender" label="Gender">
                   <MenuItem>male</MenuItem>
@@ -173,13 +174,20 @@ const Profile: React.FC = () => {
             </div>
           </div>
           <div id="discard-save" className="discard-save">
-            <button className="discard">Discard Changes</button>
             <GenericButton
               onClick={() => alert("Data saved!")}
               variant="primary"
-              icon={<SaveIcon />}
+              icon={<CloseIcon />}
               iconPosition="left"
-              label={"Save"}
+              label={"Discard changes"}
+              className="genericdiscardchangeStyles"
+            />
+            <GenericButton
+              onClick={() => alert("Data saved!")}
+              variant="primary"
+              icon={<DoneIcon />}
+              iconPosition="left"
+              label={"Save Profile"}
               className="genericSaveBtnStyles"
             />
           </div>
