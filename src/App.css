@@ -182,7 +182,7 @@ body {
   align-items: center;
   letter-spacing: 0px;
 }
-.new-post svg {
+.new-post img {
   margin-right: 8px;
 }
 
@@ -209,7 +209,7 @@ body {
   align-items: center;
   margin-right: 8px;
 }
-.pa svg {
+.pa img {
   margin-right: 8px;
 }
 .pa a {
@@ -247,7 +247,7 @@ body {
 .pending-list {
   color: #81868C;
 }
-.h-list svg {
+.h-list img {
   margin: 0 12px;
 }
 .list-card {
@@ -285,7 +285,7 @@ body {
   color: #0056B2;
 }
 
-.new-listing p svg {
+.new-listing p img {
   padding-right: 8px;
 }
 .new-listing p {
@@ -306,7 +306,7 @@ body {
 .search {
   position: relative;
 }
-.search svg {
+.search img {
   position: absolute;
   left: 8px;
   top: 13px;
@@ -547,6 +547,9 @@ letter-spacing: 0.018em;
   }
   .new-listing {
     margin: 30px 0;
+  }
+  .container {
+    padding: 0 12px;
   }
 }
 @media only screen and (max-width:440px) {

@@ -11,10 +11,10 @@ function App() {
       <Header />
       <div className="container">
         <div className="row">
-          <div className="col-3">
+          <div className="col-5 col-md-3">
             <Sidebar />
           </div>
-          <div className="col-9">
+          <div className="col-7 col-md-9">
             <Router>
               <Routes>
                 <Route path="/" element={<Home />} />
