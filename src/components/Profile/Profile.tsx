@@ -9,10 +9,23 @@ import GenericButton from "../Common/Button/button";
 import CloseIcon from '@mui/icons-material/Close';
 import DoneIcon from '@mui/icons-material/Done';
 import './Profile.module'
+import Sidebar from "../Common/Sidebar/Sidebar";
+import PersonIcon from "@mui/icons-material/Person";
+import EditNoteIcon from "@mui/icons-material/EditNote";
+import StarIcon from "@mui/icons-material/Star";
 
 const Profile: React.FC = () => {
+    const sidebarData = [
+    { id: 1, name: "profile", icon: PersonIcon },
+    { id: 2, name: "Bob", icon: EditNoteIcon },
+    { id: 3, name: "Charlie", icon: StarIcon },
+  ];
   return (
-    <div className="profile-wrapper">
+      <div className="row">
+        <div className="col-4 col-md-3">
+            <Sidebar sidebarData={sidebarData}  />
+          </div>
+    <div className="col-8 col-md-9 profile-wrapper">
       <div className="row ">
         <div className="col-md-4 account-manage">
           <h3>Account management</h3>
@@ -59,7 +72,9 @@ const Profile: React.FC = () => {
           <div className="gender profile-cmn">
             <label htmlFor="gender">Gender</label>
             <div>
-              <FormControl sx={{ fontSize: 14 }} size="small" className="postformcontrol" fullWidth>
+              <FormControl 
+              sx={{ fontSize: 14,borderRadius: '6px',border: 1,borderColor: '#D3DDE7',marginBottom: '20px' }} 
+              size="small" className="postformcontrol" fullWidth>
                 <InputLabel id="gender-label">Gender</InputLabel>
                 <Select labelId="gender-label" id="gender" label="Gender">
                   <MenuItem>male</MenuItem>
@@ -194,6 +209,7 @@ const Profile: React.FC = () => {
         </div>
       </div>
     </div>
+      </div>
   );
 };
 

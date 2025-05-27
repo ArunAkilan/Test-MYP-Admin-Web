@@ -1,0 +1,101 @@
+
+table {
+  width: 100%; 
+  overflow: hidden;
+  border-radius: 2px;
+}
+th,td {
+  border: 1px solid #D8DEE5;
+  border-collapse: collapse;
+  
+}
+th {
+  padding: 12px 16px;
+  color: #81868C;
+  text-align: start;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 18px;
+    letter-spacing: 0.6px;
+}
+td {
+  padding: 16px;
+}
+td  {
+  overflow: hidden;
+    color: #46494C;
+    text-overflow: ellipsis;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    letter-spacing: 0.018em;
+}
+.furnish {
+  color: #8D9399;
+}
+.link-h {
+  text-align: center;
+}
+.company-name h3 {
+  overflow: hidden;
+  color: #46494C ;
+  text-overflow: ellipsis;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: 0.216px;
+  margin: 0;
+  padding-bottom: 8px;
+}
+.company-name p {
+  color: #81868C;
+  margin: 0;
+  font-size: 12px;
+}
+.company-name p img {
+  margin-right: 6px;
+}
+
+.link-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.rental,.lease,.sale {
+  padding: 4px 8px;
+  text-align: center;
+  border-radius: 2px;
+}
+.rental {
+  color: #35B350;
+  background: #E5F6E9; 
+}
+.lease {
+  color: #B38935;
+  background: #F6F0E5;
+}
+.sale {
+  color: #6E6EE9;
+  background: #E4E4F5;
+}
+.link-icon {
+  width: 20px ;
+  height: 20px;
+  padding: 4px;
+  border-radius: 2px;
+  margin-right: 10px;
+}
+.link-grey-bg  {
+  background: #F2F4F7;
+  color: #B8BABF;
+}
+.link-orange-bg {
+  background: #F5E4E4;
+  color: #E55C5C;
+}
+.checkbox-align input {
+  display: flex;
+}

@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-import type User from "./Dashboard.module";
-import Table from "../Common/dashborad_table/table";
+import type User from "./Dashboard.model";
+import Table from "../Common/DashboradTable/table";
+import './Dashboard.scss'
 
 function Home() {
   const [users, setUsers] = useState<User[]>([]); // ✅ Correct
@@ -39,7 +40,7 @@ function Home() {
       <div className="new-post-wrap">
         <div className="container">
           <div className="house-topic">
-            <div className="topic-text">
+            <div className="house-topic-content">
               <h3>Residential Properties</h3>
               <p>
                 Manage listing data efficiently for streamlined rental property
@@ -55,13 +56,13 @@ function Home() {
       </div>
       <div className="container">
         <div className="pending-approve">
-          <div className="pending pa active">
+          <div className="pending pa-common active">
             <img src="material-symbols_pending-actions-rounded.svg" alt="material img" />
-            <a href="">Pending Requests</a>
+            <a href="#">Pending Requests</a>
           </div>
-          <div className="approve pa">
+          <div className="approve pa-common">
             <img src="material-symbols_pending-actions-rounded-w.svg" alt="material white img" />
-            <a href="">Approved Listings</a>
+            <a href="#">Approved Listings</a>
           </div>
         </div>
       </div>
@@ -69,7 +70,7 @@ function Home() {
       <div className="new-listing-wrap">
         <div className="container">
           <div className="new-listing">
-            <div className="h-list">
+            <div className="new-listing-wrap-list">
               <h3 className="fresh-list">36 Fresh Listings</h3>
               <img src="Ellipse 24.svg" alt="dot svg" />
               <h3 className="pending-list">136 Pending Request</h3>
@@ -81,11 +82,11 @@ function Home() {
               </div>
               <p className="filter-link color-edit">
                 <img src="majesticons_filter-line.svg" alt="filter img" />
-                <a href="">Filter</a>
+                <a href="#">Filter</a>
               </p>
               <p className="sort color-edit">
                 <img src="material-symbols_sort-rounded.svg" alt="sort img" />
-                <a href="">Sort</a>
+                <a href="#">Sort</a>
               </p>
             </div>
           </div>

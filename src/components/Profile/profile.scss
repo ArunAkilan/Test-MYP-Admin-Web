@@ -98,6 +98,10 @@ body {
     border: 1px solid #D3DDE7;
     border-radius: 6px;
 }
+
+.profileinfo-wrapper  input:focus {
+    border: 2px solid #81838C;
+}
 .profile-cmn {
     padding-bottom: 8px;
 }
@@ -142,6 +146,9 @@ body {
     letter-spacing: 0px;
     margin-bottom: 16px;
     border-radius: 6px;
+}
+#description:focus {
+    border: 2px solid #81838C;
 }
 .map-detail {
     padding: 8px;

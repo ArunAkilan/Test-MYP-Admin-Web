@@ -4,11 +4,11 @@ function Header() {
   return (
     <div className="header-wrap">
       <div className="container">
-        <header className="header">
-          <div className="logo">
+        <header className="header row">
+          <div className="logo col-3">
             <img src="PRH Admin 1.png" alt="logo image" />
           </div>
-          <div className="admin-wrap">
+          <div className="admin-wrap col-9">
             <div className="list-icon">
               <ListIcon/>
             </div>
