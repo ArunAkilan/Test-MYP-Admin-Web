@@ -8,6 +8,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 function App() {
   return (
     <div className="grid-container">
+    <div className="grid-container">
       <Header />
       <div className="container">
         <div className="row">
@@ -26,6 +27,8 @@ function App() {
       </div>
     </div>
   );
+  );
 }
 
+export default App;
 export default App;
