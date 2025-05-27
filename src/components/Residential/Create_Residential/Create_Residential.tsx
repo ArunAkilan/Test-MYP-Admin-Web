@@ -13,6 +13,7 @@ import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
 import { Button } from "@mui/material";
 import DoneIcon from "@mui/icons-material/Done";
 import CloseIcon from "@mui/icons-material/Close";
+import { Search } from "@mui/icons-material";
 
 export const CreateResidential = () => {
   return (
@@ -22,15 +23,24 @@ export const CreateResidential = () => {
         {" "}
         {/*  Fixed for mobile */}
         {/* Breadcrumbs */}
-        <div className="breadcrumbs d-flex flex-row align-items-start gap-2 mb-3">
-          <p className="breadcrumbs-p">Residential</p>
+        {/* <div className="breadcrumb d-flex flex-row align-items-start gap-2 mb-3">
+          <p className="breadcrumb-item">Residential</p>
           <img src="src/assets/_.svg" alt="" className="img-brd img-fluid" />
           <div className="newPage">
-            <p className="breadcrumbs-p1 mb-0">Create New Listing</p>
+            <p className="breadcrumb-item active" aria-current="page" >Create New Listing</p>
           </div>
-        </div>
+        </div> */}
+
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb no-decoration">
+            <li class="breadcrumb-item"><a href="#">Residential</a></li>
+            <li class="breadcrumb-item"><img src="src/assets/_.svg" alt="" className="img-brd img-fluid" /></li>
+            <li class="breadcrumb-item active text-custom-blue" aria-current="page">Create New Listing</li>
+          </ol>
+        </nav>
+
         {/* Owner Details */}
-        <div className="OwnerDetailsSection">
+        <section className="OwnerDetailsn">
           <p>Owner Details</p>
           <div className="OwnerDetailTextField">
             <div className=" container row mb-1">
@@ -55,7 +65,7 @@ export const CreateResidential = () => {
               </div>
             </div>
           </div>
-        </div>
+        </section>
         {/* Property Details */}
         <div className="PropertDetails">
           <p>Property Details</p>
@@ -67,7 +77,7 @@ export const CreateResidential = () => {
                 type="dropdown"
                 dropdownOptions={["1", "2", "3"]}
                 id="rent"
-              
+
                 // Selected="Rent"
               />
             </div>
@@ -125,36 +135,33 @@ export const CreateResidential = () => {
                 <div className="Frame2 col-12 col-md-6">
                   <label htmlFor="">Residential Category</label>
                   <div className="radio">
-                  <InputField
-                    type="radio"
-                    radioOptions={["House", "Apartment", "Villa"]}
-                    id="radio"
-                  />
+                    <InputField
+                      type="radio"
+                      radioOptions={["House", "Apartment", "Villa"]}
+                      id="radio"
+                    />
                   </div>
-                  
                 </div>
               </div>
             </div>
-             <div className="ResidentialCategory col-12 mt-3">
-          <label htmlFor="">Property Images</label>
-          <div className="d-flex flex-column flex-md-row gap-3 mt-3 mb-2 align-items-start">
-            <div>
-              <p className="image-p">No image chosen</p>
-            </div>
-            <div>
-              <Button
-                variant="contained"
-                startIcon={<FileUploadOutlinedIcon />}
-              >
-                Choose image
-              </Button>
+            <div className="ResidentialCategory col-12 mt-3">
+              <label htmlFor="">Property Images</label>
+              <div className="d-flex flex-column flex-md-row gap-3 mt-3 mb-2 align-items-start">
+                <div>
+                  <p className="image-p">No image chosen</p>
+                </div>
+                <div>
+                  <Button
+                    variant="contained"
+                    startIcon={<FileUploadOutlinedIcon />}
+                  >
+                    Choose image
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-          </div>
-          
-        </div>
-       
         {/* Area and Layout Details */}
         <div className="mt-4">
           <label htmlFor="">Area and Layout Details</label>
@@ -191,7 +198,161 @@ export const CreateResidential = () => {
             </div>
           </div>
         </div>
-        <p>Amenities</p>
+        <div className="container ">
+          <div>
+            <p>Nearby Services & Essentials</p>
+          </div>
+          <div className="mb-3">
+            {/* <p>Property Type</p> */}
+            <label htmlFor="">Select the important places or services near this property</label>
+            <div className="container d-flex flex-d-row gap-2">
+              <InputField
+                type="chip"
+                id="rent"
+                label="Separate Electricity Billing"
+                icon={<Search />}
+              />
+              <InputField
+                type="chip"
+                id="rent"
+                label="Grocery / Local Market"
+                icon={<Search />}
+              />
+              <InputField
+                type="chip"
+                id="rent"
+                label="Public Park"
+                icon={<Search />}
+              />
+              <InputField type="chip" id="rent" label="Gym" icon={<Search />} />
+              <InputField
+                type="chip"
+                id="rent"
+                label="Movie Theater"
+                icon={<Search />}
+              />
+              <InputField
+                type="chip"
+                id="rent"
+                label="Shopping Mall"
+                icon={<Search />}
+              />
+            </div>
+          </div>
+        </div>
+        <br />
+        <div className="container ">
+          <div>
+            <p>Move-In Accessibility</p>
+          </div>
+          <div className="mb-3">
+            {/* <p>Property Type</p> */}
+            <label htmlFor="">Choose how easy it is to access and move into the property</label>
+            <div className="container d-flex flex-d-row gap-2">
+              <InputField
+                type="chip"
+                id="rent"
+                label="Lift Access"
+                icon={<Search />}
+              />
+              <InputField
+                type="chip"
+                id="rent"
+                label="Ramp Access"
+                icon={<Search />}
+              />
+              <InputField
+                type="chip"
+                id="rent"
+                label="Only via Stairs"
+                icon={<Search />}
+              />
+            </div>
+          </div>
+        </div>
+        <br />
+        <div className="container ">
+          <div>
+            <p>Infrastructure & Utilities</p>
+          </div>
+          <div className="mb-3">
+            {/* <p>Property Type</p> */}
+            <label htmlFor="">Select the facilities or utilities included with the property</label>
+            <div className="container d-flex flex-d-row gap-2">
+              <InputField
+                type="chip"
+                id="rent"
+                label="Maintenance Services"
+                icon={<Search />}
+              />
+              <InputField
+                type="chip"
+                id="rent"
+                label="Water Supply Available"
+                icon={<Search />}
+              />
+              <InputField
+                type="chip"
+                id="rent"
+                label="Road Access"
+                icon={<Search />}
+              />
+              <InputField
+                type="chip"
+                id="rent"
+                label="Sewage System"
+                icon={<Search />}
+              />
+              <InputField
+                type="chip"
+                id="rent"
+                label="Parking Space"
+                icon={<Search />}
+              />
+              <InputField
+                type="chip"
+                id="rent"
+                label="Private Balcony"
+                icon={<Search />}
+              />
+              
+            </div>
+          </div>
+        </div>
+        <br />
+        <div className="container ">
+          <div>
+            <p>Occupancy Restrictions</p>
+          </div>
+          <div className="mb-3">
+            {/* <p>Property Type</p> */}
+            <label htmlFor="">Select any rules about who can stay or live in this property.</label>
+            <div className="container d-flex flex-d-row gap-2">
+              <InputField
+                type="chip"
+                id="rent"
+                label="Guests Not Allowed"
+                icon={<Search />}
+              />
+              <InputField
+                type="chip"
+                id="rent"
+                label="No Pets Allowed"
+                icon={<Search />}
+              />
+              <InputField
+                type="chip"
+                id="rent"
+                label="No Bachelors Allowed"
+                icon={<Search />}
+              />
+          
+            </div>
+          </div>
+        </div>
+        <div>
+          <p>Nearby Services & Essentials</p>
+        </div>
         <div className="mb-3">
           {/* <p>Property Type</p> */}
           <label htmlFor="">
@@ -205,30 +366,25 @@ export const CreateResidential = () => {
             Selected="Select all that apply"
           />
         </div>
-        <p>Property Details</p>
-        <div className="mb-3">
-          {/* <p>Property Type</p> */}
-          <label htmlFor="">Select accessibility that applies</label>
-          <InputField
-            type="dropdown"
-            dropdownOptions={["1", "2", "3"]}
-            id="rent"
-            label=""
-            Selected="Select all that apply"
-          />
+      </div>
+      <p>Property Details</p>
+      <div className="mb-3">
+        {/* <p>Property Type</p> */}
+        <label htmlFor="">Select accessibility that applies</label>
+        <InputField type="chip" id="rent" label="hi" icon={<Search />} />
+      </div>
+
+      {/* Buttons */}
+      <div className="d-flex flex-column flex-md-row justify-content-end gap-3 gap-md-4 mt-4 mb-4">
+        <div>
+          <Button variant="outlined" startIcon={<CloseIcon />}>
+            discard changes
+          </Button>
         </div>
-        {/* Buttons */}
-        <div className="d-flex flex-column flex-md-row justify-content-end gap-3 gap-md-4 mt-4 mb-4">
-          <div>
-            <Button variant="outlined" startIcon={<CloseIcon />}>
-              discard changes
-            </Button>
-          </div>
-          <div>
-            <Button variant="contained" startIcon={<DoneIcon />}>
-              Create new listing
-            </Button>
-          </div>
+        <div>
+          <Button variant="contained" startIcon={<DoneIcon />}>
+            Create new listing
+          </Button>
         </div>
       </div>
     </div>

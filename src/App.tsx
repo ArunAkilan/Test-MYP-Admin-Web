@@ -4,8 +4,9 @@ import Sidebar from "./components/Common/Sidebar/Sidebar";
 import Home from "./components/Dashboard/Dashboard";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { CreateResidential } from "./components/Residential/Create_Residential/Create_Residential";
+import Profile from "./components/Profile/Profile";
 
- 
+
 function App() {
   return (
    

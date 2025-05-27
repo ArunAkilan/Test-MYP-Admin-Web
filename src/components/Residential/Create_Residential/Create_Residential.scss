@@ -1,3 +1,37 @@
+$theme-colors: (
+  "primary": #0d6efd,
+  "custom-blue": #1F3B73
+);
+
+
+.breadcrumb {
+    .breadcrumb-item {
+      a {
+        text-decoration: none; // Remove underline
+        font-weight: normal;   // Remove bold
+        color: inherit;        // Optional: keep same color
+      }
+  
+      &.active {
+        font-weight: normal; // Not bold
+      }
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // .breadcrumbs{
 //     display:flex;
 //     gap:4px;
