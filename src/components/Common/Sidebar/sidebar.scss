@@ -1,0 +1,14 @@
+.d-list.delete {
+    background: #F5E7E4;
+    border-radius: 6px;
+}
+.d-list.delete a {
+    color: #E56A5C;
+}
+
+@media only screen and (max-width:664px) {
+    .d-list.active::after  {
+        left: -12px;
+        top: 8px;
+    }
+}

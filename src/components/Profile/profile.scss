@@ -1,0 +1,257 @@
+body {
+    font-family: 'Open Sans';
+}
+
+.profile-wrapper {
+    padding: 32px 32px 32px 25px;
+}
+
+.account-manage h3 {
+    font-family: 'Raleway';
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 18px;
+    letter-spacing: 0px;
+    vertical-align: Middle;
+    margin-bottom: 0;
+    color: #2E2E2F;
+}
+.map-class {
+    width: 100%;
+    max-height: 232px;
+}
+.profile-img {
+    padding: 16px 0;
+    width: 100%;
+}
+.edit-view {
+    display: flex;
+    flex-direction: column;
+}
+.edit-view img {
+    padding-right: 8px;
+}
+.edit-photo {
+    background: #214999;
+    font-family: 'Open Sans';
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 100%;
+    letter-spacing: 0px;
+    color: #fff;
+    border-radius: 4px;
+    outline: none;
+    border: none;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+.view-profile {
+    border: 1px solid #D3DDE7;
+    font-family: 'Open Sans';
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 100%;
+    letter-spacing: 0px;
+    color: #2E2E2F;
+    border-radius: 4px;
+    outline: none;
+    padding: 16px;
+}
+
+.profileinfo-wrapper h3 {
+    color: #2E2E2F;
+    font-family: 'Raleway';
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 18px;
+    letter-spacing: 0px;
+    vertical-align: Middle;
+    margin-bottom: 0;
+    padding-bottom: 24px;
+}
+.name:not(:nth-child){
+  padding-right: 16px;
+}
+.profileinfo-wrapper label , .profileinfo-wrapper  input {
+    width: 100%;
+}
+.profileinfo-wrapper label {
+    padding: 0 0 8px 8px;
+    font-family: 'Open Sans';
+    font-weight: 400;
+    font-size: 16px;
+    line-height:18px;
+    letter-spacing: 0px;
+    vertical-align: Middle;
+    color: #2E2E2F;
+}
+.profileinfo-wrapper  input {
+    margin-bottom: 16px;
+    padding: 11px 8px;
+    color: #55565C;
+    outline: none;
+    font-family: 'Open Sans';
+    font-weight: 400;
+    font-size: 14px;
+    line-height:18px;
+    letter-spacing: 0px;
+    border: 1px solid #D3DDE7;
+    border-radius: 6px;
+}
+.profile-cmn {
+    padding-bottom: 8px;
+}
+.col-md-6.right-align {
+    padding-right: 8px;
+}
+.col-md-6.left-align {
+    padding-left: 8px;
+}
+.gender-formcontrol {
+    padding-bottom: 16px;
+}
+.email-verify {
+    display: flex;
+}
+.email-verify p {
+    margin-bottom: 0;
+    color: #214999;
+    font-family: 'Raleway';
+    font-weight: 600;
+    font-size: 16px;
+    line-height:18px;
+    letter-spacing: 0px;
+    vertical-align: Middle;
+}
+.phone-verify {
+    display: flex;
+    align-items: center;
+}
+#description {
+    width: 100%;
+    height: 152px;
+    outline: none;
+    border: 1px solid #D3DDE7;
+    padding: 8px;
+    color: #55565C;
+    outline: none;
+    font-family: 'Open Sans';
+    font-weight: 400;
+    font-size: 14px;
+    line-height:18px;
+    letter-spacing: 0px;
+    margin-bottom: 16px;
+    border-radius: 6px;
+}
+.map-detail {
+    padding: 8px;
+    border: 1px solid #D3DDE7;
+    border-radius: 6px;
+    margin-bottom: 16px;
+}
+.map-class {
+    padding-bottom: 17px;
+}
+.address-locate {
+    padding: 7px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.address-locate  #address {
+    color: #55565C;
+    font-family: 'Open Sans';
+    font-weight: 400;
+    font-size: 14px;
+    line-height:18px;
+    letter-spacing: 0px;
+}
+.address-locate  .locate-me {
+    color: #214999;
+    font-family: 'Open Sans';
+    font-weight: 400;
+    font-size: 12px;
+    line-height:18px;
+    letter-spacing: 0.6px;
+}
+.locate-me img {
+    padding-right: 8px;
+}
+
+.google,.facebook {
+    border: 1px solid #D3DDE7;
+    padding: 22px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 6px;
+}
+.google p,.facebook p {
+    margin-bottom: 0;
+    color: #55565C;
+    font-family: 'Open Sans';
+    font-weight: 400;
+    font-size: 14px;
+    line-height:18px;
+    letter-spacing: 0px;
+    padding-right: 16px;
+}
+.google img,.facebook img {
+    padding-right: 8px;
+}
+.google {
+    margin-bottom: 8px;
+}
+.connect {
+    display: flex;
+    align-items: center;
+}
+.connect p {
+    margin-bottom: 0;
+}
+.google button,.facebook button {
+    width: 65px;
+    font-family: 'Open Sans';
+    font-weight: 400;
+    font-size: 14px;
+    line-height:18px;
+    letter-spacing: 0px;
+    text-align: end;
+    border: none;
+    background: #fff;
+}
+.google-btn {
+    color: #214999;
+}
+.fb-btn {
+   color: #E56A5C; 
+}
+.discard-save {
+    margin-top: 25px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+#discard-save .genericSaveBtnStyles{
+    width: 165px;
+    text-align: center;
+    justify-content: center;
+    background-color: #214999;
+     font-family: 'Raleway';
+    font-weight: 600;
+    font-size: 14px;
+    line-height:18px;
+    letter-spacing: 0px;
+}
+#discard-save .genericdiscardchangeStyles {
+    background: #fff;
+    border: 1px solid #D3DDE7;
+    color: #2E2E2F;
+    justify-content: center;
+    margin-right: 16px;
+    font-family: 'Raleway';
+    font-weight: 600;
+    font-size: 14px;
+    line-height:18px;
+    letter-spacing: 0px;
+}

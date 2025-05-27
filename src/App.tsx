@@ -24,15 +24,15 @@ function App() {
                 path="/createResidential"
                 element={<CreateResidential />}
               />
+                <Route path="/" element={<Home />} />
+                <Route path="/Profile" element={<Profile />} />
               </Routes>
             </Router>
           </div>
         </div>
       </div>
     </div>
- 
   );
 }
- 
+
 export default App;
- 
