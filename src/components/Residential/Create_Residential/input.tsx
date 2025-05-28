@@ -5,11 +5,13 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import type { SelectChangeEvent } from "@mui/material"; // ✅
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormLabel from '@mui/material/FormLabel';
-
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormLabel from "@mui/material/FormLabel";
+import Chip from "@mui/material/Chip";
+import Stack from "@mui/material/Stack";
+import FaceIcon from "@mui/icons-material/Face";
 
 // type Option = {
 //   label: string;
@@ -41,7 +43,9 @@ const InputField: React.FC<InputFieldProps> = ({
   id,
   dropdownOptions,
   Selected,
-  radioOptions
+  radioOptions,
+  icon
+  
 }) => {
   const [rent, setRent] = React.useState("");
 
@@ -57,7 +61,7 @@ const InputField: React.FC<InputFieldProps> = ({
             <label className="form-label">{label}</label>
 
             <TextField
-           fullWidth  
+              fullWidth
               id={id}
               sx={{
                 height: 40, // overall height
@@ -102,29 +106,32 @@ const InputField: React.FC<InputFieldProps> = ({
         </>
       )}
 
-      {
-        type === 'radio' && (
-          <FormControl>
-          <FormLabel id="demo-row-radio-buttons-group-label" >{label}</FormLabel>
+      {type === "radio" && (
+        <FormControl>
+          <FormLabel id="demo-row-radio-buttons-group-label">{label}</FormLabel>
           <RadioGroup
             row
             aria-labelledby="demo-row-radio-buttons-group-label"
             name="row-radio-buttons-group"
           >
-{radioOptions.map((Options,index)=>(
-              <FormControlLabel key={index} value={Options} control={<Radio />} label={Options} />
-
-))}    
- 
+            {radioOptions.map((Options, index) => (
+              <FormControlLabel
+                key={index}
+                value={Options}
+                control={<Radio />}
+                label={Options}
+              />
+            ))}
           </RadioGroup>
         </FormControl>
-        )
-      }
+      )}
+          {type === "chip" && (
+       <Stack direction="row" spacing={1}>
+       <Chip icon={icon} label={label} variant="outlined" />
+     </Stack>
+      )}
     </div>
   );
 };
- 
 
- 
- 
 export default InputField;

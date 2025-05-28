@@ -4,6 +4,9 @@ import Profile from "./components/Profile/Profile";
 import Home from "./components/Dashboard/Dashboard";
 import { CreateResidential } from "./components/Residential/Create_Residential/Create_Residential";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { CreateResidential } from "./components/Residential/Create_Residential/Create_Residential";
+import Profile from "./components/Profile/Profile";
+
 
 function App() {
   return (
@@ -13,6 +16,11 @@ function App() {
       <div className="container">
             <Router>
               <Routes>
+              <Route path="/" element={<Home />} />
+              <Route
+                path="/createResidential"
+                element={<CreateResidential />}
+              />
                 <Route path="/" element={<Home />} />
                 <Route path="/Profile" element={<Profile />} />
                 <Route path="/createResidential" element={<CreateResidential />}/>
