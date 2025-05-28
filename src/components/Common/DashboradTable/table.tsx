@@ -1,7 +1,3 @@
-import EditIcon from "@mui/icons-material/Edit";
-import DoneIcon from "@mui/icons-material/Done";
-import CloseIcon from "@mui/icons-material/Close";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import "./table.scss";
 
 function Table() {
@@ -43,7 +39,7 @@ function Table() {
             className="furnish"
             data-bs-toggle="tooltip"
             data-bs-placement="bottom"
-            title="Unfinished"
+            title="Unfurnished"
           >
             Unfurnis...
           </td>
@@ -52,10 +48,10 @@ function Table() {
           </td>
           <td className="Links">
             <div className="link-wrap">
-              <EditIcon className="link-grey-bg link-icon" />
-              <DoneIcon className="link-grey-bg link-icon" />
-              <CloseIcon className="link-grey-bg link-icon" />
-              <DeleteOutlineIcon className="link-orange-bg link-icon" />
+              <img src="Edit.svg" alt="Edit svg" />
+              <img src="Approve.svg" alt="Approve svg" />
+              <img src="Deny.svg" alt="Deny svg" />
+              <img src="Delete.svg" alt="Delete img" />
             </div>
           </td>
         </tr>
@@ -90,10 +86,10 @@ function Table() {
           </td>
           <td className="Links">
             <div className="link-wrap">
-              <EditIcon className="link-grey-bg link-icon" />
-              <DoneIcon className="link-grey-bg link-icon" />
-              <CloseIcon className="link-grey-bg link-icon" />
-              <DeleteOutlineIcon className="link-orange-bg link-icon" />
+              <img src="Edit.svg" alt="Edit svg" />
+              <img src="Approve.svg" alt="Approve svg" />
+              <img src="Deny.svg" alt="Deny svg" />
+              <img src="Delete.svg" alt="Delete img" />
             </div>
           </td>
         </tr>
@@ -128,10 +124,10 @@ function Table() {
           </td>
           <td className="Links">
             <div className="link-wrap">
-              <EditIcon className="link-grey-bg link-icon" />
-              <DoneIcon className="link-grey-bg link-icon" />
-              <CloseIcon className="link-grey-bg link-icon" />
-              <DeleteOutlineIcon className="link-orange-bg link-icon" />
+              <img src="Edit.svg" alt="Edit svg" />
+              <img src="Approve.svg" alt="Approve svg" />
+              <img src="Deny.svg" alt="Deny svg" />
+              <img src="Delete.svg" alt="Delete img" />
             </div>
           </td>
         </tr>

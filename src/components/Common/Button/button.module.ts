@@ -1,4 +1,4 @@
-interface GenericButtonProps {
+export default interface GenericButtonProps {
   label: string;
   onClick: () => void;
   type?: "button" | "submit" | "reset";

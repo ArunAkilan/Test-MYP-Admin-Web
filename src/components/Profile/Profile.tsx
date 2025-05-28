@@ -10,22 +10,17 @@ import CloseIcon from '@mui/icons-material/Close';
 import DoneIcon from '@mui/icons-material/Done';
 import './Profile.module'
 import Sidebar from "../Common/Sidebar/Sidebar";
-import PersonIcon from "@mui/icons-material/Person";
-import EditNoteIcon from "@mui/icons-material/EditNote";
-import StarIcon from "@mui/icons-material/Star";
+
 
 const Profile: React.FC = () => {
     const sidebarData = [
-    { id: 1, name: "profile", icon: PersonIcon },
-    { id: 2, name: "Bob", icon: EditNoteIcon },
-    { id: 3, name: "Charlie", icon: StarIcon },
+    { id: 1, name: "profile", icon: "iconamoon_profile-light.svg", alt: "profile img"},
+    { id: 2, name: "Your Properties", icon: "Task.svg", alt: "Task img"},
+    { id: 3, name: "Your Favorite", icon: "solar_star-line-duotone.svg", alt: "star img" },
   ];
   return (
-      <div className="row">
-        <div className="col-4 col-md-3">
-            <Sidebar sidebarData={sidebarData}  />
-          </div>
-    <div className="col-8 col-md-9 profile-wrapper">
+      
+    <div className="profile-wrapper">
       <div className="row ">
         <div className="col-md-4 account-manage">
           <h3>Account management</h3>
@@ -209,7 +204,7 @@ const Profile: React.FC = () => {
         </div>
       </div>
     </div>
-      </div>
+      
   );
 };
 

@@ -1,6 +1,6 @@
 import React from "react";
 import "./button.scss";
-import './button.module'
+import type GenericButtonProps from './button.module'
 
 export type ButtonVariant = "primary" | "secondary" | "success" | "danger";
 

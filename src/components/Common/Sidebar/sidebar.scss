@@ -1,81 +1,19 @@
-.dash-list {
-  padding: 32px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 100%;
+.tab-row {
+  flex-grow: 1;
+  display: 'flex';
+  height: '100%';
+  width: 100%;
 }
-.dash-list svg,.dash-list img {
-  margin-right: 6px;
-}
-.bottom-list,.list-top {
-  display: flex;
-  flex-direction: column;
-}
-.dash-list-keys  {
-    padding: 12px 16px 12px 16px;
-    display: flex;
-    align-items: center;
-    width: max-content;
-    margin-bottom: 16px;
+.css-oewvya-MuiTabs-indicator {
+  left: 0;
 }
 
-.dash-list-keys a {
-  text-decoration: none;
-  color: #55565C;
+ .tab-navs {
+   padding-top: 32px;
+ }
+
+.nav-tabs {
   font-size: 16px;
-  font-weight: 600;
-  line-height: 18px;
-  letter-spacing: 0px;
-  font-family: 'Open Sans';
-}
-.dash-list-keys.active { 
-  position: relative;
-}
-.dash-list-keys.active::after {
-  content: "";
-  position: absolute;
-  left: -8px;
-  top: 14px;
-  width: 8px;
-  height: 22px;
-  border-radius: 100px;
-  background: #00BFA6;
-}
-.dash-list-keys.active a {
-  color: #1F3B73;
-}
-
-.dash-list-keys.delete {
-    background: #F5E7E4;
-    border-radius: 6px;
-    margin-bottom: 0;
-}
-.dash-list-keys.delete a {
-    color: #E56A5C;
-}
-
-@media only screen and (max-width:992px) {
-  
-   .dash-list  {
-    padding: 15px;
-  }
-  .dash-list-keys-list {
-    padding: 6px 10px 6px 0px;
-    width: max-content;
-  }
-}
-@media only screen and (max-width:664px) {
-    .dash-list-keys.active::after  {
-        left: -12px;
-        top: 14px;
-    }
-    .dash-list-keys {
-      padding: 12px 0;
-    }
-}
-@media only screen and (max-width:440px)  {
-    .dash-list-keys a {
-        font-size: 12px;
-    }
+  color: #646464;
+  margin-left: 10px;
 }

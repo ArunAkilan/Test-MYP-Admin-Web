@@ -11,7 +11,7 @@
   display: none;
 }
 .admin-wrap {
-  padding: 40px 24px;
+  padding: 40px 12px 40px 24px;
   position: relative;
 }
 .admin {
@@ -30,7 +30,7 @@
   width: 397px;
   height: 48px;
 }
-.h-search svg {
+.h-search img {
   position: absolute;
   left: 18px;
   top: 13px;
@@ -70,7 +70,7 @@
   font-weight: 500;
   line-height: normal;
 }
-.bell svg {
+.bell-image {
   margin-right: 32px;
 }
 .setting-image {

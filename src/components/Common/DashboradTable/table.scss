@@ -81,21 +81,10 @@ td  {
   color: #6E6EE9;
   background: #E4E4F5;
 }
-.link-icon {
-  width: 20px ;
-  height: 20px;
-  padding: 4px;
-  border-radius: 2px;
+.link-wrap img:not(:last-child) {
   margin-right: 10px;
 }
-.link-grey-bg  {
-  background: #F2F4F7;
-  color: #B8BABF;
-}
-.link-orange-bg {
-  background: #F5E4E4;
-  color: #E55C5C;
-}
+
 .checkbox-align input {
   display: flex;
 }
