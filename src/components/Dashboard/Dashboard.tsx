@@ -4,11 +4,11 @@ import axios from "axios";
 import type User from "./Dashboard.model";
 import Table from "../Common/DashboradTable/table";
 import "./Dashboard.scss";
+import GenericButton from "../Common/Button/button";
+import AddIcon from "@mui/icons-material/Add";
 import { Link } from "react-router-dom";
- 
-function Home() {
- 
 
+function Home() {
   const [users, setUsers] = useState<User[]>([]); // ✅ Correct
   console.log("user", users);
   const [loading, setLoading] = useState<boolean>(true);
@@ -39,80 +39,83 @@ function Home() {
   if (error) return <p>Error: {error}</p>;
 
   return (
-    
-      <div className="home-sec ">
-        <div className="new-post-wrap">
-          <div className="container">
-            <div className="house-topic">
-              <div className="house-topic-content">
-                <h3>Residential Properties</h3>
-                <p>
-                  Manage listing data efficiently for streamlined rental
-                  property tracking
-                </p>
-              </div>
-              <button className="new-post">
-                <img src="ICO_Add-1.svg" alt="add svg" />
-                Add New Post
-              </button>
+    <div className="home-sec ">
+      <div className="new-post-wrap">
+        <div className="container">
+          <div className="house-topic">
+            <div className="house-topic-content">
+              <h3>Residential Properties</h3>
+              <p>
+                Manage listing data efficiently for streamlined rental property
+                tracking
+              </p>
             </div>
+
+            <GenericButton
+              onClick={() => alert("Data saved!")}
+              variant="primary"
+              icon={<AddIcon />}
+              iconPosition="left"
+              label={"Add New Post"}
+              className="genericNewPostStyles"
+            />
           </div>
         </div>
-        <div className="container">
-          <div className="pending-approve">
-            <div className="pending pa-common active">
-              <img
-                src="material-symbols_pending-actions-rounded.svg"
-                alt="material img"
-              />
-              {/* <Link to="pending" className="Link">
+      </div>
+      <div className="container">
+        <div className="pending-approve">
+          <div className="pending pa-common active">
+            <img
+              src="material-symbols_pending-actions-rounded.svg"
+              alt="material img"
+            />
+            {/* <Link to="pending" className="Link">
                 Pending Requests
               </Link> */}
-            </div>
-            <div className="approve pa-common">
-              <img
-                src="material-symbols_pending-actions-rounded-w.svg"
-                alt="material white img"
-              />
-              {/* <Link to="Approve" className="Link">
+          </div>
+          <div className="approve pa-common">
+            <img
+              src="material-symbols_pending-actions-rounded-w.svg"
+              alt="material white img"
+            />
+            {/* <Link to="Approve" className="Link">
                 Approved Listings
               </Link> */}
-            </div>
           </div>
         </div>
+      </div>
 
-        <div className="new-listing-wrap">
-          <div className="container">
-            <div className="new-listing">
-              <div className="new-listing-wrap-list">
-                <h3 className="fresh-list">36 Fresh Listings</h3>
-                <img src="Ellipse 24.svg" alt="dot svg" />
-                <h3 className="pending-list">136 Pending Request</h3>
+      <div className="new-listing-wrap">
+        <div className="container">
+          <div className="new-listing">
+            <div className="new-listing-wrap-list">
+              <h3 className="fresh-list">36 Fresh Listings</h3>
+              <img src="Ellipse 24.svg" alt="dot svg" />
+              <h3 className="pending-list">136 Pending Request</h3>
+            </div>
+            <div className="list-panel">
+              <div className="search">
+                <input type="search" placeholder="Search Property" />
+                <img src="Search-1.svg" alt="search svg" />
               </div>
-              <div className="list-panel">
-                <div className="search">
-                  <input type="search" placeholder="Search Listings" />
-                  <img src="Search-1.svg" alt="search svg" />
-                </div>
-                <p className="filter-link color-edit">
-                  <img src="majesticons_filter-line.svg" alt="filter img" />
-                  {/* <Link to="filter" className="Link">
+              <p className="filter-link color-edit">
+                <img src="majesticons_filter-line.svg" alt="filter img" />
+                {/* <Link to="filter" className="Link">
                     Filter
                   </Link> */}
-                </p>
-                <p className="sort color-edit">
-                  <img src="material-symbols_sort-rounded.svg" alt="sort img" />
-                  {/* <Link to="sort" className="Link">
+              </p>
+              <p className="sort color-edit">
+                <img src="material-symbols_sort-rounded.svg" alt="sort img" />
+                {/* <Link to="sort" className="Link">
                     Sort
                   </Link> */}
-                </p>
-              </div>
+              </p>
             </div>
           </div>
         </div>
-        <Table />
       </div>
-    
+      <Table />
+    </div>
   );
 }
 

@@ -8,16 +8,12 @@ import locateMe from "../../../public/mingcute_location-line.svg";
 import GenericButton from "../Common/Button/button";
 import CloseIcon from '@mui/icons-material/Close';
 import DoneIcon from '@mui/icons-material/Done';
-import './Profile.module'
-import Sidebar from "../Common/Sidebar/Sidebar";
+import './Profile.model'
+
 
 
 const Profile: React.FC = () => {
-    const sidebarData = [
-    { id: 1, name: "profile", icon: "iconamoon_profile-light.svg", alt: "profile img"},
-    { id: 2, name: "Your Properties", icon: "Task.svg", alt: "Task img"},
-    { id: 3, name: "Your Favorite", icon: "solar_star-line-duotone.svg", alt: "star img" },
-  ];
+
   return (
       
     <div className="profile-wrapper">

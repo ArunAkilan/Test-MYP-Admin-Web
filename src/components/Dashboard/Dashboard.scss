@@ -1,5 +1,14 @@
 .home-sec {
-    padding: 32px 0 32px 12px;
+    padding: 32px 0 32px 30px;
+}
+.col-md-9.tab-content {
+  padding: 0;
+}
+.home-sec .container {
+  padding: 0;
+}
+.css-19kzrtu {
+    padding: 0 !important;
 }
 .house-topic {
   justify-content: space-between;
@@ -24,22 +33,21 @@
     line-height: normal;
     letter-spacing: 0.384px;
 }
-.new-post {
+.genericNewPostStyles {
   padding: 14px 24px;
-  border-radius: 2px;
-  background: #1F3B73;
-  box-shadow: 4px 8px 16px 0px rgba(138, 182, 229, 0.06), 2px 4px 8px 0px rgba(178, 178, 178, 0.04), 1px 2px 4px 0px rgba(178, 178, 178, 0.04), 0px 1px 2px 0px rgba(178, 178, 178, 0.04);
+  border-radius: 8px;
+  background: #214999;
   font-size: 16px;
-  flex-shrink: 0;
   color: #fff;
-  outline: none;
-  border: none;
   height: 48px;
-  font-weight: 500;
-  line-height: 100%;
-  display: inline-flex;
-  align-items: center;
+  font-weight: 600;
+  line-height: 18px;
   letter-spacing: 0px;
+  font-family: 'Raleway';
+}
+.genericNewPostStyles:hover {
+  background: 1px solid #214999;
+  color: #fff;
 }
 .new-post img {
   margin-right: 8px;
@@ -173,13 +181,15 @@
 .search input {
   padding: 9px 8px 9px 40px;
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 400;
   color: #2E2E2F ;
   border: 1px solid #D8DEE5;
   outline: none;
   border-radius: 2px;
-  width: 169px;
+  width: 185px;
   height: 48px;
+  letter-spacing: 0px;
+  font-family: 'Open Sans';
 }
 .search input::placeholder {
   color: #2E2E2F ;
@@ -226,7 +236,9 @@
 }
 @media only screen and (max-width:792px) {
 
-
+  .home-sec .container {
+    padding: 0 12px;
+  }
   .pa-common.active::after {
     content: none;
   }

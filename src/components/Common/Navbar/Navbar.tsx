@@ -46,7 +46,7 @@ const Header: React.FC<navbarData> = ({
                     variant="primary"
                     iconPosition="left"
                     label={"Post Your Property"}
-                    className="postYourProperty"
+                    className="genericPostYourProperty"
                   />
                 )}
               </div>

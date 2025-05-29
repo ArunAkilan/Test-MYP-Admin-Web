@@ -7,7 +7,20 @@ import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Home from "../../Dashboard/Dashboard";
-import dashboardmage from '../../../../public/Dash.svg'
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import AssignmentIcon from "@mui/icons-material/Assignment";
+import PersonIcon from "@mui/icons-material/Person";
+
+const styles = {
+  fontSize: 16,
+  display: "flex",
+  alignItems: "start",
+  Padding: 0,
+  fontFamily: "Raleway",
+  fontWeight: 600,
+  letterSpacing: 0,
+  lineHeight: 18,
+};
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -51,50 +64,45 @@ export default function VerticalTabs() {
 
   return (
     <div className="tab-row row">
-      <div className="col-md-3 tab-navs">
+      <div className="col-md-3 nav-tabs">
         <Tabs
           orientation="vertical"
-          variant="scrollable"
           value={value}
           onChange={handleChange}
+          variant="fullWidth"
           aria-label="Vertical tabs example"
           sx={{}}
         >
-          <Tab sx={{
-            fontSize: 16,
-            display: 'flex',
-            alignItems: 'start',
-            paddingLeft: 5,
-            fontFamily: 'Raleway',
-             fontWeight: 600
-            }} 
-            label="Dashboard" {...a11yProps(0)} />
-          <Tab  sx={{
-            fontSize: 16,
-            display: 'flex',
-            alignItems: 'start',
-            paddingLeft: 5,
-            fontFamily: 'Raleway',
-             fontWeight: 600
-            }} 
-            label="Commercial" {...a11yProps(1)} />
-          <Tab  sx={{
-            fontSize: 16,
-            display: 'flex',
-            alignItems: 'start',
-            paddingLeft: 5,
-            fontFamily: 'Raleway',
-             fontWeight: 600
-            }} 
-           label="Residential" {...a11yProps(2)} />
-          <Tab  sx={{
-            fontSize: 16,
-            display: 'flex',
-            alignItems: 'start',
-            paddingLeft: 5,
-            fontFamily: 'Raleway',
-            fontWeight: 600
-            }}    label="Profile" {...a11yProps(3)} />
+          <Tab
+            className="tab-outerlayer-div"
+            sx={{ styles }}
+            icon={<DashboardIcon />}
+            label="Dashboard"
+            {...a11yProps(0)}
+          />
+
+          <Tab
+            sx={{ styles }}
+            label="Commercial"
+            {...a11yProps(1)}
+            icon={<AssignmentIcon />}
+            id="tab-custom"
+            className="tab-outerlayer-div"
+          />
+          <Tab
+            sx={{ styles }}
+            label="Residential"
+            {...a11yProps(2)}
+            icon={<DashboardIcon />}
+            className="tab-outerlayer-div"
+          />
+          <Tab
+            sx={{ styles }}
+            label="Profile"
+            {...a11yProps(3)}
+            icon={<PersonIcon />}
+            className="tab-outerlayer-div "
+          />
         </Tabs>
       </div>
       <div className="col-md-9 tab-content">

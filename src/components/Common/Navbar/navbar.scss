@@ -76,7 +76,21 @@
 .setting-image {
     padding-right: 32px;
 }
-
+.genericPostYourProperty {
+  padding: 15px 24px !important;
+  border-radius: 8px !important;
+  background: #214999 !important;
+  font-size: 16px;
+  color: #fff;
+  height: 48px;
+  font-weight: 600;
+  line-height: 18px;
+  letter-spacing: 0px;
+  font-family: 'Raleway';
+}
+.genericPostYourProperty:hover {
+  color: #fff;
+}
 @media only screen and (max-width:992px) {
 
   .admin-wrap {
