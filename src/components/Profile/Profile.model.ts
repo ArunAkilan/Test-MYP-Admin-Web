@@ -14,11 +14,10 @@ export default interface ProfileForm {
         secondaryPhone? : string;
     }
     location: {
-        longitude: string;
-        latitude: string;
+        longitude: number;
+        latitude: number;
         address: string;
     }
     description: string;
     profilePicture: string;
-    
 }

@@ -1,21 +1,93 @@
-import React from "react";
+import React,{useState} from "react";
 import profilePicture from "../../../public/ProPic.svg";
-import imagemap from "../../../public/imap.png";
 import "./profile.scss";
 import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import verifiedProfile from "../../../public/ICON_Verified.svg";
 import locateMe from "../../../public/mingcute_location-line.svg";
 import GenericButton from "../Common/Button/button";
-import CloseIcon from '@mui/icons-material/Close';
-import DoneIcon from '@mui/icons-material/Done';
-import './Profile.model'
+import CloseIcon from "@mui/icons-material/Close";
+import DoneIcon from "@mui/icons-material/Done";
+import "./Profile.model";
+import axios from "axios";
+import { useMemo } from "react";
+import { GoogleMap, useLoadScript, Marker } from "@react-google-maps/api";
 
+const GOOGLE_MAPS_API_KEY = "AIzaSyBkd62F4-RAtFP8w4rNd0qeQfycp1vokpo"
 
+interface ProfileProps {
+  latitude: number;
+  longitude: number;
+}
+
+  const defaultCenter = {
+  lat: 11.2342,  
+  lng: 78.8688,
+};
 
 const Profile: React.FC = () => {
+ const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: GOOGLE_MAPS_API_KEY,
+  });
+    const [location, setLocation] = useState(defaultCenter);
+
+  if (loadError) {
+    return <div>Error loading maps</div>;
+  }
+  if (!isLoaded) {
+    return <div>Loading maps</div>;
+  }
+
+
+  const handleSubmit = async () => {
+    const profileInformation1 = {
+      profileInformation: {
+        firstName: "John",
+        lastName: "Doe",
+        gender: "Prefer not to say",
+      },
+      contactInformation: {
+        email: "john.doe@example.com",
+        primaryPhone: "+1234567890",
+        secondaryPhone: "+0987654321",
+      },
+      location: {
+        map: {
+          longitude: 77.5946,
+          latitude: 12.9716,
+        },
+        address: "123 Main Street, Sample City, Country",
+      },
+      profilePicture: "https://example.com/images/johndoe.jpg",
+      role: "User",
+      description:
+        "Experienced software developer with a passion for full-stack applications.",
+    };
+
+    try {
+      const response = await axios.post(
+        "http://192.168.1.70:3001/api/profile/create",
+        profileInformation1
+      );
+      console.log("User added:", response.data);
+      //setData(profileInformation);
+    } catch (error) {
+      console.error("Error adding user:", error);
+    }
+  };
+
+
+    const handleMapClick = (event: google.maps.MapMouseEvent) => {
+    if (event.latLng) {
+      const lat = event.latLng.lat();
+      const lng = event.latLng.lng();
+      setLocation({ lat, lng });
+    }
+  };
+  // useEffect(() => {
+  //   handleSubmit();
+  // }, []);
 
   return (
-      
     <div className="profile-wrapper">
       <div className="row ">
         <div className="col-md-4 account-manage">
@@ -35,6 +107,7 @@ const Profile: React.FC = () => {
               View Profile
             </button>
           </div>
+          
         </div>
         <div className="col-md-8 profileinfo-wrapper">
           <div className="profile-info profile-cmn">
@@ -63,9 +136,18 @@ const Profile: React.FC = () => {
           <div className="gender profile-cmn">
             <label htmlFor="gender">Gender</label>
             <div>
-              <FormControl 
-              sx={{ fontSize: 14,borderRadius: '6px',border: 1,borderColor: '#D3DDE7',marginBottom: '20px' }} 
-              size="small" className="postformcontrol" fullWidth>
+              <FormControl
+                sx={{
+                  fontSize: 14,
+                  borderRadius: "6px",
+                  border: 1,
+                  borderColor: "#D3DDE7",
+                  marginBottom: "20px",
+                }}
+                size="small"
+                className="postformcontrol"
+                fullWidth
+              >
                 <InputLabel id="gender-label">Gender</InputLabel>
                 <Select labelId="gender-label" id="gender" label="Gender">
                   <MenuItem>male</MenuItem>
@@ -146,8 +228,18 @@ const Profile: React.FC = () => {
             </div>
             <label htmlFor="location">Your Location</label>
             <div className="map-detail">
-              <img src={imagemap} className="map-class" alt="imap img" />
-              <div className="address-locate">
+<div>
+ 
+              <GoogleMap
+                mapContainerStyle={{ width: "100%", height: "300px" }}
+                center={defaultCenter}
+                zoom={10}
+                 onClick={handleMapClick}
+              >
+                  <Marker position={location} />
+              </GoogleMap>
+            
+          </div>              <div className="address-locate">
                 <span id="address">Vadakku mathavi road,Perambalur</span>
                 <span className="locate-me">
                   <img src={locateMe} alt="LOCATE ICON" />
@@ -189,7 +281,7 @@ const Profile: React.FC = () => {
               className="genericdiscardchangeStyles"
             />
             <GenericButton
-              onClick={() => alert("Data saved!")}
+              onClick={handleSubmit}
               variant="primary"
               icon={<DoneIcon />}
               iconPosition="left"
@@ -200,7 +292,6 @@ const Profile: React.FC = () => {
         </div>
       </div>
     </div>
-      
   );
 };
 
