@@ -10,6 +10,7 @@ import DoneIcon from "@mui/icons-material/Done";
 import "./Profile.model";
 import axios from "axios";
 import { GoogleMap, useLoadScript, Marker } from "@react-google-maps/api";
+import { FileUpload } from "@mui/icons-material";
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyBkd62F4-RAtFP8w4rNd0qeQfycp1vokpo";
 
@@ -99,6 +100,7 @@ const Profile: React.FC = () => {
               View Profile
             </button>
           </div>
+          <FileUpload />
         </div>
         <div className="col-md-8 profileinfo-wrapper">
           <div className="profile-info profile-cmn">

@@ -64,7 +64,7 @@ export default function VerticalTabs() {
 
   return (
     <div className="tab-row row">
-      <div className="col-md-3 nav-tabs">
+      <div id="nav-common-tab" className="col-md-3 nav-tabs">
         <Tabs
           orientation="vertical"
           value={value}

@@ -21,7 +21,7 @@
   flex-direction: row !important;
   justify-content: start !important;
   padding-left: 24px !important;
-  height: 48 !important;
+  height: 48px !important;
 }
 .tab-outerlayer-div  svg {
   margin-bottom: 2px !important;
@@ -30,7 +30,9 @@
 .css-19kzrtu {
   padding: 0;
 }
-
+#nav-common-tab button {
+  height: 48px;
+}
 @media only screen and (max-width:992px) {
   .nav-tabs {
     padding: 32px 12px;
