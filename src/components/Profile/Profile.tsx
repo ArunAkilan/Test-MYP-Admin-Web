@@ -1,4 +1,4 @@
-import React,{useState} from "react";
+import React, { useState } from "react";
 import profilePicture from "../../../public/ProPic.svg";
 import "./profile.scss";
 import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
@@ -9,26 +9,20 @@ import CloseIcon from "@mui/icons-material/Close";
 import DoneIcon from "@mui/icons-material/Done";
 import "./Profile.model";
 import axios from "axios";
-import { useMemo } from "react";
 import { GoogleMap, useLoadScript, Marker } from "@react-google-maps/api";
 
-const GOOGLE_MAPS_API_KEY = "AIzaSyBkd62F4-RAtFP8w4rNd0qeQfycp1vokpo"
+const GOOGLE_MAPS_API_KEY = "AIzaSyBkd62F4-RAtFP8w4rNd0qeQfycp1vokpo";
 
-interface ProfileProps {
-  latitude: number;
-  longitude: number;
-}
-
-  const defaultCenter = {
-  lat: 11.2342,  
+const defaultCenter = {
+  lat: 11.2342,
   lng: 78.8688,
 };
 
 const Profile: React.FC = () => {
- const { isLoaded, loadError } = useLoadScript({
+  const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
   });
-    const [location, setLocation] = useState(defaultCenter);
+  const [location, setLocation] = useState(defaultCenter);
 
   if (loadError) {
     return <div>Error loading maps</div>;
@@ -36,7 +30,6 @@ const Profile: React.FC = () => {
   if (!isLoaded) {
     return <div>Loading maps</div>;
   }
-
 
   const handleSubmit = async () => {
     const profileInformation1 = {
@@ -75,8 +68,7 @@ const Profile: React.FC = () => {
     }
   };
 
-
-    const handleMapClick = (event: google.maps.MapMouseEvent) => {
+  const handleMapClick = (event: google.maps.MapMouseEvent) => {
     if (event.latLng) {
       const lat = event.latLng.lat();
       const lng = event.latLng.lng();
@@ -107,7 +99,6 @@ const Profile: React.FC = () => {
               View Profile
             </button>
           </div>
-          
         </div>
         <div className="col-md-8 profileinfo-wrapper">
           <div className="profile-info profile-cmn">
@@ -228,18 +219,17 @@ const Profile: React.FC = () => {
             </div>
             <label htmlFor="location">Your Location</label>
             <div className="map-detail">
-<div>
- 
-              <GoogleMap
-                mapContainerStyle={{ width: "100%", height: "300px" }}
-                center={defaultCenter}
-                zoom={10}
-                 onClick={handleMapClick}
-              >
+              <div>
+                <GoogleMap
+                  mapContainerStyle={{ width: "100%", height: "300px" }}
+                  center={defaultCenter}
+                  zoom={10}
+                  onClick={handleMapClick}
+                >
                   <Marker position={location} />
-              </GoogleMap>
-            
-          </div>              <div className="address-locate">
+                </GoogleMap>
+              </div>
+              <div className="address-locate">
                 <span id="address">Vadakku mathavi road,Perambalur</span>
                 <span className="locate-me">
                   <img src={locateMe} alt="LOCATE ICON" />
@@ -272,14 +262,7 @@ const Profile: React.FC = () => {
             </div>
           </div>
           <div id="discard-save" className="discard-save">
-            <GenericButton
-              onClick={() => alert("Data saved!")}
-              variant="primary"
-              icon={<CloseIcon />}
-              iconPosition="left"
-              label={"Discard changes"}
-              className="genericdiscardchangeStyles"
-            />
+            
             <GenericButton
               onClick={handleSubmit}
               variant="primary"
