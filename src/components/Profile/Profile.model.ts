@@ -20,5 +20,5 @@ export default interface ProfileForm {
     }
     description: string;
     profilePicture: string;
-    
+
 }
