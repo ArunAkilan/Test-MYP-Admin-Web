@@ -4,134 +4,199 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-import type { SelectChangeEvent } from "@mui/material"; // ✅
+import type { SelectChangeEvent } from "@mui/material";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormLabel from "@mui/material/FormLabel";
 import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
-import FaceIcon from "@mui/icons-material/Face";
+import TextareaAutosize from "@mui/material/TextareaAutosize";
+import { styled } from "@mui/system";
+import type { Theme } from "@mui/system";
+import type { ChangeEvent } from "react";
 
-// type Option = {
-//   label: string;
-//   value: string;
-//   disabled?: boolean;
-// };
-// interface RowRadioButtonsGroupProps {
-//   label: string;
-//   name: string;
-//   options: Option[];
-// }
-
-type InputType = "text" | "dropdown";
+type InputType = "text" | "textarea" | "dropdown" | "radio" | "chip";
 
 interface InputFieldProps {
   id: string;
+  name?: string;
   label?: string;
   type: InputType;
   placeholder?: string;
-  size?: "sm" | "lg"; // Bootstrap input sizes
   dropdownOptions?: string[];
-  Selected?: string;
+  dropdow?: string;
+  value?: string;
+  onChange?: (
+    event:
+      | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+      | SelectChangeEvent
+  ) => void;
+  className?: string;
   radioOptions?: string[];
+  icon?: React.ReactElement;
+  ariaLabel?: string;
+  error?: boolean;
+  helperText?: string;
 }
 
+const grey = {
+  300: "#C7D0DD",
+  900: "#1C2025",
+};
+
+const blue = {
+  200: "#b6daff",
+  400: "#3399FF",
+  600: "#0072E5",
+};
+
+const StyledTextarea = styled(TextareaAutosize)(
+  ({ theme }: { theme: Theme }) => `
+    box-sizing: border-box;
+    width: 100%;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.5;
+    padding: 8px 12px;
+    border-radius: 8px;
+    color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
+    background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
+    border: 1px solid ${theme.palette.mode === 'dark' ? grey[900] : grey[300]};
+    box-shadow: 0px 2px 2px ${
+      theme.palette.mode === "dark" ? grey[900] : "#F3F6F9"
+    };
+
+    &:hover {
+      border-color: ${blue[400]};
+    }
+
+    &:focus {
+      border-color: ${blue[400]};
+      box-shadow: 0 0 0 3px ${
+        theme.palette.mode === "dark" ? blue[600] : blue[200]
+      };
+    }
+
+    &:focus-visible {
+      outline: 0;
+    }
+  `
+);
+
 const InputField: React.FC<InputFieldProps> = ({
+  id,
+  name,
   label,
   type,
-  id,
+  placeholder,
   dropdownOptions,
-  Selected,
+  value,
+  onChange,
+  className,
   radioOptions,
-  icon
-  
+  icon,
+  ariaLabel = "input",
+  error,
+  helperText,
 }) => {
-  const [rent, setRent] = React.useState("");
-
-  const handleChange = (event: SelectChangeEvent) => {
-    setRent(event.target.value as string);
-  };
-
   return (
-    <div className="mb-3">
-      <div className="d-flex flex-column">
-        {type === "text" && (
-          <>
-            <label className="form-label">{label}</label>
-
-            <TextField
-              fullWidth
-              id={id}
-              sx={{
-                height: 40, // overall height
-                "& .MuiInputBase-root": {
-                  height: "100%",
-                },
-                "& input": {
-                  padding: "4px 12px",
-                },
-              }}
-              label={label}
-              type={type}
-              size="small"
-            />
-          </>
-        )}
-      </div>
-
-      {type === "dropdown" && (
-        <>
-          <label className="form-label">{label}</label>
-
-          <FormControl fullWidth>
-            <InputLabel id="demo-simple-select-label">{Selected}</InputLabel>
-            <Select
-              labelId="demo-simple-select-label"
-              value={rent}
-              onChange={handleChange}
-              id="outlined-size-small"
-              sx={{ m: 1, minWidth: 120 }}
-              size="small"
-              displayEmpty
-              inputProps={{ "aria-label": "Without label" }}
-            >
-              {dropdownOptions?.map((option, index) => (
-                <MenuItem key={index} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </>
+    <div className="mb-3 d-flex flex-column">
+      {label && type !== "radio" && type !== "chip" && (
+        <label className="form-label" htmlFor={id}>
+          {label}
+        </label>
       )}
 
-      {type === "radio" && (
+      {type === "text" && (
+        <TextField
+          fullWidth
+          id={id}
+          name={name}
+          label={label}
+          type="text"
+          size="small"
+          value={value}
+          onChange={onChange}
+          className={className}
+          placeholder={placeholder}
+          error={error}
+          helperText={helperText}
+          sx={{
+            height: 40,
+            "& .MuiInputBase-root": {
+              height: "100%",
+            },
+            "& input": {
+              padding: "4px 12px",
+            },
+          }}
+        />
+      )}
+
+      {type === "textarea" && (
+        <StyledTextarea
+          id={id}
+          name={name}
+          aria-label={ariaLabel}
+          placeholder={placeholder}
+          value={value}
+          onChange={onChange}
+          className={className}
+        />
+      )}
+
+      {type === "dropdown" && (
+        <FormControl fullWidth>
+          <InputLabel id={`${id}-select-label`}>{label}</InputLabel>
+          <Select
+            labelId={`${id}-select-label`}
+            id={id}
+            value={value || ""}
+            onChange={onChange as (event: SelectChangeEvent) => void}
+            size="small"
+            displayEmpty
+            inputProps={{ "aria-label": "Without label", name }}
+          >
+            {dropdownOptions?.map((option, index) => (
+              <MenuItem key={index} value={option}>
+                {option}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      )}
+
+      {type === "radio" && radioOptions && (
         <FormControl>
-          <FormLabel id="demo-row-radio-buttons-group-label">{label}</FormLabel>
+          <FormLabel id={`${id}-radio-label`}>{label}</FormLabel>
           <RadioGroup
             row
-            aria-labelledby="demo-row-radio-buttons-group-label"
-            name="row-radio-buttons-group"
+            aria-labelledby={`${id}-radio-label`}
+            name={name}
+            value={value}
+            onChange={onChange}
           >
-            {radioOptions.map((Options, index) => (
+            {radioOptions.map((option, index) => (
               <FormControlLabel
                 key={index}
-                value={Options}
+                value={option}
                 control={<Radio />}
-                label={Options}
+                label={option}
               />
             ))}
           </RadioGroup>
         </FormControl>
       )}
-          {type === "chip" && (
-       <Stack direction="row" spacing={1}>
-       <Chip icon={icon} label={label} variant="outlined" />
-     </Stack>
+
+      {type === "chip" && icon && (
+        <Stack direction="row" spacing={1}>
+          <Chip icon={icon} label={label} variant="outlined" />
+        </Stack>
       )}
     </div>
   );
 };
 
-export default InputField;
+export { InputField };

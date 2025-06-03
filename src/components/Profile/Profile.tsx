@@ -4,6 +4,7 @@ import "./profile.scss";
 import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import verifiedProfile from "../../../public/ICON_Verified.svg";
 import locateMe from "../../../public/mingcute_location-line.svg";
+import "./profile.scss";
 import GenericButton from "../Common/Button/button";
 import CloseIcon from "@mui/icons-material/Close";
 import DoneIcon from "@mui/icons-material/Done";
@@ -18,6 +19,11 @@ const defaultCenter = {
   lat: 11.2342,
   lng: 78.8688,
 };
+import { InputField } from "../Residential/Create_Residential/input";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import ImageField from "../Common/Button/uploadbtn";
+
 
 const Profile: React.FC = () => {
   const { isLoaded, loadError } = useLoadScript({
@@ -32,7 +38,7 @@ const Profile: React.FC = () => {
     return <div>Loading maps</div>;
   }
 
-  const handleSubmit = async () => {
+  const isPayloadhandleSubmit = async () => {
     const profileInformation1 = {
       profileInformation: {
         firstName: "John",
@@ -79,122 +85,199 @@ const Profile: React.FC = () => {
   // useEffect(() => {
   //   handleSubmit();
   // }, []);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    phone: "",
+    secondaryPhone: "",
+    email: "",
+    bio: "",
+    address: "",
+    gender: "",
+    longitude: "",
+    latitude: "",
+    Image: "",
+  });
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  
+
+  const validate = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.firstName.trim())
+      newErrors.firstName = "First name is required";
+    if (!formData.lastName.trim()) newErrors.lastName = "Last name is required";
+    if (!formData.phone.trim()) newErrors.phone = "Phone number is required";
+    else if (!/^\d{10}$/.test(formData.phone))
+      newErrors.phone = "Phone number must be 10 digits";
+
+    const lon = parseFloat(formData.longitude);
+    const lat = parseFloat(formData.latitude);
+
+    if (!formData.longitude.trim())
+      newErrors.longitude = "Longitude is required";
+    else if (isNaN(lon)) newErrors.longitude = "Longitude must be a number";
+
+    if (!formData.latitude.trim()) newErrors.latitude = "Latitude is required";
+    else if (isNaN(lat)) newErrors.latitude = "Latitude must be a number";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+  
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (validate()) {
+      console.log("Collected Form Data:", formData);
+      toast.success("Profile updated successfully!");
+     
+    // Reset form fields to empty values
+    setFormData({
+      firstName: "",
+      lastName: "",
+      phone: "",
+      secondaryPhone: "",
+      email: "",
+      bio: "",
+      address: "",
+      gender: "",
+      longitude: "",
+      latitude: "",
+      Image: "",
+    });
+
+    // Also clear errors if needed
+    setErrors({}); 
+    
+    } else {
+      toast.error("Please Fill All Required Info");
+    }
+  };
 
   return (
-    <div className="profile-wrapper">
-      <div className="row ">
-        <div className="col-md-4 account-manage">
-          <h3>Account management</h3>
+      <div className="container profile-wrapper py-4">
+      <div className="row">
+        <div className="col-12 col-md-4 mb-4 account-manage">
+          <h3>Account Management</h3>
           <img
             src={profilePicture}
-            className="profile-img"
+            className="img-fluid profile-img"
             alt="profile image"
-          ></img>
+         />
+          <ToastContainer position="top-right" autoClose={3000} />
           <div className="edit-view">
             <div className="profile-button-div">
               <SingleButtonUpload  />
             </div>
-              
             <button className="view-profile">
               <img src="ICON_Eye.svg" alt="edit img" />
-              Preview My public Profile
+             Preview My public Profile
             </button>
           </div>
           
         </div>
-        <div className="col-md-8 profileinfo-wrapper">
-          <div className="profile-info profile-cmn">
-            <h3>Profile Information</h3>
-            <div className="row">
-              <div className="col-md-6 right-align firstname name">
-                <label htmlFor="firstname">First Name</label>
-                <input
-                  type="text"
-                  id="firstName"
-                  name="firstName"
-                  placeholder="First Name"
-                />
-              </div>
-              <div className="col-md-6 left-align lastname name">
-                <label htmlFor="lastname">Last Name</label>
-                <input
-                  type="text"
-                  id="lastName"
-                  name="lastName"
-                  placeholder="Last Name"
-                />
+        <div>
+          <ImageField />
+        </div>
+
+        <div className="col-12 col-md-8 profileinfo-wrapper">
+          <form onSubmit={handleSubmit}>
+            <div className="profile-info profile-cmn mb-4">
+              <h3>Profile Information</h3>
+              <div className="row">
+                <div className="col-md-6 mb-3">
+                  <label>First Name <span className="star">*</span></label>
+                  <InputField
+                    type="text"
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleChange}
+                    placeholder="First Name"
+                    error={!!errors.firstName}
+                    helperText={errors.firstName}
+                  />
+                </div>
+                <div className="col-md-6 mb-3">
+                  <label>Last Name <span className="star">*</span></label>
+                  <InputField
+                    type="text"
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    placeholder="Last Name"
+                    error={!!errors.lastName}
+                    helperText={errors.lastName}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-          <div className="gender profile-cmn">
-            <label htmlFor="gender">Gender</label>
-            <div>
-              <FormControl
-                sx={{
-                  fontSize: 14,
-                  borderRadius: "6px",
-                  border: 1,
-                  borderColor: "#D3DDE7",
-                  marginBottom: "20px",
-                }}
-                size="small"
-                className="postformcontrol"
-                fullWidth
-              >
-                <InputLabel id="gender-label">Gender</InputLabel>
-                <Select labelId="gender-label" id="gender" label="Gender">
-                  <MenuItem>male</MenuItem>
-                  <MenuItem>Female</MenuItem>
-                  <MenuItem>Others</MenuItem>
-                </Select>
-              </FormControl>
-            </div>
-          </div>
-          <div className="contact-info profile-cmn">
-            <h3>Contact Information</h3>
-            <div className="email-div">
-              <div className="email-verify">
-                <label htmlFor="email">Email</label>
-                <p>Verify</p>
-              </div>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                placeholder="Your email"
+
+            <div className="gender profile-cmn mb-4">
+              <label htmlFor="gender">Gender</label>
+              <InputField
+                type="dropdown"
+                name="gender"
+                id="gender"
+                value={formData.gender}
+                onChange={handleChange}
+                dropdownOptions={["Male", "Female", "Others"]}
+                Selected="Select Gender"
+                
               />
             </div>
-            <div className="row">
-              <div className="col-md-6 right-align">
-                <div className="phone-verify">
-                  <label htmlFor="phone">Primary Phone Number</label>
-                  <img src={verifiedProfile} alt="verfied image" />
+
+            <div className="contact-info profile-cmn mb-4">
+              <h3>Contact Information</h3>
+              <label>Email</label>
+              <InputField type="text" 
+              name="email" 
+              placeholder="Your email" 
+              value={formData.email}
+              onChange={handleChange}
+              />
+
+              <div className="row">
+                <div className="col-md-6 mb-3">
+                  <label>Primary Phone Number <span className="star">*</span></label>
+                  <InputField
+                    type="text"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    placeholder="1234567890"
+                    error={!!errors.phone}
+                    helperText={errors.phone}
+                  />
                 </div>
-                <input
-                  type="tel"
-                  id="primaryPhone"
-                  name="primaryPhone"
-                  placeholder="123-45-678"
-                />
-              </div>
-              <div className="col-md-6 left-align">
-                <label htmlFor="secondaryphone">Secondary Phone Number</label>
-                <input
-                  type="tel"
-                  id="secondaryPhone"
-                  name="secondaryPhone"
-                  placeholder="123-45-678"
-                />
+                <div className="col-md-6 mb-3">
+                  <label>Secondary Phone Number</label>
+                  <InputField
+                    type="text"
+                    name="secondaryPhone"
+                    placeholder="Optional"
+                    value={formData.secondaryPhone}
+                    onChange={handleChange}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-          <div className="about-user profile-cmn">
-            <h3>About the User</h3>
-            <div className="description-div">
-              <label htmlFor="description">Description</label>
-              <textarea name="description" id="description">
-                Enter the description here
-              </textarea>
+
+            <div className="about-user profile-cmn mb-4">
+              <h3>About Me</h3>
+              <label>Short Bio</label>
+              <InputField
+                name="bio"
+                type="textarea"
+                placeholder="Tell us about yourself..."
+                value={formData.bio}
+                onChange={handleChange}
+              />
             </div>
           </div>
           <div className="location profile-cmn">
@@ -239,42 +322,40 @@ const Profile: React.FC = () => {
                 </span>
               </div>
             </div>
-          </div>
-          <div className="login-otherway profile-cmn">
-            <h3>Other Ways to Login</h3>
-            <div className="google">
-              <p>
-                <img src="LOGO_Google.svg" alt="google svg" />
-                google
-              </p>
-              <div className="connect">
-                <p>Not Connected</p>
-                <button className="google-btn link">Link</button>
+
+            <div className="login-otherway profile-cmn mb-4">
+              <h3>Other Ways to Login</h3>
+              <div className="d-flex justify-content-between align-items-center mb-3 google">
+                <p className="d-flex align-items-center gap-2">
+                  <img src="LOGO_Google.svg" alt="Google" /> Google
+                </p>
+                <div className="connect d-flex align-items-center gap-2">
+                  <p className="mb-0">Not Connected</p>
+                  <button className="btn btn-outline-primary">Link</button>
+                </div>
               </div>
-            </div>
-            <div className="facebook">
-              <p>
-                <img src="LOGO_FB.svg" alt="facebook svg" />
-                Facebook
-              </p>
-              <div className="connect">
-                <p>Connected</p>
-                <button className="fb-btn unlink">Unlink</button>
+              <div className="d-flex justify-content-between align-items-center facebook">
+                <p className="d-flex align-items-center gap-2">
+                  <img src="LOGO_FB.svg" alt="Facebook" /> Facebook
+                </p>
+                <div className="connect d-flex align-items-center gap-2">
+                  <p className="mb-0">Connected</p>
+                  <button className="btn btn-outline-danger">Unlink</button>
+                </div>
               </div>
             </div>
           </div>
           <div id="discard-save" className="discard-save">
             <GenericButton
-              onClick={handleSubmit}
+              onClick={() => alert("Data saved!")}
               variant="primary"
               icon={<CloseIcon />}
               iconPosition="left"
-              label={"Discard Changes"}
+              label={"Discard changes"}
               className="genericdiscardchangeStyles"
             />
-            
             <GenericButton
-              onClick={handleSubmit}
+              onClick={() => alert("Data saved!")}
               variant="primary"
               icon={<DoneIcon />}
               iconPosition="left"
