@@ -1,17 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import profilePicture from "../../../public/ProPic.svg";
-import "./profile.scss";
-import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
-import verifiedProfile from "../../../public/ICON_Verified.svg";
 import locateMe from "../../../public/mingcute_location-line.svg";
 import "./profile.scss";
-import GenericButton from "../Common/Button/button";
 import CloseIcon from "@mui/icons-material/Close";
 import DoneIcon from "@mui/icons-material/Done";
+import GenericButton from "../Common/Button/button";
 import "./Profile.model";
 import axios from "axios";
 import { GoogleMap, useLoadScript, Marker } from "@react-google-maps/api";
-import SingleButtonUpload from "../Common/UploadButton/UploadButton";
+import { InputField } from "../Residential/Create_Residential/input";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import UploadImageField from "../Common/UploadButton/UploadButton";
+import type { FormDataInterface } from "./Profile.model";
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyBkd62F4-RAtFP8w4rNd0qeQfycp1vokpo";
 
@@ -19,16 +20,27 @@ const defaultCenter = {
   lat: 11.2342,
   lng: 78.8688,
 };
-import { InputField } from "../Residential/Create_Residential/input";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import ImageField from "../Common/Button/uploadbtn";
-
 
 const Profile: React.FC = () => {
+  const [imageData, setImageData] = useState<any>("");
+  const [formData, setFormData] = useState<FormDataInterface>({
+    firstName: "",
+    lastName: "",
+    phone: "",
+    secondaryPhone: "",
+    email: "",
+    bio: "",
+    address: "",
+    gender: "",
+    longitude: null,
+    latitude: null,
+  });
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
   });
+
   const [location, setLocation] = useState(defaultCenter);
 
   if (loadError) {
@@ -38,29 +50,28 @@ const Profile: React.FC = () => {
     return <div>Loading maps</div>;
   }
 
-  const isPayloadhandleSubmit = async () => {
+  const saveChanges = async () => {
     const profileInformation1 = {
       profileInformation: {
-        firstName: "John",
-        lastName: "Doe",
-        gender: "Prefer not to say",
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        gender: formData.gender,
       },
       contactInformation: {
-        email: "john.doe@example.com",
-        primaryPhone: "+1234567890",
-        secondaryPhone: "+0987654321",
+        email: formData.email,
+        primaryPhone: formData.phone,
+        secondaryPhone: formData.secondaryPhone,
       },
       location: {
         map: {
-          longitude: 77.5946,
-          latitude: 12.9716,
+          longitude: formData.longitude,
+          latitude: formData.latitude,
         },
-        address: "123 Main Street, Sample City, Country",
+        address: formData.address,
       },
-      profilePicture: "https://example.com/images/johndoe.jpg",
+      profilePicture: imageData.name,
       role: "User",
-      description:
-        "Experienced software developer with a passion for full-stack applications.",
+      description: formData.bio,
     };
 
     try {
@@ -82,25 +93,8 @@ const Profile: React.FC = () => {
       setLocation({ lat, lng });
     }
   };
-  // useEffect(() => {
-  //   handleSubmit();
-  // }, []);
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    phone: "",
-    secondaryPhone: "",
-    email: "",
-    bio: "",
-    address: "",
-    gender: "",
-    longitude: "",
-    latitude: "",
-    Image: "",
-  });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  
+  console.log(imageData, "image");
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
@@ -111,15 +105,16 @@ const Profile: React.FC = () => {
     if (!formData.phone.trim()) newErrors.phone = "Phone number is required";
     else if (!/^\d{10}$/.test(formData.phone))
       newErrors.phone = "Phone number must be 10 digits";
-
+//@ts-ignore
     const lon = parseFloat(formData.longitude);
+    //@ts-ignore
     const lat = parseFloat(formData.latitude);
-
-    if (!formData.longitude.trim())
+    //@ts-ignore
+    if (!formData?.longitude?.trim())
       newErrors.longitude = "Longitude is required";
     else if (isNaN(lon)) newErrors.longitude = "Longitude must be a number";
-
-    if (!formData.latitude.trim()) newErrors.latitude = "Latitude is required";
+    //@ts-ignore
+    if (!formData?.latitude?.trim()) newErrors.latitude = "Latitude is required";
     else if (isNaN(lat)) newErrors.latitude = "Latitude must be a number";
 
     setErrors(newErrors);
@@ -129,62 +124,55 @@ const Profile: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-  
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validate()) {
       console.log("Collected Form Data:", formData);
       toast.success("Profile updated successfully!");
-     
-    // Reset form fields to empty values
-    setFormData({
-      firstName: "",
-      lastName: "",
-      phone: "",
-      secondaryPhone: "",
-      email: "",
-      bio: "",
-      address: "",
-      gender: "",
-      longitude: "",
-      latitude: "",
-      Image: "",
-    });
+      saveChanges();
+      // Reset form fields to empty values
+      setFormData({
+        firstName: "",
+        lastName: "",
+        phone: "",
+        secondaryPhone: "",
+        email: "",
+        bio: "",
+        address: "",
+        gender: "",
+        longitude: null,
+        latitude: null,
+      });
 
-    // Also clear errors if needed
-    setErrors({}); 
-    
+      // Also clear errors if needed
+      setErrors({});
     } else {
       toast.error("Please Fill All Required Info");
     }
   };
 
   return (
-      <div className="container profile-wrapper py-4">
+    <div className="container profile-wrapper py-4">
       <div className="row">
         <div className="col-12 col-md-4 mb-4 account-manage">
           <h3>Account Management</h3>
           <img
-            src={profilePicture}
+            src={imageData ? imageData : profilePicture}
             className="img-fluid profile-img"
-            alt="profile image"
-         />
+            alt="profile"
+          />
           <ToastContainer position="top-right" autoClose={3000} />
-          <div className="edit-view">
+          <div className="edit-view d-flex flex-column gap-2 mt-3">
             <div className="profile-button-div">
-              <SingleButtonUpload  />
+              <UploadImageField setImageData={setImageData} />
             </div>
-            <button className="view-profile">
-              <img src="ICON_Eye.svg" alt="edit img" />
-             Preview My public Profile
+            <button className="btn btn-outline-secondary d-flex align-items-center justify-content-center gap-2">
+              <img src="ICON_Eye.svg" alt="view" /> Preview My public Profile
             </button>
           </div>
-          
         </div>
-        <div>
-          <ImageField />
-        </div>
+        <div></div>
 
         <div className="col-12 col-md-8 profileinfo-wrapper">
           <form onSubmit={handleSubmit}>
@@ -192,11 +180,14 @@ const Profile: React.FC = () => {
               <h3>Profile Information</h3>
               <div className="row">
                 <div className="col-md-6 mb-3">
-                  <label>First Name <span className="star">*</span></label>
+                  <label>
+                    First Name <span className="star">*</span>
+                  </label>
                   <InputField
                     type="text"
                     name="firstName"
                     value={formData.firstName}
+                    //@ts-ignore
                     onChange={handleChange}
                     placeholder="First Name"
                     error={!!errors.firstName}
@@ -204,11 +195,14 @@ const Profile: React.FC = () => {
                   />
                 </div>
                 <div className="col-md-6 mb-3">
-                  <label>Last Name <span className="star">*</span></label>
+                  <label>
+                    Last Name <span className="star">*</span>
+                  </label>
                   <InputField
                     type="text"
                     name="lastName"
                     value={formData.lastName}
+                    //@ts-ignore
                     onChange={handleChange}
                     placeholder="Last Name"
                     error={!!errors.lastName}
@@ -225,30 +219,35 @@ const Profile: React.FC = () => {
                 name="gender"
                 id="gender"
                 value={formData.gender}
+                //@ts-ignore
                 onChange={handleChange}
                 dropdownOptions={["Male", "Female", "Others"]}
                 Selected="Select Gender"
-                
               />
             </div>
 
             <div className="contact-info profile-cmn mb-4">
               <h3>Contact Information</h3>
               <label>Email</label>
-              <InputField type="text" 
-              name="email" 
-              placeholder="Your email" 
-              value={formData.email}
-              onChange={handleChange}
+              <InputField
+                type="text"
+                name="email"
+                placeholder="Your email"
+                value={formData.email}
+                //@ts-ignore
+                onChange={handleChange}
               />
 
               <div className="row">
                 <div className="col-md-6 mb-3">
-                  <label>Primary Phone Number <span className="star">*</span></label>
+                  <label>
+                    Primary Phone Number <span className="star">*</span>
+                  </label>
                   <InputField
                     type="text"
                     name="phone"
                     value={formData.phone}
+                    //@ts-ignore
                     onChange={handleChange}
                     placeholder="1234567890"
                     error={!!errors.phone}
@@ -262,6 +261,7 @@ const Profile: React.FC = () => {
                     name="secondaryPhone"
                     placeholder="Optional"
                     value={formData.secondaryPhone}
+                    //@ts-ignore
                     onChange={handleChange}
                   />
                 </div>
@@ -276,50 +276,72 @@ const Profile: React.FC = () => {
                 type="textarea"
                 placeholder="Tell us about yourself..."
                 value={formData.bio}
+                //@ts-ignore
                 onChange={handleChange}
               />
             </div>
-          </div>
-          <div className="location profile-cmn">
-            <h3>Location</h3>
-            <div className="row">
-              <div className="col-md-6 right-align">
-                <label htmlFor="longitude">Longitude</label>
-                <input
-                  type="text"
-                  id="longitude"
-                  name="longitude"
-                  placeholder="8.23213414432"
-                />
-              </div>
-              <div className="col-md-6 left-align">
-                <label htmlFor="latitude">Latitude</label>
-                <input
-                  type="text"
-                  id="latitude"
-                  name="latitude"
-                  placeholder="11.129387377"
-                />
-              </div>
-            </div>
-            <label htmlFor="location">Your Location</label>
-            <div className="map-detail">
-              <div>
-                <GoogleMap
-                  mapContainerStyle={{ width: "100%", height: "300px" }}
-                  center={defaultCenter}
-                  zoom={10}
-                  onClick={handleMapClick}
-                >
-                  <Marker position={location} />
-                </GoogleMap>
-              </div>
-              <div className="address-locate">
-                <span id="address">Vadakku mathavi road,Perambalur</span>
-                <span className="locate-me">
-                  <img src={locateMe} alt="LOCATE ICON" />
-                  Locate me
-                </span>
+
+            <div className="location profile-cmn mb-4">
+              <h3>Location & Address</h3>
+              <div className="d-flex flex-column flex-md-row gap-4">
+                <div className="map-detail">
+                  <div>
+                    <GoogleMap
+                      mapContainerStyle={{ width: "100%", height: "300px" }}
+                      center={defaultCenter}
+                      zoom={10}
+                      onClick={handleMapClick}
+                    >
+                      <Marker position={location} />
+                    </GoogleMap>
+                  </div>
+
+                  <span className="d-block mt-2">
+                    Vadakku mathavi road, Perambalur
+                  </span>
+                  <span className="text-primary d-flex align-items-center gap-1 mt-1">
+                    <img src={locateMe} alt="Locate" /> Locate me
+                  </span>
+                </div>
+                <div className="w-100">
+                  <label>Address</label>
+                  <InputField
+                    type="text"
+                    name="address"
+                    placeholder="Your address"
+                    value={formData.address}
+                    //@ts-ignore
+                    onChange={handleChange}
+                  />
+                  <label>
+                    Longitude <span className="star">*</span>
+                  </label>
+                  <InputField
+                    type="text"
+                    name="longitude"
+                    //@ts-ignore
+                    value={formData.longitude}
+                    //@ts-ignore
+                    onChange={handleChange}
+                    placeholder="Longitude"
+                    error={!!errors.longitude}
+                    helperText={errors.longitude}
+                  />
+                  <label>
+                    Latitude <span className="star">*</span>
+                  </label>
+                  <InputField
+                    type="text"
+                    name="latitude"
+                     //@ts-ignore
+                    value={formData.latitude}
+                     //@ts-ignore
+                    onChange={handleChange}
+                    placeholder="Latitude"
+                    error={!!errors.latitude}
+                    helperText={errors.latitude}
+                  />
+                </div>
               </div>
             </div>
 
@@ -344,25 +366,27 @@ const Profile: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
-          <div id="discard-save" className="discard-save">
-            <GenericButton
-              onClick={() => alert("Data saved!")}
-              variant="primary"
-              icon={<CloseIcon />}
-              iconPosition="left"
-              label={"Discard changes"}
-              className="genericdiscardchangeStyles"
-            />
-            <GenericButton
-              onClick={() => alert("Data saved!")}
-              variant="primary"
-              icon={<DoneIcon />}
-              iconPosition="left"
-              label={"Save Profile"}
-              className="genericSaveBtnStyles"
-            />
-          </div>
+
+            <div className="d-flex flex-column flex-md-row justify-content-end gap-3 mt-4">
+              <GenericButton
+                onClick={() => alert("Changes discarded!")}
+                variant="secondary"
+                icon={<CloseIcon />}
+                iconPosition="left"
+                label="Discard Changes"
+                className="genericdiscardchangeStyles"
+              />
+              <GenericButton
+                // onClick={() => handleSubmit}
+                type="submit"
+                variant="primary"
+                icon={<DoneIcon />}
+                iconPosition="left"
+                label="Save Profile"
+                className="genericSaveBtnStyles"
+              />
+            </div>
+          </form>
         </div>
       </div>
     </div>

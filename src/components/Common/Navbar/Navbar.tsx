@@ -2,7 +2,7 @@ import ListIcon from "@mui/icons-material/List";
 import "./navbar.scss";
 import GenericButton from "../Button/button";
 
-const Header: React.FC<navbarData> = ({
+const Header: React.FC<any> = ({
   Title,
   ProfileLogo,
   MainLogo,

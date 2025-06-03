@@ -1,59 +1,103 @@
-import React, { useRef, useState } from 'react';
-import axios from 'axios';
-import GenericButton from '../Button/button';
-import FileUploadIcon from '@mui/icons-material/FileUpload';
-import './Upload.scss'
+import React, { useRef, useState } from "react";
+import FileUploadIcon from "@mui/icons-material/FileUpload";
+import "./Upload.scss";
 
-const SingleButtonUpload: React.FC = () => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [uploadStatus, setUploadStatus] = useState('');
+const MAX_FILE_SIZE_MB = 2; // Limit file size to 2MB
 
-  const handleButtonClick = () => {
-    fileInputRef.current?.click();
+const UploadImageField: React.FC<any> = ({
+  setImageData,
+}) => {
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const [image, setImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  setImageData(image);
+  console.log("image", image);
+  console.log("previewUrl", previewUrl);
+
+  const validateImage = (file: File): string | null => {
+    const validTypes = ["image/jpeg", "image/png", "image/gif"];
+    if (!validTypes.includes(file.type)) {
+      return "Only JPG, PNG, and GIF files are allowed.";
+    }
+
+    const fileSizeMB = file.size / 1024 / 1024;
+    if (fileSizeMB > MAX_FILE_SIZE_MB) {
+      return `File size must be less than ${MAX_FILE_SIZE_MB} MB.`;
+    }
+
+    return null;
   };
 
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setUploadStatus('Uploading...');
-
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      const response = await axios.post('http://localhost:5000/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      if (response.status === 200) {
-        setUploadStatus('File uploaded successfully!');
-      } else {
-        setUploadStatus('Upload failed.');
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const validationError = validateImage(file);
+      if (validationError) {
+        setError(validationError);
+        setImage(null);
+        setPreviewUrl(null);
+        return;
       }
-    } catch (error) {
-      console.error('Upload error:', error);
-      setUploadStatus('Error during file upload.');
+      setImage(file);
+      setPreviewUrl(URL.createObjectURL(file));
+      setError(null);
     }
   };
 
-  return (
-    <div>
-     
-      <button onClick={handleButtonClick} className='changeProfileBtn'><FileUploadIcon/> Change Profile Picture</button>
-      <input
-        type="file"
-        accept="image/*"
-        ref={fileInputRef}
-        onChange={handleFileChange}
-        style={{ display: 'none' }}
-      />
+  const removeImage = () => {
+    setImage(null);
+    setPreviewUrl(null);
+    setError(null);
+  };
 
-      {uploadStatus && <p>{uploadStatus}</p>}
-    </div>
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!image) {
+      setError("Please upload image.");
+      return;
+    }
+    console.log("Selected Image:", image);
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      {!image && (
+        <input type="file" accept="image/*" onChange={handleImageChange} />
+      )}
+
+      {previewUrl && (
+        <div>
+          <img
+            src={previewUrl}
+            alt="Preview"
+            width={150}
+            style={{ marginTop: 10 }}
+          />
+          <div style={{ marginTop: 8 }}>
+            <button
+              type="button"
+              onClick={removeImage}
+              style={{ marginLeft: 10 }}
+              className="changeProfileBtn"
+            >
+              <FileUploadIcon /> Change Profile Picture
+            </button>
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={handleImageChange}
+          />
+        </div>
+      )}
+
+      {error && <p style={{ color: "red", marginTop: 8 }}>{error}</p>}
+    </form>
   );
 };
 
-export default SingleButtonUpload;
+export default UploadImageField;

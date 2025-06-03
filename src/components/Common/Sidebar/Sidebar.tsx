@@ -41,7 +41,7 @@ function TabPanel(props: TabPanelProps) {
     >
       {value === index && (
         <Box sx={{ p: 3 }}>
-          <Typography>{children}</Typography>
+          <Typography component="div">{children}</Typography>
         </Box>
       )}
     </div>
@@ -58,8 +58,9 @@ function a11yProps(index: number) {
 export default function VerticalTabs() {
   const [value, setValue] = React.useState(0);
 
+  //@ts-ignore
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
+     setValue(newValue);
   };
 
   return (
@@ -68,6 +69,7 @@ export default function VerticalTabs() {
         <Tabs
           orientation="vertical"
           value={value}
+           //@ts-ignore
           onChange={handleChange}
           variant="fullWidth"
           aria-label="Vertical tabs example"

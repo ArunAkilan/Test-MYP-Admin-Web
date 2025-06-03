@@ -27,6 +27,7 @@ interface InputFieldProps {
   dropdownOptions?: string[];
   dropdow?: string;
   value?: string;
+  //@ts-ignore
   onChange?: (
     event:
       | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>

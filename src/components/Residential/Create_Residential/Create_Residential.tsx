@@ -1,19 +1,10 @@
-import React from "react";
-import Sidebar from "../../Common/Sidebar/Sidebar";
-import "../Create_Residential/Create_Residential.scss";
-import { BorderAll } from "@mui/icons-material";
-import type {
-  ResidentialProperty,
-  Owner,
-  Contact,
-} from "./Create_Residential.model";
-import InputField from "./input";
-import GenericButton from "../../Common/Button/button";
+
 import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
 import { Button } from "@mui/material";
 import DoneIcon from "@mui/icons-material/Done";
 import CloseIcon from "@mui/icons-material/Close";
 import { Search } from "@mui/icons-material";
+import { InputField } from "./input";
 
 export const CreateResidential = () => {
   return (
@@ -32,10 +23,10 @@ export const CreateResidential = () => {
         </div> */}
 
         <nav aria-label="breadcrumb">
-          <ol class="breadcrumb no-decoration">
-            <li class="breadcrumb-item"><a href="#">Residential</a></li>
-            <li class="breadcrumb-item"><img src="src/assets/_.svg" alt="" className="img-brd img-fluid" /></li>
-            <li class="breadcrumb-item active text-custom-blue" aria-current="page">Create New Listing</li>
+          <ol className="breadcrumb no-decoration">
+            <li className="breadcrumb-item"><a href="#">Residential</a></li>
+            <li className="breadcrumb-item"><img src="src/assets/_.svg" alt="" className="img-brd img-fluid" /></li>
+            <li className="breadcrumb-item active text-custom-blue" aria-current="page">Create New Listing</li>
           </ol>
         </nav>
 
@@ -363,6 +354,7 @@ export const CreateResidential = () => {
             dropdownOptions={["1", "2", "3"]}
             id="rent"
             label=""
+            //@ts-ignore
             Selected="Select all that apply"
           />
         </div>

@@ -1,6 +1,8 @@
+import type { ButtonVariant } from "./button";
+
 export default interface GenericButtonProps {
   label: string;
-  onClick: () => void;
+  onClick?: () => void;
   type?: "button" | "submit" | "reset";
   disabled?: boolean;
   variant?: ButtonVariant;

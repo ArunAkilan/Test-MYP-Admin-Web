@@ -6,7 +6,6 @@ import Table from "../Common/DashboradTable/table";
 import "./Dashboard.scss";
 import GenericButton from "../Common/Button/button";
 import AddIcon from "@mui/icons-material/Add";
-import { Link } from "react-router-dom";
 
 function Home() {
   const [users, setUsers] = useState<User[]>([]); // ✅ Correct
