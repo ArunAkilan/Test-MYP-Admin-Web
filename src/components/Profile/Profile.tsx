@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import profilePicture from "../../../public/ProPic.svg";
 import "./profile.scss";
 import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
@@ -10,7 +10,7 @@ import DoneIcon from "@mui/icons-material/Done";
 import "./Profile.model";
 import axios from "axios";
 import { GoogleMap, useLoadScript, Marker } from "@react-google-maps/api";
-import { FileUpload } from "@mui/icons-material";
+import SingleButtonUpload from "../Common/UploadButton/UploadButton";
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyBkd62F4-RAtFP8w4rNd0qeQfycp1vokpo";
 
@@ -91,16 +91,16 @@ const Profile: React.FC = () => {
             alt="profile image"
           ></img>
           <div className="edit-view">
-            <button className="edit-photo">
-              <img src="ICON_Edit.svg" alt="edit img" />
-              Edit Photo
-            </button>
+            <div className="profile-button-div">
+              <SingleButtonUpload  />
+            </div>
+              
             <button className="view-profile">
               <img src="ICON_Eye.svg" alt="edit img" />
-              View Profile
+              Preview My public Profile
             </button>
           </div>
-          <FileUpload />
+          
         </div>
         <div className="col-md-8 profileinfo-wrapper">
           <div className="profile-info profile-cmn">
@@ -264,6 +264,14 @@ const Profile: React.FC = () => {
             </div>
           </div>
           <div id="discard-save" className="discard-save">
+            <GenericButton
+              onClick={handleSubmit}
+              variant="primary"
+              icon={<CloseIcon />}
+              iconPosition="left"
+              label={"Discard Changes"}
+              className="genericdiscardchangeStyles"
+            />
             
             <GenericButton
               onClick={handleSubmit}
