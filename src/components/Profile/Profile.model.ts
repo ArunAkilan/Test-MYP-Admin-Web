@@ -30,8 +30,8 @@ export interface FormDataInterface {
   bio: string;
   address: string;
   gender: string;
-  longitude: number | null;
-  latitude: number | null;
+  longitude:number | null ;
+  latitude:number | null ;
 }
 
 // export interface uploadmageData {

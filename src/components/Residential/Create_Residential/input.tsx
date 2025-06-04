@@ -19,7 +19,7 @@ import type { ChangeEvent } from "react";
 type InputType = "text" | "textarea" | "dropdown" | "radio" | "chip";
 
 interface InputFieldProps {
-  id: string;
+  id?: string;
   name?: string;
   label?: string;
   type: InputType;
@@ -27,18 +27,20 @@ interface InputFieldProps {
   dropdownOptions?: string[];
   dropdow?: string;
   value?: string;
-  //@ts-ignore
-  onChange?: (
-    event:
-      | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-      | SelectChangeEvent
-  ) => void;
+ 
+  // onChange?: (
+  //   event:
+  //     | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  //     | SelectChangeEvent
+  // ) => void;
+  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   className?: string;
   radioOptions?: string[];
   icon?: React.ReactElement;
   ariaLabel?: string;
   error?: boolean;
   helperText?: string;
+  Selected?: string; 
 }
 
 const grey = {

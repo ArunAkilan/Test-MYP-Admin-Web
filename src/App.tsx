@@ -7,15 +7,9 @@ function App() {
     
     <div className="grid-container">
       <Header MainLogo="PRH Admin 1.png" Title="Admin" ProfileLogo="Ellipse 1.svg" Profile={true} />
-      <div className="container">
+      <div className="container body-content-container">
         <Sidebar />
-            {/* <Router>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/Profile" element={<Profile />} />
-                <Route path="/createResidential" element={<CreateResidential />}/>
-              </Routes>
-            </Router> */}
+            
       </div>
     </div>
 

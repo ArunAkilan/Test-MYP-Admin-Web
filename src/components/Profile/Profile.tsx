@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import profilePicture from "../../../public/ProPic.svg";
 import locateMe from "../../../public/mingcute_location-line.svg";
 import "./profile.scss";
 import CloseIcon from "@mui/icons-material/Close";
@@ -22,7 +21,13 @@ const defaultCenter = {
 };
 
 const Profile: React.FC = () => {
-  const [imageData, setImageData] = useState<any>("");
+  const [imageData, setImageData] = useState<File | null>(null);
+  const imageSrc =
+    typeof imageData === "string"
+      ? imageData
+      : imageData instanceof File
+      ? URL.createObjectURL(imageData)
+      : undefined;
   const [formData, setFormData] = useState<FormDataInterface>({
     firstName: "",
     lastName: "",
@@ -37,6 +42,7 @@ const Profile: React.FC = () => {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
   });
@@ -69,7 +75,7 @@ const Profile: React.FC = () => {
         },
         address: formData.address,
       },
-      profilePicture: imageData.name,
+      profilePicture: imageData?.name || "",
       role: "User",
       description: formData.bio,
     };
@@ -80,7 +86,6 @@ const Profile: React.FC = () => {
         profileInformation1
       );
       console.log("User added:", response.data);
-      //setData(profileInformation);
     } catch (error) {
       console.error("Error adding user:", error);
     }
@@ -91,8 +96,15 @@ const Profile: React.FC = () => {
       const lat = event.latLng.lat();
       const lng = event.latLng.lng();
       setLocation({ lat, lng });
+       setFormData(prev => ({
+      ...prev,
+      latitude: lat,
+      longitude: lng,
+    }));
     }
+    
   };
+  
 
   console.log(imageData, "image");
 
@@ -105,23 +117,31 @@ const Profile: React.FC = () => {
     if (!formData.phone.trim()) newErrors.phone = "Phone number is required";
     else if (!/^\d{10}$/.test(formData.phone))
       newErrors.phone = "Phone number must be 10 digits";
-//@ts-ignore
-    const lon = parseFloat(formData.longitude);
-    //@ts-ignore
-    const lat = parseFloat(formData.latitude);
-    //@ts-ignore
-    if (!formData?.longitude?.trim())
+
+    const lon = formData.longitude;
+    console.log("lon", lon);
+
+    const lat = formData.latitude;
+
+    if (lon === null || lon.toString().trim() === "") {
       newErrors.longitude = "Longitude is required";
-    else if (isNaN(lon)) newErrors.longitude = "Longitude must be a number";
-    //@ts-ignore
-    if (!formData?.latitude?.trim()) newErrors.latitude = "Latitude is required";
-    else if (isNaN(lat)) newErrors.latitude = "Latitude must be a number";
+    } else if (isNaN(lon)) {
+      newErrors.longitude = "Longitude must be a number";
+    }
+
+    if (lat === null || lat.toString().trim() === "") {
+      newErrors.latitude = "Latitude is required";
+    } else if (isNaN(lat)) {
+      newErrors.latitude = "Latitude must be a number";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -145,23 +165,54 @@ const Profile: React.FC = () => {
         latitude: null,
       });
 
-      // Also clear errors if needed
       setErrors({});
     } else {
       toast.error("Please Fill All Required Info");
     }
   };
 
+const handleLocateMe = () => {
+ if(navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        setLocation({lat,lng});
+
+        setFormData( prev => ({
+          ...prev,
+          latitude : lat,
+          longitude : lng
+        }));
+      },
+      (error) => {
+        toast.error("failed to get your location");
+        console.error(error);
+      }
+    );
+  } else {
+    toast.error("geolocation is not supported by the browser.");
+  }
+};
+
   return (
     <div className="container profile-wrapper py-4">
       <div className="row">
         <div className="col-12 col-md-4 mb-4 account-manage">
           <h3>Account Management</h3>
-          <img
+          {/* <img
             src={imageData ? imageData : profilePicture}
             className="img-fluid profile-img"
             alt="profile"
-          />
+          /> */}
+          {imageSrc && (
+            <img
+              src={imageSrc}
+              className="img-fluid profile-img"
+              alt="profile"
+            />
+          )}
           <ToastContainer position="top-right" autoClose={3000} />
           <div className="edit-view d-flex flex-column gap-2 mt-3">
             <div className="profile-button-div">
@@ -187,7 +238,6 @@ const Profile: React.FC = () => {
                     type="text"
                     name="firstName"
                     value={formData.firstName}
-                    //@ts-ignore
                     onChange={handleChange}
                     placeholder="First Name"
                     error={!!errors.firstName}
@@ -202,7 +252,6 @@ const Profile: React.FC = () => {
                     type="text"
                     name="lastName"
                     value={formData.lastName}
-                    //@ts-ignore
                     onChange={handleChange}
                     placeholder="Last Name"
                     error={!!errors.lastName}
@@ -219,7 +268,6 @@ const Profile: React.FC = () => {
                 name="gender"
                 id="gender"
                 value={formData.gender}
-                //@ts-ignore
                 onChange={handleChange}
                 dropdownOptions={["Male", "Female", "Others"]}
                 Selected="Select Gender"
@@ -234,7 +282,6 @@ const Profile: React.FC = () => {
                 name="email"
                 placeholder="Your email"
                 value={formData.email}
-                //@ts-ignore
                 onChange={handleChange}
               />
 
@@ -247,7 +294,6 @@ const Profile: React.FC = () => {
                     type="text"
                     name="phone"
                     value={formData.phone}
-                    //@ts-ignore
                     onChange={handleChange}
                     placeholder="1234567890"
                     error={!!errors.phone}
@@ -261,7 +307,6 @@ const Profile: React.FC = () => {
                     name="secondaryPhone"
                     placeholder="Optional"
                     value={formData.secondaryPhone}
-                    //@ts-ignore
                     onChange={handleChange}
                   />
                 </div>
@@ -276,7 +321,6 @@ const Profile: React.FC = () => {
                 type="textarea"
                 placeholder="Tell us about yourself..."
                 value={formData.bio}
-                //@ts-ignore
                 onChange={handleChange}
               />
             </div>
@@ -299,7 +343,11 @@ const Profile: React.FC = () => {
                   <span className="d-block mt-2">
                     Vadakku mathavi road, Perambalur
                   </span>
-                  <span className="text-primary d-flex align-items-center gap-1 mt-1">
+                  <span
+                    className="text-primary d-flex align-items-center gap-1 mt-1"
+                    style={{ cursor: "pointer" }}
+                    onClick={handleLocateMe}
+                  >
                     <img src={locateMe} alt="Locate" /> Locate me
                   </span>
                 </div>
@@ -310,7 +358,6 @@ const Profile: React.FC = () => {
                     name="address"
                     placeholder="Your address"
                     value={formData.address}
-                    //@ts-ignore
                     onChange={handleChange}
                   />
                   <label>
@@ -319,9 +366,12 @@ const Profile: React.FC = () => {
                   <InputField
                     type="text"
                     name="longitude"
-                    //@ts-ignore
-                    value={formData.longitude}
-                    //@ts-ignore
+                 
+                    value={
+                      formData.longitude != null
+                        ? formData.longitude.toString()
+                        : ""
+                    }
                     onChange={handleChange}
                     placeholder="Longitude"
                     error={!!errors.longitude}
@@ -333,9 +383,12 @@ const Profile: React.FC = () => {
                   <InputField
                     type="text"
                     name="latitude"
-                     //@ts-ignore
-                    value={formData.latitude}
-                     //@ts-ignore
+              
+                    value={
+                      formData.latitude != null
+                        ? formData.latitude.toString()
+                        : ""
+                    }
                     onChange={handleChange}
                     placeholder="Latitude"
                     error={!!errors.latitude}

@@ -20,6 +20,7 @@ const styles = {
   fontWeight: 600,
   letterSpacing: 0,
   lineHeight: 18,
+
 };
 
 interface TabPanelProps {
@@ -58,8 +59,8 @@ function a11yProps(index: number) {
 export default function VerticalTabs() {
   const [value, setValue] = React.useState(0);
 
-  //@ts-ignore
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+
+  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
      setValue(newValue);
   };
 
@@ -69,7 +70,7 @@ export default function VerticalTabs() {
         <Tabs
           orientation="vertical"
           value={value}
-           //@ts-ignore
+           
           onChange={handleChange}
           variant="fullWidth"
           aria-label="Vertical tabs example"

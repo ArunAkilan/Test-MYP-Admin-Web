@@ -4,7 +4,11 @@ import "./Upload.scss";
 
 const MAX_FILE_SIZE_MB = 2; // Limit file size to 2MB
 
-const UploadImageField: React.FC<any> = ({
+interface UploadImageFieldProps {
+  setImageData: (file: File | null) => void;
+}
+
+const UploadImageField: React.FC<UploadImageFieldProps> = ({
   setImageData,
 }) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -38,6 +42,10 @@ const UploadImageField: React.FC<any> = ({
         setError(validationError);
         setImage(null);
         setPreviewUrl(null);
+    //         setImage(file);
+    // setPreviewUrl(URL.createObjectURL(file));
+    // setError(null);
+    // setImageData(file);
         return;
       }
       setImage(file);
