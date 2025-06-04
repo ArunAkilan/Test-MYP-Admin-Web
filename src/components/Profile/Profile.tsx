@@ -56,6 +56,7 @@ const Profile: React.FC = () => {
         firstName: formData.firstName,
         lastName: formData.lastName,
         gender: formData.gender,
+        phone: formData.phone,
       },
       contactInformation: {
         email: formData.email,
@@ -102,27 +103,79 @@ const Profile: React.FC = () => {
     if (!formData.firstName.trim())
       newErrors.firstName = "First name is required";
     if (!formData.lastName.trim()) newErrors.lastName = "Last name is required";
-    if (!formData.phone.trim()) newErrors.phone = "Phone number is required";
-    else if (!/^\d{10}$/.test(formData.phone))
-      newErrors.phone = "Phone number must be 10 digits";
-//@ts-ignore
-    const lon = parseFloat(formData.longitude);
-    //@ts-ignore
-    const lat = parseFloat(formData.latitude);
-    //@ts-ignore
-    if (!formData?.longitude?.trim())
+    if (!formData.phone.trim()) {
+      newErrors.phone = "Primary phone is required";
+    } else if (!/^\d{12}$/.test(formData.phone.replace(/\D/g, ""))) {
+      newErrors.phone = "Primary phone must be 10 digits";
+    }
+
+    if (formData.secondaryPhone) {
+      if (!/^\d{12}$/.test(formData.secondaryPhone.replace(/\D/g, ""))) {
+        newErrors.secondaryPhone = "Secondary phone must be 10 digits";
+      }
+
+      //  Prevent same number in both fields
+      const primary = formData.phone.replace(/\D/g, "");
+      const secondary = formData.secondaryPhone.replace(/\D/g, "");
+      if (primary === secondary) {
+        newErrors.secondaryPhone = "Secondary phone cannot be the same as primary phone";
+      }
+    }
+
+    if (!formData?.longitude?.toString().trim())
       newErrors.longitude = "Longitude is required";
-    else if (isNaN(lon)) newErrors.longitude = "Longitude must be a number";
-    //@ts-ignore
-    if (!formData?.latitude?.trim()) newErrors.latitude = "Latitude is required";
+
+    const lat = parseFloat(formData.latitude as any);
+
+    if (!formData?.latitude?.toString().trim())
+      newErrors.latitude = "Latitude is required";
     else if (isNaN(lat)) newErrors.latitude = "Latitude must be a number";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  // This handles text inputs (string event.target.value)
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+
+    // Clear error for this field on change
+    setErrors(prevErrors => {
+      if (prevErrors[name]) {
+        const newErrors = { ...prevErrors };
+        delete newErrors[name];
+        return newErrors;
+      }
+      return prevErrors;
+    });
+  };
+
+  // New handler for phone input (onChange gets a string phone value)
+  const handlePrimaryPhoneChange = (phone: string) => {
+    setFormData(prev => ({ ...prev, phone }));
+
+    setErrors(prevErrors => {
+      if (prevErrors.phone) {
+        const newErrors = { ...prevErrors };
+        delete newErrors.phone;
+        return newErrors;
+      }
+      return prevErrors;
+    });
+  };
+
+  const handleSecondaryPhoneChange = (phone: string) => {
+    setFormData(prev => ({ ...prev, secondaryPhone: phone }));
+
+    setErrors(prevErrors => {
+      if (prevErrors.secondaryPhone) {
+        const newErrors = { ...prevErrors };
+        delete newErrors.secondaryPhone;
+        return newErrors;
+      }
+      return prevErrors;
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -184,10 +237,10 @@ const Profile: React.FC = () => {
                     First Name <span className="star">*</span>
                   </label>
                   <InputField
+                    id="firstName" /*Error Changed(missed this id so got error)*/
                     type="text"
                     name="firstName"
                     value={formData.firstName}
-                    //@ts-ignore
                     onChange={handleChange}
                     placeholder="First Name"
                     error={!!errors.firstName}
@@ -199,10 +252,10 @@ const Profile: React.FC = () => {
                     Last Name <span className="star">*</span>
                   </label>
                   <InputField
+                    id="lastName" /*Error Changed(missed this id so got error)*/
                     type="text"
                     name="lastName"
                     value={formData.lastName}
-                    //@ts-ignore
                     onChange={handleChange}
                     placeholder="Last Name"
                     error={!!errors.lastName}
@@ -215,14 +268,13 @@ const Profile: React.FC = () => {
             <div className="gender profile-cmn mb-4">
               <label htmlFor="gender">Gender</label>
               <InputField
+                id="gender" /*Error Changed(missed this id so got error)*/
                 type="dropdown"
                 name="gender"
-                id="gender"
                 value={formData.gender}
-                //@ts-ignore
                 onChange={handleChange}
                 dropdownOptions={["Male", "Female", "Others"]}
-                Selected="Select Gender"
+                placeholder="Select Gender" /*Error Changed(selected into placeholder)*/
               />
             </div>
 
@@ -230,11 +282,11 @@ const Profile: React.FC = () => {
               <h3>Contact Information</h3>
               <label>Email</label>
               <InputField
+                id="email" /*Error Changed(missed this id so got error)*/
                 type="text"
                 name="email"
                 placeholder="Your email"
                 value={formData.email}
-                //@ts-ignore
                 onChange={handleChange}
               />
 
@@ -244,11 +296,11 @@ const Profile: React.FC = () => {
                     Primary Phone Number <span className="star">*</span>
                   </label>
                   <InputField
-                    type="text"
+                    id="phone"
                     name="phone"
+                    type="phone"
                     value={formData.phone}
-                    //@ts-ignore
-                    onChange={handleChange}
+                    onChange={handlePrimaryPhoneChange} // receives string phone number
                     placeholder="1234567890"
                     error={!!errors.phone}
                     helperText={errors.phone}
@@ -257,12 +309,14 @@ const Profile: React.FC = () => {
                 <div className="col-md-6 mb-3">
                   <label>Secondary Phone Number</label>
                   <InputField
-                    type="text"
+                    id="secondaryPhone"
                     name="secondaryPhone"
-                    placeholder="Optional"
+                    type="phone"
                     value={formData.secondaryPhone}
-                    //@ts-ignore
-                    onChange={handleChange}
+                    onChange={handleSecondaryPhoneChange} // receives string phone number
+                    placeholder="1234567890"
+                    error={!!errors.secondaryPhone}
+                    helperText={errors.secondaryPhone}
                   />
                 </div>
               </div>
@@ -272,11 +326,11 @@ const Profile: React.FC = () => {
               <h3>About Me</h3>
               <label>Short Bio</label>
               <InputField
+                id="shortBio" /*Error Changed(missed this id so got error)*/
                 name="bio"
                 type="textarea"
                 placeholder="Tell us about yourself..."
                 value={formData.bio}
-                //@ts-ignore
                 onChange={handleChange}
               />
             </div>
@@ -306,22 +360,25 @@ const Profile: React.FC = () => {
                 <div className="w-100">
                   <label>Address</label>
                   <InputField
+                    id="address" /*Error Changed(missed this id so got error)*/
                     type="text"
                     name="address"
                     placeholder="Your address"
                     value={formData.address}
-                    //@ts-ignore
                     onChange={handleChange}
                   />
                   <label>
                     Longitude <span className="star">*</span>
                   </label>
                   <InputField
+                    id="logitude" /*Error Changed(missed this id so got error)*/
                     type="text"
                     name="longitude"
-                    //@ts-ignore
-                    value={formData.longitude}
-                    //@ts-ignore
+                    value={
+                      formData.longitude !== null
+                        ? formData.longitude.toString()
+                        : undefined
+                    } /*Error changed (formData.longitude into current code)*/
                     onChange={handleChange}
                     placeholder="Longitude"
                     error={!!errors.longitude}
@@ -331,11 +388,14 @@ const Profile: React.FC = () => {
                     Latitude <span className="star">*</span>
                   </label>
                   <InputField
+                    id="latitude" /*Error Changed(missed this id so got error)*/
                     type="text"
                     name="latitude"
-                     //@ts-ignore
-                    value={formData.latitude}
-                     //@ts-ignore
+                    value={
+                      formData.latitude !== null
+                        ? formData.latitude.toString()
+                        : undefined
+                    } /*Error changed (formData.latitude into current code)*/
                     onChange={handleChange}
                     placeholder="Latitude"
                     error={!!errors.latitude}

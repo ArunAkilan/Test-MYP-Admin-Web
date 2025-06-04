@@ -1,22 +1,28 @@
+// InputField.tsx
 import React from "react";
-import TextField from "@mui/material/TextField";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
-import type { SelectChangeEvent } from "@mui/material";
-import Radio from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import FormLabel from "@mui/material/FormLabel";
-import Chip from "@mui/material/Chip";
-import Stack from "@mui/material/Stack";
+import {
+  TextField,
+  InputLabel,
+  MenuItem,
+  FormControl,
+  Select,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  FormLabel,
+  Chip,
+  Stack,
+} from "@mui/material";
 import TextareaAutosize from "@mui/material/TextareaAutosize";
 import { styled } from "@mui/system";
+import { MuiTelInput } from "mui-tel-input";
 import type { Theme } from "@mui/system";
+import type {
+  SelectChangeEvent,
+} from "@mui/material/Select";
 import type { ChangeEvent } from "react";
 
-type InputType = "text" | "textarea" | "dropdown" | "radio" | "chip";
+type InputType = "text" | "textarea" | "dropdown" | "radio" | "chip" | "phone" | "email";
 
 interface InputFieldProps {
   id: string;
@@ -25,13 +31,12 @@ interface InputFieldProps {
   type: InputType;
   placeholder?: string;
   dropdownOptions?: string[];
-  dropdow?: string;
-  value?: string;
-  //@ts-ignore
+  value?: string | number;
   onChange?: (
     event:
+      | SelectChangeEvent<string | number>
       | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-      | SelectChangeEvent
+      | string
   ) => void;
   className?: string;
   radioOptions?: string[];
@@ -54,32 +59,23 @@ const blue = {
 
 const StyledTextarea = styled(TextareaAutosize)(
   ({ theme }: { theme: Theme }) => `
-    box-sizing: border-box;
     width: 100%;
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 0.875rem;
-    font-weight: 400;
-    line-height: 1.5;
     padding: 8px 12px;
     border-radius: 8px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.875rem;
+    border: 1px solid ${theme.palette.mode === 'dark' ? grey[900] : grey[300]};
     color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
     background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
-    border: 1px solid ${theme.palette.mode === 'dark' ? grey[900] : grey[300]};
-    box-shadow: 0px 2px 2px ${
-      theme.palette.mode === "dark" ? grey[900] : "#F3F6F9"
-    };
-
     &:hover {
       border-color: ${blue[400]};
     }
-
     &:focus {
       border-color: ${blue[400]};
       box-shadow: 0 0 0 3px ${
         theme.palette.mode === "dark" ? blue[600] : blue[200]
       };
     }
-
     &:focus-visible {
       outline: 0;
     }
@@ -124,15 +120,23 @@ const InputField: React.FC<InputFieldProps> = ({
           placeholder={placeholder}
           error={error}
           helperText={helperText}
-          sx={{
-            height: 40,
-            "& .MuiInputBase-root": {
-              height: "100%",
-            },
-            "& input": {
-              padding: "4px 12px",
-            },
-          }}
+        />
+      )}
+
+      {type === "email" && (
+        <TextField
+          fullWidth
+          id={id}
+          name={name}
+          label={label}
+          type="email"
+          size="small"
+          value={value}
+          onChange={onChange}
+          className={className}
+          placeholder={placeholder}
+          error={error}
+          helperText={helperText}
         />
       )}
 
@@ -148,6 +152,33 @@ const InputField: React.FC<InputFieldProps> = ({
         />
       )}
 
+      {type === "phone" && (
+        <MuiTelInput
+          value={typeof value === "string" ? value : ""}
+          onChange={(newValue) => {
+            const digitsOnly = newValue.replace(/\D/g, "");
+            if (digitsOnly.length <= 12 && onChange) {
+              onChange(newValue);
+            }
+          }}
+          defaultCountry="IN"
+          // No onlyCountries prop = all countries available
+          label={label}
+          fullWidth
+          size="small"
+          error={error}
+          helperText={helperText}
+          placeholder={placeholder || "+91 1234567890"}
+          className={className}
+          inputProps={{
+            name,
+            id,
+            "aria-label": ariaLabel,
+            inputMode: "numeric",
+          }}
+        />
+      )}
+
       {type === "dropdown" && (
         <FormControl fullWidth>
           <InputLabel id={`${id}-select-label`}>{label}</InputLabel>
@@ -155,7 +186,9 @@ const InputField: React.FC<InputFieldProps> = ({
             labelId={`${id}-select-label`}
             id={id}
             value={value || ""}
-            onChange={onChange as (event: SelectChangeEvent) => void}
+            onChange={onChange as (
+              event: SelectChangeEvent<string | number>
+            ) => void}
             size="small"
             displayEmpty
             inputProps={{ "aria-label": "Without label", name }}
