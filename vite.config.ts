@@ -9,4 +9,6 @@ export default defineConfig({
     port: 3001,      // 👈 desired internal port (changed Port:80 to 3001)
     strictPort: true // avoids fallback
   }
+  
+  
 })

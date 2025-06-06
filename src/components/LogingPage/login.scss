@@ -1,0 +1,151 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  .loginLayer {
+    width: 461px;
+    height: 656px;
+    border-radius: 12px;
+    padding: 32px 16px;
+    gap: 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    // margin-top: 49px;
+    // margin-bottom: 71px;
+    // margin-left: 490px;
+    // margin-right: 489px;
+    // width: 461px;
+    // height: 656px;
+  
+    .termsSection {
+      text-align: center;
+  
+      .Terms {
+        font-family: "Open Sans", sans-serif;
+        font-weight: 400;
+        font-size: 12px;
+        color: #55565C;
+      }
+  
+      .TC {
+        font-family: "Raleway", sans-serif;
+        font-weight: 700;
+        font-size: 12px;
+        color: #214999;
+        text-decoration: underline;
+  
+        &:hover {
+          color: #0056b3;
+        }
+      }
+    }
+  
+    // Section 1 - Header
+    .loginHeader {
+      
+      gap: 8px;
+      // margin-top: 138.5px;
+      font-family: "Raleway", sans-serif;
+      font-weight: 700px;
+      font-size: 22px;
+      text-align: center;
+      color: #55565C;
+
+      .LoginPara {
+        font-family: "Open Sans", sans-serif;
+        font-weight: 400px;
+        font-size: 16px;
+        padding-top: 8px;
+        text-align: center;
+        color: #55565C;
+      }
+    }
+  
+    // Section 2 - Login Options
+    .LoginOptions {
+      gap: 16px;
+      display: flex;
+      flex-direction: column;
+  
+      .MobileIcon {
+        background-color: #214999;
+        height: 48px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        padding: 0 16px;
+  
+        img {
+          width: 24px;
+          height: 24px;
+        }
+  
+        .mblP {
+          color: #ffffff;
+          font-family: "Raleway", sans-serif;
+          font-weight: 600;
+          font-size: 16px;
+        }
+      }
+  
+      .orSection {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+  
+        img {
+          max-width: 100%;
+          height: auto;
+        }
+      }
+  
+      .google-login-button {
+        width: 100% !important; //avoiding overflow
+      }
+  
+      .fbBtn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        gap: 12px;
+  
+        img {
+          width: 20px;
+          height: 20px;
+        }
+  
+        .btnp {
+          font-family: "Open Sans", sans-serif;
+          font-weight: 400;
+          font-size: 16px;
+          color: #55565C;
+        }
+      }
+    }
+    .// src/components/LogingPage/login.scss
+
+    .terms-section {
+      font-size: 12px;
+      margin-top: 1.5rem;
+      text-align: center;
+      color: #555;
+    
+      .link {
+        color: #1976d2;
+        text-decoration: underline;
+    
+        &:hover {
+          color: #1565c0;
+        }
+      }
+    }
+    
+  }
+  
