@@ -1,0 +1,103 @@
+.Hero {
+    padding: 88px 0 48px;
+}
+.hero-title p {
+    font-family: 'Open Sans';
+    font-weight: 400;
+    font-size: 28px;
+    line-height: 36px;
+    letter-spacing: -0.84px;
+    padding-bottom: 32px;
+    margin: 0;
+    color: #2E2E2F;
+    text-align: center;
+}
+.hero-title p span {
+    font-weight: 600;
+    color: #214999;
+    letter-spacing: -1.4px;
+}
+.search-wrapper {
+    border: 1px solid #D3DDE7;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0px 1px 2px 0px #292C333D,
+        1px 2px 4px 0px #293D6629,
+        2px 4px 8px 0px #6B83B229,
+        4px 8px 16px 0px #E5E5E53D;
+    margin: 0 97px 48px;
+}
+.divider {
+    max-width: 400px;
+    width: 100%;
+    position: relative;
+    margin: 0 auto 34px;
+}
+.divider-line {
+    width: 100%;
+    height: 1px;
+    background: #D3DDE7;
+}
+.divider-or {
+    position: absolute;
+    margin-bottom: 0;
+    padding: 0 10px;
+    background: #fff;
+    top: -12px;
+    right: calc(50% - 12px);
+}
+.genericPostYourProperty {
+  padding: 15px 24px !important;
+  border-radius: 8px !important;
+  background: #214999 !important;
+  font-size: 16px;
+  color: #fff;
+  height: 48px;
+  font-weight: 600;
+  line-height: 18px;
+  letter-spacing: 0px;
+  font-family: 'Raleway';
+  margin-left: 32px;
+}
+.owner-interaction {
+    margin-bottom: 48px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.owner-interaction p {
+    font-weight: 400;
+    font-size: 22px;
+    line-height: 27px;
+    letter-spacing: 0px;
+    font-family: 'Open Sans';
+    margin: 0px;
+    letter-spacing: -0.66px;
+    color: #55565C;
+}
+
+.marque-part {
+    background: #F2F6F7;
+    height: 56px;
+}
+
+.recentlylisted-title h6 {
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 27px;
+    letter-spacing: 0px;
+    font-family: 'Raleway';
+    margin-bottom: 18px;
+    letter-spacing: 0px;
+    color: #214999;
+}
+.recentlylisted-title p {
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 18px;
+    letter-spacing: 0px;
+    font-family: 'Raleway';
+   margin-bottom: 27px;
+    letter-spacing: 0px;
+    color: #81838C;
+}

@@ -40,7 +40,7 @@ const Profile: React.FC = () => {
     longitude: null,
     latitude: null,
   });
-
+console.log("form data value", formData)
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { isLoaded, loadError } = useLoadScript({

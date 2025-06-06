@@ -106,6 +106,13 @@ export default function VerticalTabs() {
             icon={<PersonIcon />}
             className="tab-outerlayer-div "
           />
+          <Tab
+            sx={{ styles }}
+            label="Home"
+            {...a11yProps(4)}
+            icon={<PersonIcon />}
+            className="tab-outerlayer-div "
+          />
         </Tabs>
       </div>
       <div className="col-md-9 tab-content">

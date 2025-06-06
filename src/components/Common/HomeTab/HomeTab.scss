@@ -1,0 +1,59 @@
+.rentsalelease-tab .prop-type-tab {
+    text-transform: capitalize;
+    color: #81838C;
+    font-family: 'Open Sans';
+    font-size: 14px;
+    line-height: 22px;
+    letter-spacing: 0.1px;
+    font-weight: 400;
+}
+.css-1qltlow-MuiTabs-indicator {
+    background: #214999;
+}
+.css-1usuzwp-MuiButtonBase-root-MuiTab-root.Mui-selected {
+    color: #214999;
+}
+.property-search-field {
+    border: 1px solid #D3DDE7;
+    padding: 12px;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.property-search-field img {
+    margin-right: 10px;
+}
+.inputsearch-property {
+    color: #81838C;
+    font-weight: 400;
+    font-family: 'Open Sans';
+    font-size: 16px;
+    line-height: 18px;
+    letter-spacing: 0px;
+   
+}
+.line {
+    width: 1px;
+    height: 50px;
+    background: #D3DDE7;
+    margin-right: 10px;
+}
+
+.property-search-btn {
+    background: #214999;
+    outline: none;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    color: #fff;
+     font-family: 'Raleway';
+    font-size: 16px;
+    line-height: 18px;
+    letter-spacing: 0px;
+    display: flex;
+    align-items: center;
+}
+.property-search-btn img {
+    margin-right: 6px;
+}
