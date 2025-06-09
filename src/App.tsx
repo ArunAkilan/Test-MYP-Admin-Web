@@ -1,8 +1,9 @@
 import "./App.css";
 import Header from "./components/Common/Navbar/Navbar";
 import Sidebar from "../src/components/Common/Sidebar/Sidebar";
-import HomePage from "./components/HomePage/HomePage";
+import Property from "./components/HomePage/HomePage";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Footer from "./components/Common/Footer/Footer";
 
 function App() {
   return (
@@ -17,10 +18,11 @@ function App() {
         <Router>
           <Routes>
             <Route path="/" element={<Sidebar />} />
-            <Route path="/HomePage" element={<HomePage />} />
+            <Route path="/Property" element={<Property />} />
           </Routes>
         </Router>
       </div>
+      <Footer />
     </div>
   );
 }

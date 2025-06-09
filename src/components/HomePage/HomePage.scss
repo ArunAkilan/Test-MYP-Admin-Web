@@ -81,6 +81,9 @@
     height: 56px;
 }
 
+.recently-listed {
+    margin-bottom: 48px;
+}
 .recentlylisted-title h6 {
     font-weight: 700;
     font-size: 22px;
@@ -100,4 +103,60 @@
    margin-bottom: 27px;
     letter-spacing: 0px;
     color: #81838C;
+}
+
+// but house
+.buy-house {
+    margin-bottom: 72px;
+}
+.buyhouse-explore {
+    padding-top: 83px;
+}
+.house-explore-content {
+    margin-bottom: 40px;
+}
+.house-explore-content h6 {
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 27px;
+    letter-spacing: 0px;
+    font-family: 'Raleway';
+    margin-bottom: 24px;
+    letter-spacing: 0px;
+    color: #214999;
+}
+.find-house {
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 18px;
+    letter-spacing: 0px;
+    font-family: 'Raleway';
+    margin-bottom: 24px;
+    letter-spacing: 0px;
+    color: #81838C;
+}
+.Explore-house {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    letter-spacing: 0px;
+    font-family: 'Open Sans';
+    letter-spacing: 0px;
+    color: #81838C;
+    margin-bottom: 0;
+}
+.genericExploreOptionsStyles{ 
+    text-align: center;
+    justify-content: center;
+    background-color: #214999;
+     font-family: 'Raleway';
+    font-weight: 600;
+    font-size: 16px;
+    line-height:18px;
+    letter-spacing: 0px;
+    padding: 15px 24px;
+    box-shadow: 0px 1px 2px 0px #292C333D,
+        1px 2px 4px 0px #293D6629,
+        2px 4px 8px 0px #6B83B229,
+        4px 8px 16px 0px #E5E5E53D;
 }

@@ -256,7 +256,7 @@ function HomeTab() {
           />
        
           <div className="line"></div>
-          <FormControl sx={{ mr: '10px' ,minWidth: 225 }} size="small">
+          <FormControl sx={{ mr: '10px' }} className="select-tab-house" size="small">
             <InputLabel id="demo-select-small-label">House</InputLabel>
             <Select
               labelId="demo-select-small-label"
@@ -283,7 +283,7 @@ function HomeTab() {
             </Select>
           </FormControl>
           <div className="line"></div>
-          <FormControl sx={{ mr: '10px', minWidth: 225 }} size="small">
+          <FormControl sx={{ mr: '10px' }} className="select-tab-budget" size="small">
             <InputLabel id="demo-select-small-label">Budget</InputLabel>
             <Select
               labelId="demo-select-small-label"

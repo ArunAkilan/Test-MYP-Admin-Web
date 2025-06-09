@@ -1,4 +1,4 @@
-import  { useRef } from "react";
+import { useRef } from "react";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
@@ -7,7 +7,7 @@ import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import './carousel.scss'
+import "./carousel.scss";
 
 export const Carousel = () => {
   const sampleCarouselItems = [
@@ -61,8 +61,7 @@ export const Carousel = () => {
     },
   ];
 
-
-    const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const scroll = (scrollOffset: number) => {
     if (scrollRef.current) {
       scrollRef.current.scrollBy({ left: scrollOffset, behavior: "smooth" });
@@ -70,12 +69,12 @@ export const Carousel = () => {
   };
 
   return (
-    <Box sx={{ position: "relative", width: "100%",  margin: "auto" }}>
-   <IconButton
+    <Box sx={{ position: "relative", width: "100%", margin: "auto" }}>
+      <IconButton
         onClick={() => scroll(-300)}
         sx={{
           position: "absolute",
-          top: "50%",
+          top: { xs: "40%", sm: "50%" },
           left: 8,
           transform: "translateY(-50%)",
           bgcolor: "white",
@@ -93,7 +92,7 @@ export const Carousel = () => {
         onClick={() => scroll(300)}
         sx={{
           position: "absolute",
-          top: "50%",
+          top: { xs: "40%", sm: "50%" },
           right: 8,
           transform: "translateY(-50%)",
           bgcolor: "white",
@@ -107,37 +106,62 @@ export const Carousel = () => {
         <ArrowForwardIcon />
       </IconButton>
 
-
       <Box
         ref={scrollRef}
         sx={{
           display: "flex",
           overflowX: "auto",
           scrollBehavior: "smooth",
-          gap: 2,
-          padding: 2,
+          gap: 2.5,
+          px: { xs: 1, sm: 2 },
+          width: "100%",
           scrollSnapType: "x mandatory",
-          "&::-webkit-scrollbar": { display: "none" }, 
+          justifyContent: { xs: "center", sm: "flex-start" },
+          "&::-webkit-scrollbar": { display: "none" },
         }}
       >
         {sampleCarouselItems.map((item, index) => (
           <Card
             key={index}
             sx={{
-              minWidth: 267,
+              width: {
+                xs: "100%", 
+                sm: "50%", 
+                md: "33%", 
+                lg: "25%", 
+              },
+             
+              minWidth: { xs: "100", sm: "48%", md: "32%", lg: "24%" },
               scrollSnapAlign: "start",
-              flexShrink: 0,
+              maxWidth: "100%",
+              flex: "0 0 auto",
             }}
           >
-            <CardMedia sx={{ height: 140 }} image={item.img} title={item.title} />
+            <CardMedia
+              sx={{ height: 140 }}
+              image={item.img}
+              title={item.title}
+            />
             <CardContent>
-              <Typography gutterBottom  component="div" className="content-title">
+              <Typography
+                gutterBottom
+                component="div"
+                className="content-title"
+              >
                 {item.title}
               </Typography>
-              <Typography variant="body2" color="text.secondary" className="content-subtitle">
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                className="content-subtitle"
+              >
                 {item.subtitle}
               </Typography>
-              <Typography variant="body2" color="text.secondary" className="content-body">
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                className="content-body"
+              >
                 {item.description}
               </Typography>
             </CardContent>
