@@ -13,6 +13,11 @@
 .css-1usuzwp-MuiButtonBase-root-MuiTab-root.Mui-selected {
     color: #214999;
 }
+.css-1olek4m-MuiFormControl-root {
+    min-width: auto;
+    max-width: 225px;
+    width: 100%;
+}
 .property-search-field {
     border: 1px solid #D3DDE7;
     padding: 12px;
@@ -21,7 +26,7 @@
     justify-content: space-between;
     align-items: center;
 }
-.property-search-field img {
+.hero-location-image {
     margin-right: 10px;
 }
 .inputsearch-property {
@@ -33,7 +38,7 @@
     letter-spacing: 0px;
    
 }
-.line {
+ .property-search-field .line {
     width: 1px;
     height: 50px;
     background: #D3DDE7;
@@ -57,8 +62,43 @@
 .property-search-btn img {
     margin-right: 6px;
 }
+.genericSearchBtn { 
+    background-color: #214999;
+    border-radius: 8px;
+    font-family: 'Raleway';
+    font-weight: 600;
+    font-size: 16px;
+    line-height:18px;
+    letter-spacing: 0px;
+    padding: 15px 24px;
+    box-shadow: 0px 1px 2px 0px #292C333D,
+        1px 2px 4px 0px #293D6629,
+        2px 4px 8px 0px #6B83B229,
+        4px 8px 16px 0px #E5E5E53D;
+}
 
-.select-tab-house,.select-tab-budget {
-    max-width: 225px;
-    width: 100%;
+@media only screen and (max-width:664px) {
+    .property-search-field {
+        flex-direction: column;
+        align-items: start;
+    }
+    .property-search-field .line {
+        max-width: 230px;
+        width: 100%;
+        height: 1px;
+        margin: 16px 0;
+    }
+    .genericSearchBtn {
+        margin-top: 16px;
+    }
+    .hero-location-image {
+        margin-bottom: 10px;
+    }
+    .rentsalelease-tab .prop-type-tab {
+        min-width: auto;
+        width: 60px;
+    }
+    .buyhouse-explore {
+        padding-top: 12px;
+    }
 }

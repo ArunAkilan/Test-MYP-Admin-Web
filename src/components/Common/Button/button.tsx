@@ -12,6 +12,7 @@ const GenericButton: React.FC<GenericButtonProps> = ({
   type = "button",
   disabled = false,
   variant = "primary",
+  image='',
   className = "",
   icon,
   iconPosition = "left",
@@ -19,10 +20,17 @@ const GenericButton: React.FC<GenericButtonProps> = ({
   return (
     <button
       type={type}
+      
       onClick={onClick}
       disabled={disabled}
       className={`btn btn--${variant} ${className}`}
     >
+      {
+        image && 
+        <>
+        <img src={image} alt="" />
+        </>
+      }
       {icon && iconPosition === "left" && (
         <span className="btn__icon">{icon}</span>
       )}

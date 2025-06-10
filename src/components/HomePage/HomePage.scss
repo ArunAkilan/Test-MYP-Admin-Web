@@ -146,8 +146,6 @@
     margin-bottom: 0;
 }
 .genericExploreOptionsStyles{ 
-    text-align: center;
-    justify-content: center;
     background-color: #214999;
      font-family: 'Raleway';
     font-weight: 600;
@@ -159,4 +157,29 @@
         1px 2px 4px 0px #293D6629,
         2px 4px 8px 0px #6B83B229,
         4px 8px 16px 0px #E5E5E53D;
+}
+.genericExploreOptionsStyles:hover {
+    background: #214999;
+}
+.ellipse-image img {
+    width: 100%;
+    height: 100%;
+}
+
+@media only screen and (max-width:992px) {
+    .search-wrapper {
+        margin: 0 24px 48px;
+    }
+}
+@media only screen and (max-width:664px) {
+    .owner-interaction {
+        flex-direction: column;
+    }
+    .Hero {
+        padding: 48px 0 48px;
+    }
+    .genericPostYourProperty {
+        margin-left: 0;
+        margin-top: 12px;
+    }
 }

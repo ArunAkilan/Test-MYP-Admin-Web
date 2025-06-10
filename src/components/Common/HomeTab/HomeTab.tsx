@@ -10,7 +10,9 @@ import Select from "@mui/material/Select";
 import type { SelectChangeEvent } from "@mui/material/Select";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import TextField from "@mui/material/TextField";
-import  { useState } from 'react';
+import { useState } from "react";
+import GenericButton from "../Button/button";
+import heroSearchImage from "../../../../public/tdesign_search.svg";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -52,9 +54,11 @@ function HomeTab() {
   const selecthandleChange = (event: SelectChangeEvent) => {
     setAge(event.target.value);
   };
-  const [searchValue, setSearchValue] = useState('');
+  const [searchValue, setSearchValue] = useState("");
 
-  const handleSearchFieldOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearchFieldOnChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setSearchValue(event.target.value);
   };
   return (
@@ -72,8 +76,12 @@ function HomeTab() {
 
       <CustomTabPanel value={value} index={0}>
         <div className="property-search-field">
-          <img src="weui_location-outlined.svg" alt="location img" />
-          
+          <img
+            src="weui_location-outlined.svg"
+            className="hero-location-image"
+            alt="location img"
+          />
+
           <TextField
             placeholder="Search in Perambalur"
             type="search"
@@ -81,20 +89,24 @@ function HomeTab() {
             fullWidth
             size="small"
             onChange={handleSearchFieldOnChange}
+            className="hero-search-field"
             value={searchValue}
             sx={{
-              mr: '10px',
-              color: '81838C',
-              letterSpacing: '0px',
-              fontSize: '16px',
-              '& .MuiOutlinedInput-notchedOutline': {
-                border: 'none',
+              mr: "10px",
+              color: "81838C",
+              letterSpacing: "0px",
+              fontSize: "16px",
+              "& .MuiOutlinedInput-notchedOutline": {
+                border: "none",
               },
             }}
           />
-       
           <div className="line"></div>
-          <FormControl sx={{ mr: '10px' ,minWidth: 225 }} size="small">
+          <FormControl
+            sx={{ mr: "10px", maxWidth: 225, width: 1, minWidth: "auto" }}
+            className="hero-select"
+            size="small"
+          >
             <InputLabel id="demo-select-small-label">House</InputLabel>
             <Select
               labelId="demo-select-small-label"
@@ -121,7 +133,11 @@ function HomeTab() {
             </Select>
           </FormControl>
           <div className="line"></div>
-          <FormControl sx={{ mr: '10px', minWidth: 225 }} size="small">
+          <FormControl
+            sx={{ mr: "10px", maxWidth: 225, width: 1, minWidth: "auto" }}
+            className="hero-select"
+            size="small"
+          >
             <InputLabel id="demo-select-small-label">Budget</InputLabel>
             <Select
               labelId="demo-select-small-label"
@@ -147,14 +163,20 @@ function HomeTab() {
               <MenuItem value={30}>Thirty</MenuItem>
             </Select>
           </FormControl>
-          
-          <button className="property-search-btn"><img src="tdesign_search.svg" alt="search" />Search</button>
+
+          <GenericButton
+            image={heroSearchImage}
+            variant="primary"
+            iconPosition="left"
+            label={"Search"}
+            className="genericSearchBtn"
+          />
         </div>
       </CustomTabPanel>
       <CustomTabPanel value={value} index={1}>
         <div className="property-search-field">
           <img src="weui_location-outlined.svg" alt="location img" />
-          
+
           <TextField
             placeholder="Search in Perambalur"
             type="search"
@@ -164,18 +186,18 @@ function HomeTab() {
             onChange={handleSearchFieldOnChange}
             value={searchValue}
             sx={{
-              mr: '10px',
-              color: '81838C',
-              letterSpacing: '0px',
-              fontSize: '16px',
-              '& .MuiOutlinedInput-notchedOutline': {
-                border: 'none',
+              mr: "10px",
+              color: "81838C",
+              letterSpacing: "0px",
+              fontSize: "16px",
+              "& .MuiOutlinedInput-notchedOutline": {
+                border: "none",
               },
             }}
           />
-       
+
           <div className="line"></div>
-          <FormControl sx={{ mr: '10px' ,minWidth: 225 }} size="small">
+          <FormControl sx={{ mr: "10px", maxWidth: 225, minWidth: "auto", width: 1 }} size="small">
             <InputLabel id="demo-select-small-label">House</InputLabel>
             <Select
               labelId="demo-select-small-label"
@@ -202,7 +224,10 @@ function HomeTab() {
             </Select>
           </FormControl>
           <div className="line"></div>
-          <FormControl sx={{ mr: '10px', minWidth: 225 }} size="small">
+          <FormControl
+            sx={{ mr: "10px", maxWidth: 225, minWidth: "auto", width: 1 }}
+            size="small"
+          >
             <InputLabel id="demo-select-small-label">Budget</InputLabel>
             <Select
               labelId="demo-select-small-label"
@@ -228,14 +253,20 @@ function HomeTab() {
               <MenuItem value={30}>Thirty</MenuItem>
             </Select>
           </FormControl>
-          
-          <button className="property-search-btn"><img src="tdesign_search.svg" alt="search" />Search</button>
+
+          <GenericButton
+            image={heroSearchImage}
+            variant="primary"
+            iconPosition="left"
+            label={"Search"}
+            className="genericSearchBtn"
+          />
         </div>
       </CustomTabPanel>
       <CustomTabPanel value={value} index={2}>
         <div className="property-search-field">
           <img src="weui_location-outlined.svg" alt="location img" />
-          
+
           <TextField
             placeholder="Search in Perambalur"
             type="search"
@@ -245,18 +276,22 @@ function HomeTab() {
             onChange={handleSearchFieldOnChange}
             value={searchValue}
             sx={{
-              mr: '10px',
-              color: '81838C',
-              letterSpacing: '0px',
-              fontSize: '16px',
-              '& .MuiOutlinedInput-notchedOutline': {
-                border: 'none',
+              mr: "10px",
+              color: "81838C",
+              letterSpacing: "0px",
+              fontSize: "16px",
+              "& .MuiOutlinedInput-notchedOutline": {
+                border: "none",
               },
             }}
           />
-       
+
           <div className="line"></div>
-          <FormControl sx={{ mr: '10px' }} className="select-tab-house" size="small">
+          <FormControl
+            sx={{ mr: "10px" }}
+            className="select-tab-house"
+            size="small"
+          >
             <InputLabel id="demo-select-small-label">House</InputLabel>
             <Select
               labelId="demo-select-small-label"
@@ -283,7 +318,11 @@ function HomeTab() {
             </Select>
           </FormControl>
           <div className="line"></div>
-          <FormControl sx={{ mr: '10px' }} className="select-tab-budget" size="small">
+          <FormControl
+            sx={{ mr: "10px" }}
+            className="select-tab-budget"
+            size="small"
+          >
             <InputLabel id="demo-select-small-label">Budget</InputLabel>
             <Select
               labelId="demo-select-small-label"
@@ -309,8 +348,14 @@ function HomeTab() {
               <MenuItem value={30}>Thirty</MenuItem>
             </Select>
           </FormControl>
-          
-          <button className="property-search-btn"><img src="tdesign_search.svg" alt="search" />Search</button>
+
+          <GenericButton
+            image={heroSearchImage}
+            variant="primary"
+            iconPosition="left"
+            label={"Search"}
+            className="genericSearchBtn"
+          />
         </div>
       </CustomTabPanel>
     </div>
