@@ -7,11 +7,11 @@ import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import { useTheme } from "@mui/material/styles";
+// import { useTheme } from "@mui/material/styles";
 import "./carousel.scss";
 
 export const Carousel = () => {
-  const theme = useTheme();
+  // const theme = useTheme();
   const sampleCarouselItems = [
     {
       img: "card-image.jpg",
