@@ -1,7 +1,8 @@
 import GenericButton from "../Common/Button/button";
+import { Carousel } from "../Common/Carousel/carousel";
 import HomeTab from "../Common/HomeTab/HomeTab";
 import "./HomePage.scss";
-import { Carousel } from "../Common/Carousel/Carousel";
+
 
 
 function Property() {
