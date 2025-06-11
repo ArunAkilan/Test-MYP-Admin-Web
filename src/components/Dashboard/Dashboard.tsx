@@ -68,14 +68,14 @@ function Home() {
               src="material-symbols_pending-actions-rounded.svg"
               alt="material img"
             />
-           
+           <p>Pending Approvals</p>
           </div>
           <div className="approve pa-common">
             <img
               src="material-symbols_pending-actions-rounded-w.svg"
               alt="material white img"
             />
-            
+            <p>Approved Properties</p>
           </div>
         </div>
       </div>
@@ -95,17 +95,17 @@ function Home() {
               </div>
               <p className="filter-link color-edit">
                 <img src="majesticons_filter-line.svg" alt="filter img" />
-               
+                <span className="filter-text">Filter</span>
               </p>
               <p className="sort color-edit">
                 <img src="material-symbols_sort-rounded.svg" alt="sort img" />
-                
+                Sort
               </p>
             </div>
           </div>
         </div>
       </div>
-      <Table />
+      <Table  />
     </div>
   );
 }

@@ -14,10 +14,11 @@ th {
   color: #81868C;
   text-align: start;
     font-size: 12px;
-    font-style: normal;
+     line-height: 18px;
     font-weight: 700;
-    line-height: 18px;
-    letter-spacing: 0.6px;
+    letter-spacing: 0px;
+    font-family: 'Raleway';
+    
 }
 td {
   padding: 16px;
@@ -31,6 +32,7 @@ td  {
     font-weight: 500;
     line-height: normal;
     letter-spacing: 0.018em;
+    font-family: 'Open Sans';
 }
 .furnish {
   color: #8D9399;
