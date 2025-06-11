@@ -4,7 +4,7 @@ import { Button } from "@mui/material";
 import DoneIcon from "@mui/icons-material/Done";
 import CloseIcon from "@mui/icons-material/Close";
 import { Search } from "@mui/icons-material";
-import { InputField } from "./input";
+import { InputField } from "../../Common/input";
 
 export const CreateResidential = () => {
   return (
