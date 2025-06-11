@@ -1,5 +1,5 @@
-// InputField.tsx
-import React from "react";
+// src/components/LogingPage/loginModules/MobileInput/input.tsx
+import * as React from "react";
 import {
   TextField,
   InputLabel,
@@ -12,17 +12,32 @@ import {
   FormLabel,
   Chip,
   Stack,
+  Box,
+  Button,
+  Typography,
+  Modal,
 } from "@mui/material";
 import TextareaAutosize from "@mui/material/TextareaAutosize";
 import { styled } from "@mui/system";
 import { MuiTelInput } from "mui-tel-input";
 import type { Theme } from "@mui/system";
-import type {
-  SelectChangeEvent,
-} from "@mui/material/Select";
+import type { SelectChangeEvent } from "@mui/material/Select";
 import type { ChangeEvent } from "react";
 
-type InputType = "text" | "textarea" | "dropdown" | "radio" | "chip" | "phone" | "email";
+// Define union type for onChange event parameter
+type OnChangeEvent =
+  | string
+  | SelectChangeEvent<string | number>
+  | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>;
+
+type InputType =
+  | "text"
+  | "textarea"
+  | "dropdown"
+  | "radio"
+  | "chip"
+  | "phone"
+  | "email";
 
 interface InputFieldProps {
   id: string;
@@ -34,9 +49,10 @@ interface InputFieldProps {
   value?: string | number;
   onChange?: (
     event:
-      | SelectChangeEvent<string | number>
-      | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-      | string
+      // | SelectChangeEvent<string | number>
+      // | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+      // | string
+      OnChangeEvent
   ) => void;
   className?: string;
   radioOptions?: string[];
@@ -64,9 +80,9 @@ const StyledTextarea = styled(TextareaAutosize)(
     border-radius: 8px;
     font-family: 'IBM Plex Sans', sans-serif;
     font-size: 0.875rem;
-    border: 1px solid ${theme.palette.mode === 'dark' ? grey[900] : grey[300]};
-    color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
-    background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
+    border: 1px solid ${theme.palette.mode === "dark" ? grey[900] : grey[300]};
+    color: ${theme.palette.mode === "dark" ? grey[300] : grey[900]};
+    background: ${theme.palette.mode === "dark" ? grey[900] : "#fff"};
     &:hover {
       border-color: ${blue[400]};
     }
@@ -98,6 +114,19 @@ const InputField: React.FC<InputFieldProps> = ({
   error,
   helperText,
 }) => {
+
+// Helper function to handle onChange for native inputs (text, email, textarea, radio)
+const handleInputChange = (
+  e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+) => {
+  if (onChange) onChange(e);
+};
+
+// Helper function to handle onChange for Select component
+const handleSelectChange = (e: SelectChangeEvent<string | number>) => {
+  if (onChange) onChange(e);
+};
+
   return (
     <div className="mb-3 d-flex flex-column">
       {label && type !== "radio" && type !== "chip" && (
@@ -115,7 +144,8 @@ const InputField: React.FC<InputFieldProps> = ({
           type="text"
           size="small"
           value={value}
-          onChange={onChange}
+          // onChange={onChange}
+          onChange={handleInputChange}
           className={className}
           placeholder={placeholder}
           error={error}
@@ -132,7 +162,8 @@ const InputField: React.FC<InputFieldProps> = ({
           type="email"
           size="small"
           value={value}
-          onChange={onChange}
+          // onChange={onChange}
+          onChange={handleInputChange}
           className={className}
           placeholder={placeholder}
           error={error}
@@ -147,7 +178,8 @@ const InputField: React.FC<InputFieldProps> = ({
           aria-label={ariaLabel}
           placeholder={placeholder}
           value={value}
-          onChange={onChange}
+          // onChange={onChange}
+          onChange={handleInputChange}
           className={className}
         />
       )}
@@ -155,14 +187,13 @@ const InputField: React.FC<InputFieldProps> = ({
       {type === "phone" && (
         <MuiTelInput
           value={typeof value === "string" ? value : ""}
-          onChange={(newValue) => {
+          onChange={(newValue: string) => {
             const digitsOnly = newValue.replace(/\D/g, "");
             if (digitsOnly.length <= 12 && onChange) {
-              onChange(newValue);
+              onChange(newValue);// Pass phone number string
             }
           }}
           defaultCountry="IN"
-          // No onlyCountries prop = all countries available
           label={label}
           fullWidth
           size="small"
@@ -180,17 +211,18 @@ const InputField: React.FC<InputFieldProps> = ({
       )}
 
       {type === "dropdown" && (
-        <FormControl fullWidth>
+        <FormControl fullWidth size="small" error={error}>
           <InputLabel id={`${id}-select-label`}>{label}</InputLabel>
           <Select
             labelId={`${id}-select-label`}
             id={id}
             value={value || ""}
-            onChange={onChange as (
-              event: SelectChangeEvent<string | number>
-            ) => void}
-            size="small"
+            onChange={handleSelectChange}
+            //   onChange as (
+            //   event: SelectChangeEvent<string | number>
+            // ) => void}
             displayEmpty
+            label={label}
             inputProps={{ "aria-label": "Without label", name }}
           >
             {dropdownOptions?.map((option, index) => (
@@ -199,18 +231,23 @@ const InputField: React.FC<InputFieldProps> = ({
               </MenuItem>
             ))}
           </Select>
+          {helperText && (
+            <Typography variant="caption" color="error">
+              {helperText}
+            </Typography>
+          )}
         </FormControl>
       )}
 
       {type === "radio" && radioOptions && (
-        <FormControl>
+        <FormControl error={error}>
           <FormLabel id={`${id}-radio-label`}>{label}</FormLabel>
           <RadioGroup
             row
             aria-labelledby={`${id}-radio-label`}
             name={name}
             value={value}
-            onChange={onChange}
+            onChange={handleInputChange}
           >
             {radioOptions.map((option, index) => (
               <FormControlLabel
@@ -221,6 +258,11 @@ const InputField: React.FC<InputFieldProps> = ({
               />
             ))}
           </RadioGroup>
+          {helperText && (
+            <Typography variant="caption" color="error">
+              {helperText}
+            </Typography>
+          )}
         </FormControl>
       )}
 
@@ -232,5 +274,44 @@ const InputField: React.FC<InputFieldProps> = ({
     </div>
   );
 };
+
+const style = {
+  position: "absolute" as const,
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 400,
+  bgcolor: "background.paper",
+  border: "2px solid #000",
+  boxShadow: 24,
+  p: 4,
+};
+
+export function BasicModal() {
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
+  return (
+    <div>
+      <Button onClick={handleOpen}>Open modal</Button>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Text in a modal
+          </Typography>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
+          </Typography>
+        </Box>
+      </Modal>
+    </div>
+  );
+}
 
 export { InputField };

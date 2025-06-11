@@ -1,6 +1,5 @@
 // src/components/LogingPage/loginModules/EnterMobileNumber.tsx
 import React from "react";
-import { InputField } from "../../../Residential/Create_Residential/input";
 
 interface MobileNumberFormProps {
   onBack: () => void;

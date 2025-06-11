@@ -1,9 +1,9 @@
 import "./App.css";
 import Header from "./components/Common/Navbar/Navbar";
-import Sidebar from '../src/components/Common/Sidebar/Sidebar'
-import LoginPage from "./components/LogingPage/login";
 
-
+// import LoginPage from "./components/LogingPage/login";
+// import MobileInput from "./components/LogingPage/loginModules/MobileInput/MobileInput";
+import Login from "./components/LogingPage/loginModules/LoginInputs/LoginInputs";
 function App() {
   return (
     
@@ -23,7 +23,7 @@ function App() {
     // </div>
     <div>
       <Header />
-      <LoginPage />
+      <Login />
     </div>
 
   );

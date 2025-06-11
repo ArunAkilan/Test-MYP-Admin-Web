@@ -1,0 +1,64 @@
+.mobile-input-form {
+  margin: 0%;
+  padding: 0%;
+
+  .backBtn {
+    all: unset; // This removes ALL default styles from button
+
+    .modalNavbar {
+      // width: 429px;
+      // height: 24px;
+      .backT {
+        font-family: Inter;
+        font-weight: 400;
+        font-size: 18px;
+
+        letter-spacing: 0px;
+      }
+    }
+  }
+  .midTopic{
+   align-items: center;
+    font-family: Raleway;
+    font-weight: 700;
+    font-size: 22px;
+    // line-height: 5px;
+    letter-spacing: 0px;
+    text-align: center;
+    vertical-align: middle;
+    color: #55565C;
+  }
+  .processingArea{
+    margin-top: 32px;
+    .mblLbl{
+      margin-bottom: 14px;
+      font-family: Open Sans;
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 24px;
+      letter-spacing: 0px;
+      vertical-align: middle;
+      color: #2E2E2F;
+    }
+    .numFld{
+      margin-bottom: 24px;
+    }
+   
+      .otpSendBtn button {
+        width: 100%;
+        max-width: 429px;
+        height: 48px;
+        gap: 6px;
+        border-radius: 8px;
+        background-color: #214999;
+        color: white;
+        border: 1px solid #214999;
+        box-sizing: border-box;
+        cursor: pointer;
+      
+      
+    }
+    
+
+  }
+}

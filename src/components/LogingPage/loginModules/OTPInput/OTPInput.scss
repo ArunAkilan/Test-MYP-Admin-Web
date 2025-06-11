@@ -1,0 +1,70 @@
+// OTPInput.module.scss
+
+
+
+.verificationDec{
+  display: flex;
+  align-items: center;
+  gap: 0.25rem; // gap-1 in Bootstrap (4px)
+}
+
+
+.verifyT{
+  font-family: Raleway;
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 5px;
+  letter-spacing: 0px;
+  text-align: center;
+  vertical-align: middle;
+  color: #55565C;
+}
+.digitPara {
+  p {
+    font-family: Open Sans;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 6px;
+    letter-spacing: 0px;
+    vertical-align: middle;
+    color: #55565C;
+    margin: 0;
+
+  }
+}
+
+.editP {
+  color: #214999; 
+  font-family: Raleway;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 6px;
+  
+  vertical-align: middle;
+
+  // &:hover {
+  //   text-decoration: underline;
+  // }
+}
+
+section {
+  margin-bottom: 16px;
+
+  h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #222;
+  }
+}
+
+button {
+  &.MuiButton-root {
+    text-transform: none;
+  }
+}
+
+p {
+  color: #666;
+  font-size: 14px;
+}
