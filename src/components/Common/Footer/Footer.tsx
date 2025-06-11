@@ -4,9 +4,9 @@ import './Footer.scss'
 function Footer() {
   return (
     <div className="footer-wrapper">
-      <div className="footer-top-content-wrapper">
+      <div className="container footer-top-content-wrapper">
         <div className="footer-logo">
-            <img src="PRH Admin 1.svg" alt="PRH Admin 1" />
+            <img src="PRH-user-logo.svg" alt="user-logo" />
         </div>
         
         <div className="footer-top">

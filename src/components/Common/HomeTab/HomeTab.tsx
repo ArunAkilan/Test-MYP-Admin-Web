@@ -55,11 +55,22 @@ function HomeTab() {
     setAge(event.target.value);
   };
   const [searchValue, setSearchValue] = useState("");
+  const [error, setError] = useState(false);
+  const [helperText, setHelperText] = useState("");
 
   const handleSearchFieldOnChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setSearchValue(event.target.value);
+    const value = event.target.value;
+    setSearchValue(value);
+
+    if (!value.trim()) {
+      setError(true);
+      setHelperText("Search cannot be empty.");
+    } else {
+      setError(false);
+      setHelperText("");
+    }
   };
   return (
     <div className="rentsalelease-tab">
@@ -91,6 +102,8 @@ function HomeTab() {
             onChange={handleSearchFieldOnChange}
             className="hero-search-field"
             value={searchValue}
+            error={error}
+            helperText={helperText}
             sx={{
               mr: "10px",
               color: "81838C",

@@ -21,7 +21,7 @@ const Header: React.FC<HeaderProps> = ({
       <div className="container">
         <header className="header row">
           <div className="logo col-3">
-            <img src={MainLogo} alt="logo image" />
+            <img src="PRH-user-logo.svg" alt="logo image" />
           </div>
           <div className="admin-wrap col-9">
             <div className="list-icon">

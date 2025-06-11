@@ -20,7 +20,6 @@ const styles = {
   fontWeight: 600,
   letterSpacing: 0,
   lineHeight: 18,
-
 };
 
 interface TabPanelProps {
