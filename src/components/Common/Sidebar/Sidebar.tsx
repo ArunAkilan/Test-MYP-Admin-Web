@@ -1,15 +1,13 @@
-import "./sidebar.scss";
-import Profile from "../../Profile/Profile";
-
+import './sidebar.scss';
 import * as React from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Home from "../../Dashboard/Dashboard";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import AssignmentIcon from "@mui/icons-material/Assignment";
-import PersonIcon from "@mui/icons-material/Person";
+import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
+import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
+
 
 const styles = {
   fontSize: 16,
@@ -58,8 +56,8 @@ function a11yProps(index: number) {
 export default function VerticalTabs() {
   const [value, setValue] = React.useState(0);
 
-  //@ts-ignore
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+
+  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
      setValue(newValue);
   };
 
@@ -69,7 +67,7 @@ export default function VerticalTabs() {
         <Tabs
           orientation="vertical"
           value={value}
-           //@ts-ignore
+           
           onChange={handleChange}
           variant="fullWidth"
           aria-label="Vertical tabs example"
@@ -78,7 +76,7 @@ export default function VerticalTabs() {
           <Tab
             className="tab-outerlayer-div"
             sx={{ styles }}
-            icon={<DashboardIcon />}
+            icon={<DashboardOutlinedIcon />}
             label="Dashboard"
             {...a11yProps(0)}
           />
@@ -87,7 +85,7 @@ export default function VerticalTabs() {
             sx={{ styles }}
             label="Commercial"
             {...a11yProps(1)}
-            icon={<AssignmentIcon />}
+            icon={<AssignmentOutlinedIcon />}
             id="tab-custom"
             className="tab-outerlayer-div"
           />
@@ -95,16 +93,17 @@ export default function VerticalTabs() {
             sx={{ styles }}
             label="Residential"
             {...a11yProps(2)}
-            icon={<DashboardIcon />}
+            icon={<DashboardOutlinedIcon />}
             className="tab-outerlayer-div"
           />
           <Tab
             sx={{ styles }}
-            label="Profile"
+            label="Plots"
             {...a11yProps(3)}
-            icon={<PersonIcon />}
+            icon={<AssignmentOutlinedIcon />}
             className="tab-outerlayer-div "
           />
+          
         </Tabs>
       </div>
       <div className="col-md-9 tab-content">
@@ -118,7 +117,7 @@ export default function VerticalTabs() {
           Item Three
         </TabPanel>
         <TabPanel value={value} index={3}>
-          <Profile />
+          Item Four
         </TabPanel>
         <TabPanel value={value} index={4}>
           Item Five

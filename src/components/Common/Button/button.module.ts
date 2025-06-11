@@ -7,6 +7,7 @@ export default interface GenericButtonProps {
   disabled?: boolean;
   variant?: ButtonVariant;
   className?: string;
+  image?: string;
   icon?: React.ReactNode; // New prop
   iconPosition?: "left" | "right"; // Optional: left/right icon
 }

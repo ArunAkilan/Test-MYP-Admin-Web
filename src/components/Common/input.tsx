@@ -21,45 +21,32 @@ import TextareaAutosize from "@mui/material/TextareaAutosize";
 import { styled } from "@mui/system";
 import { MuiTelInput } from "mui-tel-input";
 import type { Theme } from "@mui/system";
-import type { SelectChangeEvent } from "@mui/material/Select";
-import type { ChangeEvent } from "react";
+type InputType = "text" | "textarea" | "dropdown" | "radio" | "chip";
 
-// Define union type for onChange event parameter
-type OnChangeEvent =
-  | string
-  | SelectChangeEvent<string | number>
-  | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>;
-
-type InputType =
-  | "text"
-  | "textarea"
-  | "dropdown"
-  | "radio"
-  | "chip"
-  | "phone"
-  | "email";
 
 interface InputFieldProps {
-  id: string;
+  id?: string;
   name?: string;
   label?: string;
   type: InputType;
   placeholder?: string;
   dropdownOptions?: string[];
-  value?: string | number;
-  onChange?: (
-    event:
-      // | SelectChangeEvent<string | number>
-      // | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-      // | string
-      OnChangeEvent
-  ) => void;
+  dropdow?: string;
+  value?: string;
+ 
+  // onChange?: (
+  //   event:
+  //     | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  //     | SelectChangeEvent
+  // ) => void;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   className?: string;
   radioOptions?: string[];
   icon?: React.ReactElement;
   ariaLabel?: string;
   error?: boolean;
   helperText?: string;
+  Selected?: string; 
 }
 
 const grey = {
@@ -225,7 +212,7 @@ const handleSelectChange = (e: SelectChangeEvent<string | number>) => {
             label={label}
             inputProps={{ "aria-label": "Without label", name }}
           >
-            {dropdownOptions?.map((option, index) => (
+            {dropdownOptions?.map((option: string, index: number) => (
               <MenuItem key={index} value={option}>
                 {option}
               </MenuItem>
@@ -249,7 +236,7 @@ const handleSelectChange = (e: SelectChangeEvent<string | number>) => {
             value={value}
             onChange={handleInputChange}
           >
-            {radioOptions.map((option, index) => (
+            {radioOptions.map((option:string, index: number) => (
               <FormControlLabel
                 key={index}
                 value={option}
