@@ -7,11 +7,9 @@ import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-// import { useTheme } from "@mui/material/styles";
 import "./carousel.scss";
 
 export const Carousel = () => {
-  // const theme = useTheme();
   const sampleCarouselItems = [
     {
       img: "card-image.jpg",
@@ -120,7 +118,7 @@ export const Carousel = () => {
             position: "absolute",
             top: "50%",
             left: { xs: 4, sm: 8 },
-            // transform: "translateY(-50%)",
+            transform: "translateY(-50%)",
             bgcolor: "background.paper",
             boxShadow: 3,
             borderRadius: "50%",

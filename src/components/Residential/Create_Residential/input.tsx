@@ -16,7 +16,7 @@ import { styled } from "@mui/system";
 import type { Theme } from "@mui/system";
 type InputType = "text" | "textarea" | "dropdown" | "radio" | "chip";
 
-//@ts-ignore
+
 interface InputFieldProps {
   id?: string;
   name?: string;
@@ -32,7 +32,7 @@ interface InputFieldProps {
   //     | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   //     | SelectChangeEvent
   // ) => void;
-  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   className?: string;
   radioOptions?: string[];
   icon?: React.ReactElement;
@@ -87,7 +87,7 @@ const StyledTextarea = styled(TextareaAutosize)(
   `
 );
 
-const InputField: React.FC<any> = ({
+const InputField: React.FC<InputFieldProps> = ({
   id,
   name,
   label,
@@ -161,7 +161,7 @@ const InputField: React.FC<any> = ({
             displayEmpty
             inputProps={{ "aria-label": "Without label", name }}
           >
-            {dropdownOptions?.map((option:any, index:any) => (
+            {dropdownOptions?.map((option: string, index: number) => (
               <MenuItem key={index} value={option}>
                 {option}
               </MenuItem>
@@ -180,7 +180,7 @@ const InputField: React.FC<any> = ({
             value={value}
             onChange={onChange}
           >
-            {radioOptions.map((option:any, index:any) => (
+            {radioOptions.map((option:string, index: number) => (
               <FormControlLabel
                 key={index}
                 value={option}
