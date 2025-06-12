@@ -5,7 +5,8 @@ import type User from "./Dashboard.model";
 import Table from "../Common/DashboradTable/table";
 import "./Dashboard.scss";
 import GenericButton from "../Common/Button/button";
-import AddIcon from "@mui/icons-material/Add";
+import iconAdd from "../../../public/ICO_Add-1.svg"
+import Dashboardtab from "../Common/HorizondalTab/Dashboardtab";
 
 function Home() {
   const [users, setUsers] = useState<User[]>([]); // ✅ Correct
@@ -21,6 +22,7 @@ function Home() {
         );
         setUsers(response.data);
         setLoading(false);
+        console.log(users)
       } catch (err) {
         if (axios.isAxiosError(err) && err.message) {
           setError(err.message);
@@ -53,7 +55,7 @@ function Home() {
             <GenericButton
               onClick={() => alert("Data saved!")}
               variant="primary"
-              icon={<AddIcon />}
+              image={iconAdd}
               iconPosition="left"
               label={"Add New Post"}
               className="genericNewPostStyles"
@@ -62,50 +64,14 @@ function Home() {
         </div>
       </div>
       <div className="container">
+        
         <div className="pending-approve">
-          <div className="pending pa-common active">
-            <img
-              src="material-symbols_pending-actions-rounded.svg"
-              alt="material img"
-            />
-           <p>Pending Approvals</p>
-          </div>
-          <div className="approve pa-common">
-            <img
-              src="material-symbols_pending-actions-rounded-w.svg"
-              alt="material white img"
-            />
-            <p>Approved Properties</p>
-          </div>
+          <Dashboardtab />
         </div>
       </div>
 
-      <div className="new-listing-wrap">
-        <div className="container">
-          <div className="new-listing">
-            <div className="new-listing-wrap-list">
-              <h3 className="fresh-list">36 Fresh Listings</h3>
-              <img src="Ellipse 24.svg" alt="dot svg" />
-              <h3 className="pending-list">136 Pending Request</h3>
-            </div>
-            <div className="list-panel">
-              <div className="search">
-                <input type="search" placeholder="Search Property" />
-                <img src="Search-1.svg" alt="search svg" />
-              </div>
-              <p className="filter-link color-edit">
-                <img src="majesticons_filter-line.svg" alt="filter img" />
-                <span className="filter-text">Filter</span>
-              </p>
-              <p className="sort color-edit">
-                <img src="material-symbols_sort-rounded.svg" alt="sort img" />
-                Sort
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <Table  />
+      
+      {/* <Table  /> */}
     </div>
   );
 }

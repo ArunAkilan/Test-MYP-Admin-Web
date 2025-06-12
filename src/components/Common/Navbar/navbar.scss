@@ -1,11 +1,10 @@
 .header-wrap {
     box-shadow: 4px 8px 16px 0px rgba(138, 182, 229, 0.06), 2px 4px 8px 0px rgba(178, 178, 178, 0.04), 1px 2px 4px 0px rgba(178, 178, 178, 0.04), 0px 1px 2px 0px rgba(178, 178, 178, 0.04);
-}
+    position: sticky;
+  }
 
 .logo {
-  padding: 24px 0;
-  display: flex;
-  justify-content: center;
+  padding: 0 56px !important;
 }
 .list-icon {
   display: none;
@@ -29,6 +28,7 @@
   position: relative;
   width: 394px;
   height: 48px;
+  border-radius: 6px;
 }
 .h-search img {
   position: absolute;
@@ -38,7 +38,7 @@
 .h-search input {
   padding: 9px 18px 9px 50px;
   border: 1px solid #D8DEE5;
-  border-radius: 2px;
+  border-radius: 6px;
   color: #81858C;
   font-size: 16px;
   line-height: 24px;
@@ -75,6 +75,10 @@
 .bell-image {
   margin-right: 32px;
 }
+.bell-image button {
+  background: none;
+  border: none;
+}
 .setting-image {
     padding-right: 32px;
 }
@@ -102,18 +106,16 @@
     justify-content: flex-end;
     padding: 15px 15px 15px 25px
   }
-  .admin-wrap img {
-    width: 30px;
-  }
+  
   .admin {
     position: absolute;
-    top: 80px;
+    top: 120px;
     right: 50px;
-    background: #444;
+    background: #484a4a;;
     flex-direction: column;
-    padding: 50px;
+    padding: 120px 50px;
     border-radius: 8px;
-    display: none;
+    z-index: 9;
   }
   .h-search {
     background: #fff;
@@ -125,6 +127,7 @@
     background: #fff;
     border-radius: 8px;
     margin-top: 15px;
+    padding: 10px 20px;
   }
     .list-icon {
     display: block;
@@ -133,7 +136,7 @@
 
 @media only screen and (max-width:440px) {
     .logo {
-        padding: 15px;
+        padding: 15px !important;
     }
     .admin-wrap {
     padding: 15px;
