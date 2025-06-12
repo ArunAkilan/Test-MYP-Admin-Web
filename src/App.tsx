@@ -5,7 +5,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 // import LoginPage from "./components/LogingPage/login";
 // import MobileInput from "./components/LogingPage/loginModules/MobileInput/MobileInput";
-import Login from "./components/LogingPage/loginModules/LoginInputs/LoginInputs";
 function App() {
   return (
     <div className="grid-container">

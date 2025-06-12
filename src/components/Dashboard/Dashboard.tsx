@@ -8,10 +8,32 @@ import GenericButton from "../Common/Button/button";
 import AddIcon from "@mui/icons-material/Add";
 
 function Home() {
-  const [users, setUsers] = useState<User[]>([]); // ✅ Correct
-  console.log("user", users);
+  const [users, setUsers] = useState<User[]>([]);
+  const [residencial, setResidencial]= useState ([])
+  console.log("residencial", residencial);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchResidencial = async () => {
+      try {
+        const response = await axios.get("http://192.168.1.70:3002/api/residentials");
+        setResidencial(response.data);
+        setLoading(false);
+      } catch (err) {
+        if (axios.isAxiosError(err) && err.message) {
+          setError(err.message);
+        } else {
+          setError("An unexpected error occurred");
+        }
+        setLoading(false);
+      }
+    };
+  
+    fetchResidencial();
+  }, []);
+  
+
 
   useEffect(() => {
     const fetchUsers = async () => {
