@@ -1,6 +1,16 @@
 import "./table.scss";
+import type { ResidentialProperty } from "../../AdminResidencial/AdminResidencial.model";
 
-function Table() {
+interface TableProps {
+  data: ResidentialProperty[];
+  properties: string;
+}
+
+function Table({data,properties}: TableProps) {
+  if (!Array.isArray(data)) {
+    console.error("Expected 'data' to be an array but got:", data);
+    return <p>Error: Invalid data format</p>;
+  }
   return (
     <div className="container table-responsive">
       <table>
@@ -12,16 +22,21 @@ function Table() {
           <th>Area</th>
           <th>Floors</th>
           <th>Facing</th>
-          <th>Furnish</th>
+          {properties === 'residentials' && <th>Furnish</th> }
+          {properties === 'commercials' && <th>Washroom</th> }
           <th>Type</th>
           <th className="link-h">Link</th>
         </tr>
-        <tr>
+        
+        {
+          data.map((item, index)=>(
+            <>
+               <tr>
           <td className="checkbox-align">
             <input type="checkbox" />
           </td>
           <td className="company-name">
-            <h3>Perambalur Green Enclave</h3>
+            <h3>{item?.location?.address}{item?.location?.landmark}</h3>
             <p
               data-bs-toggle="tooltip"
               data-bs-placement="bottom"
@@ -31,20 +46,30 @@ function Table() {
               Thuraiyur road, Per...
             </p>
           </td>
-          <td>1200 sq ft</td>
+          <td>{item?.area?.totalArea}</td>
 
-          <td>2nd</td>
-          <td>south</td>
+          <td>{item?.totalFloors}</td>
+          <td>{item?.facingDirection}</td>
+         { properties === 'residentials' && 
           <td
-            className="furnish"
-            data-bs-toggle="tooltip"
-            data-bs-placement="bottom"
-            title="Unfurnished"
-          >
-            Unfurnis...
-          </td>
+          className="furnish"
+          data-bs-toggle="tooltip"
+          data-bs-placement="bottom"
+          title="Unfurnished"
+        >
+          {item?.furnishingType}
+        </td>}
+        { properties === 'commercials' && 
+          <td
+          className="furnish"
+          data-bs-toggle="tooltip"
+          data-bs-placement="bottom"
+          title="Unfurnished"
+        >
+          {item?.washroom}
+        </td>}
           <td className="type ">
-            <div className="rental">rental</div>
+            <div className="rental">{item?.propertyType}</div>
           </td>
           <td className="Links">
             <div className="link-wrap">
@@ -55,7 +80,10 @@ function Table() {
             </div>
           </td>
         </tr>
-        <tr>
+            </>
+          ))
+        }
+        {/* <tr>
           <td className="checkbox-align">
             <input type="checkbox" />
           </td>
@@ -130,7 +158,7 @@ function Table() {
               <img src="Delete.svg" alt="Delete img" />
             </div>
           </td>
-        </tr>
+        </tr> */}
       </table>
     </div>
   );

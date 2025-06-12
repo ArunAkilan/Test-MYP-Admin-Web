@@ -1,24 +1,27 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-import type User from "./Dashboard.model";
+// import type User from "./Dashboard.model";
 import Table from "../Common/DashboradTable/table";
 import "./Dashboard.scss";
 import GenericButton from "../Common/Button/button";
 import AddIcon from "@mui/icons-material/Add";
 
-function Home() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [residencial, setResidencial]= useState ([])
+import type { ResidentialProperty } from "../AdminResidencial/AdminResidencial.model";
+
+function Home({properties}) {
+  // const [users, setUsers] = useState<User[]>([]);
+  const [residencial, setResidencial]= useState <ResidentialProperty[]> ([])
   console.log("residencial", residencial);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+  if(properties){
     const fetchResidencial = async () => {
       try {
-        const response = await axios.get("http://192.168.1.70:3002/api/residentials");
-        setResidencial(response.data);
+        const response = await axios.get(`http://192.168.1.70:3002/api/${properties}`);
+        setResidencial(response.data.data);
         setLoading(false);
       } catch (err) {
         if (axios.isAxiosError(err) && err.message) {
@@ -31,33 +34,34 @@ function Home() {
     };
   
     fetchResidencial();
+  }
   }, []);
   
-
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await axios.get<User[]>(
-          "https://jsonplaceholder.typicode.com/todos/1"
-        );
-        setUsers(response.data);
-        setLoading(false);
-      } catch (err) {
-        if (axios.isAxiosError(err) && err.message) {
-          setError(err.message);
-        } else {
-          setError("An unexpected error occurred");
-        }
-        setLoading(false);
-      }
-    };
-
-    fetchUsers();
-  }, []);
-
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
+
+  // useEffect(() => {
+  //   const fetchUsers = async () => {
+  //     try {
+  //       const response = await axios.get<User[]>(
+  //         "https://jsonplaceholder.typicode.com/todos/1"
+  //       );
+  //       setUsers(response.data);
+  //       setLoading(false);
+  //     } catch (err) {
+  //       if (axios.isAxiosError(err) && err.message) {
+  //         setError(err.message);
+  //       } else {
+  //         setError("An unexpected error occurred");
+  //       }
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchUsers();
+  // }, []);
+
+  
 
   return (
     <div className="home-sec ">
@@ -127,7 +131,7 @@ function Home() {
           </div>
         </div>
       </div>
-      <Table  />
+      <Table data={residencial} properties={properties} />
     </div>
   );
 }
