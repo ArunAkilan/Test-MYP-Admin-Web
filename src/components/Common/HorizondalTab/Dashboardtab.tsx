@@ -2,14 +2,21 @@ import * as React from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
-import PendingActionsOutlinedIcon from "@mui/icons-material/PendingActionsOutlined";
 import Table from "../DashboradTable/table";
+import { Avatar } from "@mui/material";
+import './Dashboardtab.scss';
+import type { ResidentialProperty } from "../../AdminResidencial/AdminResidencial.model"
 
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
   value: number;
+  data: ResidentialProperty[];
+  properties: "residentials" | "commercials";
+  washroom?: number | string;
 }
+
+
 
 function CustomTabPanel(props: TabPanelProps) {
   const { children, value, index, ...other  } = props;
@@ -34,27 +41,14 @@ function a11yProps(index: number) {
   };
 }
 
-export default function Dashboardtab({ data,properties}) {
+export default function Dashboardtab({ data, properties }: TabPanelProps){
   const [value, setValue] = React.useState(0);
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 
-  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
-    null
-  );
-
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const open = Boolean(anchorEl);
-  const id = open ? "simple-popover" : undefined;
+ 
 
   return (
      
@@ -64,29 +58,32 @@ export default function Dashboardtab({ data,properties}) {
             value={value}
             onChange={handleChange}
             aria-label="basic tabs example"
+            sx={{
+              paddingBottom: "24px"
+            }}
           >
             <Tab
               label="Pending Requests"
               {...a11yProps(0)}
-              icon={<PendingActionsOutlinedIcon />}
+              icon={<Avatar alt="test avatar" src="/pending-action.svg" />}
               iconPosition="start"
             />
             <Tab
-              label="Approved Listings"
+              label="Approved Properties"
               {...a11yProps(1)}
-              icon={<PendingActionsOutlinedIcon />}
+              icon={<Avatar alt="test avatar" src="/pending-approval.svg" />}
               iconPosition="start"
             />
             <Tab
-              label="Rejected Listings"
+              label="Rejected Properties"
               {...a11yProps(2)}
-              icon={<PendingActionsOutlinedIcon />}
+              icon={<Avatar alt="test avatar" src="/pending-reject.svg" />}
               iconPosition="start"
             />
             <Tab
-              label="Deleted Listings"
-              {...a11yProps(2)}
-              icon={<PendingActionsOutlinedIcon />}
+              label="Deleted Properties"
+              {...a11yProps(3)}
+              icon={<Avatar alt="test avatar" src="/pending-delete.svg" />}
               iconPosition="start"
             />
           </Tabs>

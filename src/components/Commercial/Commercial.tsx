@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-import type User from "./Commercial.model";
-import Table from "../Common/DashboradTable/table";
 import "./Commercial.scss";
 import GenericButton from "../Common/Button/button";
 import AddIcon from "@mui/icons-material/Add";

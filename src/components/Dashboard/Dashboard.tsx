@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-import Table from "../Common/DashboradTable/table";
 import "./Dashboard.scss";
 import GenericButton from "../Common/Button/button";
 import iconAdd from "../../../public/ICO_Add-1.svg"
@@ -59,7 +58,7 @@ function Home({properties}) {
               variant="primary"
               image={iconAdd}
               iconPosition="left"
-              label={"Add New Post"}
+              label={"Add New Property"}
               className="genericNewPostStyles"
             />
           </div>

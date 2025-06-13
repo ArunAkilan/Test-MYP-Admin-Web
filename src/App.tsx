@@ -5,8 +5,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
-// import LoginPage from "./components/LogingPage/login";
-// import MobileInput from "./components/LogingPage/loginModules/MobileInput/MobileInput";
 function App() {
   return (
     <div className="grid-container">

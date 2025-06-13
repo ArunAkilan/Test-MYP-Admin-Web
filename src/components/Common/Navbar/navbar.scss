@@ -1,6 +1,9 @@
 .header-wrap {
     box-shadow: 4px 8px 16px 0px rgba(138, 182, 229, 0.06), 2px 4px 8px 0px rgba(178, 178, 178, 0.04), 1px 2px 4px 0px rgba(178, 178, 178, 0.04), 0px 1px 2px 0px rgba(178, 178, 178, 0.04);
     position: sticky;
+    top: 0;
+    z-index: 9;
+    background: #fff;
   }
 
 .logo {
@@ -104,6 +107,38 @@
 .genericPostYourProperty:hover {
   color: #fff;
 }
+.notification-popover {
+  padding: 16px;
+  height: calc(100vh - 128px);
+}
+.notify-header {
+  display: flex;
+  padding: 6.5px 0;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  
+}
+
+.notify-header h4 {
+  font-size: 22px;
+  color: #2E2E2F;
+  font-weight: 600;
+  line-height: 27px;
+  letter-spacing: 0px;
+  font-family: 'Raleway';
+  margin: 0;
+}
+.notify-header button {
+  font-size: 16px;
+  color: #214999;
+  font-weight: 600;
+  line-height: 18px;
+  letter-spacing: 0px;
+  font-family: 'Raleway';
+  border: none;
+  background: none;
+}
+
 // @media only screen and (max-width:992px) {
 
 //   .admin-wrap {

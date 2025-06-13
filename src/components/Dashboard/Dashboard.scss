@@ -9,8 +9,9 @@
     .house-topic {
       display: inline-flex;
       justify-content: space-between;
-      align-items: flex-start;
+      align-items: center;
       width: 100%;
+      padding: 1px 0 3px;
 
       .house-topic-content {
         h3 {
@@ -19,7 +20,7 @@
           line-height: 36px;
           font-weight: 700;
           font-family: 'Raleway';
-          padding-bottom: 7px;
+          padding-bottom: 8px;
           color: #2E2E2F;
         }
 
@@ -156,11 +157,8 @@
             left: 8px;
             top: 13px;
           }
-        }
-
-        
-
-     
+        } 
+  
       }
     }
   }

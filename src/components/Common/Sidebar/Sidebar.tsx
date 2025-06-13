@@ -5,9 +5,6 @@ import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Home from "../../Dashboard/Dashboard";
-import Commercial from '../../Commercial/Commercial';
-import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
-import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
 import { Avatar } from '@mui/material';
 
 
@@ -88,7 +85,7 @@ export default function VerticalTabs() {
             sx={{ styles }}
             label="Commercial"
             {...a11yProps(1)}
-            icon={<Avatar alt="test avatar" src="/Dash.svg" />} 
+            icon={<Avatar alt="test avatar" src="/solar_buildings-linear.svg" />} 
             iconPosition="start"
             id="tab-custom"
             className="tab-outerlayer-div"
@@ -97,7 +94,7 @@ export default function VerticalTabs() {
             sx={{ styles }}
             label="Residential"
             {...a11yProps(2)}
-            icon={<Avatar alt="test avatar" src="/resdential-icon.svg" />}
+            icon={<Avatar alt="test avatar" src="/hugeicons_house-02.svg" />}
              iconPosition="start"
             
             className="tab-outerlayer-div"
@@ -106,7 +103,7 @@ export default function VerticalTabs() {
             sx={{ styles }}
             label="Plots"
             {...a11yProps(3)}
-            icon={<Avatar alt="test avatar" src="/Dash.svg" />}
+            icon={<Avatar alt="test avatar" src="/lucide_land-plot.svg" />}
             iconPosition="start"
             
             className="tab-outerlayer-div "

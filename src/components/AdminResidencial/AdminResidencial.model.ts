@@ -132,5 +132,6 @@ export interface OwnerContact {
     createdAt?: string;
     updatedAt?: string;
     _id?: string;
+     washroom?: number | string;
   }
   
