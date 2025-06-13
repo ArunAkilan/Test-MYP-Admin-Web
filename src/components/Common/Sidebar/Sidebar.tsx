@@ -5,8 +5,10 @@ import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Home from "../../Dashboard/Dashboard";
+import Commercial from '../../Commercial/Commercial';
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
 import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
+import { Avatar } from '@mui/material';
 
 
 const styles = {
@@ -76,7 +78,8 @@ export default function VerticalTabs() {
           <Tab
             className="tab-outerlayer-div"
             sx={{ styles }}
-            icon={<DashboardOutlinedIcon />}
+            icon={<Avatar alt="test avatar" src="/Dash.svg" />}
+            iconPosition="start"
             label="Dashboard"
             {...a11yProps(0)}
           />
@@ -85,7 +88,8 @@ export default function VerticalTabs() {
             sx={{ styles }}
             label="Commercial"
             {...a11yProps(1)}
-            icon={<AssignmentOutlinedIcon />}
+            icon={<Avatar alt="test avatar" src="/Dash.svg" />} 
+            iconPosition="start"
             id="tab-custom"
             className="tab-outerlayer-div"
           />
@@ -93,14 +97,18 @@ export default function VerticalTabs() {
             sx={{ styles }}
             label="Residential"
             {...a11yProps(2)}
-            icon={<DashboardOutlinedIcon />}
+            icon={<Avatar alt="test avatar" src="/resdential-icon.svg" />}
+             iconPosition="start"
+            
             className="tab-outerlayer-div"
           />
           <Tab
             sx={{ styles }}
             label="Plots"
             {...a11yProps(3)}
-            icon={<AssignmentOutlinedIcon />}
+            icon={<Avatar alt="test avatar" src="/Dash.svg" />}
+            iconPosition="start"
+            
             className="tab-outerlayer-div "
           />
           

@@ -1,12 +1,13 @@
-import ListIcon from "@mui/icons-material/List";
+import * as React from "react";
 import "./navbar.scss";
 import GenericButton from "../Button/button";
-
+import Popover from "@mui/material/Popover";
+import Typography from "@mui/material/Typography";
 
 interface HeaderProps {
   Title: string;
-  ProfileLogo: string; 
-  MainLogo: string;   
+  ProfileLogo: string;
+  MainLogo: string;
   Profile: boolean;
 }
 
@@ -16,17 +17,31 @@ const Header: React.FC<HeaderProps> = ({
   MainLogo,
   Profile,
 }) => {
+  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
+    null
+  );
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const open = Boolean(anchorEl);
+  const id = open ? "simple-popover" : undefined;
+
   return (
     <div className="header-wrap">
       <div className="container">
         <header className="header row">
           <div className="logo col-3">
             <img src={MainLogo} alt="logo image" />
+            
           </div>
+          
           <div className="admin-wrap col-9">
-            <div className="list-icon">
-              <ListIcon />
-            </div>
             <div className="admin">
               <div className="h-search">
                 <img src="Search.svg" alt="Search img" />
@@ -39,11 +54,32 @@ const Header: React.FC<HeaderProps> = ({
                   alt="setting svg"
                   className="setting-image"
                 />
-                <img
-                  src="BTN_Notification.svg"
-                  alt="Notification svg"
-                  className="bell-image"
-                />
+                <div className="bell-image">
+                  <button aria-describedby={id} 
+                 
+                  onClick={handleClick}>
+                    <img
+                      src="BTN_Notification.svg"
+                      alt="Notification svg"
+                      
+                    />
+                  </button>
+                  <Popover
+                    id={id}
+                    open={open}
+                    anchorEl={anchorEl}
+                    onClose={handleClose}
+                    anchorOrigin={{
+                      vertical: "bottom",
+                      horizontal: "left",
+                    }}
+                  >
+                    <Typography sx={{ p: 2 }}>
+                      The content of the Popover.
+                    </Typography>
+                  </Popover>
+                </div>
+                
                 <div className="ad-right">
                   <img src={ProfileLogo} alt="ellipse image"></img>
                   <p>{Title}</p>

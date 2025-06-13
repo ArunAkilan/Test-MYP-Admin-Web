@@ -1,30 +1,28 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-// import type User from "./Dashboard.model";
+import type User from "./Commercial.model";
 import Table from "../Common/DashboradTable/table";
-import "./Dashboard.scss";
+import "./Commercial.scss";
 import GenericButton from "../Common/Button/button";
-import iconAdd from "../../../public/ICO_Add-1.svg"
-import Dashboardtab from "../Common/HorizondalTab/Dashboardtab";
+import AddIcon from "@mui/icons-material/Add";
 
-import type { ResidentialProperty } from "../AdminResidencial/AdminResidencial.model";
+function Commercial() {
+//   const [users, setUsers] = useState<User[]>([]); 
+    const [comercial, setComercial] = useState([]); 
 
-function Home({properties}) {
-  // const [users, setUsers] = useState<User[]>([]);
-  const [residencial, setResidencial]= useState <ResidentialProperty[]> ([])
-  console.log("residencial", residencial);
+  console.log("comercial", comercial);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-  if(properties){
-    const fetchResidencial = async () => {
+    useEffect(() => {
+    const fetchUsers = async () => {
       try {
-        const response = await axios.get(`http://192.168.1.70:3002/api/${properties}`);
-        setResidencial(response.data.data);
+        const response = await axios.get(
+          "http://192.168.1.70:3002/api/commercials"
+        );
+        setComercial(response.data);
         setLoading(false);
-        console.log(users)
       } catch (err) {
         if (axios.isAxiosError(err) && err.message) {
           setError(err.message);
@@ -34,36 +32,37 @@ function Home({properties}) {
         setLoading(false);
       }
     };
-  
-    fetchResidencial();
-  }
+
+    fetchUsers();
   }, []);
-  
-  if (loading) return <p>Loading...</p>;
+    if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
 
-  // useEffect(() => {
-  //   const fetchUsers = async () => {
-  //     try {
-  //       const response = await axios.get<User[]>(
-  //         "https://jsonplaceholder.typicode.com/todos/1"
-  //       );
-  //       setUsers(response.data);
-  //       setLoading(false);
-  //     } catch (err) {
-  //       if (axios.isAxiosError(err) && err.message) {
-  //         setError(err.message);
-  //       } else {
-  //         setError("An unexpected error occurred");
-  //       }
-  //       setLoading(false);
-  //     }
-  //   };
 
-  //   fetchUsers();
-  // }, []);
+//   useEffect(() => {
+//     const fetchUsers = async () => {
+//       try {
+//         const response = await axios.get<User[]>(
+//           "http://192.168.1.70:3002/api/commercial"
+//         );
+//         setUsers(response.data);
+//         setLoading(false);
+//         console.log(users)
+//       } catch (err) {
+//         if (axios.isAxiosError(err) && err.message) {
+//           setError(err.message);
+//         } else {
+//           setError("An unexpected error occurred");
+//         }
+//         setLoading(false);
+//       }
+//     };
 
-  
+//     fetchUsers();
+//   }, []);
+
+//   if (loading) return <p>Loading...</p>;
+//   if (error) return <p>Error: {error}</p>;
 
   return (
     <div className="home-sec ">
@@ -81,7 +80,7 @@ function Home({properties}) {
             <GenericButton
               onClick={() => alert("Data saved!")}
               variant="primary"
-              image={iconAdd}
+              icon={<AddIcon />}
               iconPosition="left"
               label={"Add New Post"}
               className="genericNewPostStyles"
@@ -90,9 +89,21 @@ function Home({properties}) {
         </div>
       </div>
       <div className="container">
-        
         <div className="pending-approve">
-          <Dashboardtab />
+          <div className="pending pa-common active">
+            <img
+              src="material-symbols_pending-actions-rounded.svg"
+              alt="material img"
+            />
+           <p>Pending Approvals</p>
+          </div>
+          <div className="approve pa-common">
+            <img
+              src="material-symbols_pending-actions-rounded-w.svg"
+              alt="material white img"
+            />
+            <p>Approved Properties</p>
+          </div>
         </div>
       </div>
 
@@ -121,11 +132,9 @@ function Home({properties}) {
           </div>
         </div>
       </div>
-      <Table data={residencial} properties={properties} />
-      
-      {/* <Table  /> */}
+      {/* <Table properties={comercial} /> */}
     </div>
   );
 }
 
-export default Home;
+export default Commercial;

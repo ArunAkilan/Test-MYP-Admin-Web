@@ -1,5 +1,5 @@
 .home-sec {
-  padding: 32px 0 32px 24px !important;
+  padding: 32px 0 32px 36px;
 
   .container {
     padding: 0;
@@ -44,7 +44,6 @@
         font-family: 'Raleway';
         line-height: 18px;
         letter-spacing: 0;
-        display: flex;
 
         &:hover {
           background: #214999;
@@ -70,8 +69,8 @@
       p {
         font-size: 16px;
         line-height: 18px;
-        font-weight: 700;
-        font-family: 'Raleway';
+        font-weight: 500;
+        font-family: 'Open Sans';
         color: #81868C;
         margin-bottom: 0;
       }
@@ -158,9 +157,28 @@
           }
         }
 
-        
+        .filter-link,
+        .sort {
+          padding: 14px 12px;
+          display: flex;
+          align-items: center;
+          font-size: 16px;
+          font-weight: 400;
+          font-family: 'Open Sans';
+          margin-left: 16px;
 
-     
+          img {
+            padding-right: 8px;
+          }
+        }
+
+        .filter-link {
+          color: #2E2E2F;
+        }
+
+        .sort {
+          color: #2E2E2F;
+        }
       }
     }
   }
@@ -191,16 +209,14 @@
       .Link {
         display: none;
       }
-      
+
       .search input {
         display: none;
       }
 
       .search img {
-        position: relative !important;
-        top: 0 !important;
-        left: 0 !important;
-        
+        position: relative;
+        margin: 14px 12px;
       }
     }
   }
@@ -259,24 +275,3 @@
     }
   }
 }
-.tab-content {
-  padding: 0 !important;
-}
-.tab-content  .css-19kzrtu {
-  padding: 0;
-}
-.color-edit button {
-          
-          display: flex;
-          align-items: center;
-          font-size: 16px;
-          font-weight: 400;
-          font-family: 'Open Sans';
-          margin: 0;
-          margin-left: 16px;
-          color: #2E2E2F;
-        }
-          img {
-            padding-right: 8px;
-          }
-        

@@ -1,3 +1,8 @@
+import React, { useState } from "react";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
+import Modal from "@mui/material/Modal";
 import "./table.scss";
 import type { ResidentialProperty } from "../../AdminResidencial/AdminResidencial.model";
 
@@ -160,8 +165,27 @@ function Table({data,properties}: TableProps) {
           </td>
         </tr> */}
       </table>
+
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="confirm-approve-title"
+        aria-describedby="confirm-approve-description"
+      >
+        <Box sx={style}>
+          <div className="img-popover">
+            <img src="weui_location-outlined.svg" alt="modal-icon" />
+          </div>
+          <Typography id="confirm-approve-title" variant="h6" component="h2">
+            Are you sure?
+          </Typography>
+          <Typography id="confirm-approve-description" sx={{ mt: 2 }}>
+            Do you want to approve the “{selectedProperty}”?
+          </Typography>
+        </Box>
+      </Modal>
     </div>
   );
-}
+};
 
 export default Table;

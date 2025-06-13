@@ -1,13 +1,14 @@
 body {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 .body-content-container {
-  padding: 0 ;
+  padding: 0 !important;
 }
 
 @media only screen and (max-width:992px) {
 .body-content-container {
-  padding: 0 12px;
+  padding: 0 12px !important;
 }
 }

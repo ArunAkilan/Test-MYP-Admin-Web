@@ -4,7 +4,10 @@
   height: '100%';
   width: 100%;
 }
-.MuiTabs-indicator {
+#nav-common-tab {
+  border: none;
+}
+#nav-common-tab .MuiTabs-indicator {
   left: 0;
   background: #00BFA6 !important;
   width: 8px !important;
@@ -13,7 +16,8 @@
   margin-top: 12px;
 }
  .nav-tabs {
-   padding: 32px;
+   padding: 32px 32PX 32PX 44PX !important;
+   border: none;
  }
 
 .tab-outerlayer-div  {
@@ -31,9 +35,11 @@
 #nav-common-tab button.Mui-selected {
   color: #214999;
 }
-
-.css-19kzrtu {
+.tab-content {
   padding: 0;
+}
+#nav-common-tab .css-19kzrtu {
+  padding: 0 !important;
 }
 #nav-common-tab button {
   min-height: 48px !important;
@@ -45,12 +51,16 @@
   font-family: 'Open Sans';
   text-transform: capitalize;
 }
+#nav-common-tab button img {
+    width: max-content !important;
+    height: max-content !important;
+}
 
 @media only screen and (max-width:992px) {
   .nav-tabs {
-    padding: 32px 12px;
+    padding: 32px 12px !important;
   }
   .tab-outerlayer-div {
-    padding-left: 10px !important;
+    padding-left: 14px !important;
   }
 }
