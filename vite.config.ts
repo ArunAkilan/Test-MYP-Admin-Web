@@ -6,7 +6,9 @@ export default defineConfig({
   plugins: [react()],
    server: {
     host: true,      // 👈 needed for Docker (binds to 0.0.0.0)
-    port: 80,      // 👈 desired internal port
+    port: 3001,      // 👈 desired internal port (changed Port:80 to 3001)
     strictPort: true // avoids fallback
   }
+  
+  
 })

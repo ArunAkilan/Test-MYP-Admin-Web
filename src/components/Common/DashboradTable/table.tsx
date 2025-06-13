@@ -4,89 +4,166 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import "./table.scss";
-import type Property from "./table.model";
-
-const style = {
-  position: "absolute" as const,
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: 400,
-  bgcolor: "background.paper",
-  border: "2px solid #000",
-  boxShadow: 24,
-  p: 4,
-};
+import type { ResidentialProperty } from "../../AdminResidencial/AdminResidencial.model";
 
 interface TableProps {
-  properties: Property[];
+  data: ResidentialProperty[];
+  properties: string;
 }
 
-const Table: React.FC<TableProps> = ({ properties }) => {
-  const [open, setOpen] = useState(false);
-  const [selectedProperty, setSelectedProperty] = useState<string | null>(null);
-
-  const handleOpen = (propertyName: string) => {
-    setSelectedProperty(propertyName);
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-    setSelectedProperty(null);
-  };
-
+function Table({data,properties}: TableProps) {
+  if (!Array.isArray(data)) {
+    console.error("Expected 'data' to be an array but got:", data);
+    return <p>Error: Invalid data format</p>;
+  }
   return (
     <div className="container table-responsive">
       <table>
-        <thead>
-          <tr>
-            <th className="checkbox-align"><input type="checkbox" /></th>
-            <th>Listing Name</th>
-            <th>Area</th>
-            <th>Floors</th>
-            <th>Facing</th>
-            <th>Furnish</th>
-            <th>Type</th>
-            <th className="link-h">Link</th>
-          </tr>
-        </thead>
-        <tbody>
-          {properties.map((property, index) => (
-            <tr key={index}>
-              <td className="checkbox-align"><input type="checkbox" /></td>
-              <td className="company-name">
-                <h3>{property.name}</h3>
-                <p title={property.address}>
-                  <img src="ICON_Location.svg" alt="location" />
-                  {property.address.length > 20
-                    ? `${property.address.slice(0, 20)}...`
-                    : property.address}
-                </p>
-              </td>
-              <td>{property.size}</td>
-              <td>{property.floor}</td>
-              <td>{property.facing}</td>
-              <td title={property.furnishing}>
-                {property.furnishing.slice(0, 8)}...
-              </td>
-              <td className="type">
-                <div className={property.type}>rental</div>
-              </td>
-              <td className="Links">
-                <div className="link-wrap">
-                  <img src="eye-icon.svg" alt="eye-icon" />
-                  <img src="Edit.svg" alt="Edit" />
-                  <Button onClick={() => handleOpen(property.name)}>
-                    <img src="Approve.svg" alt="Approve" />
-                  </Button>
-                  <img src="Deny.svg" alt="Deny" />
-                  <img src="Delete.svg" alt="Delete" />
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
+        <tr>
+          <th className="checkbox-align">
+            <input type="checkbox" />
+          </th>
+          <th>Listing Name</th>
+          <th>Area</th>
+          <th>Floors</th>
+          <th>Facing</th>
+          {properties === 'residentials' && <th>Furnish</th> }
+          {properties === 'commercials' && <th>Washroom</th> }
+          <th>Type</th>
+          <th className="link-h">Link</th>
+        </tr>
+        
+        {
+          data.map((item, index)=>(
+            <>
+               <tr>
+          <td className="checkbox-align">
+            <input type="checkbox" />
+          </td>
+          <td className="company-name">
+            <h3>{item?.location?.address}{item?.location?.landmark}</h3>
+            <p
+              data-bs-toggle="tooltip"
+              data-bs-placement="bottom"
+              title="Thuraiyur road, Perambalur"
+            >
+              <img src="ICON_Location.svg" alt="location png" />
+              Thuraiyur road, Per...
+            </p>
+          </td>
+          <td>{item?.area?.totalArea}</td>
+
+          <td>{item?.totalFloors}</td>
+          <td>{item?.facingDirection}</td>
+         { properties === 'residentials' && 
+          <td
+          className="furnish"
+          data-bs-toggle="tooltip"
+          data-bs-placement="bottom"
+          title="Unfurnished"
+        >
+          {item?.furnishingType}
+        </td>}
+        { properties === 'commercials' && 
+          <td
+          className="furnish"
+          data-bs-toggle="tooltip"
+          data-bs-placement="bottom"
+          title="Unfurnished"
+        >
+          {item?.washroom}
+        </td>}
+          <td className="type ">
+            <div className="rental">{item?.propertyType}</div>
+          </td>
+          <td className="Links">
+            <div className="link-wrap">
+              <img src="Edit.svg" alt="Edit svg" />
+              <img src="Approve.svg" alt="Approve svg" />
+              <img src="Deny.svg" alt="Deny svg" />
+              <img src="Delete.svg" alt="Delete img" />
+            </div>
+          </td>
+        </tr>
+            </>
+          ))
+        }
+        {/* <tr>
+          <td className="checkbox-align">
+            <input type="checkbox" />
+          </td>
+          <td className="company-name">
+            <h3>Sakthi Nagar Villa</h3>
+            <p
+              data-bs-toggle="tooltip"
+              data-bs-placement="bottom"
+              title="Sakthi nagar, Perambalur"
+            >
+              <img src="ICON_Location.svg" alt="location png" />
+              Sakthi nagar, Pera...
+            </p>
+          </td>
+          <td>1800 sq ft</td>
+          <td>Ground</td>
+          <td>East</td>
+          <td
+            className="furnish"
+            data-bs-toggle="tooltip"
+            data-bs-placement="bottom"
+            title="Semi-furnished"
+          >
+            Semi-fur...
+          </td>
+          <td className="type ">
+            <div className="lease">Lease</div>
+          </td>
+          <td className="Links">
+            <div className="link-wrap">
+              <img src="Edit.svg" alt="Edit svg" />
+              <img src="Approve.svg" alt="Approve svg" />
+              <img src="Deny.svg" alt="Deny svg" />
+              <img src="Delete.svg" alt="Delete img" />
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td className="checkbox-align">
+            <input type="checkbox" />
+          </td>
+          <td className="company-name">
+            <h3>Muthu residency Flats</h3>
+            <p
+              data-bs-toggle="tooltip"
+              data-bs-placement="bottom"
+              title="Near old bus stand, Perambalur"
+            >
+              <img src="ICON_Location.svg" alt="location png" />
+              Near old Bus Stand,...
+            </p>
+          </td>
+          <td>1100 sq ft</td>
+          <td>1st</td>
+          <td>East</td>
+          <td
+            className="furnish"
+            data-bs-toggle="tooltip"
+            data-bs-placement="bottom"
+            title="Fully Furnished"
+          >
+            Fully Fur...{" "}
+          </td>
+          <td className="type ">
+            <div className="sale">Sale</div>
+          </td>
+          <td className="Links">
+            <div className="link-wrap">
+              <img src="Edit.svg" alt="Edit svg" />
+              <img src="Approve.svg" alt="Approve svg" />
+              <img src="Deny.svg" alt="Deny svg" />
+              <img src="Delete.svg" alt="Delete img" />
+            </div>
+          </td>
+        </tr> */}
       </table>
 
       <Modal

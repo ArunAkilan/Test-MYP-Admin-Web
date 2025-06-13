@@ -116,13 +116,13 @@ export default function VerticalTabs() {
       </div>
       <div className="col-md-9 tab-content">
         <TabPanel value={value} index={0}>
-          <Home />
+          <Home properties="commercials"/>
         </TabPanel>
         <TabPanel value={value} index={1}>
-          < Commercial />
+        <Home properties="commercials"/>
         </TabPanel>
         <TabPanel value={value} index={2}>
-          Item Three
+          <Home properties="residentials" />
         </TabPanel>
         <TabPanel value={value} index={3}>
           Item Four
