@@ -25,6 +25,8 @@ function App() {
             <Route path="/" element={<Sidebar />} />
             <Route path="/createResidential" element={<CreateResidential />} />
             <Route path="/view-residential" element={<ViewResidential/>} />
+            <Route path="/view-residential/:id" element={<ViewResidential />} />
+
           </Routes>
         </Router>
       </div>

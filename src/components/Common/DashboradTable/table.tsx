@@ -35,9 +35,16 @@ function Table({ data, properties }: TableProps) {
     navigate("/createResidential", { state: { data: item, mode: "edit" } });
   };
 
-  const handleView = (item: ResidentialProperty) => {
-    navigate("/view-residential", { state: { data: item, mode: "view" } });
+  const handleView = (id: string | number) => {
+    const selectedItem = data.find(item => item.id === id);
+  
+    if (selectedItem) {
+      navigate("/view-residential", { state: { data: selectedItem, mode: "view" } });
+    } else {
+      alert("Property not found");
+    }
   };
+  
 
   const handleOpenModal = (action: string, item: ResidentialProperty) => {
     setSelectedAction(action);
@@ -133,7 +140,7 @@ function Table({ data, properties }: TableProps) {
                   <img
                     src="/src/assets/tabelimg/Eye view.svg"
                     alt="view"
-                    onClick={() => handleView(item)}
+                    onClick={() => handleView(item.id)}
                     style={{ cursor: "pointer" }}
                   />
 
