@@ -1,21 +1,21 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-
-// import type User from "./Dashboard.model";
+import { useNavigate } from "react-router-dom";
 import Table from "../Common/DashboradTable/table";
 import "./Dashboard.scss";
 import GenericButton from "../Common/Button/button";
 import iconAdd from "../../../public/ICO_Add-1.svg"
 import Dashboardtab from "../Common/HorizondalTab/Dashboardtab";
 
+
 import type { ResidentialProperty } from "../AdminResidencial/AdminResidencial.model";
 
 function Home({properties}) {
-  // const [users, setUsers] = useState<User[]>([]);
   const [residencial, setResidencial]= useState <ResidentialProperty[]> ([])
   console.log("residencial", residencial);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate=useNavigate()
 
   useEffect(() => {
   if(properties){
@@ -24,7 +24,7 @@ function Home({properties}) {
         const response = await axios.get(`http://192.168.1.70:3002/api/${properties}`);
         setResidencial(response.data.data);
         setLoading(false);
-        console.log(users)
+    
       } catch (err) {
         if (axios.isAxiosError(err) && err.message) {
           setError(err.message);
@@ -42,26 +42,7 @@ function Home({properties}) {
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
 
-  // useEffect(() => {
-  //   const fetchUsers = async () => {
-  //     try {
-  //       const response = await axios.get<User[]>(
-  //         "https://jsonplaceholder.typicode.com/todos/1"
-  //       );
-  //       setUsers(response.data);
-  //       setLoading(false);
-  //     } catch (err) {
-  //       if (axios.isAxiosError(err) && err.message) {
-  //         setError(err.message);
-  //       } else {
-  //         setError("An unexpected error occurred");
-  //       }
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchUsers();
-  // }, []);
+ 
 
   
 
@@ -85,6 +66,7 @@ function Home({properties}) {
               iconPosition="left"
               label={"Add New Post"}
               className="genericNewPostStyles"
+              onClick={() => navigate("/createResidential", { state: { mode: "create" } })}
             />
           </div>
         </div>
@@ -123,7 +105,6 @@ function Home({properties}) {
       </div>
       <Table data={residencial} properties={properties} />
       
-      {/* <Table  /> */}
     </div>
   );
 }

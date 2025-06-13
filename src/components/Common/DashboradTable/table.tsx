@@ -1,191 +1,206 @@
 import React, { useState } from "react";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
-import Modal from "@mui/material/Modal";
 import "./table.scss";
 import type { ResidentialProperty } from "../../AdminResidencial/AdminResidencial.model";
+import { useNavigate } from "react-router-dom";
+import { Box, Typography, Modal, Button } from "@mui/material";
 
 interface TableProps {
   data: ResidentialProperty[];
-  properties: string;
+  properties: "residentials" | "commercials";
+  washroom?: number;
 }
 
-function Table({data,properties}: TableProps) {
+const modalStyle = {
+  position: "absolute" as const,
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 400,
+  bgcolor: "background.paper",
+  border: "2px solid #000",
+  boxShadow: 24,
+  p: 4,
+};
+
+function Table({ data, properties }: TableProps) {
+  const navigate = useNavigate();
+
+  // Modal state
+  const [open, setOpen] = useState(false);
+  const [selectedAction, setSelectedAction] = useState<string | null>(null);
+  const [selectedItem, setSelectedItem] = useState<ResidentialProperty | null>(null);
+
+  const handleEdit = (item: ResidentialProperty) => {
+    navigate("/createResidential", { state: { data: item, mode: "edit" } });
+  };
+
+  const handleView = (item: ResidentialProperty) => {
+    navigate("/view-residential", { state: { data: item, mode: "view" } });
+  };
+
+  const handleOpenModal = (action: string, item: ResidentialProperty) => {
+    setSelectedAction(action);
+    setSelectedItem(item);
+    setOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setOpen(false);
+    setSelectedAction(null);
+    setSelectedItem(null);
+  };
+
+  const handleConfirmAction = () => {
+    // Here you can handle the logic for Approve, Deny, or Delete
+    alert(`Action: ${selectedAction} confirmed for ${selectedItem?.location?.address || "unknown item"}`);
+
+    // Close modal after action
+    handleCloseModal();
+  };
+
   if (!Array.isArray(data)) {
     console.error("Expected 'data' to be an array but got:", data);
     return <p>Error: Invalid data format</p>;
   }
+
   return (
     <div className="container table-responsive">
       <table>
-        <tr>
-          <th className="checkbox-align">
-            <input type="checkbox" />
-          </th>
-          <th>Listing Name</th>
-          <th>Area</th>
-          <th>Floors</th>
-          <th>Facing</th>
-          {properties === 'residentials' && <th>Furnish</th> }
-          {properties === 'commercials' && <th>Washroom</th> }
-          <th>Type</th>
-          <th className="link-h">Link</th>
-        </tr>
-        
-        {
-          data.map((item, index)=>(
-            <>
-               <tr>
-          <td className="checkbox-align">
-            <input type="checkbox" />
-          </td>
-          <td className="company-name">
-            <h3>{item?.location?.address}{item?.location?.landmark}</h3>
-            <p
-              data-bs-toggle="tooltip"
-              data-bs-placement="bottom"
-              title="Thuraiyur road, Perambalur"
-            >
-              <img src="ICON_Location.svg" alt="location png" />
-              Thuraiyur road, Per...
-            </p>
-          </td>
-          <td>{item?.area?.totalArea}</td>
+        <thead>
+          <tr>
+            <th className="checkbox-align">
+              <input type="checkbox" />
+            </th>
+            <th>Listing Name</th>
+            <th>Area</th>
+            <th>Floors</th>
+            <th>Facing</th>
+            {properties === "residentials" && <th>Furnish</th>}
+            {properties === "commercials" && <th>Washroom</th>}
+            <th>Type</th>
+            <th className="link-h">Link</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item, index) => (
+            <tr key={index}>
+              <td className="checkbox-align">
+                <input type="checkbox" />
+              </td>
+              <td className="company-name">
+                <h3>
+                  {item?.location?.address}
+                  {item?.location?.landmark}
+                </h3>
+                <p
+                  data-bs-toggle="tooltip"
+                  data-bs-placement="bottom"
+                  title="Thuraiyur road, Perambalur"
+                >
+                  <img src="ICON_Location.svg" alt="location png" />
+                  Thuraiyur road, Per...
+                </p>
+              </td>
+              <td>{item?.area?.totalArea}</td>
+              <td>{item?.totalFloors}</td>
+              <td>{item?.facingDirection}</td>
+              {properties === "residentials" && (
+                <td
+                  className="furnish"
+                  data-bs-toggle="tooltip"
+                  data-bs-placement="bottom"
+                  title="Unfurnished"
+                >
+                  {item?.furnishingType}
+                </td>
+              )}
+              {properties === "commercials" && (
+                <td
+                  className="furnish"
+                  data-bs-toggle="tooltip"
+                  data-bs-placement="bottom"
+                  title="Unfurnished"
+                >
+                  {item?.washroom}
+                </td>
+              )}
+              <td className="type ">
+                <div className="rental">{item?.propertyType || "-"}</div>
+              </td>
+              <td className="Links">
+                <div className="link-wrap">
+                  <img
+                    src="/src/assets/tabelimg/Eye view.svg"
+                    alt="view"
+                    onClick={() => handleView(item)}
+                    style={{ cursor: "pointer" }}
+                  />
 
-          <td>{item?.totalFloors}</td>
-          <td>{item?.facingDirection}</td>
-         { properties === 'residentials' && 
-          <td
-          className="furnish"
-          data-bs-toggle="tooltip"
-          data-bs-placement="bottom"
-          title="Unfurnished"
-        >
-          {item?.furnishingType}
-        </td>}
-        { properties === 'commercials' && 
-          <td
-          className="furnish"
-          data-bs-toggle="tooltip"
-          data-bs-placement="bottom"
-          title="Unfurnished"
-        >
-          {item?.washroom}
-        </td>}
-          <td className="type ">
-            <div className="rental">{item?.propertyType}</div>
-          </td>
-          <td className="Links">
-            <div className="link-wrap">
-              <img src="Edit.svg" alt="Edit svg" />
-              <img src="Approve.svg" alt="Approve svg" />
-              <img src="Deny.svg" alt="Deny svg" />
-              <img src="Delete.svg" alt="Delete img" />
-            </div>
-          </td>
-        </tr>
-            </>
-          ))
-        }
-        {/* <tr>
-          <td className="checkbox-align">
-            <input type="checkbox" />
-          </td>
-          <td className="company-name">
-            <h3>Sakthi Nagar Villa</h3>
-            <p
-              data-bs-toggle="tooltip"
-              data-bs-placement="bottom"
-              title="Sakthi nagar, Perambalur"
-            >
-              <img src="ICON_Location.svg" alt="location png" />
-              Sakthi nagar, Pera...
-            </p>
-          </td>
-          <td>1800 sq ft</td>
-          <td>Ground</td>
-          <td>East</td>
-          <td
-            className="furnish"
-            data-bs-toggle="tooltip"
-            data-bs-placement="bottom"
-            title="Semi-furnished"
-          >
-            Semi-fur...
-          </td>
-          <td className="type ">
-            <div className="lease">Lease</div>
-          </td>
-          <td className="Links">
-            <div className="link-wrap">
-              <img src="Edit.svg" alt="Edit svg" />
-              <img src="Approve.svg" alt="Approve svg" />
-              <img src="Deny.svg" alt="Deny svg" />
-              <img src="Delete.svg" alt="Delete img" />
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td className="checkbox-align">
-            <input type="checkbox" />
-          </td>
-          <td className="company-name">
-            <h3>Muthu residency Flats</h3>
-            <p
-              data-bs-toggle="tooltip"
-              data-bs-placement="bottom"
-              title="Near old bus stand, Perambalur"
-            >
-              <img src="ICON_Location.svg" alt="location png" />
-              Near old Bus Stand,...
-            </p>
-          </td>
-          <td>1100 sq ft</td>
-          <td>1st</td>
-          <td>East</td>
-          <td
-            className="furnish"
-            data-bs-toggle="tooltip"
-            data-bs-placement="bottom"
-            title="Fully Furnished"
-          >
-            Fully Fur...{" "}
-          </td>
-          <td className="type ">
-            <div className="sale">Sale</div>
-          </td>
-          <td className="Links">
-            <div className="link-wrap">
-              <img src="Edit.svg" alt="Edit svg" />
-              <img src="Approve.svg" alt="Approve svg" />
-              <img src="Deny.svg" alt="Deny svg" />
-              <img src="Delete.svg" alt="Delete img" />
-            </div>
-          </td>
-        </tr> */}
+                  <img
+                    src="Edit.svg"
+                    alt="edit"
+                    onClick={() => handleEdit(item)}
+                    style={{ cursor: "pointer" }}
+                  />
+
+                  <img
+                    src="Approve.svg"
+                    alt="Approve svg"
+                    onClick={() => handleOpenModal("Approve", item)}
+                    style={{ cursor: "pointer" }}
+                  />
+                  <img
+                    src="Deny.svg"
+                    alt="Deny svg"
+                    onClick={() => handleOpenModal("Deny", item)}
+                    style={{ cursor: "pointer" }}
+                  />
+                  <img
+                    src="Delete.svg"
+                    alt="Delete img"
+                    onClick={() => handleOpenModal("Delete", item)}
+                    style={{ cursor: "pointer" }}
+                  />
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
       </table>
 
+      {/* Modal */}
       <Modal
         open={open}
-        onClose={handleClose}
-        aria-labelledby="confirm-approve-title"
-        aria-describedby="confirm-approve-description"
+        onClose={handleCloseModal}
+        aria-labelledby="confirmation-modal-title"
+        aria-describedby="confirmation-modal-description"
       >
-        <Box sx={style}>
-          <div className="img-popover">
-            <img src="weui_location-outlined.svg" alt="modal-icon" />
+        <Box sx={modalStyle}>
+          <div className="text-align-center">
+          <img src="/src/assets/Dashboard modal img/Confirm.svg" alt="" />
           </div>
-          <Typography id="confirm-approve-title" variant="h6" component="h2">
-            Are you sure?
+          <Typography id="confirmation-modal-title" variant="h6" component="h2">
+            Confirm {selectedAction}
           </Typography>
-          <Typography id="confirm-approve-description" sx={{ mt: 2 }}>
-            Do you want to approve the “{selectedProperty}”?
+          <Typography id="confirmation-modal-description" sx={{ mt: 2, mb: 3 }}>
+            Are you sure you want to {selectedAction?.toLowerCase()} the listing{" "}
+            <strong>{selectedItem?.location?.address}</strong>?
           </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleConfirmAction}
+            sx={{ mr: 1 }}
+          >
+            Confirm
+          </Button>
+          <Button variant="outlined" onClick={handleCloseModal}>
+            Cancel
+          </Button>
         </Box>
       </Modal>
     </div>
   );
-};
+}
 
 export default Table;
