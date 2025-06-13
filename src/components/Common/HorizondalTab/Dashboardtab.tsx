@@ -3,9 +3,6 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import PendingActionsOutlinedIcon from "@mui/icons-material/PendingActionsOutlined";
-import Popover from "@mui/material/Popover";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
 import Table from "../DashboradTable/table";
 
 interface TabPanelProps {
@@ -15,7 +12,7 @@ interface TabPanelProps {
 }
 
 function CustomTabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
+  const { children, value, index, ...other  } = props;
 
   return (
     <div
@@ -37,7 +34,7 @@ function a11yProps(index: number) {
   };
 }
 
-export default function Dashboardtab() {
+export default function Dashboardtab({ data,properties}) {
   const [value, setValue] = React.useState(0);
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
@@ -95,288 +92,24 @@ export default function Dashboardtab() {
           </Tabs>
         </Box>
         <CustomTabPanel value={value} index={0}>
-          <div className="new-listing-wrap">
-            <div className="container">
-              <div className="new-listing">
-                <div className="new-listing-wrap-list">
-                  <h3 className="fresh-list">36 Fresh Listings</h3>
-                  <img src="Ellipse 24.svg" alt="dot svg" />
-                  <h3 className="pending-list">136 Pending Request</h3>
-                </div>
-                <div className="list-panel">
-                  <div className="search">
-                    <input type="search" placeholder="Search Property" />
-                    <img src="Search-1.svg" alt="search svg" />
-                  </div>
-                  <div className="filter-link color-edit">
-                    <Button
-                      className="filter-text"
-                      aria-describedby={id}
-                      onClick={handleClick}
-                    >
-                      <img src="majesticons_filter-line.svg" alt="filter img" />
-                      Filter
-                    </Button>
-                    <Popover
-                      id={id}
-                      open={open}
-                      anchorEl={anchorEl}
-                      onClose={handleClose}
-                      anchorOrigin={{
-                        vertical: "bottom",
-                        horizontal: "left",
-                      }}
-                    >
-                      <Typography sx={{ p: 2 }}>
-                        The content of the Popover.
-                      </Typography>
-                    </Popover>
-                  </div>
-                  <div className="sort color-edit">
-                    <Button
-                      className="Sort-text"
-                      aria-describedby={id}
-                      onClick={handleClick}
-                    >
-                      <img
-                        src="material-symbols_sort-rounded.svg"
-                        alt="sort img"
-                      />
-                      Sort
-                    </Button>
-                    <Popover
-                      id={id}
-                      open={open}
-                      anchorEl={anchorEl}
-                      onClose={handleClose}
-                      anchorOrigin={{
-                        vertical: "bottom",
-                        horizontal: "left",
-                      }}
-                    >
-                      <Typography sx={{ p: 2 }}>
-                        The content of the Popover.
-                      </Typography>
-                    </Popover>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          Item One
+          
+              <Table data={data} properties={properties} />
+
         </CustomTabPanel>
         <CustomTabPanel value={value} index={1}>
-          <div className="new-listing-wrap">
-            <div className="container">
-              <div className="new-listing">
-                <div className="new-listing-wrap-list">
-                  <h3 className="fresh-list">36 Fresh Listings</h3>
-                  <img src="Ellipse 24.svg" alt="dot svg" />
-                  <h3 className="pending-list">136 Pending Request</h3>
-                </div>
-                <div className="list-panel">
-                  <div className="search">
-                    <input type="search" placeholder="Search Property" />
-                    <img src="Search-1.svg" alt="search svg" />
-                  </div>
-                  <div className="filter-link color-edit">
-                    <Button
-                      className="filter-text"
-                      aria-describedby={id}
-                      onClick={handleClick}
-                    >
-                      <img src="majesticons_filter-line.svg" alt="filter img" />
-                      Filter
-                    </Button>
-                    <Popover
-                      id={id}
-                      open={open}
-                      anchorEl={anchorEl}
-                      onClose={handleClose}
-                      anchorOrigin={{
-                        vertical: "bottom",
-                        horizontal: "left",
-                      }}
-                    >
-                      <Typography sx={{ p: 2 }}>
-                        The content of the Popover.
-                      </Typography>
-                    </Popover>
-                  </div>
-                  <div className="sort color-edit">
-                    <Button
-                      className="Sort-text"
-                      aria-describedby={id}
-                      onClick={handleClick}
-                    >
-                      <img
-                        src="material-symbols_sort-rounded.svg"
-                        alt="sort img"
-                      />
-                      Sort
-                    </Button>
-                    <Popover
-                      id={id}
-                      open={open}
-                      anchorEl={anchorEl}
-                      onClose={handleClose}
-                      anchorOrigin={{
-                        vertical: "bottom",
-                        horizontal: "left",
-                      }}
-                    >
-                      <Typography sx={{ p: 2 }}>
-                        The content of the Popover.
-                      </Typography>
-                    </Popover>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          Item Two
+           
+               <Table data={data} properties={properties} />
+
         </CustomTabPanel>
         <CustomTabPanel value={value} index={2}>
-          <div className="new-listing-wrap">
-            <div className="container">
-              <div className="new-listing">
-                <div className="new-listing-wrap-list">
-                  <h3 className="fresh-list">36 Fresh Listings</h3>
-                  <img src="Ellipse 24.svg" alt="dot svg" />
-                  <h3 className="pending-list">136 Pending Request</h3>
-                </div>
-                <div className="list-panel">
-                  <div className="search">
-                    <input type="search" placeholder="Search Property" />
-                    <img src="Search-1.svg" alt="search svg" />
-                  </div>
-                  <div className="filter-link color-edit">
-                    <Button
-                      className="filter-text"
-                      aria-describedby={id}
-                      onClick={handleClick}
-                    >
-                      <img src="majesticons_filter-line.svg" alt="filter img" />
-                      Filter
-                    </Button>
-                    <Popover
-                      id={id}
-                      open={open}
-                      anchorEl={anchorEl}
-                      onClose={handleClose}
-                      anchorOrigin={{
-                        vertical: "bottom",
-                        horizontal: "left",
-                      }}
-                    >
-                      <Typography sx={{ p: 2 }}>
-                        The content of the Popover.
-                      </Typography>
-                    </Popover>
-                  </div>
-                  <div className="sort color-edit">
-                    <Button
-                      className="Sort-text"
-                      aria-describedby={id}
-                      onClick={handleClick}
-                    >
-                      <img
-                        src="material-symbols_sort-rounded.svg"
-                        alt="sort img"
-                      />
-                      Sort
-                    </Button>
-                    <Popover
-                      id={id}
-                      open={open}
-                      anchorEl={anchorEl}
-                      onClose={handleClose}
-                      anchorOrigin={{
-                        vertical: "bottom",
-                        horizontal: "left",
-                      }}
-                    >
-                      <Typography sx={{ p: 2 }}>
-                        The content of the Popover.
-                      </Typography>
-                    </Popover>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          Item Three
+        
+               <Table data={data} properties={properties} />
+
         </CustomTabPanel>
         <CustomTabPanel value={value} index={3}>
-          <div className="new-listing-wrap">
-            <div className="container">
-              <div className="new-listing">
-                <div className="new-listing-wrap-list">
-                  <h3 className="fresh-list">36 Fresh Listings</h3>
-                  <img src="Ellipse 24.svg" alt="dot svg" />
-                  <h3 className="pending-list">136 Pending Request</h3>
-                </div>
-                <div className="list-panel">
-                  <div className="search">
-                    <input type="search" placeholder="Search Property" />
-                    <img src="Search-1.svg" alt="search svg" />
-                  </div>
-                  <div className="filter-link color-edit">
-                    <Button
-                      className="filter-text"
-                      aria-describedby={id}
-                      onClick={handleClick}
-                    >
-                      <img src="majesticons_filter-line.svg" alt="filter img" />
-                      Filter
-                    </Button>
-                    <Popover
-                      id={id}
-                      open={open}
-                      anchorEl={anchorEl}
-                      onClose={handleClose}
-                      anchorOrigin={{
-                        vertical: "bottom",
-                        horizontal: "left",
-                      }}
-                    >
-                      <Typography sx={{ p: 2 }}>
-                        The content of the Popover.
-                      </Typography>
-                    </Popover>
-                  </div>
-                  <div className="sort color-edit">
-                    <Button
-                      className="Sort-text"
-                      aria-describedby={id}
-                      onClick={handleClick}
-                    >
-                      <img
-                        src="material-symbols_sort-rounded.svg"
-                        alt="sort img"
-                      />
-                      Sort
-                    </Button>
-                    <Popover
-                      id={id}
-                      open={open}
-                      anchorEl={anchorEl}
-                      onClose={handleClose}
-                      anchorOrigin={{
-                        vertical: "bottom",
-                        horizontal: "left",
-                      }}
-                    >
-                      <Typography sx={{ p: 2 }}>
-                        The content of the Popover.
-                      </Typography>
-                    </Popover>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          Item Four
+         
+               <Table data={data} properties={properties} />
+
         </CustomTabPanel>
       </div>
     

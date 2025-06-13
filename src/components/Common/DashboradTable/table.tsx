@@ -1,13 +1,14 @@
-import React, { useState } from "react";
 import "./table.scss";
 import type { ResidentialProperty } from "../../AdminResidencial/AdminResidencial.model";
 import { useNavigate } from "react-router-dom";
 import { Box, Typography, Modal, Button } from "@mui/material";
+import * as React from "react";
+import "./table.scss";
 
 interface TableProps {
   data: ResidentialProperty[];
   properties: "residentials" | "commercials";
-  washroom?: number;
+  washroom?: number | string;
 }
 
 const modalStyle = {
@@ -26,9 +27,9 @@ function Table({ data, properties }: TableProps) {
   const navigate = useNavigate();
 
   // Modal state
-  const [open, setOpen] = useState(false);
-  const [selectedAction, setSelectedAction] = useState<string | null>(null);
-  const [selectedItem, setSelectedItem] = useState<ResidentialProperty | null>(null);
+  const [open, setOpen] = React.useState(false);
+  const [selectedAction, setSelectedAction] = React.useState<string | null>(null);
+  const [selectedItem, setSelectedItem] = React.useState<ResidentialProperty | null>(null);
 
   const handleEdit = (item: ResidentialProperty) => {
     navigate("/createResidential", { state: { data: item, mode: "edit" } });
