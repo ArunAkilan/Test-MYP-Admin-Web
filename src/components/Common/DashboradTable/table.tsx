@@ -1,10 +1,9 @@
-import React, { useState } from "react";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
-import Modal from "@mui/material/Modal";
+import * as React from "react";
 import "./table.scss";
 import type { ResidentialProperty } from "../../AdminResidencial/AdminResidencial.model";
+import Popover from "@mui/material/Popover";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
 
 interface TableProps {
   data: ResidentialProperty[];
@@ -12,12 +11,95 @@ interface TableProps {
 }
 
 function Table({data,properties}: TableProps) {
+  
+ 
+    const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
+      null
+    );
+  
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+      setAnchorEl(event.currentTarget);
+    };
+  
+    const handleClose = () => {
+      setAnchorEl(null);
+    };
   if (!Array.isArray(data)) {
     console.error("Expected 'data' to be an array but got:", data);
     return <p>Error: Invalid data format</p>;
   }
+  const open = Boolean(anchorEl);
+  const id = open ? "simple-popover" : undefined;
   return (
     <div className="container table-responsive">
+      <div className="new-listing-wrap">
+            <div className="container">
+              <div className="new-listing">
+                <div className="new-listing-wrap-list">
+                  <h3 className="fresh-list">36 Fresh Listings</h3>
+                  <img src="Ellipse 24.svg" alt="dot svg" />
+                  <h3 className="pending-list">136 Pending Request</h3>
+                </div>
+                <div className="list-panel">
+                  <div className="search">
+                    <input type="search" placeholder="Search Property" />
+                    <img src="Search-1.svg" alt="search svg" />
+                  </div>
+                  <div className="filter-link color-edit">
+                    <Button
+                      className="filter-text"
+                      aria-describedby={id}
+                      onClick={handleClick}
+                    >
+                      <img src="majesticons_filter-line.svg" alt="filter img" />
+                      Filter
+                    </Button>
+                    <Popover
+                      id={id}
+                      open={open}
+                      anchorEl={anchorEl}
+                      onClose={handleClose}
+                      anchorOrigin={{
+                        vertical: "bottom",
+                        horizontal: "left",
+                      }}
+                    >
+                      <Typography sx={{ p: 2 }}>
+                        The content of the Popover.
+                      </Typography>
+                    </Popover>
+                  </div>
+                  <div className="sort color-edit">
+                    <Button
+                      className="Sort-text"
+                      aria-describedby={id}
+                      onClick={handleClick}
+                    >
+                      <img
+                        src="material-symbols_sort-rounded.svg"
+                        alt="sort img"
+                      />
+                      Sort
+                    </Button>
+                    <Popover
+                      id={id}
+                      open={open}
+                      anchorEl={anchorEl}
+                      onClose={handleClose}
+                      anchorOrigin={{
+                        vertical: "bottom",
+                        horizontal: "left",
+                      }}
+                    >
+                      <Typography sx={{ p: 2 }}>
+                        The content of the Popover.
+                      </Typography>
+                    </Popover>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
       <table>
         <tr>
           <th className="checkbox-align">
@@ -36,7 +118,7 @@ function Table({data,properties}: TableProps) {
         {
           data.map((item, index)=>(
             <>
-               <tr>
+               <tr key={index}>
           <td className="checkbox-align">
             <input type="checkbox" />
           </td>
@@ -165,25 +247,6 @@ function Table({data,properties}: TableProps) {
           </td>
         </tr> */}
       </table>
-
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="confirm-approve-title"
-        aria-describedby="confirm-approve-description"
-      >
-        <Box sx={style}>
-          <div className="img-popover">
-            <img src="weui_location-outlined.svg" alt="modal-icon" />
-          </div>
-          <Typography id="confirm-approve-title" variant="h6" component="h2">
-            Are you sure?
-          </Typography>
-          <Typography id="confirm-approve-description" sx={{ mt: 2 }}>
-            Do you want to approve the “{selectedProperty}”?
-          </Typography>
-        </Box>
-      </Modal>
     </div>
   );
 };
