@@ -3,7 +3,6 @@ import "./navbar.scss";
 import GenericButton from "../Button/button";
 import Popover from "@mui/material/Popover";
 import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
 
 interface HeaderProps {
   Title: string;

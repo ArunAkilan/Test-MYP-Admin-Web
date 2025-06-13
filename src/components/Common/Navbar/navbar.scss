@@ -15,7 +15,7 @@
 }
 .admin {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   width: 100%;
   align-items: center;
   
@@ -26,9 +26,11 @@
 }
 .h-search {
   position: relative;
-  width: 394px;
+  max-width: 394px;
+  width: 100%;
   height: 48px;
   border-radius: 6px;
+  padding-right: 32px;
 }
 .h-search img {
   position: absolute;
@@ -78,6 +80,10 @@
 .bell-image button {
   background: none;
   border: none;
+  padding: 0;
+}
+.bell-image img {
+  padding-right: 0;
 }
 .setting-image {
     padding-right: 32px;
@@ -98,48 +104,39 @@
 .genericPostYourProperty:hover {
   color: #fff;
 }
-@media only screen and (max-width:992px) {
+// @media only screen and (max-width:992px) {
 
-  .admin-wrap {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding: 15px 15px 15px 25px
-  }
+//   .admin-wrap {
+//     display: flex;
+//     align-items: center;
+//     justify-content: flex-end;
+//     padding: 15px 15px 15px 25px
+//   }
   
-  .admin {
-    position: absolute;
-    top: 120px;
-    right: 50px;
-    background: #484a4a;;
-    flex-direction: column;
-    padding: 120px 50px;
-    border-radius: 8px;
-    z-index: 9;
-  }
-  .h-search {
-    background: #fff;
-  }
-  .h-search input {
-    width: 100%;
-  }
-  .bell {
-    background: #fff;
-    border-radius: 8px;
-    margin-top: 15px;
-    padding: 10px 20px;
-  }
-    .list-icon {
-    display: block;
-  }
-}
 
-@media only screen and (max-width:440px) {
-    .logo {
-        padding: 15px !important;
-    }
-    .admin-wrap {
-    padding: 15px;
-    position: relative;
-  }
-}
+//   .h-search {
+//     background: #fff;
+//   }
+//   .h-search input {
+//     width: 100%;
+//   }
+//   .bell {
+//     background: #fff;
+//     border-radius: 8px;
+//     margin-top: 15px;
+//     padding: 10px 20px;
+//   }
+//     .list-icon {
+//     display: block;
+//   }
+// }
+
+// @media only screen and (max-width:440px) {
+//     .logo {
+//         padding: 15px !important;
+//     }
+//     .admin-wrap {
+//     padding: 15px;
+//     position: relative;
+//   }
+// }
