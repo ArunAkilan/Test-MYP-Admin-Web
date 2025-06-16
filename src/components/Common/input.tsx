@@ -27,7 +27,7 @@ import type { Theme } from "@mui/system";
 import type { SelectChangeEvent } from "@mui/material/Select";
 
 // ---------------- Types -------------------
-type InputType = "text" | "textarea" | "dropdown" | "radio" | "chip" | "phone" | "email";
+type InputType = "text" | "textarea" | "dropdown" | "radio" | "chip" | "phone" | "email" | "number";
 
 interface BreadcrumbItem {
   label: string;

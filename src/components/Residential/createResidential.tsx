@@ -11,8 +11,10 @@ import { Button } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import StarIcon from "@mui/icons-material/Star";
-import VerticalTabs from "../Common/Sidebar/Sidebar";
+import "./Create_Residential/Create_Residential.scss"
+// import VerticalTabs from "../Common/Sidebar/Sidebar";
 // import { Search } from "@mui/icons-material";
+
 
 export const CreateResidential = () => {
   const sidebarData = [
@@ -25,7 +27,7 @@ export const CreateResidential = () => {
   return (
     <div className="row">
       <div className="col-12 col-md-3">
-        <VerticalTabs sidebarData={sidebarData} />
+        {/* <VerticalTabs sidebarData={sidebarData} /> */}
       </div>
       <div className="col-12 col-md-9">
         <div className="container-fluid px-3 px-md-5">
@@ -47,16 +49,19 @@ export const CreateResidential = () => {
                   className="breadcrumb-item active text-custom-blue"
                   aria-current="page"
                 >
-                  Create New Listing
+                  Create New Property
                 </li>
               </ol>
             </nav>
 
             {/* Owner Information Section */}
             <section className="OwnerDetails mb-4">
+              <div className="ownerTitle">
               <h6>Owner Information</h6>
               <p>Enter the contact details of the property owner</p>
-              <div className="OwnerInputField container row mb-3 p-0">
+              </div>
+              
+              <div className="ownerInputField container row mb-3 p-0">
                 <div className="col-12 col-md-6 mb-3">
                   <label className="TextLabel" htmlFor="ownerFirstName">
                     First Name <span className="star">*</span>

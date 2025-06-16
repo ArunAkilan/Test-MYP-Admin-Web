@@ -9,7 +9,7 @@ import Dashboardtab from "../Common/HorizondalTab/Dashboardtab";
 
 import type { ResidentialProperty } from "../AdminResidencial/AdminResidencial.model";
 
-function Home({properties}) {
+function Home({properties}: { properties: ResidentialProperty[] }) {
   const [residencial, setResidencial]= useState <ResidentialProperty[]> ([])
   console.log("residencial", residencial);
   const [loading, setLoading] = useState<boolean>(true);
@@ -36,7 +36,7 @@ function Home({properties}) {
   
     fetchResidencial();
   }
-  }, []);
+  }, [properties]);
   
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;

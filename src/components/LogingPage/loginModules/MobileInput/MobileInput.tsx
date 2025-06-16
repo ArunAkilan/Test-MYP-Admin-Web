@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Button from "@mui/material/Button";
-import { InputField } from "../../../Residential/Create_Residential/input";
+import { InputField } from "../../../Common/input";
 import './MobileInput.scss';
 import type { MobileInputProps } from "./MobileInput.model"
 
