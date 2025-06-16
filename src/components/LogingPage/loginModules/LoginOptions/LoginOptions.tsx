@@ -26,7 +26,7 @@ const LoginOptions: React.FC<LoginOptionsProps> = ({ setCurrentStep }) => {
       <section className="loginOptions">
         <div className="buttonWrapper">
           <Button
-            variant="contained"
+            
             color="primary"
             fullWidth
             type="submit"

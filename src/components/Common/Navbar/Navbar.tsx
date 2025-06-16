@@ -59,7 +59,7 @@ const Header: React.FC<HeaderProps> = ({
                   </button>
                   <Popover
                   anchorReference="anchorPosition"
-                  anchorPosition={{ top: 128, left: 807 }}
+                  anchorPosition={{ top: 138, left: 807 }}
                     id={id}
                     open={open}
                     anchorEl={anchorEl}

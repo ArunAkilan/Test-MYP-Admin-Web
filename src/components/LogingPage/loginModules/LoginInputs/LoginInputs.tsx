@@ -57,7 +57,7 @@ export default function Login() {
 
   return (
     <form>
-      <Button variant="contained" color="primary" onClick={handleOpen}>
+      <Button  color="primary" onClick={handleOpen}>
         Go To Login
       </Button>
 

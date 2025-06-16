@@ -124,7 +124,6 @@ const OTPInput: React.FC<OTPInputProps> = ({
         </Box>
 
         <Button
-          variant="contained"
           color="primary"
           onClick={handleVerify}
           style={{ marginTop: "1rem" }}

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import Button from "@mui/material/Button";
-import { InputField } from "../../../Residential/Create_Residential/input";
 import './MobileInput.scss';
 import type { MobileInputProps } from "./MobileInput.model"
 
@@ -82,9 +81,7 @@ const MobileInput: React.FC<MobileInputProps> = ({ setCurrentStep, handleClose }
         <div className="otpSendBtn">
           <button
             type="submit"
-            variant="contained"
-            fullWidth
-            style={{ marginTop: "1rem" }}
+            style={{ marginTop: "1rem",width: "100%"  }}
             disabled={error || phone === ""}
           >
             Send OTP to Mobile Number

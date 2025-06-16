@@ -7,7 +7,6 @@ const OTPError: React.FC<OTPErrorProps> = ({ resetOtp, setCurrentStep }) => {
       <h3 style={{ color: "red" }}>Incorrect OTP</h3>
       <p>Please try again.</p>
       <Button
-        variant="contained"
         color="error"
         fullWidth
         onClick={() => {

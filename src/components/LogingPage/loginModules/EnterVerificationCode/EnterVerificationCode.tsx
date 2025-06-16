@@ -79,7 +79,7 @@ const EnterVerificationCode: React.FC<Props> = ({
         ))}
       </Box>
       <Button
-        variant="contained"
+       
         color="primary"
         onClick={handleVerify}
         style={{ marginTop: "1rem" }}

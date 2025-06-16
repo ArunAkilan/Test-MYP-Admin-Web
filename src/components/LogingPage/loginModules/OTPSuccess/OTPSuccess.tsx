@@ -12,7 +12,6 @@ const OTPSuccess: React.FC<Props> = ({ handleClose, resetOtp }) => {
       <h3 style={{ color: "green" }}>Login Successful!</h3>
       <p>Welcome to your account.</p>
       <Button
-        variant="contained"
         fullWidth
         onClick={() => {
           resetOtp();
