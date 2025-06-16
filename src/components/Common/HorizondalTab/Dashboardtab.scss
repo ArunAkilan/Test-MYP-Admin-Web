@@ -2,10 +2,37 @@
     width: 100%;
 }
 
+#pending-approval-tab button img {
+    width: max-content !important;
+    height: max-content !important;
+}
 
-.css-1aquho2-MuiTabs-indicator {
-  background: #00BFA6 !important;
-  
-  height: 8px !important;
+#pending-approval-tab .MuiTabs-indicator {
+  background: #00BFA6 !important; 
+  height: 4px !important;
   border-radius: 100px;
+}
+#pending-approval-tab button {
+    min-height: 48px !important;
+    color: #81838C;
+    font-size: 16px;
+    line-height: 18px;
+    font-weight: 600;
+    letter-spacing: 0px;
+    font-family: 'Raleway';
+    text-transform: capitalize;
+    padding: 12px 0;
+    margin-right: 24px;
+
+}
+#pending-approval-tab button.Mui-selected {
+  color: #214999;
+}
+#pending-approval-tab button img {
+    width: max-content !important;
+    height: max-content !important;
+    margin-right: 0;
+}
+.MuiTab-iconWrapper {
+    margin-right: 0 !important;
 }

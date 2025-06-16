@@ -2,7 +2,7 @@ import * as React from "react";
 import "./navbar.scss";
 import GenericButton from "../Button/button";
 import Popover from "@mui/material/Popover";
-import Typography from "@mui/material/Typography";
+import Notificationtab from "../../NotificationTab/Notificationtab";
 
 interface HeaderProps {
   Title: string;
@@ -33,14 +33,13 @@ const Header: React.FC<HeaderProps> = ({
   const id = open ? "simple-popover" : undefined;
 
   return (
-    <div className="header-wrap">
+    <div className="header-wrap"  >
       <div className="container">
         <header className="header row">
           <div className="logo col-3">
             <img src={MainLogo} alt="logo image" />
-            
           </div>
-          
+
           <div className="admin-wrap col-9">
             <div className="admin">
               <div className="h-search">
@@ -55,16 +54,12 @@ const Header: React.FC<HeaderProps> = ({
                   className="setting-image"
                 />
                 <div className="bell-image">
-                  <button aria-describedby={id} 
-                 
-                  onClick={handleClick}>
-                    <img
-                      src="BTN_Notification.svg"
-                      alt="Notification svg"
-                      
-                    />
+                  <button aria-describedby={id} onClick={handleClick}>
+                    <img src="BTN_Notification.svg" alt="Notification svg" />
                   </button>
                   <Popover
+                  anchorReference="anchorPosition"
+                  anchorPosition={{ top: 138, left: 807 }}
                     id={id}
                     open={open}
                     anchorEl={anchorEl}
@@ -74,12 +69,16 @@ const Header: React.FC<HeaderProps> = ({
                       horizontal: "left",
                     }}
                   >
-                    <Typography sx={{ p: 2 }}>
-                      The content of the Popover.
-                    </Typography>
+                    <div className="notification-popover">
+                      <div className="notify-header">
+                        <h4>Notifications</h4>
+                        <button>Clear all</button>
+                      </div>
+                      < Notificationtab />
+                    </div>
                   </Popover>
                 </div>
-                
+
                 <div className="ad-right">
                   <img src={ProfileLogo} alt="ellipse image"></img>
                   <p>{Title}</p>

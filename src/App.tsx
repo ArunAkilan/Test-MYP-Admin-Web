@@ -8,8 +8,6 @@ import CreateResidential from "./components/Residential/createResidential";
 import ViewResidential from "./components/Residential/viewResidential/viewResidential";
 
 
-// import LoginPage from "./components/LogingPage/login";
-// import MobileInput from "./components/LogingPage/loginModules/MobileInput/MobileInput";
 function App() {
   return (
     <div className="grid-container">

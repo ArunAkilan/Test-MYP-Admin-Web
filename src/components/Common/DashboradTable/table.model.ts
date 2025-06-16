@@ -7,4 +7,5 @@ export default interface Property {
   facing: string;
   furnishing: string;
   type: string;
+  washroom: string;
 }

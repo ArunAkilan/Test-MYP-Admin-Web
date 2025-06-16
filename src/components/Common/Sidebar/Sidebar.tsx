@@ -20,6 +20,7 @@ const styles = {
   lineHeight: 18,
 };
 
+
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -86,7 +87,7 @@ export default function VerticalTabs() {
             sx={{ styles }}
             label="Commercial"
             {...a11yProps(1)}
-            icon={<Avatar alt="test avatar" src="/Dash.svg" />} 
+            icon={<Avatar alt="test avatar" src="/solar_buildings-linear.svg" />} 
             iconPosition="start"
             id="tab-custom"
             className="tab-outerlayer-div"
@@ -95,7 +96,7 @@ export default function VerticalTabs() {
             sx={{ styles }}
             label="Residential"
             {...a11yProps(2)}
-            icon={<Avatar alt="test avatar" src="/resdential-icon.svg" />}
+            icon={<Avatar alt="test avatar" src="/hugeicons_house-02.svg" />}
              iconPosition="start"
             
             className="tab-outerlayer-div"
@@ -104,7 +105,7 @@ export default function VerticalTabs() {
             sx={{ styles }}
             label="Plots"
             {...a11yProps(3)}
-            icon={<Avatar alt="test avatar" src="/Dash.svg" />}
+            icon={<Avatar alt="test avatar" src="/lucide_land-plot.svg" />}
             iconPosition="start"
             
             className="tab-outerlayer-div "
@@ -117,7 +118,7 @@ export default function VerticalTabs() {
           <Home properties="commercials"/>
         </TabPanel>
         <TabPanel value={value} index={1}>
-        <Home properties="commercials"/>
+          <Home properties="commercials"/>
         </TabPanel>
         <TabPanel value={value} index={2}>
           <Home properties="residentials" />

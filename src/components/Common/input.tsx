@@ -25,15 +25,16 @@ import { styled } from "@mui/system";
 import { MuiTelInput } from "mui-tel-input";
 import type { Theme } from "@mui/system";
 import type { SelectChangeEvent } from "@mui/material/Select";
-
+ 
 // ---------------- Types -------------------
-type InputType = "text" | "textarea" | "dropdown" | "radio" | "chip" | "phone" | "email" | "number";
-
+type InputType = "text" | "textarea" | "dropdown" | "radio" | "chip" | "phone" | "email" | "number" | 
+"checkbox" | "tel";
+ 
 interface BreadcrumbItem {
   label: string;
   href?: string;
 }
-
+ 
 interface InputFieldProps {
   id?: string;
   name?: string;
@@ -43,7 +44,7 @@ interface InputFieldProps {
   dropdownOptions?: string[];
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void; // For text, email, textarea, dropdown, radio
-  onPhoneChange?: (value: string) => void; // For phone input (string)
+  onPhoneChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void; // For phone input (string)
   className?: string;
   radioOptions?: string[];
   icon?: React.ReactElement;
@@ -53,19 +54,19 @@ interface InputFieldProps {
   Selected?: string;
   breadcrumbs?: BreadcrumbItem[];
 }
-
+ 
 // ---------------- Styles -------------------
 const grey = {
   300: "#C7D0DD",
   900: "#1C2025",
 };
-
+ 
 const blue = {
   200: "#b6daff",
   400: "#3399FF",
   600: "#0072E5",
 };
-
+ 
 const StyledTextarea = styled(TextareaAutosize)(
   ({ theme }: { theme: Theme }) => `
     width: 100%;
@@ -90,7 +91,7 @@ const StyledTextarea = styled(TextareaAutosize)(
     }
   `
 );
-
+ 
 // ---------------- Component -------------------
 const InputField: React.FC<InputFieldProps> = ({
   id,
@@ -118,7 +119,7 @@ const InputField: React.FC<InputFieldProps> = ({
       onChange(e);
     }
   };
-
+ 
   // Handler for Select dropdown
   const handleSelectChange = (e: SelectChangeEvent<string>) => {
     if (onChange) {
@@ -126,7 +127,7 @@ const InputField: React.FC<InputFieldProps> = ({
       onChange(e as unknown as React.ChangeEvent<HTMLInputElement>);
     }
   };
-
+ 
   // Breadcrumb click handler
   const handleBreadcrumbClick = (
     event: React.MouseEvent<HTMLAnchorElement, MouseEvent>
@@ -134,7 +135,7 @@ const InputField: React.FC<InputFieldProps> = ({
     event.preventDefault();
     console.info("Breadcrumb clicked.");
   };
-
+ 
   return (
     <div className="mb-3 d-flex flex-column">
       {/* ---------- Dynamic Breadcrumbs ---------- */}
@@ -164,13 +165,13 @@ const InputField: React.FC<InputFieldProps> = ({
           </Breadcrumbs>
         </Stack>
       )}
-
+ 
       {label && type !== "radio" && type !== "chip" && (
         <label className="form-label" htmlFor={id}>
           {label}
         </label>
       )}
-
+ 
       {type === "text" && (
         <TextField
           fullWidth
@@ -187,7 +188,7 @@ const InputField: React.FC<InputFieldProps> = ({
           helperText={helperText}
         />
       )}
-
+ 
       {type === "email" && (
         <TextField
           fullWidth
@@ -204,7 +205,7 @@ const InputField: React.FC<InputFieldProps> = ({
           helperText={helperText}
         />
       )}
-
+ 
       {type === "textarea" && (
         <StyledTextarea
           id={id}
@@ -216,11 +217,11 @@ const InputField: React.FC<InputFieldProps> = ({
           className={className}
         />
       )}
-
+ 
       {type === "phone" && (
         <MuiTelInput
           value={typeof value === "string" ? value : ""}
-          onChange={(newValue: string) => {
+          onChange={(newValue: any) => {
             const digitsOnly = newValue.replace(/\D/g, "");
             if (digitsOnly.length <= 12 && onPhoneChange) {
               onPhoneChange(newValue);
@@ -239,7 +240,7 @@ const InputField: React.FC<InputFieldProps> = ({
           aria-label={ariaLabel}
         />
       )}
-
+ 
       {type === "dropdown" && (
         <FormControl fullWidth size="small" error={error}>
           <InputLabel id={`${id}-select-label`}>{label}</InputLabel>
@@ -265,7 +266,7 @@ const InputField: React.FC<InputFieldProps> = ({
           )}
         </FormControl>
       )}
-
+ 
       {type === "radio" && radioOptions && (
         <FormControl error={error}>
           <FormLabel id={`${id}-radio-label`}>{label}</FormLabel>
@@ -292,7 +293,7 @@ const InputField: React.FC<InputFieldProps> = ({
           )}
         </FormControl>
       )}
-
+ 
       {type === "chip" && icon && (
         <Stack direction="row" spacing={1}>
           <Chip icon={icon} label={label} variant="outlined" />
@@ -301,7 +302,7 @@ const InputField: React.FC<InputFieldProps> = ({
     </div>
   );
 };
-
+ 
 // ---------------- Modal (unchanged) -------------------
 const style = {
   position: "absolute" as const,
@@ -314,12 +315,12 @@ const style = {
   boxShadow: 24,
   p: 4,
 };
-
+ 
 export function BasicModal() {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-
+ 
   return (
     <div>
       <Button onClick={handleOpen}>Open modal</Button>
@@ -341,5 +342,5 @@ export function BasicModal() {
     </div>
   );
 }
-
+ 
 export { InputField };
