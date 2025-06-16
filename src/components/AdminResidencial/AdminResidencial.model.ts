@@ -19,6 +19,7 @@ export interface OwnerContact {
     rentAmount?: number;
     negotiable?: boolean;
     advanceAmount?: number;
+    depositAmount?: number;
   }
   
   export interface LeaseDetails {
@@ -114,6 +115,9 @@ export interface OwnerContact {
     lease?: LeaseDetails;
     sale?: SaleDetails;
     location?: Location;
+    builtUpArea?: string;
+    carpetArea?: string;
+    totalArea?: string;
     area?: Area;
     images: string[];
     title: string;

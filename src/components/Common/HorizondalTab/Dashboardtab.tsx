@@ -9,10 +9,10 @@ import type { ResidentialProperty } from "../../AdminResidencial/AdminResidencia
 
 interface TabPanelProps {
   children?: React.ReactNode;
-  index: number;
-  value: number;
-  data: ResidentialProperty[];
-  properties: "residentials" | "commercials";
+  index?: number;
+  value?: number;
+  data?: ResidentialProperty[];
+  properties?:  "residentials" | "commercials" | "plots";
   washroom?: number | string;
 }
 

@@ -20,6 +20,7 @@ const styles = {
   lineHeight: 18,
 };
 
+
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -117,7 +118,7 @@ export default function VerticalTabs() {
           <Home properties="commercials"/>
         </TabPanel>
         <TabPanel value={value} index={1}>
-        <Home properties="commercials"/>
+          <Home properties="commercials"/>
         </TabPanel>
         <TabPanel value={value} index={2}>
           <Home properties="residentials" />

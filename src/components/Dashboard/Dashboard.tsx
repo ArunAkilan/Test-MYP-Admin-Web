@@ -9,7 +9,13 @@ import Dashboardtab from "../Common/HorizondalTab/Dashboardtab";
 
 import type { ResidentialProperty } from "../AdminResidencial/AdminResidencial.model";
 
-function Home({properties}) {
+type PropertyType = "residentials" | "commercials" | "plots";
+
+export interface HomeProps {
+  properties: PropertyType;
+}
+
+function Home({ properties }:  HomeProps ) {
   const [residencial, setResidencial]= useState <ResidentialProperty[]> ([])
   console.log("residencial", residencial);
   const [loading, setLoading] = useState<boolean>(true);
@@ -56,7 +62,6 @@ function Home({properties}) {
             </div>
 
             <GenericButton
-              onClick={() => alert("Data saved!")}
               variant="primary"
               image={iconAdd}
               iconPosition="left"
@@ -70,7 +75,7 @@ function Home({properties}) {
       <div className="container">
         
         <div className="pending-approve">
-          <Dashboardtab data={residencial} properties={properties}  />
+          <Dashboardtab data={residencial} properties={properties} />
         </div>
       </div>
       

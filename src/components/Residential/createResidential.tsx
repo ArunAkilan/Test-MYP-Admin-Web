@@ -7,25 +7,21 @@ import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
 import DoneIcon from "@mui/icons-material/Done";
 import CloseIcon from "@mui/icons-material/Close";
 import { Button } from "@mui/material";
-
-import PersonIcon from "@mui/icons-material/Person";
-import EditNoteIcon from "@mui/icons-material/EditNote";
-import StarIcon from "@mui/icons-material/Star";
 import VerticalTabs from "../Common/Sidebar/Sidebar";
-// import { Search } from "@mui/icons-material";
 
 export const CreateResidential = () => {
-  const sidebarData = [
-    { id: 1, name: "Dashboard", icon: PersonIcon },
-    { id: 2, name: "Commercial", icon: EditNoteIcon },
-    { id: 3, name: "Residential", icon: StarIcon },
-    { id: 4, name: "Plots", icon: StarIcon },
-  ];
+  // const sidebarData = [
+  //   { id: 1, name: "Dashboard", icon: PersonIcon },
+  //   { id: 2, name: "Commercial", icon: EditNoteIcon },
+  //   { id: 3, name: "Residential", icon: StarIcon },
+  //   { id: 4, name: "Plots", icon: StarIcon },
+  // ];
 
   return (
     <div className="row">
       <div className="col-12 col-md-3">
-        <VerticalTabs sidebarData={sidebarData} />
+        {/* <VerticalTabs sidebarData={sidebarData} /> */}
+        <VerticalTabs />
       </div>
       <div className="col-12 col-md-9">
         <div className="container-fluid px-3 px-md-5">
@@ -495,14 +491,12 @@ export const CreateResidential = () => {
             {/* Action Buttons */}
             <div className="d-flex gap-3 justify-content-center my-4">
               <GenericButton
-                title="Cancel"
+                label="Cancel"
                 icon={<CloseIcon />}
-                color="secondary"
               />
               <GenericButton
-                title="Create Listing"
+                label="Create Listing"
                 icon={<DoneIcon />}
-                color="primary"
               />
             </div>
           </div>
