@@ -1,0 +1,377 @@
+$theme-colors: (
+  "primary": #0d6efd,
+  "custom-blue": #1F3B73
+);
+
+
+.breadcrumb {
+    .breadcrumb-item {
+      a {
+        text-decoration: none; // Remove underline
+        font-weight: normal;   // Remove bold
+        color: inherit;        // Optional: keep same color
+      }
+  
+      &.active {
+        font-weight: normal; // Not bold
+      }
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// .breadcrumbs{
+//     display:flex;
+//     gap:4px;
+//     flex-direction: row;
+//     width: 253px;
+//     height: 24px;
+//     left: 441px;
+//     gap: 12px;
+//     margin-top: 32px;  
+//     top: 160px;
+//     border: 2px solid rgb(250, 5, 5);
+// .breadcrumbs-p{
+//     width: 82px;
+//     height: 17px;
+//     font-family: Archivo;
+//     font-weight: 500px;
+//     font-size: 16px;
+//     line-height: 100%;
+//     letter-spacing: 0%;
+//     text-align: center;
+//     color: #81858C;
+//     margin-right: 12px;
+// }
+// .img-brd{
+//     width: 11px;
+//     height: 17px;
+//     font-family: Archivo;
+//     font-weight: 500px;
+//     font-size: 16px;
+//     line-height: 100%;
+//     letter-spacing: 0%;
+//     text-align: center;
+//     color: #81858C;
+//     margin-right: 12px;
+    
+// }
+// .breadcrumbs-p1{
+//     width: 136px;
+//     height: 17px;
+//     font-family: Archivo;
+//     font-weight: 500px;
+//     font-size: 16px;
+//     line-height: 100%;
+//     letter-spacing: 0%;
+//     text-align: center;
+//     color: #1F3B73;
+//     ;
+// }
+// }  
+
+// .OwnerDetailsSection{
+//     width: 849px;
+//     height: 248px;
+//     top: 216px;
+//     left: 441px;
+//     gap: 32px;
+//     margin-top: 32px;
+//     border: 2px solid rgb(250, 5, 5);
+// p{
+//     width: 849px;
+//     height: 24px;
+//     font-family: Raleway;
+//     font-weight: 700px;
+//     font-size: 16px;
+//     line-height: 6px;
+//     letter-spacing: 0px;
+//     vertical-align: middle;
+//     color:#2E2E2F;
+// }
+// .OwnerDetailTextField{
+//     width: 849px;
+//     height: 192px;
+//     gap: 32px;
+//     margin-top: 32px;
+    
+// }
+// .NameField1{
+//     width: 849px;
+//     height: 80px;
+//     gap: 16px;
+    
+// }
+// .NameField2{
+//     width: 849px;
+//     height: 80px;
+//     gap: 16px;
+//     margin-top: 32px;
+// }
+// .TextInput{
+//     width: 416.5px;
+//     height: 80px;
+//     gap: 14px;
+    
+// }
+// }
+
+// .PropertDetails{
+//     width: 849px;
+//     height: 696px;
+//     top: 512px;
+//     left: 441px;
+//     gap: 32px;
+//     margin-top: 48px;
+//     border: 2px solid rgb(244, 4, 4);
+
+// .InputField{
+//     width: 849px;
+//     height: 640px;
+//     gap: 32px;
+//     margin-top: 32px;
+    
+// }
+// .SelectionInput{
+//     width: 849px;
+//     height: 80px;
+//     gap: 14px;
+    
+// }
+// .PropertyDetails{
+//     width: 849px;
+//     height: 416px;
+//     gap: 24px;
+//     display: flex;
+//     flex-direction: row;
+//     margin-bottom: 32PX;
+    
+// }
+// .Propert_Location{
+   
+//     // width: 412.5px;
+//     height: 416px;
+//     gap: 32px;
+//     margin-right: 24px;
+//     border: 2px solid rgb(255, 7, 7);
+
+// .Frame{
+//     width: 412.5px;
+//     height: 304px;
+//     gap: 14px;
+    
+// }   
+// .Map{
+//     width: 412.5px;
+//     height: 272px;
+//     gap: 16px;
+//     border-radius: 6px;
+//     border-width: 1px;
+//     padding: 8px;
+//     color: #FFFFFF;
+//     border: 1px solid #D3DDE7;
+//     border-radius: 1px;
+//     color: #D3DDE7;
+// }
+// .TextInput{
+//     width: 412.5px;
+//     height: 48px;
+//     gap: 14px;
+//     margin-top: 32PX;
+    
+// }
+// }
+// .Propert_Details{
+//     width: 412.5px;
+//     height: 416px;
+//     gap: 32px;
+//     border: 2px solid rgb(250, 5, 5);
+//     // height: 80;
+//     // gap: 14px;
+
+//     // width: 412.5px;
+//     // height: 416px;
+//     // gap: 32px;
+    
+// }
+// .TextInput{
+//     width: 412.5px;
+//     height: 80px;
+//     gap: 14px;
+//     margin-bottom: 32px;
+// }
+// .Frame1{
+//     display: flex;
+//     flex-direction: row;
+//     width: 412.5px;
+//     height: 80px;
+//     gap: 16px;
+//     margin-top: 10px;/*My Modification*/
+      
+    
+// }
+// .Frame2{
+//     width: 412.5px;
+//     height: 80px;
+//     gap: 14px;
+//     padding-right: 16px;
+//     padding-left: 16px;
+//     margin-top: 5px;/*My Modification*/
+// }
+// .radio{
+// margin-top: 16px;/*My Modification*/
+// }
+// .ResidentialCategory{
+//     width: 849PX;
+//     height: 80PX;
+//     gap: 14px;
+//     padding-right: 16px;
+//     padding-left: 16px;
+//     margin-top: 0;
+// }
+// }
+
+
+// img{
+//     width: 11px;
+//     height: 17px;
+//     margin-left: 12px;
+//     margin-right: 12px;
+// }
+// .newPage {
+//     p{
+//     width: 146px;
+//     height: 17px;
+//     font-family: Archivo;
+//     font-weight: 500px;
+//     font-size: 16px;
+//     line-height: 100%;
+//     letter-spacing: 0%;
+//     text-align: center;
+//     color: #1F3B73;
+// }     
+// }
+
+
+// h4{
+//     width: 849px;
+//     height: 24px;
+//     top: 216px;
+//     left: 441px;
+//     font-family: Raleway;
+//     font-weight: 700;
+//     font-size: 16px;
+//     line-height: 6px;
+//     letter-spacing: 0px;
+//     vertical-align: middle;
+//     margin-top: 32px;
+// }
+
+// .inputs{
+//     display: flex; 
+//     gap: 15px;   
+//     width: 100%;
+//     // width: 849px;
+//     // height: 72px;
+//     // top: 264px;
+//     // left: 441px;
+//     // gap: 16px;
+//     width: 416.5px;
+//     top: 32px;
+//     border-radius: 6px;
+//     border-width: 1px;
+//     padding-top: 11px;
+//     padding-right: 8px;
+//     padding-bottom: 11px;
+//     padding-left: 8px;
+    
+      
+// }
+// input{
+//     width: 416.5px;
+//     height: 40px;
+//     top: 32px;
+//     border-radius: 6px;
+//     border-width: 1px;
+//     padding-top: 8px;
+//     padding-right: 8px;
+//     padding-bottom: 11px;
+//     padding-left: 8px;
+    
+// }
+// form{
+//     width: 849px;
+//     height: 56px;
+//     top: 928px;
+//     left: 441px;
+//     margin-top: 16px;
+//     margin-bottom: 24px;
+// }
+// .radioButtons{
+//     display: flex;
+//     flex-direction: row;
+//     text-align: left;
+//     width: 264px;
+//     height: 24px;
+//     top: 32px;
+//     left: 8px;
+//     gap: 16px;
+//     margin-right: 16px;
+//     align-items: center;
+// }
+// .radiobtn{
+//     display: flex;
+//     flex-direction: row;
+//     text-align: left;
+//     width: 72px;
+//     height: 24px;
+//     gap: 8px;
+//     align-items: center;
+// }
+// .iradio{
+//     width: 16px;
+//     height: 16px;
+    
+// }
+// .lradio{
+//     margin-left: 8px;
+//     width: 48px;
+//     height: 18px;
+//     font-family: Open Sans;
+//     font-weight: 400px;
+//     font-size: 16px;
+//     line-height: 6px;
+//     letter-spacing: 0px;
+//     text-align: center;
+       
+// }
+// .Hradiobtn{
+//     width: 72px;
+//     height: 24px;
+//     gap: 8px;
+    
+// }
+// .Aradiobtn{
+//     width: 105px;
+//     height: 24px;
+//     gap: 8pxpx;
+    
+// }
+// .Vradiobtn{
+//     width: 55px;
+//     height: 24px;
+//     gap: 8px;
+    
+// }

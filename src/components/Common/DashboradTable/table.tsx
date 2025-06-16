@@ -36,7 +36,7 @@ function Table({ data, properties }: TableProps) {
   };
 
   const handleView = (id: string | number) => {
-    const selectedItem = data.find(item => item.id === id);
+    const selectedItem = data.find(item => item._id === id);
   
     if (selectedItem) {
       navigate("/view-residential", { state: { data: selectedItem, mode: "view" } });
@@ -140,7 +140,7 @@ function Table({ data, properties }: TableProps) {
                   <img
                     src="/src/assets/tabelimg/Eye view.svg"
                     alt="view"
-                    onClick={() => handleView(item.id)}
+                    onClick={() => item._id && handleView(item._id)}
                     style={{ cursor: "pointer" }}
                   />
 
