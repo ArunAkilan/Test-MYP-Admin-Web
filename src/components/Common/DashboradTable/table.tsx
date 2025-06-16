@@ -13,7 +13,7 @@ import { useState } from "react";
 interface TableProps {
   //data: ResidentialProperty[];
   data: any;
-  properties?: "residentials" | "commercials" | "plots";
+  properties?: "all" | "residentials" | "commercials" | "plots";
   washroom?: number | string;
 }
 
@@ -31,6 +31,27 @@ const modalStyle = {
 
 function Table({ data, properties }: TableProps) {
   const navigate = useNavigate();
+
+  const filterOptions = {
+    residentials: [
+      { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
+      {
+        heading: "Furnishing",
+        options: ["Furnished", "Semi-Furnished", "Unfurnished"],
+      },
+    ],
+    commercials: [
+      { heading: "Commercial Type", options: ["Building", "Shop", "Office"] },
+      { heading: "Washroom", options: ["None", "Private", "Common"] },
+    ],
+    plots: [
+      {
+        heading: "Plot Type",
+        options: ["Residential", "Agricultural", "Industrial"],
+      },
+      { heading: "Facing", options: ["East", "West", "North", "South"] },
+    ],
+  };
 
   // Modal state
   const [open, setOpen] = React.useState(false);
@@ -90,7 +111,7 @@ function Table({ data, properties }: TableProps) {
     setAnchorEl(null);
   };
 
-  const filterOpen = Boolean(anchorEl); // ✅ Define open
+  const filterOpen = Boolean(anchorEl);
   const id = filterOpen ? "simple-popover" : undefined;
 
   if (!Array.isArray(data)) {
@@ -123,6 +144,62 @@ function Table({ data, properties }: TableProps) {
                   Filter
                 </Button>
                 <Popover
+                  id={id}
+                  open={filterOpen}
+                  anchorEl={anchorEl}
+                  onClose={handleClose}
+                  anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "left",
+                  }}
+                  transformOrigin={{
+                    vertical: "top",
+                    horizontal: "left",
+                  }}
+                >
+                  <div className="filter-div-wrapper">
+                    <div className="filter-header">
+                      <p>Filter By</p>
+                      <div className="apply-reset-btn">
+                        <button
+                          className="refresh-btn"
+                          onClick={() => window.location.reload()}
+                        >
+                          <img src="mynaui_refresh.svg" alt="refresh icon" />
+                          Reset
+                        </button>
+                        <GenericButton
+                          image={filterTick}
+                          iconPosition="left"
+                          label={"Apply"}
+                          className="genericFilterApplyStyles"
+                        />
+                      </div>
+                    </div>
+                    <div className="checklist-content row">
+                      {filterOptions[properties ?? "residentials"].map(
+                        (section, index) => (
+                          <div className="checklist-list col-md-3" key={index}>
+                            <Typography variant="h6">
+                              {section.heading}
+                            </Typography>
+                            <div className="label-wrapper">
+                              {section.options.map((opt, i) => (
+                                <FormControlLabel
+                                  key={i}
+                                  control={<Checkbox />}
+                                  label={opt}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </div>
+                </Popover>
+
+                {/* <Popover
                   style={{ margin: "20% 8% 0 8%", position: "absolute" }}
                   anchorReference="anchorPosition"
                   anchorPosition={{
@@ -336,7 +413,7 @@ function Table({ data, properties }: TableProps) {
                       </div>
                     </div>
                   </div>
-                </Popover>
+                </Popover> */}
               </div>
             </div>
           </div>

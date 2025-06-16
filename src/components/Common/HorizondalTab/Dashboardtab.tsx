@@ -12,7 +12,7 @@ interface TabPanelProps {
   index?: number;
   value?: number;
   data?: ResidentialProperty[];
-  properties?:  "residentials" | "commercials" | "plots";
+  properties?:  "all" | "residentials" | "commercials" | "plots";
   washroom?: number | string;
 }
 

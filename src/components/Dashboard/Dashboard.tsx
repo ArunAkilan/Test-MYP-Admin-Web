@@ -9,7 +9,7 @@ import Dashboardtab from "../Common/HorizondalTab/Dashboardtab";
 
 import type { ResidentialProperty } from "../AdminResidencial/AdminResidencial.model";
 
-type PropertyType = "residentials" | "commercials" | "plots";
+type PropertyType = "all" | "residentials" | "commercials" | "plots";
 
 export interface HomeProps {
   properties: PropertyType;
