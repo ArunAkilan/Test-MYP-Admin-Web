@@ -8,6 +8,8 @@ import DoneIcon from "@mui/icons-material/Done";
 import CloseIcon from "@mui/icons-material/Close";
 import { Button } from "@mui/material";
 import VerticalTabs from "../Common/Sidebar/Sidebar";
+import "./Create_Residential/Create_Residential.scss"
+
 
 export const CreateResidential = () => {
   // const sidebarData = [
