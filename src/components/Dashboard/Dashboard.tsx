@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-
+import { useNavigate } from "react-router-dom";
 import "./Dashboard.scss";
 import GenericButton from "../Common/Button/button";
 import iconAdd from "../../../public/ICO_Add-1.svg"
 import Dashboardtab from "../Common/HorizondalTab/Dashboardtab";
+
 
 import type { ResidentialProperty } from "../AdminResidencial/AdminResidencial.model";
 
@@ -13,6 +14,7 @@ function Home({properties}) {
   console.log("residencial", residencial);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate=useNavigate()
 
   useEffect(() => {
   if(properties){
@@ -60,6 +62,7 @@ function Home({properties}) {
               iconPosition="left"
               label={"Add New Property"}
               className="genericNewPostStyles"
+              onClick={() => navigate("/createResidential", { state: { mode: "create" } })}
             />
           </div>
         </div>
