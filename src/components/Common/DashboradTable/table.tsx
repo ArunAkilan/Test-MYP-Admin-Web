@@ -4,17 +4,12 @@ import { useNavigate } from "react-router-dom";
 import { Box, Typography, Modal } from "@mui/material";
 import * as React from "react";
 import "./table.scss";
-import Popover from "@mui/material/Popover";
 import Button from "@mui/material/Button";
-import GenericButton from "../Button/button";
-import filterTick from "../../../../public/Icon_Tick.svg";
-import { Checkbox, FormControlLabel } from "@mui/material";
-import { useState } from "react";
+import axios from "axios";
 interface TableProps {
   //data: ResidentialProperty[];
   data: any;
-  properties?: "all" | "residentials" | "commercials" | "plots";
-  washroom?: number | string;
+  properties?: "all" | "residential" | "residentials" | "commercial" | "commercials" | "plot" | "plots" | undefined;
 }
 
 const modalStyle = {
@@ -30,28 +25,51 @@ const modalStyle = {
 };
 
 function Table({ data, properties }: TableProps) {
+ 
+    console.log("properties", properties);
   const navigate = useNavigate();
 
-  const filterOptions = {
-    residentials: [
-      { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
-      {
-        heading: "Furnishing",
-        options: ["Furnished", "Semi-Furnished", "Unfurnished"],
-      },
-    ],
-    commercials: [
-      { heading: "Commercial Type", options: ["Building", "Shop", "Office"] },
-      { heading: "Washroom", options: ["None", "Private", "Common"] },
-    ],
-    plots: [
-      {
-        heading: "Plot Type",
-        options: ["Residential", "Agricultural", "Industrial"],
-      },
-      { heading: "Facing", options: ["East", "West", "North", "South"] },
-    ],
+  const getSingularProperty = () => {
+    if (properties === "residentials") return "residential";
+    if (properties === "commercials") return "commercial";
+    return "plot"; 
   };
+
+const updateStatus = async (id: string, status: number) => {
+      const singularProperty = getSingularProperty();
+
+  try {
+    const response = await axios.put(`http://192.168.1.70:3002/api/adminpermission/${singularProperty}/${id}`, {
+      status:`${status}`,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('API Error:', error);
+    throw error;
+  }
+};
+
+const handleAction = async (id: string, status: number) => {
+  try {
+    const result = await updateStatus(id, status);
+    console.log('Status updated:', result);
+  } catch (err) {
+    console.error('Failed to update status');
+  }
+};
+ 
+  const formatedData = Array.isArray(data)
+    ? data // already flat array
+    : [
+        ...(data?.residentials ?? []),
+        ...(data?.commercials ?? []),
+        ...(data?.plots ?? []),
+        ...(data?.residential ?? []), // if API mistakenly uses singular
+        ...(data?.commercial ?? []),
+        ...(data?.plot ?? []),
+      ];
+
+  console.log("formatedData", formatedData);
 
   // Modal state
   const [open, setOpen] = React.useState(false);
@@ -77,11 +95,11 @@ function Table({ data, properties }: TableProps) {
     }
   };
 
-  const handleOpenModal = (action: string, item: ResidentialProperty) => {
-    setSelectedAction(action);
-    setSelectedItem(item);
-    setOpen(true);
-  };
+  // const handleOpenModal = (action: string, item: ResidentialProperty) => {
+  //   setSelectedAction(action);
+  //   setSelectedItem(item);
+  //   setOpen(true);
+  // };
 
   const handleCloseModal = () => {
     setOpen(false);
@@ -101,324 +119,20 @@ function Table({ data, properties }: TableProps) {
     handleCloseModal();
   };
 
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const filterOpen = Boolean(anchorEl);
-  const id = filterOpen ? "simple-popover" : undefined;
-
   if (!Array.isArray(data)) {
-    console.error("Expected 'data' to be an array but got:", data);
-    return <p>Error: Invalid data format</p>;
+    const fallback =
+      data?.residential || data?.commercial || data?.plot || data?.data;
+
+    if (Array.isArray(fallback)) {
+      data = fallback;
+    } else {
+      console.error("Expected 'data' to be an array but got:", data);
+      return <p>Error: Invalid data format</p>;
+    }
   }
 
   return (
     <div className="container table-responsive">
-      <div className="new-listing-wrap">
-        <div className="container">
-          <div className="new-listing">
-            <div className="new-listing-wrap-list">
-              <h3 className="fresh-list">36 Fresh Properties</h3>
-              <img src="Ellipse 24.svg" alt="dot svg" />
-              <h3 className="pending-list">136 Pending Request</h3>
-            </div>
-            <div className="list-panel">
-              <div className="search">
-                <input type="search" placeholder="Search Properties" />
-                <img src="Search-1.svg" alt="search svg" />
-              </div>
-              <div className="filter-link color-edit">
-                <Button
-                  className="filter-text"
-                  aria-describedby={id}
-                  onClick={handleClick}
-                >
-                  <img src="majesticons_filter-line.svg" alt="filter img" />
-                  Filter
-                </Button>
-                <Popover
-                  id={id}
-                  open={filterOpen}
-                  anchorEl={anchorEl}
-                  onClose={handleClose}
-                  anchorOrigin={{
-                    vertical: "bottom",
-                    horizontal: "left",
-                  }}
-                  transformOrigin={{
-                    vertical: "top",
-                    horizontal: "left",
-                  }}
-                >
-                  <div className="filter-div-wrapper">
-                    <div className="filter-header">
-                      <p>Filter By</p>
-                      <div className="apply-reset-btn">
-                        <button
-                          className="refresh-btn"
-                          onClick={() => window.location.reload()}
-                        >
-                          <img src="mynaui_refresh.svg" alt="refresh icon" />
-                          Reset
-                        </button>
-                        <GenericButton
-                          image={filterTick}
-                          iconPosition="left"
-                          label={"Apply"}
-                          className="genericFilterApplyStyles"
-                        />
-                      </div>
-                    </div>
-                    <div className="checklist-content row">
-                      {filterOptions[properties ?? "residentials"].map(
-                        (section, index) => (
-                          <div className="checklist-list col-md-3" key={index}>
-                            <Typography variant="h6">
-                              {section.heading}
-                            </Typography>
-                            <div className="label-wrapper">
-                              {section.options.map((opt, i) => (
-                                <FormControlLabel
-                                  key={i}
-                                  control={<Checkbox />}
-                                  label={opt}
-                                />
-                              ))}
-                            </div>
-                          </div>
-                        )
-                      )}
-                    </div>
-                  </div>
-                </Popover>
-
-                {/* <Popover
-                  style={{ margin: "20% 8% 0 8%", position: "absolute" }}
-                  anchorReference="anchorPosition"
-                  anchorPosition={{
-                    top: 144,
-                    left: 260,
-                  }}
-                  anchorOrigin={{
-                    vertical: "top",
-                    horizontal: "left",
-                  }}
-                  transformOrigin={{
-                    vertical: "top",
-                    horizontal: "left",
-                  }}
-                  id={id}
-                  open={filterOpen}
-                  anchorEl={anchorEl}
-                  onClose={handleClose}
-                >
-                  <div className="filter-div-wrapper">
-                    <div className="filter-header">
-                      <p>Filter By</p>
-                      <div className="apply-reset-btn">
-                        <button className="refresh-btn">
-                          <img src="mynaui_refresh.svg" alt="refresh icon" />
-                          Reset
-                        </button>
-                        <GenericButton
-                          image={filterTick}
-                          iconPosition="left"
-                          label={"Apply"}
-                          className="genericFilterApplyStyles"
-                        />
-                      </div>
-                    </div>
-                    <div className="checklist-content checklist-content-1 row">
-                      <div className="checklist-list col-md-3 col-sm-6">
-                        <h4>Property Type</h4>
-                        <div className="label-wrapper">
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="Rent"
-                          />
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="Lease"
-                          />
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="Sale"
-                          />
-                        </div>
-                      </div>
-                      <div className="checklist-list col-md-3 col-sm-6">
-                        <h4>Commercial Type</h4>
-                        <div className="label-wrapper">
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="Building"
-                          />
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="Co-Working"
-                          />
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="Office Space"
-                          />
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="Shop"
-                          />
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="Showroom"
-                          />
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="Shed"
-                          />
-                        </div>
-                      </div>
-                      <div className="checklist-list col-md-3 col-sm-6 ">
-                        <h4>Facing</h4>
-                        <div className="label-wrapper">
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="East"
-                          />
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="West"
-                          />
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="North"
-                          />
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="South"
-                          />
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="North west"
-                          />
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="North East"
-                          />
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="South west"
-                          />
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="South East"
-                          />
-                        </div>
-                      </div>
-                      <div className="checklist-list col-md-3 col-sm-6">
-                        <h4>Locality</h4>
-                        <div className="label-wrapper">
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="Old Bus Stand"
-                          />
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="Thuraimangalam"
-                          />
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="NH-45 Bypass"
-                          />
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="Collector Office Road"
-                          />
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="Elambalur"
-                          />
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="Sungu Pettai"
-                          />
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="V.Kalathur"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="checklist-content checklist-content-1 row">
-                      <div className="checklist-list col-md-3 col-sm-6">
-                        <h4>RTO</h4>
-                        <div className="label-wrapper">
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="Yes"
-                          />
-                          <FormControlLabel control={<Checkbox />} label="No" />
-                        </div>
-                      </div>
-                      <div className="checklist-list col-md-3 col-sm-6">
-                        <h4>Parking</h4>
-                        <div className="label-wrapper">
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="None"
-                          />
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="With Parking"
-                          />
-                        </div>
-                      </div>
-                      <div className="checklist-list col-md-3 col-sm-6 ">
-                        <h4>Washroom</h4>
-                        <div className="label-wrapper">
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="None"
-                          />
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="Private"
-                          />
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="Common"
-                          />
-                        </div>
-                      </div>
-                      <div className="checklist-list col-md-3 col-sm-6">
-                        <h4>Accessablity</h4>
-                        <div className="label-wrapper">
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="Ramp Access"
-                          />
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="Lift Access"
-                          />
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label="Stairs Access"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </Popover> */}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
       <table>
         <thead>
           <tr>
@@ -429,46 +143,78 @@ function Table({ data, properties }: TableProps) {
             <th>Area</th>
             <th>Floors</th>
             <th>Facing</th>
-            {properties === "residentials" && <th>Furnish</th>}
-            {properties === "commercials" && <th>Washroom</th>}
+            {properties === "all" && <th>Furnish</th>}
+            {properties === "all" && <th>Washroom</th>}
             <th>Type</th>
             <th className="link-h">Link</th>
           </tr>
         </thead>
         <tbody>
-          {data.map((item, index) => (
+          {formatedData.map((item, index) => (
             <tr key={index}>
               <td className="checkbox-align">
                 <input type="checkbox" />
               </td>
               <td className="company-name">
                 <h3>
-                  {item?.location?.address}
-                  {item?.location?.landmark}
+                  <span className="truncate-text">
+                    {(() => {
+                      const landmark = item?.location?.landmark;
+                      if (!landmark) return null;
+
+                      const words = landmark.trim().split(/\s+/);
+                      return words.length > 12
+                        ? words.slice(0, 12).join(" ") + "..."
+                        : landmark;
+                    })()}
+                  </span>
+                  
                 </h3>
                 <p
                   data-bs-toggle="tooltip"
                   data-bs-placement="bottom"
-                  title="Thuraiyur road, Perambalur"
+                  title={item?.location?.address}
                 >
                   <img src="ICON_Location.svg" alt="location png" />
-                  Thuraiyur road, Per...
+                 
+                      <span className="truncate-text">
+                    {(() => {
+                      const address = item?.location?.address;
+                      if (!address) return null;
+
+                      const words = address.trim().split(/\s+/);
+                      return words.length > 9
+                        ? words.slice(0, 9).join(" ") + "..."
+                        : address;
+                    })()}
+                  </span>
                 </p>
               </td>
               <td>{item?.area?.totalArea}</td>
               <td>{item?.totalFloors}</td>
               <td>{item?.facingDirection}</td>
-              {properties === "residentials" && (
+              {(properties === "residentials" || properties === "all") && (
                 <td
                   className="furnish"
                   data-bs-toggle="tooltip"
                   data-bs-placement="bottom"
                   title="Unfurnished"
                 >
-                  {item?.furnishingType}
+                  {}
+                  <span className="truncate-text">
+                    {(() => {
+                      const furnishing = item?.furnishingType;
+                      if (!furnishing) return null;
+
+                      const words = furnishing.trim().split(/\s+/);
+                      return words.length > 12
+                        ? words.slice(0, 12).join(" ") + "..."
+                        : furnishing;
+                    })()}
+                  </span>
                 </td>
               )}
-              {properties === "commercials" && (
+              {(properties === "commercials" || properties === "all") && (
                 <td
                   className="furnish"
                   data-bs-toggle="tooltip"
@@ -497,7 +243,7 @@ function Table({ data, properties }: TableProps) {
                     style={{ cursor: "pointer" }}
                   />
 
-                  <img
+                  {/* <img
                     src="Approve.svg"
                     alt="Approve svg"
                     onClick={() => handleOpenModal("Approve", item)}
@@ -513,6 +259,25 @@ function Table({ data, properties }: TableProps) {
                     src="Delete.svg"
                     alt="Delete img"
                     onClick={() => handleOpenModal("Delete", item)}
+                    style={{ cursor: "pointer" }}
+                  /> */}
+                                    <img
+                    src="Approve.svg"
+                    alt="Approve svg"
+                    onClick={() => item._id && handleAction(item._id,0)}
+                    // onClick={() => handleOpenModal("Approve", item)}
+                    style={{ cursor: "pointer" }}
+                  />
+                  <img
+                    src="Deny.svg"
+                    alt="Deny svg"
+                    onClick={() => item._id && handleAction(item._id, 1)}
+                    style={{ cursor: "pointer" }}
+                  />
+                  <img
+                    src="Delete.svg"
+                    alt="Delete img"
+                    onClick={() => item._id && handleAction(item._id, 2)}
                     style={{ cursor: "pointer" }}
                   />
                 </div>

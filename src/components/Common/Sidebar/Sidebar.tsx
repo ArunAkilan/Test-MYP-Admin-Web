@@ -115,7 +115,7 @@ export default function VerticalTabs() {
       </div>
       <div className="col-md-9 tab-content">
         <TabPanel value={value} index={0}>
-          <Home properties="all"/>
+          <Home properties="all" />
         </TabPanel>
         <TabPanel value={value} index={1}>
           <Home properties="commercials"/>

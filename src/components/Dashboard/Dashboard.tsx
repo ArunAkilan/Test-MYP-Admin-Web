@@ -12,22 +12,34 @@ import type { ResidentialProperty } from "../AdminResidencial/AdminResidencial.m
 type PropertyType = "all" | "residentials" | "commercials" | "plots";
 
 export interface HomeProps {
+  data?: ResidentialProperty[];
   properties: PropertyType;
 }
 
 function Home({ properties }:  HomeProps ) {
-  const [residencial, setResidencial]= useState <ResidentialProperty[]> ([])
-  console.log("residencial", residencial);
+  const [dashboardData, setDashboardData]= useState <ResidentialProperty[]> ([])
+  console.log("dashboardData", dashboardData);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const navigate=useNavigate()
 
   useEffect(() => {
   if(properties){
-    const fetchResidencial = async () => {
+    const fetchAllData = async () => {
       try {
         const response = await axios.get(`http://192.168.1.70:3002/api/${properties}`);
-        setResidencial(response.data.data);
+         if (properties === "all") {
+          // const allData = [
+          //   ...(response.data.residentials ?? []),
+          //   ...(response.data.commercials ?? []),
+          //   ...(response.data.plots ?? []),
+          // ];
+          // setDashboardData(allData);
+          setDashboardData(response.data.data ?? []);
+          console.log("API response for all:", response.data.data);
+        } else {
+          setDashboardData(response.data.data ?? []);
+        }
         setLoading(false);
       
       } catch (err) {
@@ -40,9 +52,9 @@ function Home({ properties }:  HomeProps ) {
       }
     };
   
-    fetchResidencial();
+    fetchAllData();
   }
-  }, []);
+  }, [properties]);
   
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
@@ -75,7 +87,7 @@ function Home({ properties }:  HomeProps ) {
       <div className="container">
         
         <div className="pending-approve">
-          <Dashboardtab data={residencial} properties={properties} />
+          <Dashboardtab data={dashboardData} properties={properties} />
         </div>
       </div>
       
