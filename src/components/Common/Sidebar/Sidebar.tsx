@@ -122,6 +122,7 @@ export default function VerticalTabs() {
         </TabPanel>
         <TabPanel value={value} index={2}>
           <Home properties="residentials" />
+          
         </TabPanel>
         <TabPanel value={value} index={3}>
           Item Four
