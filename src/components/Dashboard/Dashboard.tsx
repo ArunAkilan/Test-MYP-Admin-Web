@@ -87,7 +87,6 @@ function Home({ properties }:  HomeProps ) {
       <div className="container">
         
         <div className="pending-approve">
-            // @ts-ignore
            <Dashboardtab data={dashboardData} properties={properties} />
         </div>
       </div>
