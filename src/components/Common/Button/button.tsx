@@ -23,7 +23,7 @@ const GenericButton: React.FC<GenericButtonProps> = ({
       
       onClick={onClick}
       disabled={disabled}
-      className={`btn btn--${variant} ${className}`}
+      className={`btn btn--${variant} ${className} genericCommonStyle`}
     >
       {
         image && 

@@ -25,7 +25,7 @@ const modalStyle = {
 };
 
 function Table({ data, properties }: TableProps) {
- 
+ console.log("Table received data:", data);
     console.log("properties", properties);
   const navigate = useNavigate();
 
@@ -144,9 +144,12 @@ const handleAction = async (id: string, status: number) => {
             <th>Floors</th>
             <th>Facing</th>
             {properties === "all" && <th>Furnish</th>}
+            {properties === "residentials" && <th>Furnish</th>}
             {properties === "all" && <th>Washroom</th>}
+            {properties === "commercials" && <th>Washroom</th>}
             <th>Type</th>
             <th className="link-h">Link</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody>
@@ -261,7 +264,7 @@ const handleAction = async (id: string, status: number) => {
                     onClick={() => handleOpenModal("Delete", item)}
                     style={{ cursor: "pointer" }}
                   /> */}
-                                    <img
+                  <img
                     src="Approve.svg"
                     alt="Approve svg"
                     onClick={() => item._id && handleAction(item._id,0)}
@@ -282,6 +285,7 @@ const handleAction = async (id: string, status: number) => {
                   />
                 </div>
               </td>
+              <td>{item.status}</td>
             </tr>
           ))}
         </tbody>

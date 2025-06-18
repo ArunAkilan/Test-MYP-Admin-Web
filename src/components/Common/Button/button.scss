@@ -29,3 +29,15 @@
     cursor: not-allowed;
   }
 }
+
+.genericCommonStyle {
+  padding: 14px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    height: 48px;
+    font-weight: 600;
+    font-family: "Raleway";
+    line-height: 18px;
+    letter-spacing: 0;
+    display: flex !important;
+}

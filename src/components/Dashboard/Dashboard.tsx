@@ -17,7 +17,7 @@ export interface HomeProps {
 }
 
 function Home({ properties }:  HomeProps ) {
-  const [dashboardData, setDashboardData]= useState <ResidentialProperty[]> ([])
+  const [dashboardData, setDashboardData]= useState <any> ([])
   console.log("dashboardData", dashboardData);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -87,7 +87,8 @@ function Home({ properties }:  HomeProps ) {
       <div className="container">
         
         <div className="pending-approve">
-          <Dashboardtab data={dashboardData} properties={properties} />
+            // @ts-ignore
+           <Dashboardtab data={dashboardData} properties={properties} />
         </div>
       </div>
       
