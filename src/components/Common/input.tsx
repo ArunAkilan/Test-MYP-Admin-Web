@@ -296,7 +296,27 @@ const InputField: React.FC<InputFieldProps> = ({
  
       {type === "chip" && icon && (
         <Stack direction="row" spacing={1}>
-          <Chip icon={icon} label={label} variant="outlined" />
+          <Chip avatar={icon} 
+          label={
+            <Typography
+              sx={{
+                // whiteSpace: "normal",
+                // overflowWrap: "break-word",
+              }}
+            >
+              {label}
+            </Typography>
+          } 
+          variant="outlined" 
+          sx={{
+            maxWidth: "none", // remove max-width constraint
+            whiteSpace: "normal", // allow wrapping
+            textOverflow: "unset", // remove ...
+            overflow: "visible", // allow content to overflow
+            height: "auto", // allow height to expand if text wraps
+            paddingY: 1, // optional: give some vertical padding for better layout
+          }}
+          />
         </Stack>
       )}
     </div>
