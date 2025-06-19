@@ -12,7 +12,6 @@ import filterTick from "../../../../public/Icon_Tick.svg";
 import { Checkbox, FormControlLabel } from "@mui/material";
 import { useState, useEffect, useMemo } from "react";
 
-
 type Property = {
   status?: string;
   [key: string]: any;
@@ -23,7 +22,6 @@ type PropertyData = {
   plot: Property[];
 };
 interface DashboardtabProps {
-
   data: PropertyData;
   properties: "all" | "residentials" | "commercials" | "plots";
 }
@@ -58,11 +56,13 @@ function a11yProps(index: number) {
 }
 
 export default function Dashboardtab({ data, properties }: DashboardtabProps) {
+  const [currentCheckList, setCurrentCheckList] = useState<string[]>([]);
+
   const statusByTab = ["Pending", "Approved", "Rejected", "Deleted"];
   const [value, setValue] = useState(0);
   const [tableValues, setTableValues] = useState<Property[]>([]);
   const currentStatus = statusByTab[value];
-console.log(currentStatus)
+  console.log(currentStatus);
   const filterOptions = {
     residentials: [
       { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
@@ -101,25 +101,50 @@ console.log(currentStatus)
 
   const filterOpen = Boolean(anchorEl);
   const id = filterOpen ? "simple-popover" : undefined;
- const allItems = useMemo(() => [
-  ...(data?.residential || []),
-  ...(data?.commercial || []),
-  ...(data?.plot || []),
-], [data]);
-console.log(
-  "All statuses:",
-  allItems.map((item) => item.status)
-);
-console.log("Current tab value:", value, "Status:", statusByTab[value]);
-useEffect(() => {
-  if (!allItems.length) return;
-  const currentStatus = statusByTab[value];
-  const filtered = allItems.filter((item) => 
-    item.status?.toLowerCase() === currentStatus?.toLowerCase()
+  const allItems = useMemo(
+    () => [
+      ...(data?.residential || []),
+      ...(data?.commercial || []),
+      ...(data?.plot || []),
+    ],
+    [data]
   );
-  setTableValues(filtered);
-}, [value, allItems]);
+  console.log(
+    "All statuses:",
+    allItems.map((item) => item.status)
+  );
+  console.log("Current tab value:", value, "Status:", statusByTab[value]);
+  useEffect(() => {
+    if (!allItems.length) return;
+    const currentStatus = statusByTab[value];
+    const filtered = allItems.filter(
+      (item) => item.status?.toLowerCase() === currentStatus?.toLowerCase()
+    );
+    setTableValues(filtered);
+  }, [value, allItems]);
 
+  // filter function 
+  const handleCheckboxChange = (option: string) => {
+  setCurrentCheckList((prevList) =>
+    prevList.includes(option)
+      ? prevList.filter((item) => item !== option)
+      : [...prevList, option] 
+  );
+};
+
+
+  const handleApply = () => {
+    if (!allItems.length || !currentCheckList.length) return;
+
+    const selectedSet = new Set(currentCheckList.map((c) => c.toLowerCase()));
+
+    const filtered = allItems.filter((item) =>
+      selectedSet.has(item?.furnishingType?.toLowerCase())
+    );
+
+    setTableValues(filtered);
+    handleClose();
+  };
   return (
     <div id="pending-approval-tab">
       <Box>
@@ -182,7 +207,7 @@ useEffect(() => {
                   </Button>
                   <Popover
                     anchorReference="anchorPosition"
-                    anchorPosition={{ top: 310, left: 450 }}
+                    anchorPosition={{ top: 400, left: 450 }}
                     id={id}
                     open={filterOpen}
                     anchorEl={anchorEl}
@@ -212,6 +237,7 @@ useEffect(() => {
                             iconPosition="left"
                             label={"Apply"}
                             className="genericFilterApplyStyles"
+                            onClick={handleApply}
                           />
                         </div>
                       </div>
@@ -229,7 +255,12 @@ useEffect(() => {
                               {section.options.map((opt, i) => (
                                 <FormControlLabel
                                   key={i}
-                                  control={<Checkbox />}
+                                  control={
+                                    <Checkbox
+                                      checked={currentCheckList.includes(opt)}
+                                      onChange={() => handleCheckboxChange(opt)}
+                                    />
+                                  }
                                   label={opt}
                                 />
                               ))}
@@ -301,6 +332,7 @@ useEffect(() => {
                             iconPosition="left"
                             label={"Apply"}
                             className="genericFilterApplyStyles"
+                            onClick={handleApply}
                           />
                         </div>
                       </div>
@@ -390,6 +422,7 @@ useEffect(() => {
                             iconPosition="left"
                             label={"Apply"}
                             className="genericFilterApplyStyles"
+                            onClick={handleApply}
                           />
                         </div>
                       </div>
@@ -480,6 +513,7 @@ useEffect(() => {
                             iconPosition="left"
                             label={"Apply"}
                             className="genericFilterApplyStyles"
+                            onClick={handleApply}
                           />
                         </div>
                       </div>

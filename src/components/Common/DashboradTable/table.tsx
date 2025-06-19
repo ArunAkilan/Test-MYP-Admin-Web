@@ -201,7 +201,7 @@ const handleAction = async (id: string, status: number) => {
                   className="furnish"
                   data-bs-toggle="tooltip"
                   data-bs-placement="bottom"
-                  title="Unfurnished"
+                  title="item?.furnishingType"
                 >
                   {}
                   <span className="truncate-text">

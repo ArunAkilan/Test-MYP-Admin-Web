@@ -103,9 +103,8 @@
 .checklist-content-1 {
   padding-bottom: 16px;
 }
-.checklist-content h4 {
-   font-size: 16px;
-        
+.checklist-content h6 {
+   font-size: 16px;   
   font-weight: 600;
   font-family: 'Raleway';
     line-height: 18px !important;
@@ -115,14 +114,18 @@
 }
 
 .label-wrapper label {
+  width: 100%;
+  margin-bottom: 8px;
+}
+.label-wrapper label span {
   font-size: 14px;      
   font-weight: 400;
   font-family: 'Open Sans';
     line-height: 22px;
   letter-spacing: 0.1px;
   color: #55565C;
-  margin-bottom: 8px;
-  width: 100%;
+  margin-left: 0 !important;
+  padding-left: 0;
 }
 
 .filter-link button {
