@@ -1,42 +1,294 @@
-import { InputField } from "../Common/input";
+import { useState } from "react";
+import { InputField } from "../Common/input"; // Assuming InputField supports error props
 import GenericButton from "../Common/Button/button";
 import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
 import DoneIcon from "@mui/icons-material/Done";
 import CloseIcon from "@mui/icons-material/Close";
-import { Button } from "@mui/material";
-import "./createResidential/createResidential.scss";
-import { Avatar } from "@mui/material";
+import { Button, Avatar } from "@mui/material";
+import "./createResidential/createResidential.scss"; // Your styling
+import { DynamicBreadcrumbs } from "../Common/input";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
+// use <DynamicBreadcrumbs breadcrumbs={...} />
+
+// Define breadcrumb data
+const breadcrumbsData = [
+  { label: "Residential", href: "/residential" },
+  // For the separator image in your original HTML, MUI Breadcrumbs uses an icon, so it replaces it automatically
+  { label: "Create New Property" }, // current page, no href
+];
 
 export const CreateResidential = () => {
+  // State for form data
+  const [ownerFirstName, setOwnerFirstName] = useState("");
+  const [ownerLastName, setOwnerLastName] = useState("");
+  const [ownerEmail, setOwnerEmail] = useState("");
+  const [ownerPhone, setOwnerPhone] = useState("");
+  const [propertyType, setPropertyType] = useState("");
+  const [propertyTitle, setPropertyTitle] = useState("");
+  const [monthlyRent, setMonthlyRent] = useState("");
+  const [advanceDeposit, setAdvanceDeposit] = useState("");
+  const [tenure, setTenure] = useState("");
+  const [propertyCategory, setPropertyCategory] = useState("");
+  const [address, setAddress] = useState("");
+  const [latitude, setLatitude] = useState("");
+  const [longitude, setLongitude] = useState("");
+  const [propertyImages, setPropertyImages] = useState<File[]>([]); // For file upload
+  const [totalArea, setTotalArea] = useState("");
+  const [builtUpArea, setBuiltUpArea] = useState("");
+  const [carpetArea, setCarpetArea] = useState("");
+  const [facing, setFacing] = useState("");
+  const [totalFloors, setTotalFloors] = useState("");
+  const [propertyOnFloor, setPropertyOnFloor] = useState("");
+  const [furnishedType, setFurnishedType] = useState("");
+  const [roomCount, setRoomCount] = useState("");
+  const [propertyDescription, setPropertyDescription] = useState("");
+  const [legalDocsAvailable, setLegalDocsAvailable] = useState("");
+
+  // State for validation errors
+  interface Errors {
+    [key: string]: string;
+  }
+
+  const [errors, setErrors] = useState<Errors>({});
+
+  // Validation function
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
+    let isValid = true;
+
+    // Owner Information Validation
+    if (!ownerFirstName.trim()) {
+      newErrors.ownerFirstName = "First Name is required.";
+      isValid = false;
+    }
+    if (!ownerLastName.trim()) {
+      newErrors.ownerLastName = "Last Name is required.";
+      isValid = false;
+    }
+    if (!ownerEmail.trim()) {
+      newErrors.ownerEmail = "Email is required.";
+      isValid = false;
+    } else if (!/\S+@\S+\.\S+/.test(ownerEmail)) {
+      newErrors.ownerEmail = "Email address is invalid.";
+      isValid = false;
+    }
+    if (!ownerPhone.trim()) {
+      newErrors.ownerPhone = "Phone Number is required.";
+      isValid = false;
+    } else if (!/^\d{10}$/.test(ownerPhone)) {
+      newErrors.ownerPhone = "Phone number must be 10 digits.";
+      isValid = false;
+    }
+
+    // Property Overview Validation
+    if (!propertyType) {
+      newErrors.propertyType = "Property Type is required.";
+      isValid = false;
+    }
+    if (!propertyTitle.trim()) {
+      newErrors.propertyTitle = "Property Title is required.";
+      isValid = false;
+    }
+    if (!monthlyRent.trim()) {
+      newErrors.monthlyRent = "Monthly Rent is required.";
+      isValid = false;
+    } else if (isNaN(parseFloat(monthlyRent)) || parseFloat(monthlyRent) <= 0) {
+      newErrors.monthlyRent = "Monthly Rent must be a positive number.";
+      isValid = false;
+    }
+    if (!advanceDeposit.trim()) {
+      newErrors.advanceDeposit = "Advance Deposit is required.";
+      isValid = false;
+    } else if (
+      isNaN(parseFloat(advanceDeposit)) ||
+      parseFloat(advanceDeposit) < 0
+    ) {
+      newErrors.advanceDeposit =
+        "Advance Deposit must be a non-negative number.";
+      isValid = false;
+    }
+    if (!tenure.trim()) {
+      newErrors.tenure = "Tenure is required.";
+      isValid = false;
+    } else if (isNaN(parseFloat(tenure)) || parseInt(tenure) <= 0) {
+      newErrors.tenure = "Tenure must be a positive number of years.";
+      isValid = false;
+    }
+    if (!propertyCategory) {
+      newErrors.propertyCategory = "Property Category is required.";
+      isValid = false;
+    }
+
+    // Location & Address Validation
+    // For property images, check if a file has been selected (simplified for now)
+    if (!propertyImages) {
+      newErrors.propertyImages = "At least one property image is required.";
+      isValid = false;
+    }
+    // You might want to validate address, latitude, and longitude if they are crucial
+    // For example:
+    // if (!address.trim()) {
+    //   newErrors.address = "Full Address is required.";
+    //   isValid = false;
+    // }
+    // if (!latitude.trim() || isNaN(latitude)) {
+    //   newErrors.latitude = "Valid Latitude is required.";
+    //   isValid = false;
+    // }
+    // if (!longitude.trim() || isNaN(longitude)) {
+    //   newErrors.longitude = "Valid Longitude is required.";
+    //   isValid = false;
+    // }
+
+    // Property Layout Validation
+    if (!totalArea.trim()) {
+      newErrors.totalArea = "Total Area is required.";
+      isValid = false;
+    } else {
+      const totalAreaNum = parseFloat(totalArea);
+      if (isNaN(totalAreaNum) || totalAreaNum <= 0) {
+        newErrors.totalArea = "Total Area must be a positive number.";
+        isValid = false;
+      }
+    }
+
+    if (!builtUpArea.trim()) {
+      newErrors.builtUpArea = "Built Up Area is required.";
+      isValid = false;
+    } else {
+      const builtUpAreaNum = parseFloat(builtUpArea);
+      if (isNaN(builtUpAreaNum) || parseFloat(builtUpArea) <= 0) {
+        newErrors.builtUpArea = "Built Up Area must be a positive number.";
+        isValid = false;
+      }
+    }
+
+    if (!carpetArea.trim()) {
+      newErrors.carpetArea = "Carpet Area is required.";
+      isValid = false;
+    } else {
+      const carpetAreaNum = parseFloat(carpetArea);
+      if (isNaN(carpetAreaNum) || parseFloat(carpetArea) <= 0) {
+        newErrors.carpetArea = "Carpet Area must be a positive number.";
+        isValid = false;
+      }
+    }
+
+    // Facing can be optional or have specific valid values if it's a text input
+    // if (!facing) {
+    //     newErrors.facing = "Facing direction is required.";
+    //     isValid = false;
+    // }
+    if (!totalFloors.trim()) {
+      newErrors.totalFloors = "Total Floors is required.";
+      isValid = false;
+    } else {
+      const totalFloorsNum = parseFloat(totalFloors);
+      if (isNaN(totalFloorsNum) || parseInt(totalFloors) < 0) {
+        newErrors.totalFloors = "Total Floors must be a non-negative integer.";
+        isValid = false;
+      }
+    }
+
+    if (!propertyOnFloor.trim()) {
+      newErrors.propertyOnFloor = "Property on Floor is required.";
+      isValid = false;
+    } else {
+      const propertyOnFloorNum = parseFloat(propertyOnFloor);
+      if (isNaN(propertyOnFloorNum) || parseInt(propertyOnFloor) < 0) {
+        newErrors.propertyOnFloor =
+          "Property on Floor must be a non-negative integer.";
+        isValid = false;
+      }
+    }
+
+    // Furnished type could have validation for specific options if it's a dropdown/radio
+    // if (!furnishedType) {
+    //     newErrors.furnishedType = "Furnished Type is required.";
+    //     isValid = false;
+    // }
+    if (!roomCount.trim()) {
+      newErrors.roomCount = "Room Count is required.";
+      isValid = false;
+    } else {
+      const roomCountNum = parseFloat(roomCount);
+      if (isNaN(roomCountNum) || parseInt(roomCount) <= 0) {
+        newErrors.roomCount = "Room Count must be a positive integer.";
+        isValid = false;
+      }
+    }
+
+    // Additional Information Validation (Property Description is optional, but you could add max length)
+    // if (propertyDescription.length > 500) {
+    //   newErrors.propertyDescription = "Description cannot exceed 500 characters.";
+    //   isValid = false;
+    // }
+
+    // Legal Documents Validation
+    if (!legalDocsAvailable) {
+      newErrors.legalDocsAvailable =
+        "Legal Documents availability is required.";
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault(); // Prevent default form submission
+
+    if (validateForm()) {
+      // Form is valid, proceed with submission
+      console.log("Form data is valid!", {
+        ownerFirstName,
+        ownerLastName,
+        ownerEmail,
+        ownerPhone,
+        propertyType,
+        propertyTitle,
+        monthlyRent,
+        advanceDeposit,
+        tenure,
+        propertyCategory,
+        address,
+        latitude,
+        longitude,
+        propertyImages, // This will be a File object
+        totalArea,
+        builtUpArea,
+        carpetArea,
+        facing,
+        totalFloors,
+        propertyOnFloor,
+        furnishedType,
+        roomCount,
+        propertyDescription,
+        legalDocsAvailable,
+      });
+      toast.success("Property created successfully!");
+      // TODO: Send data to backend
+    } else {
+      console.log("Form has validation errors.");
+      toast.error("Please correct the highlighted errors before submitting.");
+    }
+  };
+  //clear All Errors
+
   return (
+    
     <div className="createProperty container row">
       <div className="col-12 col-md-3">{/* Sidebar placeholder */}</div>
       <div className="col-12 col-md-9">
         <div className="container-fluid px-3 px-md-5">
           <div className="ContentArea container">
             {/* Breadcrumb */}
-            <nav aria-label="createPagebreadcrumb" className="mb-3">
-              <ol className="breadcrumb no-decoration">
-                <li className="breadcrumb-item">
-                  <a href="#">Residential</a>
-                </li>
-                <li className="breadcrumb-item">
-                  <img
-                    src="/src/assets/_.svg"
-                    alt=""
-                    className="img-brd img-fluid"
-                  />
-                </li>
-                <li
-                  className="defaultBreadcrumb-item active text-custom-blue"
-                  aria-current="page"
-                >
-                  Create New Property
-                </li>
-              </ol>
-            </nav>
-
+            <div className="muiBreadcrumbs">
+              <DynamicBreadcrumbs breadcrumbs={breadcrumbsData} />
+              {/* Rest of your page content */}
+            </div>
             {/* Owner Information Section */}
             <section className="OwnerDetails mb-4">
               <div className="ownerTitle">
@@ -54,6 +306,10 @@ export const CreateResidential = () => {
                       type="text"
                       id="ownerFirstName"
                       placeholder="Enter Owner's First Name"
+                      value={ownerFirstName}
+                      onChange={(e) => setOwnerFirstName(e.target.value)}
+                      error={!!errors.ownerFirstName}
+                      helperText={errors.ownerFirstName}
                     />
                   </div>
                   <div className="col-12 col-md-6 mb-3">
@@ -64,6 +320,10 @@ export const CreateResidential = () => {
                       type="text"
                       id="ownerLastName"
                       placeholder="Enter Owner's Last Name"
+                      value={ownerLastName}
+                      onChange={(e) => setOwnerLastName(e.target.value)}
+                      error={!!errors.ownerLastName}
+                      helperText={errors.ownerLastName}
                     />
                   </div>
                 </div>
@@ -77,6 +337,10 @@ export const CreateResidential = () => {
                       type="email"
                       id="ownerEmail"
                       placeholder="Enter Owner’s Email Address"
+                      value={ownerEmail}
+                      onChange={(e) => setOwnerEmail(e.target.value)}
+                      error={!!errors.ownerEmail}
+                      helperText={errors.ownerEmail}
                     />
                   </div>
                   <div className="col-12 col-md-6 mb-3">
@@ -87,6 +351,10 @@ export const CreateResidential = () => {
                       type="phone"
                       id="ownerPhone"
                       placeholder="Enter Owner’s Contact Number"
+                      value={ownerPhone}
+                      onPhoneChange={setOwnerPhone}
+                      error={!!errors.ownerPhone}
+                      helperText={errors.ownerPhone}
                     />
                   </div>
                 </div>
@@ -108,7 +376,11 @@ export const CreateResidential = () => {
                     <InputField
                       type="dropdown"
                       id="propertyType"
-                      dropdownOptions={["House", "Apartment", "Villa"]}
+                      dropdownOptions={["Rent", "Commercial", "Plot"]}
+                      value={propertyType || "Rent"}
+                      onChange={(e) => setPropertyType(e.target.value)}
+                      error={!!errors.propertyType}
+                      helperText={errors.propertyType}
                     />
                   </div>
                   <div className="col-12 col-md-6 mb-3">
@@ -119,6 +391,10 @@ export const CreateResidential = () => {
                       type="text"
                       id="propertyTitle"
                       placeholder="Enter Property Title"
+                      value={propertyTitle}
+                      onChange={(e) => setPropertyTitle(e.target.value)}
+                      error={!!errors.propertyTitle}
+                      helperText={errors.propertyTitle}
                     />
                   </div>
                 </div>
@@ -132,6 +408,10 @@ export const CreateResidential = () => {
                       type="text"
                       id="monthlyRent"
                       placeholder="Enter Amount in Rupees (₹)"
+                      value={monthlyRent}
+                      onChange={(e) => setMonthlyRent(e.target.value)}
+                      error={!!errors.monthlyRent}
+                      helperText={errors.monthlyRent}
                     />
                   </div>
                   <div className="col-12 col-md-3 mb-3">
@@ -142,6 +422,10 @@ export const CreateResidential = () => {
                       type="text"
                       id="advanceDeposit"
                       placeholder="Enter Deposit"
+                      value={advanceDeposit}
+                      onChange={(e) => setAdvanceDeposit(e.target.value)}
+                      error={!!errors.advanceDeposit}
+                      helperText={errors.advanceDeposit}
                     />
                   </div>
                   <div className="col-12 col-md-3 mb-3">
@@ -152,6 +436,10 @@ export const CreateResidential = () => {
                       type="text"
                       id="tenure"
                       placeholder="Enter Tenure in Years"
+                      value={tenure}
+                      onChange={(e) => setTenure(e.target.value)}
+                      error={!!errors.tenure}
+                      helperText={errors.tenure}
                     />
                   </div>
                 </div>
@@ -166,6 +454,10 @@ export const CreateResidential = () => {
                         type="radio"
                         radioOptions={["House", "Apartment", "Villa"]}
                         id="propertyCategory"
+                        value={propertyCategory || "House"}
+                        onChange={(e) => setPropertyCategory(e.target.value)}
+                        error={!!errors.propertyCategory}
+                        helperText={errors.propertyCategory}
                       />
                     </div>
                   </div>
@@ -213,16 +505,37 @@ export const CreateResidential = () => {
                     </p>
 
                     <div className="BtnFrame d-flex mt-3 mb-2 align-items-start gap-3">
-                      <p className="image-p">No image chosen</p>
+                      <p className="image-p">
+                        {/* {propertyImages
+                          ? propertyImages.name : "No image chosen"} */}
+                        {propertyImages && propertyImages.length > 0
+                          ? `${propertyImages.length} image(s) selected`
+                          : "No image chosen"}
+                      </p>
+                      <input
+                        type="file"
+                        id="propertyImageUpload"
+                        style={{ display: "none" }}
+                        onChange={(e) => {
+                          if (e.target.files) {
+                            setPropertyImages(Array.from(e.target.files)); // Save all selected files as array
+                          }
+                        }}
+                        accept="image/*"
+                        multiple // Enable multi-selection
+
+                        // setPropertyImages(e.target.files[0])}
+                        // accept="image/*"
+                      />
                       <Button
                         variant="contained"
                         startIcon={<FileUploadOutlinedIcon />}
                         id="Choosebtn"
+                        onClick={() => document.getElementById("propertyImageUpload")?.click() }
                       >
                         Choose image
                       </Button>
                     </div>
-
                   </div>
                 </div>
 
@@ -236,6 +549,9 @@ export const CreateResidential = () => {
                         type="text"
                         id="address"
                         placeholder="Enter Address"
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                        // Add error handling if address is mandatory
                       />
                     </div>
                     <div className="col-6 mb-3">
@@ -246,6 +562,9 @@ export const CreateResidential = () => {
                         type="text"
                         id="latitude"
                         placeholder="Latitude"
+                        value={latitude}
+                        onChange={(e) => setLatitude(e.target.value)}
+                        // Add error handling if latitude is mandatory
                       />
                     </div>
                     <div className="col-6 mb-3">
@@ -256,6 +575,9 @@ export const CreateResidential = () => {
                         type="text"
                         id="longitude"
                         placeholder="Longitude"
+                        value={longitude}
+                        onChange={(e) => setLongitude(e.target.value)}
+                        // Add error handling if longitude is mandatory
                       />
                     </div>
                   </div>
@@ -276,10 +598,8 @@ export const CreateResidential = () => {
                             <div>
                               <span className="transportInfoText">
                                 Bus Stand
-                                <br />
-                                - Kms
+                                <br />- Kms
                               </span>
-                              
                             </div>
                           </div>
                         </div>
@@ -290,11 +610,10 @@ export const CreateResidential = () => {
                               alt="Airport"
                             />
                             <div>
-                              <span className="transportInfoText">Airport
-                                <br />
-                                - Kms
+                              <span className="transportInfoText">
+                                Airport
+                                <br />- Kms
                               </span>
-                              
                             </div>
                           </div>
                         </div>
@@ -308,11 +627,10 @@ export const CreateResidential = () => {
                               alt="Metro"
                             />
                             <div>
-                              <span className="transportInfoText">Metro
-                                <br />
-                                - Kms
+                              <span className="transportInfoText">
+                                Metro
+                                <br />- Kms
                               </span>
-                              
                             </div>
                           </div>
                         </div>
@@ -323,11 +641,10 @@ export const CreateResidential = () => {
                               alt="Railway"
                             />
                             <div>
-                              <span className="transportInfoText">Railway
-                                <br />
-                                - Kms
+                              <span className="transportInfoText">
+                                Railway
+                                <br />- Kms
                               </span>
-                             
                             </div>
                           </div>
                         </div>
@@ -353,6 +670,10 @@ export const CreateResidential = () => {
                     type="text"
                     id="totalArea"
                     placeholder="Enter Total Area (sq.ft)"
+                    value={totalArea}
+                    onChange={(e) => setTotalArea(e.target.value)}
+                    error={!!errors.totalArea}
+                    helperText={errors.totalArea}
                   />
                 </div>
                 <div className="col-12 col-md-6 mb-3">
@@ -363,6 +684,10 @@ export const CreateResidential = () => {
                     type="text"
                     id="builtUpArea"
                     placeholder="Enter Built-Up Area (sq.ft)"
+                    value={builtUpArea}
+                    onChange={(e) => setBuiltUpArea(e.target.value)}
+                    error={!!errors.builtUpArea}
+                    helperText={errors.builtUpArea}
                   />
                 </div>
 
@@ -374,6 +699,10 @@ export const CreateResidential = () => {
                     type="text"
                     id="carpetArea"
                     placeholder="Enter Carpet Area (sq.ft)"
+                    value={carpetArea}
+                    onChange={(e) => setCarpetArea(e.target.value)}
+                    error={!!errors.carpetArea}
+                    helperText={errors.carpetArea}
                   />
                 </div>
 
@@ -385,7 +714,15 @@ export const CreateResidential = () => {
                     type="dropdown"
                     id="facing"
                     placeholder="Select Direction Facing"
-                    dropdownOptions={["North", "South", "East", "West"]}
+                    dropdownOptions={[
+                      "North",
+                      "South",
+                      "East",
+                      "West",
+                      "Select Direction Facing",
+                    ]}
+                    value={facing || "Select Direction Facing"}
+                    onChange={(e) => setFacing(e.target.value)}
                   />
                 </div>
 
@@ -397,6 +734,10 @@ export const CreateResidential = () => {
                     type="text"
                     id="totalFloors"
                     placeholder="Enter Total Number of Floors"
+                    value={totalFloors}
+                    onChange={(e) => setTotalFloors(e.target.value)}
+                    error={!!errors.totalFloors}
+                    helperText={errors.totalFloors}
                   />
                 </div>
                 <div className="col-12 col-md-6 mb-3">
@@ -407,6 +748,10 @@ export const CreateResidential = () => {
                     type="text"
                     id="propertyOnFloor"
                     placeholder="Enter Floor Number"
+                    value={propertyOnFloor}
+                    onChange={(e) => setPropertyOnFloor(e.target.value)}
+                    error={!!errors.propertyOnFloor}
+                    helperText={errors.propertyOnFloor}
                   />
                 </div>
 
@@ -415,9 +760,11 @@ export const CreateResidential = () => {
                     Furnished Type
                   </label>
                   <InputField
-                    type="text"
+                    type="text" // Assuming this will become a dropdown or radio
                     id="furnishedType"
                     placeholder="Select Furnished Type"
+                    value={furnishedType}
+                    onChange={(e) => setFurnishedType(e.target.value)}
                   />
                 </div>
                 <div className="col-12 col-md-6 mb-3">
@@ -428,12 +775,16 @@ export const CreateResidential = () => {
                     type="text"
                     id="roomCount"
                     placeholder="Number of Rooms"
+                    value={roomCount}
+                    onChange={(e) => setRoomCount(e.target.value)}
+                    error={!!errors.roomCount}
+                    helperText={errors.roomCount}
                   />
                 </div>
               </div>
             </section>
 
-            {/* Amenities Section */}
+            {/* Amenities Section - No direct validation needed unless you have min/max selections */}
             <section className="container AmenitiesSection mb-4">
               <div className="ownerTitle">
                 <h6>Nearby Services & Essentials</h6>
@@ -509,7 +860,7 @@ export const CreateResidential = () => {
               </div>
             </section>
 
-            {/* Accessibility Section */}
+            {/* Accessibility Section - No direct validation needed */}
             <section className="AccessibilitySection mb-4">
               <div className="ownerTitle">
                 <h6>Move-In Accessibility</h6>
@@ -562,7 +913,7 @@ export const CreateResidential = () => {
               </div>
             </section>
 
-            {/* Utilities Section */}
+            {/* Utilities Section - No direct validation needed */}
             <section className="UtilitiesSection ">
               <div className="ownerTitle">
                 <h6>Infrastructure & Utilities</h6>
@@ -572,90 +923,85 @@ export const CreateResidential = () => {
               </div>
 
               <div className="chipField">
-                <div
-                  className="chipcard "
-                  style={{ padding: "31px" }}
-                >
-                  
+                <div className="chipcard " style={{ padding: "31px" }}>
                   <div className="firstRow d-flex gap-4">
-                  <InputField
-                    type="chip"
-                    label="Regular Maintenance Included"
-                    icon={
-                      <Avatar
-                        alt="Regular Maintenance Included"
-                        src="/src/assets/createProperty/Icon_Cleaning.svg"
-                        className="avatarImg"
-                      />
-                    }
-                  />
+                    <InputField
+                      type="chip"
+                      label="Regular Maintenance Included"
+                      icon={
+                        <Avatar
+                          alt="Regular Maintenance Included"
+                          src="/src/assets/createProperty/Icon_Cleaning.svg"
+                          className="avatarImg"
+                        />
+                      }
+                    />
 
-                  <InputField
-                    type="chip"
-                    label="Water Supply Available"
-                    icon={
-                      <Avatar
-                        alt="Water Supply Available"
-                        src="/src/assets/createProperty/material-symbols_water-full-outline.svg"
-                        className="avatarImg"
-                      />
-                    }
-                  />
+                    <InputField
+                      type="chip"
+                      label="Water Supply Available"
+                      icon={
+                        <Avatar
+                          alt="Water Supply Available"
+                          src="/src/assets/createProperty/material-symbols_water-full-outline.svg"
+                          className="avatarImg"
+                        />
+                      }
+                    />
 
-                  <InputField
-                    type="chip"
-                    label="Good Road Access"
-                    icon={
-                      <Avatar
-                        alt="Good Road Access"
-                        src="/src/assets/createProperty/Icon_Road.svg"
-                        className="avatarImg"
-                      />
-                    }
-                  />
+                    <InputField
+                      type="chip"
+                      label="Good Road Access"
+                      icon={
+                        <Avatar
+                          alt="Good Road Access"
+                          src="/src/assets/createProperty/Icon_Road.svg"
+                          className="avatarImg"
+                        />
+                      }
+                    />
                   </div>
 
-                 <div className="secondRow d-flex gap-4">
-                 <InputField
-                    type="chip"
-                    label="Sewage Connection Available"
-                    icon={
-                      <Avatar
-                        alt="Sewage Connection Available"
-                        src="/src/assets/createProperty/Icon_restroom.svg"
-                        className="avatarImg"
-                      />
-                    }
-                  />
-                  <InputField
-                    type="chip"
-                    label="Dedicated Parking Available"
-                    icon={
-                      <Avatar
-                        alt="Dedicated Parking Available"
-                        src="/src/assets/createProperty/Icon_Parking.svg"
-                        className="avatarImg"
-                      />
-                    }
-                  />
-                  <InputField
-                    type="chip"
-                    label="Private Balcony Included"
-                    icon={
-                      <Avatar
-                        alt="Private Balcony Included"
-                        src="/src/assets/createProperty/Icon_Balcony.svg"
-                        className="avatarImg"
-                      />
-                    }
-                  />
-                 </div>
-
+                  <div className="secondRow d-flex gap-4">
+                    <InputField
+                      type="chip"
+                      label="Sewage Connection Available"
+                      icon={
+                        <Avatar
+                          alt="Sewage Connection Available"
+                          src="/src/assets/createProperty/Icon_restroom.svg"
+                          className="avatarImg"
+                        />
+                      }
+                    />
+                    <InputField
+                      type="chip"
+                      label="Dedicated Parking Available"
+                      icon={
+                        <Avatar
+                          alt="Dedicated Parking Available"
+                          src="/src/assets/createProperty/Icon_Parking.svg"
+                          className="avatarImg"
+                        />
+                      }
+                    />
+                    <InputField
+                      type="chip"
+                      label="Private Balcony Included"
+                      icon={
+                        <Avatar
+                          alt="Private Balcony Included"
+                          src="/src/assets/createProperty/Icon_Balcony.svg"
+                          className="avatarImg"
+                        />
+                      }
+                    />
+                  </div>
                 </div>
               </div>
             </section>
 
-            {/* Restrictions Section */}
+            {/* Restrictions Section - No direct validation needed */}
             <section className="RestrictionsSection mb-4">
               <div className="ownerTitle">
                 <h6>
@@ -717,11 +1063,14 @@ export const CreateResidential = () => {
                 <h6>Additional Information</h6>
                 <p>Provide any other relevant details about the property </p>
               </div>
-              <label htmlFor="">Property Description</label>
+              <label htmlFor="propertyDescription">Property Description</label>
               <textarea
                 className="form-control"
                 rows={4}
+                id="propertyDescription"
                 placeholder="Add a brief description of the property, including highlights, unique features, or nearby landmarks"
+                value={propertyDescription}
+                onChange={(e) => setPropertyDescription(e.target.value)}
               ></textarea>
             </section>
 
@@ -736,30 +1085,58 @@ export const CreateResidential = () => {
             </section>
 
             <div className="col-12">
-              <label className="TextLabel" htmlFor="propertyCategory">
+              <label className="TextLabel" htmlFor="legalDocsAvailable">
                 Are Legal Documents Available? <span className="star">*</span>
               </label>
               <div className="d-flex flex-wrap gap-3">
                 <InputField
                   type="radio"
-                  radioOptions={["Yes", "NO"]}
-                  id="propertyCategory"
+                  radioOptions={["Yes", "No"]} // Corrected "NO" to "No" for consistency
+                  id="legalDocsAvailable"
+                  value={legalDocsAvailable || "Yes"}
+                  onChange={(e) => setLegalDocsAvailable(e.target.value)}
+                  error={!!errors.legalDocsAvailable}
+                  helperText={errors.legalDocsAvailable}
                 />
               </div>
             </div>
 
+            <ToastContainer
+              position="top-right"
+              autoClose={3000}
+              hideProgressBar={false}
+              newestOnTop
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="colored"
+            />
             {/* Action Buttons */}
             <div className="d-flex flex-wrap gap-3 justify-content-end my-4">
               <GenericButton
                 label="Discard changes"
                 icon={<CloseIcon />}
                 className="DiscardC btn-outline-secondary"
+                onClick={() => {
+                  // Implement discard logic here, e.g., reset all states
+                  window.location.reload(); // Simple reload for demonstration
+                
+                }}
               />
-              <GenericButton
-                label="Create New Property"
-                icon={<DoneIcon />}
-                className="createNP btn btn-primary"
-              />
+              <div>
+                {/* Your form and other JSX */}
+                <GenericButton
+                  label="Create New Property"
+                  icon={<DoneIcon />}
+                  className="createNP btn btn-primary"
+                  onClick={handleSubmit}
+                />
+
+                {/* This must be rendered */}
+                <ToastContainer />
+              </div>
             </div>
           </div>
         </div>
