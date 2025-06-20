@@ -249,7 +249,8 @@ const InputField: React.FC<InputFieldProps> = ({
           <Select
             labelId={`${id}-select-label`}
             id={id}
-            value={value || ""}
+            value={value !== undefined && value !== null ? String(value) : ""}
+
             onChange={handleSelectChange}
             displayEmpty
             label={label}

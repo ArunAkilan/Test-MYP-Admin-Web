@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { InputField } from "../Common/input"; // Assuming InputField supports error props
 import GenericButton from "../Common/Button/button";
 import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
@@ -9,6 +10,7 @@ import "./createResidential/createResidential.scss"; // Your styling
 import { DynamicBreadcrumbs } from "../Common/input";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 
 // use <DynamicBreadcrumbs breadcrumbs={...} />
 
@@ -21,6 +23,7 @@ const breadcrumbsData = [
 
 export const CreateResidential = () => {
   // State for form data
+  const navigate = useNavigate();
   const [ownerFirstName, setOwnerFirstName] = useState("");
   const [ownerLastName, setOwnerLastName] = useState("");
   const [ownerEmail, setOwnerEmail] = useState("");
@@ -270,6 +273,10 @@ export const CreateResidential = () => {
       });
       toast.success("Property created successfully!");
       // TODO: Send data to backend
+      // Redirect after a short delay (so toast is visible)
+      setTimeout(() => {
+        navigate("/residential"); // or wherever you want to go
+      }, 2000);
     } else {
       console.log("Form has validation errors.");
       toast.error("Please correct the highlighted errors before submitting.");
@@ -278,660 +285,770 @@ export const CreateResidential = () => {
   //clear All Errors
 
   return (
-    
-    <div className="createProperty container row">
-      <div className="col-12 col-md-3">{/* Sidebar placeholder */}</div>
-      <div className="col-12 col-md-9">
-        <div className="container-fluid px-3 px-md-5">
-          <div className="ContentArea container">
-            {/* Breadcrumb */}
-            <div className="muiBreadcrumbs">
-              <DynamicBreadcrumbs breadcrumbs={breadcrumbsData} />
-              {/* Rest of your page content */}
-            </div>
-            {/* Owner Information Section */}
-            <section className="OwnerDetails mb-4">
-              <div className="ownerTitle">
-                <h6>Owner Information</h6>
-                <p>Enter the contact details of the property owner</p>
+    <form onSubmit={handleSubmit}>
+      <div className="createProperty container row">
+        <div className="col-12 col-md-3">{/* Sidebar placeholder */}</div>
+        <div className="col-12 col-md-9">
+          <div className="container-fluid px-3 px-md-5">
+            <div className="ContentArea container">
+              {/* Breadcrumb */}
+              <div className="muiBreadcrumbs">
+                <DynamicBreadcrumbs breadcrumbs={breadcrumbsData} />
+                {/* Rest of your page content */}
               </div>
+              {/* Owner Information Section */}
+              <section className="OwnerDetails mb-4">
+                <div className="ownerTitle">
+                  <h6>Owner Information</h6>
+                  <p>Enter the contact details of the property owner</p>
+                </div>
 
-              <div className="ownerInputField container row mb-3 p-0">
-                <div className="row">
-                  <div className="col-12 col-md-6 mb-3">
-                    <label className="textLabel" htmlFor="ownerFirstName">
-                      First Name <span className="star">*</span>
-                    </label>
-                    <InputField
-                      type="text"
-                      id="ownerFirstName"
-                      placeholder="Enter Owner's First Name"
-                      value={ownerFirstName}
-                      onChange={(e) => setOwnerFirstName(e.target.value)}
-                      error={!!errors.ownerFirstName}
-                      helperText={errors.ownerFirstName}
-                    />
+                <div className="ownerInputField container row mb-3 p-0">
+                  <div className="row">
+                    <div className="col-12 col-md-6 mb-3">
+                      <label className="textLabel" htmlFor="ownerFirstName">
+                        First Name <span className="star">*</span>
+                      </label>
+                      <InputField
+                        type="text"
+                        id="ownerFirstName"
+                        placeholder="Enter Owner's First Name"
+                        value={ownerFirstName}
+                        onChange={(e) => setOwnerFirstName(e.target.value)}
+                        error={!!errors.ownerFirstName}
+                        helperText={errors.ownerFirstName}
+                      />
+                    </div>
+                    <div className="col-12 col-md-6 mb-3">
+                      <label className="TextLabel" htmlFor="ownerLastName">
+                        Last Name <span className="star">*</span>
+                      </label>
+                      <InputField
+                        type="text"
+                        id="ownerLastName"
+                        placeholder="Enter Owner's Last Name"
+                        value={ownerLastName}
+                        onChange={(e) => setOwnerLastName(e.target.value)}
+                        error={!!errors.ownerLastName}
+                        helperText={errors.ownerLastName}
+                      />
+                    </div>
                   </div>
-                  <div className="col-12 col-md-6 mb-3">
-                    <label className="TextLabel" htmlFor="ownerLastName">
-                      Last Name <span className="star">*</span>
-                    </label>
-                    <InputField
-                      type="text"
-                      id="ownerLastName"
-                      placeholder="Enter Owner's Last Name"
-                      value={ownerLastName}
-                      onChange={(e) => setOwnerLastName(e.target.value)}
-                      error={!!errors.ownerLastName}
-                      helperText={errors.ownerLastName}
-                    />
+
+                  <div className="row">
+                    <div className="col-12 col-md-6 mb-3">
+                      <label className="TextLabel" htmlFor="ownerEmail">
+                        Email <span className="star">*</span>
+                      </label>
+                      <InputField
+                        type="email"
+                        id="ownerEmail"
+                        placeholder="Enter Owner’s Email Address"
+                        value={ownerEmail}
+                        onChange={(e) => setOwnerEmail(e.target.value)}
+                        error={!!errors.ownerEmail}
+                        helperText={errors.ownerEmail}
+                      />
+                    </div>
+                    <div className="col-12 col-md-6 mb-3">
+                      <label className="TextLabel" htmlFor="ownerPhone">
+                        Phone Number <span className="star">*</span>
+                      </label>
+                      <InputField
+                        type="phone"
+                        id="ownerPhone"
+                        placeholder="Enter Owner’s Contact Number"
+                        value={ownerPhone}
+                        onPhoneChange={setOwnerPhone}
+                        error={!!errors.ownerPhone}
+                        helperText={errors.ownerPhone}
+                      />
+                    </div>
                   </div>
+                </div>
+              </section>
+              {/* Property Overview Section */}
+              <section className="OwnerPropertyOverview mb-4">
+                <div className="ownerTitle">
+                  <h6>Property Overview</h6>
+                  <p>Provide basic details about the property</p>
+                </div>
+
+                <div className="OwnerInputField row mb-3">
+                  <div className="row">
+                    <div className="col-12 col-md-6 mb-3">
+                      <label className="TextLabel" htmlFor="propertyType">
+                        Property Type <span className="star">*</span>
+                      </label>
+                      <InputField
+                        type="dropdown"
+                        id="propertyType"
+                        dropdownOptions={["Rent", "Commercial", "Plot"]}
+                        value={propertyType || "Rent"}
+                        onChange={(e) => setPropertyType(e.target.value)}
+                        error={!!errors.propertyType}
+                        helperText={errors.propertyType}
+                      />
+                    </div>
+                    <div className="col-12 col-md-6 mb-3">
+                      <label className="TextLabel" htmlFor="propertyTitle">
+                        Property Title <span className="star">*</span>
+                      </label>
+                      <InputField
+                        type="text"
+                        id="propertyTitle"
+                        placeholder="Enter Property Title"
+                        value={propertyTitle}
+                        onChange={(e) => setPropertyTitle(e.target.value)}
+                        error={!!errors.propertyTitle}
+                        helperText={errors.propertyTitle}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="row">
+                    <div className="col-12 col-md-6 mb-3">
+                      <label className="TextLabel" htmlFor="monthlyRent">
+                        Monthly Rent (₹) <span className="star">*</span>
+                      </label>
+                      <InputField
+                        type="text"
+                        id="monthlyRent"
+                        placeholder="Enter Amount in Rupees (₹)"
+                        value={monthlyRent}
+                        onChange={(e) => setMonthlyRent(e.target.value)}
+                        error={!!errors.monthlyRent}
+                        helperText={errors.monthlyRent}
+                      />
+                    </div>
+                    <div className="col-12 col-md-3 mb-3">
+                      <label className="TextLabel" htmlFor="advanceDeposit">
+                        Advance Deposit (₹) <span className="star">*</span>
+                      </label>
+                      <InputField
+                        type="text"
+                        id="advanceDeposit"
+                        placeholder="Enter Deposit"
+                        value={advanceDeposit}
+                        onChange={(e) => setAdvanceDeposit(e.target.value)}
+                        error={!!errors.advanceDeposit}
+                        helperText={errors.advanceDeposit}
+                      />
+                    </div>
+                    <div className="col-12 col-md-3 mb-3">
+                      <label className="TextLabel" htmlFor="tenure">
+                        Tenure (Years) <span className="star">*</span>
+                      </label>
+                      <InputField
+                        type="text"
+                        id="tenure"
+                        placeholder="Enter Tenure in Years"
+                        value={tenure}
+                        onChange={(e) => setTenure(e.target.value)}
+                        error={!!errors.tenure}
+                        helperText={errors.tenure}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="row">
+                    <div className="col-12">
+                      <label className="TextLabel" htmlFor="propertyCategory">
+                        Property Category <span className="star">*</span>
+                      </label>
+                      <div className="d-flex flex-wrap gap-3">
+                        <InputField
+                          type="radio"
+                          radioOptions={["House", "Apartment", "Villa"]}
+                          id="propertyCategory"
+                          value={propertyCategory || "House"}
+                          onChange={(e) => setPropertyCategory(e.target.value)}
+                          error={!!errors.propertyCategory}
+                          helperText={errors.propertyCategory}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* Location Details Section */}
+              <section className="LocationDetails mb-4">
+                <div className="ownerTitle">
+                  <h6>Location & Address</h6>
+                  <p>Set the location and enter the property address</p>
                 </div>
 
                 <div className="row">
                   <div className="col-12 col-md-6 mb-3">
-                    <label className="TextLabel" htmlFor="ownerEmail">
-                      Email <span className="star">*</span>
-                    </label>
-                    <InputField
-                      type="email"
-                      id="ownerEmail"
-                      placeholder="Enter Owner’s Email Address"
-                      value={ownerEmail}
-                      onChange={(e) => setOwnerEmail(e.target.value)}
-                      error={!!errors.ownerEmail}
-                      helperText={errors.ownerEmail}
-                    />
+                    <div
+                      className="Map ratio-16x9"
+                      style={{
+                        width: "100%",
+                        height: "360px",
+                        gap: "16px",
+                        borderRadius: "6px",
+                        borderWidth: "1px",
+                        padding: "8px",
+                        borderStyle: "solid",
+                        borderColor: "#D3DDE7",
+                      }}
+                    >
+                      <iframe
+                        title="property-location-map"
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31108.98652428826!2d78.80635493583208!3d11.241996832614563!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3babf6bc93dc3bc9%3A0xe3637b7e3eabedb2!2sSumisa%20Technologies!5e0!3m2!1sen!2sin!4v1686162920212!5m2!1sen!2sin"
+                        width="100%"
+                        height="100%"
+                        frameBorder="0"
+                        style={{ border: 0 }}
+                        allowFullScreen
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                      ></iframe>
+                    </div>
+                    <div className="ResidentialCategory mt-3">
+                      <p>
+                        Upload Property Images <span className="star">*</span>
+                      </p>
+
+                      <div className="BtnFrame d-flex mt-3 mb-2 align-items-start gap-3">
+                        <p className="image-p">
+                          {/* {propertyImages
+                          ? propertyImages.name : "No image chosen"} */}
+                          {propertyImages && propertyImages.length > 0
+                            ? `${propertyImages.length} image(s) selected`
+                            : "No image chosen"}
+                        </p>
+                        <input
+                          type="file"
+                          id="propertyImageUpload"
+                          style={{ display: "none" }}
+                          onChange={(e) => {
+                            if (e.target.files) {
+                              setPropertyImages(Array.from(e.target.files)); // Save all selected files as array
+                            }
+                          }}
+                          accept="image/*"
+                          multiple // Enable multi-selection
+
+                          // setPropertyImages(e.target.files[0])}
+                          // accept="image/*"
+                        />
+                        <Button
+                          variant="contained"
+                          startIcon={<FileUploadOutlinedIcon />}
+                          id="Choosebtn"
+                          onClick={() =>
+                            document
+                              .getElementById("propertyImageUpload")
+                              ?.click()
+                          }
+                        >
+                          Choose image
+                        </Button>
+                      </div>
+                    </div>
                   </div>
+
                   <div className="col-12 col-md-6 mb-3">
-                    <label className="TextLabel" htmlFor="ownerPhone">
-                      Phone Number <span className="star">*</span>
-                    </label>
-                    <InputField
-                      type="phone"
-                      id="ownerPhone"
-                      placeholder="Enter Owner’s Contact Number"
-                      value={ownerPhone}
-                      onPhoneChange={setOwnerPhone}
-                      error={!!errors.ownerPhone}
-                      helperText={errors.ownerPhone}
-                    />
+                    <div className="row">
+                      <div className="col-12 mb-3">
+                        <label className="TextLabel" htmlFor="address">
+                          Full Address
+                        </label>
+                        <InputField
+                          type="text"
+                          id="address"
+                          placeholder="Enter Address"
+                          value={address}
+                          onChange={(e) => setAddress(e.target.value)}
+                          // Add error handling if address is mandatory
+                        />
+                      </div>
+                      <div className="col-6 mb-3">
+                        <label className="TextLabel" htmlFor="latitude">
+                          Latitude
+                        </label>
+                        <InputField
+                          type="text"
+                          id="latitude"
+                          placeholder="Latitude"
+                          value={latitude}
+                          onChange={(e) => setLatitude(e.target.value)}
+                          // Add error handling if latitude is mandatory
+                        />
+                      </div>
+                      <div className="col-6 mb-3">
+                        <label className="TextLabel" htmlFor="longitude">
+                          Longitude
+                        </label>
+                        <InputField
+                          type="text"
+                          id="longitude"
+                          placeholder="Longitude"
+                          value={longitude}
+                          onChange={(e) => setLongitude(e.target.value)}
+                          // Add error handling if longitude is mandatory
+                        />
+                      </div>
+                    </div>
+
+                    <div className="informationCard">
+                      <label htmlFor="" className="labelName">
+                        Nearby Transportation
+                      </label>
+
+                      <div className="container">
+                        <div className="row">
+                          <div className="col-6 col-md-6 mb-3">
+                            <div className="transportCard d-flex gap-2">
+                              <img
+                                src="/src/assets/createProperty/Icon_Bus.svg"
+                                alt="Bus"
+                              />
+                              <div>
+                                <span className="transportInfoText">
+                                  Bus Stand
+                                  <br />- Kms
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="col-6 col-md-6 mb-3">
+                            <div className="transportCard d-flex gap-2">
+                              <img
+                                src="/src/assets/createProperty/ph_airplane-in-flight.svg"
+                                alt="Airport"
+                              />
+                              <div>
+                                <span className="transportInfoText">
+                                  Airport
+                                  <br />- Kms
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="row">
+                          <div className="col-6 col-md-6 mb-3">
+                            <div className="transportCard d-flex gap-2">
+                              <img
+                                src="/src/assets/createProperty/hugeicons_metro.svg"
+                                alt="Metro"
+                              />
+                              <div>
+                                <span className="transportInfoText">
+                                  Metro
+                                  <br />- Kms
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="col-6 col-md-6 mb-3">
+                            <div className="transportCard d-flex gap-2">
+                              <img
+                                src="/src/assets/createProperty/material-symbols-light_train-outline.svg"
+                                alt="Railway"
+                              />
+                              <div>
+                                <span className="transportInfoText">
+                                  Railway
+                                  <br />- Kms
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </section>
-            {/* Property Overview Section */}
-            <section className="OwnerPropertyOverview mb-4">
-              <div className="ownerTitle">
-                <h6>Property Overview</h6>
-                <p>Provide basic details about the property</p>
-              </div>
+              </section>
+              {/* Property Layout Section */}
+              <section className="PropertyLayoutDetails mb-4">
+                <div className="ownerTitle">
+                  <h6>Property Dimensions & Layout</h6>
+                  <p>Enter the size and structure of the property</p>
+                </div>
 
-              <div className="OwnerInputField row mb-3">
-                <div className="row">
+                <div className="OwnerDetailTextField mt-3 row">
                   <div className="col-12 col-md-6 mb-3">
-                    <label className="TextLabel" htmlFor="propertyType">
-                      Property Type <span className="star">*</span>
+                    <label className="TextLabel" htmlFor="totalArea">
+                      Total Area <span className="star">*</span>
+                    </label>
+                    <InputField
+                      type="text"
+                      id="totalArea"
+                      placeholder="Enter Total Area (sq.ft)"
+                      value={totalArea}
+                      onChange={(e) => setTotalArea(e.target.value)}
+                      error={!!errors.totalArea}
+                      helperText={errors.totalArea}
+                    />
+                  </div>
+                  <div className="col-12 col-md-6 mb-3">
+                    <label className="TextLabel" htmlFor="builtUpArea">
+                      Built Up Area <span className="star">*</span>
+                    </label>
+                    <InputField
+                      type="text"
+                      id="builtUpArea"
+                      placeholder="Enter Built-Up Area (sq.ft)"
+                      value={builtUpArea}
+                      onChange={(e) => setBuiltUpArea(e.target.value)}
+                      error={!!errors.builtUpArea}
+                      helperText={errors.builtUpArea}
+                    />
+                  </div>
+
+                  <div className="col-12 col-md-6 mb-3">
+                    <label className="TextLabel" htmlFor="carpetArea">
+                      Carpet Area <span className="star">*</span>
+                    </label>
+                    <InputField
+                      type="text"
+                      id="carpetArea"
+                      placeholder="Enter Carpet Area (sq.ft)"
+                      value={carpetArea}
+                      onChange={(e) => setCarpetArea(e.target.value)}
+                      error={!!errors.carpetArea}
+                      helperText={errors.carpetArea}
+                    />
+                  </div>
+
+                  <div className="col-12 col-md-6 mb-3">
+                    <label className="TextLabel" htmlFor="facing">
+                      Facing
                     </label>
                     <InputField
                       type="dropdown"
-                      id="propertyType"
-                      dropdownOptions={["Rent", "Commercial", "Plot"]}
-                      value={propertyType || "Rent"}
-                      onChange={(e) => setPropertyType(e.target.value)}
-                      error={!!errors.propertyType}
-                      helperText={errors.propertyType}
+                      id="facing"
+                      placeholder="Select Direction Facing"
+                      dropdownOptions={[
+                        "North",
+                        "South",
+                        "East",
+                        "West",
+                        "Select Direction Facing",
+                      ]}
+                      value={facing || "Select Direction Facing"}
+                      onChange={(e) => setFacing(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="col-12 col-md-6 mb-3">
+                    <label className="TextLabel" htmlFor="totalFloors">
+                      Total Floors
+                    </label>
+                    <InputField
+                      type="text"
+                      id="totalFloors"
+                      placeholder="Enter Total Number of Floors"
+                      value={totalFloors}
+                      onChange={(e) => setTotalFloors(e.target.value)}
+                      error={!!errors.totalFloors}
+                      helperText={errors.totalFloors}
                     />
                   </div>
                   <div className="col-12 col-md-6 mb-3">
-                    <label className="TextLabel" htmlFor="propertyTitle">
-                      Property Title <span className="star">*</span>
+                    <label className="TextLabel" htmlFor="propertyOnFloor">
+                      Property on
                     </label>
                     <InputField
                       type="text"
-                      id="propertyTitle"
-                      placeholder="Enter Property Title"
-                      value={propertyTitle}
-                      onChange={(e) => setPropertyTitle(e.target.value)}
-                      error={!!errors.propertyTitle}
-                      helperText={errors.propertyTitle}
+                      id="propertyOnFloor"
+                      placeholder="Enter Floor Number"
+                      value={propertyOnFloor}
+                      onChange={(e) => setPropertyOnFloor(e.target.value)}
+                      error={!!errors.propertyOnFloor}
+                      helperText={errors.propertyOnFloor}
                     />
                   </div>
-                </div>
 
-                <div className="row">
                   <div className="col-12 col-md-6 mb-3">
-                    <label className="TextLabel" htmlFor="monthlyRent">
-                      Monthly Rent (₹) <span className="star">*</span>
+                    <label className="TextLabel" htmlFor="furnishedType">
+                      Furnished Type
                     </label>
                     <InputField
-                      type="text"
-                      id="monthlyRent"
-                      placeholder="Enter Amount in Rupees (₹)"
-                      value={monthlyRent}
-                      onChange={(e) => setMonthlyRent(e.target.value)}
-                      error={!!errors.monthlyRent}
-                      helperText={errors.monthlyRent}
+                      type="text" // Assuming this will become a dropdown or radio
+                      id="furnishedType"
+                      placeholder="Select Furnished Type"
+                      value={furnishedType}
+                      onChange={(e) => setFurnishedType(e.target.value)}
                     />
                   </div>
-                  <div className="col-12 col-md-3 mb-3">
-                    <label className="TextLabel" htmlFor="advanceDeposit">
-                      Advance Deposit (₹) <span className="star">*</span>
+                  <div className="col-12 col-md-6 mb-3">
+                    <label className="TextLabel" htmlFor="roomCount">
+                      Rooms <span className="star">*</span>
                     </label>
                     <InputField
                       type="text"
-                      id="advanceDeposit"
-                      placeholder="Enter Deposit"
-                      value={advanceDeposit}
-                      onChange={(e) => setAdvanceDeposit(e.target.value)}
-                      error={!!errors.advanceDeposit}
-                      helperText={errors.advanceDeposit}
-                    />
-                  </div>
-                  <div className="col-12 col-md-3 mb-3">
-                    <label className="TextLabel" htmlFor="tenure">
-                      Tenure (Years) <span className="star">*</span>
-                    </label>
-                    <InputField
-                      type="text"
-                      id="tenure"
-                      placeholder="Enter Tenure in Years"
-                      value={tenure}
-                      onChange={(e) => setTenure(e.target.value)}
-                      error={!!errors.tenure}
-                      helperText={errors.tenure}
+                      id="roomCount"
+                      placeholder="Number of Rooms"
+                      value={roomCount}
+                      onChange={(e) => setRoomCount(e.target.value)}
+                      error={!!errors.roomCount}
+                      helperText={errors.roomCount}
                     />
                   </div>
                 </div>
+              </section>
 
-                <div className="row">
-                  <div className="col-12">
-                    <label className="TextLabel" htmlFor="propertyCategory">
-                      Property Category <span className="star">*</span>
-                    </label>
-                    <div className="d-flex flex-wrap gap-3">
-                      <InputField
-                        type="radio"
-                        radioOptions={["House", "Apartment", "Villa"]}
-                        id="propertyCategory"
-                        value={propertyCategory || "House"}
-                        onChange={(e) => setPropertyCategory(e.target.value)}
-                        error={!!errors.propertyCategory}
-                        helperText={errors.propertyCategory}
-                      />
-                    </div>
-                  </div>
+              {/* Amenities Section - No direct validation needed unless you have min/max selections */}
+              <section className="container AmenitiesSection mb-4">
+                <div className="ownerTitle">
+                  <h6>Nearby Services & Essentials</h6>
+                  <p>
+                    Select the important places or services available near this
+                    property
+                  </p>
                 </div>
-              </div>
-            </section>
 
-            {/* Location Details Section */}
-            <section className="LocationDetails mb-4">
-              <div className="ownerTitle">
-                <h6>Location & Address</h6>
-                <p>Set the location and enter the property address</p>
-              </div>
-
-              <div className="row">
-                <div className="col-12 col-md-6 mb-3">
+                <div className="chipField row">
                   <div
-                    className="Map ratio-16x9"
-                    style={{
-                      width: "100%",
-                      height: "360px",
-                      gap: "16px",
-                      borderRadius: "6px",
-                      borderWidth: "1px",
-                      padding: "8px",
-                      borderStyle: "solid",
-                      borderColor: "#D3DDE7",
-                    }}
+                    className="chipcard d-flex gap-4 col-6 col-md-3 mb-3"
+                    style={{ padding: "31px" }}
                   >
-                    <iframe
-                      title="property-location-map"
-                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31108.98652428826!2d78.80635493583208!3d11.241996832614563!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3babf6bc93dc3bc9%3A0xe3637b7e3eabedb2!2sSumisa%20Technologies!5e0!3m2!1sen!2sin!4v1686162920212!5m2!1sen!2sin"
-                      width="100%"
-                      height="100%"
-                      frameBorder="0"
-                      style={{ border: 0 }}
-                      allowFullScreen
-                      loading="lazy"
-                      referrerPolicy="no-referrer-when-downgrade"
-                    ></iframe>
-                  </div>
-                  <div className="ResidentialCategory mt-3">
-                    <p>
-                      Upload Property Images <span className="star">*</span>
-                    </p>
+                    <InputField
+                      type="chip"
+                      label="Separate Electricity Billing"
+                      icon={
+                        <Avatar
+                          alt="Separate Electricity Billing"
+                          src="/src/assets/createProperty/mage_electricity.svg"
+                          className="avatarImg"
+                        />
+                      }
+                    />
 
-                    <div className="BtnFrame d-flex mt-3 mb-2 align-items-start gap-3">
-                      <p className="image-p">
-                        {/* {propertyImages
-                          ? propertyImages.name : "No image chosen"} */}
-                        {propertyImages && propertyImages.length > 0
-                          ? `${propertyImages.length} image(s) selected`
-                          : "No image chosen"}
-                      </p>
-                      <input
-                        type="file"
-                        id="propertyImageUpload"
-                        style={{ display: "none" }}
-                        onChange={(e) => {
-                          if (e.target.files) {
-                            setPropertyImages(Array.from(e.target.files)); // Save all selected files as array
-                          }
-                        }}
-                        accept="image/*"
-                        multiple // Enable multi-selection
+                    <InputField
+                      type="chip"
+                      label="Public Park"
+                      icon={
+                        <Avatar
+                          alt="Public Park"
+                          src="/src/assets/createProperty/material-symbols_park-outline-rounded.svg"
+                          className="avatarImg"
+                        />
+                      }
+                    />
 
-                        // setPropertyImages(e.target.files[0])}
-                        // accept="image/*"
-                      />
-                      <Button
-                        variant="contained"
-                        startIcon={<FileUploadOutlinedIcon />}
-                        id="Choosebtn"
-                        onClick={() => document.getElementById("propertyImageUpload")?.click() }
-                      >
-                        Choose image
-                      </Button>
-                    </div>
+                    <InputField
+                      type="chip"
+                      label="Gym"
+                      icon={
+                        <Avatar
+                          alt="Gym"
+                          src="/src/assets/createProperty/hugeicons_equipment-gym-03.svg"
+                          className="avatarImg"
+                        />
+                      }
+                    />
+                    <InputField
+                      type="chip"
+                      label="Movie Theater"
+                      icon={
+                        <Avatar
+                          alt="Movie Theater"
+                          src="/src/assets/createProperty/mingcute_movie-line.svg"
+                          className="avatarImg"
+                        />
+                      }
+                    />
+                    <InputField
+                      type="chip"
+                      label="Shopping Mall"
+                      icon={
+                        <Avatar
+                          alt="Shopping Mall"
+                          src="/src/assets/createProperty/material-symbols_local-mall-outline.svg"
+                          className="avatarImg"
+                        />
+                      }
+                    />
                   </div>
                 </div>
+              </section>
 
-                <div className="col-12 col-md-6 mb-3">
-                  <div className="row">
-                    <div className="col-12 mb-3">
-                      <label className="TextLabel" htmlFor="address">
-                        Full Address
-                      </label>
+              {/* Accessibility Section - No direct validation needed */}
+              <section className="AccessibilitySection mb-4">
+                <div className="ownerTitle">
+                  <h6>Move-In Accessibility</h6>
+                  <p>
+                    Choose how easy it is to access and move into the property
+                  </p>
+                </div>
+
+                <div className="chipField row">
+                  <div
+                    className="chipcard d-flex gap-4 col-6 col-md-3 mb-3"
+                    style={{ padding: "31px" }}
+                  >
+                    <InputField
+                      type="chip"
+                      label="Lift Access"
+                      icon={
+                        <Avatar
+                          alt="Lift Access"
+                          src="/src/assets/createProperty/Icon_Lift.svg"
+                          className="avatarImg"
+                        />
+                      }
+                    />
+
+                    <InputField
+                      type="chip"
+                      label="Ramp Access"
+                      icon={
+                        <Avatar
+                          alt="Ramp Access"
+                          src="/src/assets/createProperty/guidance_ramp-up.svg"
+                          className="avatarImg"
+                        />
+                      }
+                    />
+
+                    <InputField
+                      type="chip"
+                      label="Only via Stairs"
+                      icon={
+                        <Avatar
+                          alt="Only via Stairs"
+                          src="/src/assets/createProperty/tabler_stairs.svg"
+                          className="avatarImg"
+                        />
+                      }
+                    />
+                  </div>
+                </div>
+              </section>
+
+              {/* Utilities Section - No direct validation needed */}
+              <section className="UtilitiesSection ">
+                <div className="ownerTitle">
+                  <h6>Infrastructure & Utilities</h6>
+                  <p>
+                    Select the facilities or utilities included with this
+                    property{" "}
+                  </p>
+                </div>
+
+                <div className="chipField">
+                  <div className="chipcard " style={{ padding: "31px" }}>
+                    <div className="firstRow d-flex gap-4">
                       <InputField
-                        type="text"
-                        id="address"
-                        placeholder="Enter Address"
-                        value={address}
-                        onChange={(e) => setAddress(e.target.value)}
-                        // Add error handling if address is mandatory
+                        type="chip"
+                        label="Regular Maintenance Included"
+                        icon={
+                          <Avatar
+                            alt="Regular Maintenance Included"
+                            src="/src/assets/createProperty/Icon_Cleaning.svg"
+                            className="avatarImg"
+                          />
+                        }
                       />
-                    </div>
-                    <div className="col-6 mb-3">
-                      <label className="TextLabel" htmlFor="latitude">
-                        Latitude
-                      </label>
+
                       <InputField
-                        type="text"
-                        id="latitude"
-                        placeholder="Latitude"
-                        value={latitude}
-                        onChange={(e) => setLatitude(e.target.value)}
-                        // Add error handling if latitude is mandatory
+                        type="chip"
+                        label="Water Supply Available"
+                        icon={
+                          <Avatar
+                            alt="Water Supply Available"
+                            src="/src/assets/createProperty/material-symbols_water-full-outline.svg"
+                            className="avatarImg"
+                          />
+                        }
                       />
-                    </div>
-                    <div className="col-6 mb-3">
-                      <label className="TextLabel" htmlFor="longitude">
-                        Longitude
-                      </label>
+
                       <InputField
-                        type="text"
-                        id="longitude"
-                        placeholder="Longitude"
-                        value={longitude}
-                        onChange={(e) => setLongitude(e.target.value)}
-                        // Add error handling if longitude is mandatory
+                        type="chip"
+                        label="Good Road Access"
+                        icon={
+                          <Avatar
+                            alt="Good Road Access"
+                            src="/src/assets/createProperty/Icon_Road.svg"
+                            className="avatarImg"
+                          />
+                        }
+                      />
+                    </div>
+
+                    <div className="secondRow d-flex gap-4">
+                      <InputField
+                        type="chip"
+                        label="Sewage Connection Available"
+                        icon={
+                          <Avatar
+                            alt="Sewage Connection Available"
+                            src="/src/assets/createProperty/Icon_restroom.svg"
+                            className="avatarImg"
+                          />
+                        }
+                      />
+                      <InputField
+                        type="chip"
+                        label="Dedicated Parking Available"
+                        icon={
+                          <Avatar
+                            alt="Dedicated Parking Available"
+                            src="/src/assets/createProperty/Icon_Parking.svg"
+                            className="avatarImg"
+                          />
+                        }
+                      />
+                      <InputField
+                        type="chip"
+                        label="Private Balcony Included"
+                        icon={
+                          <Avatar
+                            alt="Private Balcony Included"
+                            src="/src/assets/createProperty/Icon_Balcony.svg"
+                            className="avatarImg"
+                          />
+                        }
                       />
                     </div>
                   </div>
-
-                  <div className="informationCard">
-                    <label htmlFor="" className="labelName">
-                      Nearby Transportation
-                    </label>
-
-                    <div className="container">
-                      <div className="row">
-                        <div className="col-6 col-md-6 mb-3">
-                          <div className="transportCard d-flex gap-2">
-                            <img
-                              src="/src/assets/createProperty/Icon_Bus.svg"
-                              alt="Bus"
-                            />
-                            <div>
-                              <span className="transportInfoText">
-                                Bus Stand
-                                <br />- Kms
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col-6 col-md-6 mb-3">
-                          <div className="transportCard d-flex gap-2">
-                            <img
-                              src="/src/assets/createProperty/ph_airplane-in-flight.svg"
-                              alt="Airport"
-                            />
-                            <div>
-                              <span className="transportInfoText">
-                                Airport
-                                <br />- Kms
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row">
-                        <div className="col-6 col-md-6 mb-3">
-                          <div className="transportCard d-flex gap-2">
-                            <img
-                              src="/src/assets/createProperty/hugeicons_metro.svg"
-                              alt="Metro"
-                            />
-                            <div>
-                              <span className="transportInfoText">
-                                Metro
-                                <br />- Kms
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col-6 col-md-6 mb-3">
-                          <div className="transportCard d-flex gap-2">
-                            <img
-                              src="/src/assets/createProperty/material-symbols-light_train-outline.svg"
-                              alt="Railway"
-                            />
-                            <div>
-                              <span className="transportInfoText">
-                                Railway
-                                <br />- Kms
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
                 </div>
-              </div>
-            </section>
-            {/* Property Layout Section */}
-            <section className="PropertyLayoutDetails mb-4">
-              <div className="ownerTitle">
-                <h6>Property Dimensions & Layout</h6>
-                <p>Enter the size and structure of the property</p>
-              </div>
+              </section>
 
-              <div className="OwnerDetailTextField mt-3 row">
-                <div className="col-12 col-md-6 mb-3">
-                  <label className="TextLabel" htmlFor="totalArea">
-                    Total Area <span className="star">*</span>
-                  </label>
-                  <InputField
-                    type="text"
-                    id="totalArea"
-                    placeholder="Enter Total Area (sq.ft)"
-                    value={totalArea}
-                    onChange={(e) => setTotalArea(e.target.value)}
-                    error={!!errors.totalArea}
-                    helperText={errors.totalArea}
-                  />
-                </div>
-                <div className="col-12 col-md-6 mb-3">
-                  <label className="TextLabel" htmlFor="builtUpArea">
-                    Built Up Area <span className="star">*</span>
-                  </label>
-                  <InputField
-                    type="text"
-                    id="builtUpArea"
-                    placeholder="Enter Built-Up Area (sq.ft)"
-                    value={builtUpArea}
-                    onChange={(e) => setBuiltUpArea(e.target.value)}
-                    error={!!errors.builtUpArea}
-                    helperText={errors.builtUpArea}
-                  />
+              {/* Restrictions Section - No direct validation needed */}
+              <section className="RestrictionsSection mb-4">
+                <div className="ownerTitle">
+                  <h6>
+                    Occupancy Restrictions <span className="star">*</span>
+                  </h6>
+                  <p>
+                    Select any rules about who can stay or live in this property
+                  </p>
                 </div>
 
-                <div className="col-12 col-md-6 mb-3">
-                  <label className="TextLabel" htmlFor="carpetArea">
-                    Carpet Area <span className="star">*</span>
-                  </label>
-                  <InputField
-                    type="text"
-                    id="carpetArea"
-                    placeholder="Enter Carpet Area (sq.ft)"
-                    value={carpetArea}
-                    onChange={(e) => setCarpetArea(e.target.value)}
-                    error={!!errors.carpetArea}
-                    helperText={errors.carpetArea}
-                  />
-                </div>
-
-                <div className="col-12 col-md-6 mb-3">
-                  <label className="TextLabel" htmlFor="facing">
-                    Facing
-                  </label>
-                  <InputField
-                    type="dropdown"
-                    id="facing"
-                    placeholder="Select Direction Facing"
-                    dropdownOptions={[
-                      "North",
-                      "South",
-                      "East",
-                      "West",
-                      "Select Direction Facing",
-                    ]}
-                    value={facing || "Select Direction Facing"}
-                    onChange={(e) => setFacing(e.target.value)}
-                  />
-                </div>
-
-                <div className="col-12 col-md-6 mb-3">
-                  <label className="TextLabel" htmlFor="totalFloors">
-                    Total Floors
-                  </label>
-                  <InputField
-                    type="text"
-                    id="totalFloors"
-                    placeholder="Enter Total Number of Floors"
-                    value={totalFloors}
-                    onChange={(e) => setTotalFloors(e.target.value)}
-                    error={!!errors.totalFloors}
-                    helperText={errors.totalFloors}
-                  />
-                </div>
-                <div className="col-12 col-md-6 mb-3">
-                  <label className="TextLabel" htmlFor="propertyOnFloor">
-                    Property on
-                  </label>
-                  <InputField
-                    type="text"
-                    id="propertyOnFloor"
-                    placeholder="Enter Floor Number"
-                    value={propertyOnFloor}
-                    onChange={(e) => setPropertyOnFloor(e.target.value)}
-                    error={!!errors.propertyOnFloor}
-                    helperText={errors.propertyOnFloor}
-                  />
-                </div>
-
-                <div className="col-12 col-md-6 mb-3">
-                  <label className="TextLabel" htmlFor="furnishedType">
-                    Furnished Type
-                  </label>
-                  <InputField
-                    type="text" // Assuming this will become a dropdown or radio
-                    id="furnishedType"
-                    placeholder="Select Furnished Type"
-                    value={furnishedType}
-                    onChange={(e) => setFurnishedType(e.target.value)}
-                  />
-                </div>
-                <div className="col-12 col-md-6 mb-3">
-                  <label className="TextLabel" htmlFor="roomCount">
-                    Rooms <span className="star">*</span>
-                  </label>
-                  <InputField
-                    type="text"
-                    id="roomCount"
-                    placeholder="Number of Rooms"
-                    value={roomCount}
-                    onChange={(e) => setRoomCount(e.target.value)}
-                    error={!!errors.roomCount}
-                    helperText={errors.roomCount}
-                  />
-                </div>
-              </div>
-            </section>
-
-            {/* Amenities Section - No direct validation needed unless you have min/max selections */}
-            <section className="container AmenitiesSection mb-4">
-              <div className="ownerTitle">
-                <h6>Nearby Services & Essentials</h6>
-                <p>
-                  Select the important places or services available near this
-                  property
-                </p>
-              </div>
-
-              <div className="chipField row">
-                <div
-                  className="chipcard d-flex gap-4 col-6 col-md-3 mb-3"
-                  style={{ padding: "31px" }}
-                >
-                  <InputField
-                    type="chip"
-                    label="Separate Electricity Billing"
-                    icon={
-                      <Avatar
-                        alt="Separate Electricity Billing"
-                        src="/src/assets/createProperty/mage_electricity.svg"
-                        className="avatarImg"
-                      />
-                    }
-                  />
-
-                  <InputField
-                    type="chip"
-                    label="Public Park"
-                    icon={
-                      <Avatar
-                        alt="Public Park"
-                        src="/src/assets/createProperty/material-symbols_park-outline-rounded.svg"
-                        className="avatarImg"
-                      />
-                    }
-                  />
-
-                  <InputField
-                    type="chip"
-                    label="Gym"
-                    icon={
-                      <Avatar
-                        alt="Gym"
-                        src="/src/assets/createProperty/hugeicons_equipment-gym-03.svg"
-                        className="avatarImg"
-                      />
-                    }
-                  />
-                  <InputField
-                    type="chip"
-                    label="Movie Theater"
-                    icon={
-                      <Avatar
-                        alt="Movie Theater"
-                        src="/src/assets/createProperty/mingcute_movie-line.svg"
-                        className="avatarImg"
-                      />
-                    }
-                  />
-                  <InputField
-                    type="chip"
-                    label="Shopping Mall"
-                    icon={
-                      <Avatar
-                        alt="Shopping Mall"
-                        src="/src/assets/createProperty/material-symbols_local-mall-outline.svg"
-                        className="avatarImg"
-                      />
-                    }
-                  />
-                </div>
-              </div>
-            </section>
-
-            {/* Accessibility Section - No direct validation needed */}
-            <section className="AccessibilitySection mb-4">
-              <div className="ownerTitle">
-                <h6>Move-In Accessibility</h6>
-                <p>
-                  Choose how easy it is to access and move into the property
-                </p>
-              </div>
-
-              <div className="chipField row">
-                <div
-                  className="chipcard d-flex gap-4 col-6 col-md-3 mb-3"
-                  style={{ padding: "31px" }}
-                >
-                  <InputField
-                    type="chip"
-                    label="Lift Access"
-                    icon={
-                      <Avatar
-                        alt="Lift Access"
-                        src="/src/assets/createProperty/Icon_Lift.svg"
-                        className="avatarImg"
-                      />
-                    }
-                  />
-
-                  <InputField
-                    type="chip"
-                    label="Ramp Access"
-                    icon={
-                      <Avatar
-                        alt="Ramp Access"
-                        src="/src/assets/createProperty/guidance_ramp-up.svg"
-                        className="avatarImg"
-                      />
-                    }
-                  />
-
-                  <InputField
-                    type="chip"
-                    label="Only via Stairs"
-                    icon={
-                      <Avatar
-                        alt="Only via Stairs"
-                        src="/src/assets/createProperty/tabler_stairs.svg"
-                        className="avatarImg"
-                      />
-                    }
-                  />
-                </div>
-              </div>
-            </section>
-
-            {/* Utilities Section - No direct validation needed */}
-            <section className="UtilitiesSection ">
-              <div className="ownerTitle">
-                <h6>Infrastructure & Utilities</h6>
-                <p>
-                  Select the facilities or utilities included with this property{" "}
-                </p>
-              </div>
-
-              <div className="chipField">
-                <div className="chipcard " style={{ padding: "31px" }}>
-                  <div className="firstRow d-flex gap-4">
+                <div className="chipField row">
+                  <div
+                    className="chipcard d-flex gap-4 col-6 col-md-3 mb-3"
+                    style={{ padding: "31px" }}
+                  >
                     <InputField
                       type="chip"
-                      label="Regular Maintenance Included"
+                      label="Guests Not Allowed"
                       icon={
                         <Avatar
-                          alt="Regular Maintenance Included"
-                          src="/src/assets/createProperty/Icon_Cleaning.svg"
+                          alt="Guests Not Allowed"
+                          src="/src/assets/createProperty/solar_user-linear.svg"
+                          className="avatarImg"
+                          sx={{ width: 18, height: 18 }}
+                        />
+                      }
+                    />
+
+                    <InputField
+                      type="chip"
+                      label="No Pets Allowed"
+                      icon={
+                        <Avatar
+                          alt="No Pets Allowed"
+                          src="/src/assets/createProperty/streamline_pets-allowed.svg"
                           className="avatarImg"
                         />
                       }
@@ -939,209 +1056,107 @@ export const CreateResidential = () => {
 
                     <InputField
                       type="chip"
-                      label="Water Supply Available"
+                      label="No Bachelors Allowed"
                       icon={
                         <Avatar
-                          alt="Water Supply Available"
-                          src="/src/assets/createProperty/material-symbols_water-full-outline.svg"
-                          className="avatarImg"
-                        />
-                      }
-                    />
-
-                    <InputField
-                      type="chip"
-                      label="Good Road Access"
-                      icon={
-                        <Avatar
-                          alt="Good Road Access"
-                          src="/src/assets/createProperty/Icon_Road.svg"
-                          className="avatarImg"
-                        />
-                      }
-                    />
-                  </div>
-
-                  <div className="secondRow d-flex gap-4">
-                    <InputField
-                      type="chip"
-                      label="Sewage Connection Available"
-                      icon={
-                        <Avatar
-                          alt="Sewage Connection Available"
-                          src="/src/assets/createProperty/Icon_restroom.svg"
-                          className="avatarImg"
-                        />
-                      }
-                    />
-                    <InputField
-                      type="chip"
-                      label="Dedicated Parking Available"
-                      icon={
-                        <Avatar
-                          alt="Dedicated Parking Available"
-                          src="/src/assets/createProperty/Icon_Parking.svg"
-                          className="avatarImg"
-                        />
-                      }
-                    />
-                    <InputField
-                      type="chip"
-                      label="Private Balcony Included"
-                      icon={
-                        <Avatar
-                          alt="Private Balcony Included"
-                          src="/src/assets/createProperty/Icon_Balcony.svg"
+                          alt="No Bachelors Allowed"
+                          src="/src/assets/createProperty/Icon_Lift (1).svg"
                           className="avatarImg"
                         />
                       }
                     />
                   </div>
                 </div>
-              </div>
-            </section>
+              </section>
 
-            {/* Restrictions Section - No direct validation needed */}
-            <section className="RestrictionsSection mb-4">
-              <div className="ownerTitle">
-                <h6>
-                  Occupancy Restrictions <span className="star">*</span>
-                </h6>
-                <p>
-                  Select any rules about who can stay or live in this property
-                </p>
-              </div>
+              {/* Additional Information Section */}
+              <section className="AdditionalInfoSection mb-4">
+                <div className="ownerTitle">
+                  <h6>Additional Information</h6>
+                  <p>Provide any other relevant details about the property </p>
+                </div>
+                <label htmlFor="propertyDescription">
+                  Property Description
+                </label>
+                <textarea
+                  className="form-control"
+                  rows={4}
+                  id="propertyDescription"
+                  placeholder="Add a brief description of the property, including highlights, unique features, or nearby landmarks"
+                  value={propertyDescription}
+                  onChange={(e) => setPropertyDescription(e.target.value)}
+                ></textarea>
+              </section>
 
-              <div className="chipField row">
-                <div
-                  className="chipcard d-flex gap-4 col-6 col-md-3 mb-3"
-                  style={{ padding: "31px" }}
-                >
+              {/* Legal Documents Section */}
+              <section className="LegalDocsSection mb-4">
+                <div className="ownerTitle">
+                  <h6>Legal Documentation</h6>
+                  <p>
+                    Specify whether the property has legal paperwork available
+                  </p>
+                </div>
+              </section>
+
+              <div className="col-12">
+                <label className="TextLabel" htmlFor="legalDocsAvailable">
+                  Are Legal Documents Available? <span className="star">*</span>
+                </label>
+                <div className="d-flex flex-wrap gap-3">
                   <InputField
-                    type="chip"
-                    label="Guests Not Allowed"
-                    icon={
-                      <Avatar
-                        alt="Guests Not Allowed"
-                        src="/src/assets/createProperty/solar_user-linear.svg"
-                        className="avatarImg"
-                        sx={{ width: 18, height: 18 }}
-                      />
-                    }
-                  />
-
-                  <InputField
-                    type="chip"
-                    label="No Pets Allowed"
-                    icon={
-                      <Avatar
-                        alt="No Pets Allowed"
-                        src="/src/assets/createProperty/streamline_pets-allowed.svg"
-                        className="avatarImg"
-                      />
-                    }
-                  />
-
-                  <InputField
-                    type="chip"
-                    label="No Bachelors Allowed"
-                    icon={
-                      <Avatar
-                        alt="No Bachelors Allowed"
-                        src="/src/assets/createProperty/Icon_Lift (1).svg"
-                        className="avatarImg"
-                      />
-                    }
+                    type="radio"
+                    radioOptions={["Yes", "No"]} // Corrected "NO" to "No" for consistency
+                    id="legalDocsAvailable"
+                    value={legalDocsAvailable || "Yes"}
+                    onChange={(e) => setLegalDocsAvailable(e.target.value)}
+                    error={!!errors.legalDocsAvailable}
+                    helperText={errors.legalDocsAvailable}
                   />
                 </div>
               </div>
-            </section>
 
-            {/* Additional Information Section */}
-            <section className="AdditionalInfoSection mb-4">
-              <div className="ownerTitle">
-                <h6>Additional Information</h6>
-                <p>Provide any other relevant details about the property </p>
-              </div>
-              <label htmlFor="propertyDescription">Property Description</label>
-              <textarea
-                className="form-control"
-                rows={4}
-                id="propertyDescription"
-                placeholder="Add a brief description of the property, including highlights, unique features, or nearby landmarks"
-                value={propertyDescription}
-                onChange={(e) => setPropertyDescription(e.target.value)}
-              ></textarea>
-            </section>
-
-            {/* Legal Documents Section */}
-            <section className="LegalDocsSection mb-4">
-              <div className="ownerTitle">
-                <h6>Legal Documentation</h6>
-                <p>
-                  Specify whether the property has legal paperwork available
-                </p>
-              </div>
-            </section>
-
-            <div className="col-12">
-              <label className="TextLabel" htmlFor="legalDocsAvailable">
-                Are Legal Documents Available? <span className="star">*</span>
-              </label>
-              <div className="d-flex flex-wrap gap-3">
-                <InputField
-                  type="radio"
-                  radioOptions={["Yes", "No"]} // Corrected "NO" to "No" for consistency
-                  id="legalDocsAvailable"
-                  value={legalDocsAvailable || "Yes"}
-                  onChange={(e) => setLegalDocsAvailable(e.target.value)}
-                  error={!!errors.legalDocsAvailable}
-                  helperText={errors.legalDocsAvailable}
-                />
-              </div>
-            </div>
-
-            <ToastContainer
-              position="top-right"
-              autoClose={3000}
-              hideProgressBar={false}
-              newestOnTop
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme="colored"
-            />
-            {/* Action Buttons */}
-            <div className="d-flex flex-wrap gap-3 justify-content-end my-4">
-              <GenericButton
-                label="Discard changes"
-                icon={<CloseIcon />}
-                className="DiscardC btn-outline-secondary"
-                onClick={() => {
-                  // Implement discard logic here, e.g., reset all states
-                  window.location.reload(); // Simple reload for demonstration
-                
-                }}
+              <ToastContainer
+                position="top-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="colored"
               />
-              <div>
-                {/* Your form and other JSX */}
+              {/* Action Buttons */}
+              <div className="d-flex flex-wrap gap-3 justify-content-end my-4">
                 <GenericButton
-                  label="Create New Property"
-                  icon={<DoneIcon />}
-                  className="createNP btn btn-primary"
-                  onClick={handleSubmit}
+                  label="Discard changes"
+                  icon={<CloseIcon />}
+                  className="DiscardC btn-outline-secondary"
+                  onClick={() => {
+                    // Implement discard logic here, e.g., reset all states
+                    window.location.reload(); // Simple reload for demonstration
+                  }}
                 />
+                <div>
+                  {/* Your form and other JSX */}
+                  <GenericButton
+                    label="Create New Property"
+                    icon={<DoneIcon />}
+                    className="createNP btn btn-primary"
+                    type="submit"
+                    // onClick={() => navigate("/createResidential", { state: { mode: "create" } })}
+                  />
 
-                {/* This must be rendered */}
-                <ToastContainer />
+                  {/* This must be rendered */}
+                  <ToastContainer />
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </form>
   );
 };
 
