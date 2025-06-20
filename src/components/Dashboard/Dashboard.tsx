@@ -42,7 +42,7 @@ function Home({ properties }: HomeProps) {
     const fetchAllData = async () => {
       
       try {
-        const response = await axios.get(`http://192.168.1.70:3002/api/${properties}`);
+        const response = await axios.get(`http://13.127.102.111/api/${properties}`);
 
         if (properties === "all") {
           setDashboardData({
