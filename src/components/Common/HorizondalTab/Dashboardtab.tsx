@@ -11,6 +11,7 @@ import GenericButton from "../Button/button";
 import filterTick from "../../../../public/Icon_Tick.svg";
 import { Checkbox, FormControlLabel } from "@mui/material";
 import { useState, useEffect, useMemo } from "react";
+import axios from "axios";
 
 type Property = {
   status?: string;
@@ -56,6 +57,7 @@ function a11yProps(index: number) {
 }
 
 export default function Dashboardtab({ data, properties }: DashboardtabProps) {
+  const [isFiltered, setIsFiltered] = useState(false);
   const [currentCheckList, setCurrentCheckList] = useState<string[]>([]);
 
   const statusByTab = ["Pending", "Approved", "Rejected", "Deleted"];
@@ -114,102 +116,110 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
     allItems.map((item) => item.status)
   );
   console.log("Current tab value:", value, "Status:", statusByTab[value]);
-  useEffect(() => {
-    if (!allItems.length) return;
-    const currentStatus = statusByTab[value];
-    const filtered = allItems.filter(
-      (item) => item.status?.toLowerCase() === currentStatus?.toLowerCase()
+
+  // handleCheckbox
+  const handleCheckboxChange = (option: string) => {
+    setCurrentCheckList((prev) =>
+      prev.includes(option)
+        ? prev.filter((item) => item !== option)
+        : [...prev, option]
     );
-    setTableValues(filtered);
-  }, [value, allItems]);
+  };
+
 
   // filter function
-  const handleCheckboxChange = (option: string) => {
-    setCurrentCheckList((prevList) =>
-      prevList.includes(option)
-        ? prevList.filter((item) => item !== option)
-        : [...prevList, option]
+  const fetchFilteredData = async (filters: string[], status: string) => {
+  try {
+    const response = await axios.get(
+      `http://65.0.45.96:3002/api/${properties}`,
+      {
+        params: {
+          filters: filters.join(","),
+          status,
+        },
+      }
     );
-  };
 
-  const handleApply = () => {
-    if (!allItems.length || !currentCheckList.length) return;
+    const dataObj = response.data.data;
 
-    const selectedValues = currentCheckList.map((v) => v.toLowerCase());
-    const currentStatus = statusByTab[value];
+    let result: Property[] = [];
+    if (properties === "residentials") result = dataObj.residential ?? [];
+    else if (properties === "commercials") result = dataObj.commercial ?? [];
+    else if (properties === "plots") result = dataObj.plot ?? [];
+    else if (properties === "all")
+      result = [
+        ...(dataObj.residential ?? []),
+        ...(dataObj.commercial ?? []),
+        ...(dataObj.plot ?? []),
+      ];
 
-    const filtered = allItems.filter((item) => {
-      const matchesStatus =
-        item.status?.toLowerCase() === currentStatus.toLowerCase();
-
-      // Check if any selected value is present in any field of the item
-      const matchesChecklist = Object.values(item).some((val) =>
-        selectedValues.includes(String(val).toLowerCase())
-      );
-
-      return matchesStatus && matchesChecklist;
-    });
-
-    setTableValues(filtered);
-    handleClose();
-  };
+    setTableValues(result);
+  } catch (error) {
+    console.error("Fetch error:", error);
+    setTableValues([]);
+  }
+};
+const handleApply = async () => {
+  await fetchFilteredData(currentCheckList, statusByTab[value]);
+  setIsFiltered(true);
+  handleClose();
+};
+useEffect(() => {
+  const currentStatus = statusByTab[value];
+  if (!isFiltered) {
+    fetchFilteredData([], currentStatus);
+  }
+}, [value, isFiltered]);
 
   // filterResetFunction
-  const filterResetFunction = () => {
-    setCurrentCheckList([]);
-    const currentStatus = statusByTab[value];
-    const filtered = allItems.filter(
-      (item) => item.status?.toLowerCase() === currentStatus.toLowerCase()
-    );
-    setTableValues(filtered);
-    handleClose();
-  };
- 
-  // count function 
-  const handlePendingCount = useMemo( (): number => {
-  const allItems = [
-    ...(data.residential || []),
-    ...(data.commercial || []),
-    ...(data.plot || []),
-  ];
-  return allItems.filter(
-    (item) => item.status?.toLowerCase() === "pending"
-  ).length;
-}, [data]);
-console.log(handlePendingCount);
+const filterResetFunction = () => {
+  setCurrentCheckList([]);
+  setIsFiltered(false);
+  fetchFilteredData([], statusByTab[value]);
+  handleClose();
+};
 
-   const handleApprovedCount  = useMemo( (): number => {
-  const allItems = [
-    ...(data.residential || []),
-    ...(data.commercial || []),
-    ...(data.plot || []),
-  ];
-  return allItems.filter(
-    (item) => item.status?.toLowerCase() === "approved"
-  ).length;
-}, [data]);
+  // count function
+  const handlePendingCount = useMemo((): number => {
+    const allItems = [
+      ...(data.residential || []),
+      ...(data.commercial || []),
+      ...(data.plot || []),
+    ];
+    return allItems.filter((item) => item.status?.toLowerCase() === "pending")
+      .length;
+  }, [data]);
+  console.log(handlePendingCount);
 
-   const handleRejectedCount = useMemo( (): number => {
-  const allItems = [
-    ...(data.residential || []),
-    ...(data.commercial || []),
-    ...(data.plot || []),
-  ];
-  return allItems.filter(
-    (item) => item.status?.toLowerCase() === "rejected"
-  ).length;
-}, [data]);
+  const handleApprovedCount = useMemo((): number => {
+    const allItems = [
+      ...(data.residential || []),
+      ...(data.commercial || []),
+      ...(data.plot || []),
+    ];
+    return allItems.filter((item) => item.status?.toLowerCase() === "approved")
+      .length;
+  }, [data]);
 
-   const handleDeletedCount  = useMemo( (): number => {
-  const allItems = [
-    ...(data.residential || []),
-    ...(data.commercial || []),
-    ...(data.plot || []),
-  ];
-  return allItems.filter(
-    (item) => item.status?.toLowerCase() === "deleted"
-  ).length;
-}, [data]);
+  const handleRejectedCount = useMemo((): number => {
+    const allItems = [
+      ...(data.residential || []),
+      ...(data.commercial || []),
+      ...(data.plot || []),
+    ];
+    return allItems.filter((item) => item.status?.toLowerCase() === "rejected")
+      .length;
+  }, [data]);
+
+  const handleDeletedCount = useMemo((): number => {
+    const allItems = [
+      ...(data.residential || []),
+      ...(data.commercial || []),
+      ...(data.plot || []),
+    ];
+    return allItems.filter((item) => item.status?.toLowerCase() === "deleted")
+      .length;
+  }, [data]);
 
   return (
     <div id="pending-approval-tab">
@@ -223,16 +233,14 @@ console.log(handlePendingCount);
           }}
         >
           <Tab
-           label={
+            label={
               <React.Fragment>
-                Pending &nbsp; 
-                <span 
-                style={{ fontSize: "smaller" }}> 
-                  {handlePendingCount} 
+                Pending &nbsp;
+                <span style={{ fontSize: "smaller" }}>
+                  {handlePendingCount}
                 </span>
               </React.Fragment>
             }
-            
             {...a11yProps(0)}
             icon={<Avatar alt="test avatar" src="/pending-action.svg" />}
             iconPosition="start"
@@ -240,9 +248,8 @@ console.log(handlePendingCount);
           <Tab
             label={
               <React.Fragment>
-                Approved  &nbsp; 
-                <span  
-                style={{ fontSize: "smaller" }}> 
+                Approved &nbsp;
+                <span style={{ fontSize: "smaller" }}>
                   {handleApprovedCount}
                 </span>
               </React.Fragment>
@@ -252,11 +259,10 @@ console.log(handlePendingCount);
             iconPosition="start"
           />
           <Tab
-             label={
+            label={
               <React.Fragment>
-                Rejected &nbsp; 
-                <span 
-                style={{ fontSize: "smaller" }}> 
+                Rejected &nbsp;
+                <span style={{ fontSize: "smaller" }}>
                   {handleRejectedCount}
                 </span>
               </React.Fragment>
@@ -266,12 +272,11 @@ console.log(handlePendingCount);
             iconPosition="start"
           />
           <Tab
-             label={
+            label={
               <React.Fragment>
-                Deleted  &nbsp; 
-                <span 
-                style={{ fontSize: "smaller" }}> 
-                  {handleDeletedCount} 
+                Deleted &nbsp;
+                <span style={{ fontSize: "smaller" }}>
+                  {handleDeletedCount}
                 </span>
               </React.Fragment>
             }
@@ -305,7 +310,11 @@ console.log(handlePendingCount);
                     Filter
                   </Button>
                   <Popover
-                    style={{ margin: "20% 8% 0 8%", position: "absolute" }}
+                    style={{
+                      margin: "20% 8% 0 8%",
+                      position: "absolute",
+                      zIndex: 1300,
+                    }}
                     anchorReference="anchorPosition"
                     anchorPosition={{
                       top: 144,
@@ -323,6 +332,14 @@ console.log(handlePendingCount);
                     open={filterOpen}
                     anchorEl={anchorEl}
                     onClose={handleClose}
+                    slotProps={{
+                      paper: {
+                        sx: {
+                          pointerEvents: "auto", // 🛠️ allows checkbox clicks
+                          p: 2,
+                        },
+                      },
+                    }}
                   >
                     <div className="filter-div-wrapper">
                       <div className="filter-header">
@@ -362,6 +379,7 @@ console.log(handlePendingCount);
                                     <Checkbox
                                       checked={currentCheckList.includes(opt)}
                                       onChange={() => handleCheckboxChange(opt)}
+                                      inputProps={{ "aria-label": opt }}
                                     />
                                   }
                                   label={opt}
