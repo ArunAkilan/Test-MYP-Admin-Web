@@ -64,7 +64,7 @@ const handleAction = async (id: string, status: number) => {
         ...(data?.residentials ?? []),
         ...(data?.commercials ?? []),
         ...(data?.plots ?? []),
-        ...(data?.residential ?? []), // if API mistakenly uses singular
+        ...(data?.residential ?? []), 
         ...(data?.commercial ?? []),
         ...(data?.plot ?? []),
       ];
@@ -141,6 +141,7 @@ const handleAction = async (id: string, status: number) => {
             </th>
             <th>Listing Name</th>
             <th>Area</th>
+            <th>Status</th>
             <th>Floors</th>
             <th>Facing</th>
             {properties === "all" && <th>Furnish</th>}
@@ -149,7 +150,7 @@ const handleAction = async (id: string, status: number) => {
             {properties === "commercials" && <th>Washroom</th>}
             <th>Type</th>
             <th className="link-h">Link</th>
-            <th>Status</th>
+            
           </tr>
         </thead>
         <tbody>
@@ -194,6 +195,7 @@ const handleAction = async (id: string, status: number) => {
                 </p>
               </td>
               <td>{item?.area?.totalArea}</td>
+              <td>{item.status}</td>
               <td>{item?.totalFloors}</td>
               <td>{item?.facingDirection}</td>
               {(properties === "residentials" || properties === "all") && (
@@ -285,7 +287,7 @@ const handleAction = async (id: string, status: number) => {
                   />
                 </div>
               </td>
-              <td>{item.status}</td>
+              
             </tr>
           ))}
         </tbody>

@@ -11,6 +11,7 @@
   background: #00BFA6 !important; 
   height: 4px !important;
   border-radius: 100px;
+  margin-left: 3px;
 }
 #pending-approval-tab button {
     min-height: 48px !important;
@@ -21,7 +22,7 @@
     letter-spacing: 0px;
     font-family: 'Raleway';
     text-transform: capitalize;
-    padding: 12px 0;
+    padding: 12px 24px ;
     margin-right: 24px;
 
 }

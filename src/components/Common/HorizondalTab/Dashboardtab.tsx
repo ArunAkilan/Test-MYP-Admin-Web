@@ -123,28 +123,94 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
     setTableValues(filtered);
   }, [value, allItems]);
 
-  // filter function 
+  // filter function
   const handleCheckboxChange = (option: string) => {
-  setCurrentCheckList((prevList) =>
-    prevList.includes(option)
-      ? prevList.filter((item) => item !== option)
-      : [...prevList, option] 
-  );
-};
-
+    setCurrentCheckList((prevList) =>
+      prevList.includes(option)
+        ? prevList.filter((item) => item !== option)
+        : [...prevList, option]
+    );
+  };
 
   const handleApply = () => {
     if (!allItems.length || !currentCheckList.length) return;
 
-    const selectedSet = new Set(currentCheckList.map((c) => c.toLowerCase()));
+    const selectedValues = currentCheckList.map((v) => v.toLowerCase());
+    const currentStatus = statusByTab[value];
 
-    const filtered = allItems.filter((item) =>
-      selectedSet.has(item?.furnishingType?.toLowerCase())
-    );
+    const filtered = allItems.filter((item) => {
+      const matchesStatus =
+        item.status?.toLowerCase() === currentStatus.toLowerCase();
+
+      // Check if any selected value is present in any field of the item
+      const matchesChecklist = Object.values(item).some((val) =>
+        selectedValues.includes(String(val).toLowerCase())
+      );
+
+      return matchesStatus && matchesChecklist;
+    });
 
     setTableValues(filtered);
     handleClose();
   };
+
+  // filterResetFunction
+  const filterResetFunction = () => {
+    setCurrentCheckList([]);
+    const currentStatus = statusByTab[value];
+    const filtered = allItems.filter(
+      (item) => item.status?.toLowerCase() === currentStatus.toLowerCase()
+    );
+    setTableValues(filtered);
+    handleClose();
+  };
+ 
+  // count function 
+  const handlePendingCount = useMemo( (): number => {
+  const allItems = [
+    ...(data.residential || []),
+    ...(data.commercial || []),
+    ...(data.plot || []),
+  ];
+  return allItems.filter(
+    (item) => item.status?.toLowerCase() === "pending"
+  ).length;
+}, [data]);
+console.log(handlePendingCount);
+
+   const handleApprovedCount  = useMemo( (): number => {
+  const allItems = [
+    ...(data.residential || []),
+    ...(data.commercial || []),
+    ...(data.plot || []),
+  ];
+  return allItems.filter(
+    (item) => item.status?.toLowerCase() === "approved"
+  ).length;
+}, [data]);
+
+   const handleRejectedCount = useMemo( (): number => {
+  const allItems = [
+    ...(data.residential || []),
+    ...(data.commercial || []),
+    ...(data.plot || []),
+  ];
+  return allItems.filter(
+    (item) => item.status?.toLowerCase() === "rejected"
+  ).length;
+}, [data]);
+
+   const handleDeletedCount  = useMemo( (): number => {
+  const allItems = [
+    ...(data.residential || []),
+    ...(data.commercial || []),
+    ...(data.plot || []),
+  ];
+  return allItems.filter(
+    (item) => item.status?.toLowerCase() === "deleted"
+  ).length;
+}, [data]);
+
   return (
     <div id="pending-approval-tab">
       <Box>
@@ -157,25 +223,58 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
           }}
         >
           <Tab
-            label="Pending Requests"
+           label={
+              <React.Fragment>
+                Pending &nbsp; 
+                <span 
+                style={{ fontSize: "smaller" }}> 
+                  {handlePendingCount} 
+                </span>
+              </React.Fragment>
+            }
+            
             {...a11yProps(0)}
             icon={<Avatar alt="test avatar" src="/pending-action.svg" />}
             iconPosition="start"
           />
           <Tab
-            label="Approved Properties"
+            label={
+              <React.Fragment>
+                Approved  &nbsp; 
+                <span  
+                style={{ fontSize: "smaller" }}> 
+                  {handleApprovedCount}
+                </span>
+              </React.Fragment>
+            }
             {...a11yProps(1)}
             icon={<Avatar alt="test avatar" src="/pending-approval.svg" />}
             iconPosition="start"
           />
           <Tab
-            label="Rejected Properties"
+             label={
+              <React.Fragment>
+                Rejected &nbsp; 
+                <span 
+                style={{ fontSize: "smaller" }}> 
+                  {handleRejectedCount}
+                </span>
+              </React.Fragment>
+            }
             {...a11yProps(2)}
             icon={<Avatar alt="test avatar" src="/pending-reject.svg" />}
             iconPosition="start"
           />
           <Tab
-            label="Deleted Properties"
+             label={
+              <React.Fragment>
+                Deleted  &nbsp; 
+                <span 
+                style={{ fontSize: "smaller" }}> 
+                  {handleDeletedCount} 
+                </span>
+              </React.Fragment>
+            }
             {...a11yProps(3)}
             icon={<Avatar alt="test avatar" src="/pending-delete.svg" />}
             iconPosition="start"
@@ -206,20 +305,24 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
                     Filter
                   </Button>
                   <Popover
+                    style={{ margin: "20% 8% 0 8%", position: "absolute" }}
                     anchorReference="anchorPosition"
-                    anchorPosition={{ top: 400, left: 450 }}
-                    id={id}
-                    open={filterOpen}
-                    anchorEl={anchorEl}
-                    onClose={handleClose}
+                    anchorPosition={{
+                      top: 144,
+                      left: 260,
+                    }}
                     anchorOrigin={{
-                      vertical: "bottom",
+                      vertical: "top",
                       horizontal: "left",
                     }}
                     transformOrigin={{
                       vertical: "top",
                       horizontal: "left",
                     }}
+                    id={id}
+                    open={filterOpen}
+                    anchorEl={anchorEl}
+                    onClose={handleClose}
                   >
                     <div className="filter-div-wrapper">
                       <div className="filter-header">
@@ -227,7 +330,7 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
                         <div className="apply-reset-btn">
                           <button
                             className="refresh-btn"
-                            onClick={() => window.location.reload()}
+                            onClick={filterResetFunction}
                           >
                             <img src="mynaui_refresh.svg" alt="refresh icon" />
                             Reset
@@ -301,20 +404,24 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
                     Filter
                   </Button>
                   <Popover
+                    style={{ margin: "20% 8% 0 8%", position: "absolute" }}
                     anchorReference="anchorPosition"
-                    anchorPosition={{ top: 400, left: 460 }}
-                    id={id}
-                    open={filterOpen}
-                    anchorEl={anchorEl}
-                    onClose={handleClose}
+                    anchorPosition={{
+                      top: 144,
+                      left: 260,
+                    }}
                     anchorOrigin={{
-                      vertical: "bottom",
+                      vertical: "top",
                       horizontal: "left",
                     }}
                     transformOrigin={{
                       vertical: "top",
                       horizontal: "left",
                     }}
+                    id={id}
+                    open={filterOpen}
+                    anchorEl={anchorEl}
+                    onClose={handleClose}
                   >
                     <div className="filter-div-wrapper">
                       <div className="filter-header">
@@ -322,7 +429,7 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
                         <div className="apply-reset-btn">
                           <button
                             className="refresh-btn"
-                            onClick={() => window.location.reload()}
+                            onClick={filterResetFunction}
                           >
                             <img src="mynaui_refresh.svg" alt="refresh icon" />
                             Reset
@@ -350,7 +457,12 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
                               {section.options.map((opt, i) => (
                                 <FormControlLabel
                                   key={i}
-                                  control={<Checkbox />}
+                                  control={
+                                    <Checkbox
+                                      checked={currentCheckList.includes(opt)}
+                                      onChange={() => handleCheckboxChange(opt)}
+                                    />
+                                  }
                                   label={opt}
                                 />
                               ))}
@@ -391,20 +503,24 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
                     Filter
                   </Button>
                   <Popover
+                    style={{ margin: "20% 8% 0 8%", position: "absolute" }}
                     anchorReference="anchorPosition"
-                    anchorPosition={{ top: 400, left: 460 }}
-                    id={id}
-                    open={filterOpen}
-                    anchorEl={anchorEl}
-                    onClose={handleClose}
+                    anchorPosition={{
+                      top: 144,
+                      left: 260,
+                    }}
                     anchorOrigin={{
-                      vertical: "bottom",
+                      vertical: "top",
                       horizontal: "left",
                     }}
                     transformOrigin={{
                       vertical: "top",
                       horizontal: "left",
                     }}
+                    id={id}
+                    open={filterOpen}
+                    anchorEl={anchorEl}
+                    onClose={handleClose}
                   >
                     <div className="filter-div-wrapper">
                       <div className="filter-header">
@@ -412,7 +528,7 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
                         <div className="apply-reset-btn">
                           <button
                             className="refresh-btn"
-                            onClick={() => window.location.reload()}
+                            onClick={filterResetFunction}
                           >
                             <img src="mynaui_refresh.svg" alt="refresh icon" />
                             Reset
@@ -440,7 +556,12 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
                               {section.options.map((opt, i) => (
                                 <FormControlLabel
                                   key={i}
-                                  control={<Checkbox />}
+                                  control={
+                                    <Checkbox
+                                      checked={currentCheckList.includes(opt)}
+                                      onChange={() => handleCheckboxChange(opt)}
+                                    />
+                                  }
                                   label={opt}
                                 />
                               ))}
@@ -471,7 +592,7 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
                   <input type="search" placeholder="Search Properties" />
                   <img src="Search-1.svg" alt="search svg" />
                 </div>
-                <div className="filter-link color-edit position-relative">
+                <div className="filter-link color-edit">
                   <Button
                     className="filter-text"
                     aria-describedby={id}
@@ -483,19 +604,22 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
                   <Popover
                     style={{ margin: "20% 8% 0 8%", position: "absolute" }}
                     anchorReference="anchorPosition"
-                    anchorPosition={{ top: 400, left: 460 }}
-                    id={id}
-                    open={filterOpen}
-                    anchorEl={anchorEl}
-                    onClose={handleClose}
+                    anchorPosition={{
+                      top: 144,
+                      left: 260,
+                    }}
                     anchorOrigin={{
-                      vertical: "bottom",
+                      vertical: "top",
                       horizontal: "left",
                     }}
                     transformOrigin={{
                       vertical: "top",
                       horizontal: "left",
                     }}
+                    id={id}
+                    open={filterOpen}
+                    anchorEl={anchorEl}
+                    onClose={handleClose}
                   >
                     <div className="filter-div-wrapper">
                       <div className="filter-header">
@@ -503,7 +627,7 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
                         <div className="apply-reset-btn">
                           <button
                             className="refresh-btn"
-                            onClick={() => window.location.reload()}
+                            onClick={filterResetFunction}
                           >
                             <img src="mynaui_refresh.svg" alt="refresh icon" />
                             Reset
@@ -531,7 +655,12 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
                               {section.options.map((opt, i) => (
                                 <FormControlLabel
                                   key={i}
-                                  control={<Checkbox />}
+                                  control={
+                                    <Checkbox
+                                      checked={currentCheckList.includes(opt)}
+                                      onChange={() => handleCheckboxChange(opt)}
+                                    />
+                                  }
                                   label={opt}
                                 />
                               ))}
