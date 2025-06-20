@@ -125,16 +125,7 @@ export default function VerticalTabs() {
           
         </TabPanel>
         <TabPanel value={value} index={3}>
-          Item Four
-        </TabPanel>
-        <TabPanel value={value} index={4}>
-          Item Five
-        </TabPanel>
-        <TabPanel value={value} index={5}>
-          Item Six
-        </TabPanel>
-        <TabPanel value={value} index={6}>
-          Item Seven
+          <Home properties="plots" />
         </TabPanel>
       </div>
     </div>
