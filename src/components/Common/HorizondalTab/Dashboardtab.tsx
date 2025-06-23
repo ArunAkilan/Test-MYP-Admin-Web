@@ -66,11 +66,22 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
   const currentStatus = statusByTab[value];
   console.log(currentStatus);
   const filterOptions = {
+    all: [
+      { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
+      {
+        heading: "Facing",
+        options: ["East", "West", "North","South","South East","South West","North East","North West"],
+      },
+      {
+        heading: "Locality",
+        options: ["Old Bus Stand", "Thuraimangalam", "NH-45 Bypass","Collector Office Road","Elambalur","Sungu Pettai","V.Kalathur"],
+      }
+    ],
     residentials: [
       { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
       {
-        heading: "Furnishing",
-        options: ["Furnished", "Semi-Furnished", "Unfurnished"],
+        heading: "FurnishingType",
+        options: ["Fully Furnished", "Semi Furnished", "Unfurnished"],
       },
     ],
     commercials: [
@@ -86,11 +97,6 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
     ],
   };
 
-  // Handle tab change
-  const handleChange = (_: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
-  };
-
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -99,6 +105,19 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  // Handle tab change
+  const handleChange = (_: React.SyntheticEvent, newValue: number) => {
+    setValue(newValue);
+    setIsFiltered(false);
+    setCurrentCheckList([]);
+
+    const newStatus = statusByTab[newValue];
+    const filtered = allItems.filter(
+      (item) => item.status?.toLowerCase() === newStatus.toLowerCase()
+    );
+    setTableValues(filtered);
   };
 
   const filterOpen = Boolean(anchorEl);
@@ -119,39 +138,70 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
 
   // handleCheckbox
   const handleCheckboxChange = (option: string) => {
-    setCurrentCheckList((prev) =>
-      prev.includes(option)
+    setCurrentCheckList((prev) => {
+      const newList = prev.includes(option)
         ? prev.filter((item) => item !== option)
-        : [...prev, option]
-    );
+        : [...prev, option];
+      return newList;
+    });
   };
 
-
   // filter function
-  const fetchFilteredData = async (filters: string[], status: string) => {
+
+  const fetchFilteredData = async (filters: string[], tabIndex: number) => {
   try {
-    const response = await axios.get(
-      `http://65.0.45.96:3002/api/${properties}`,
-      {
-        params: {
-          filters: filters.join(","),
-          status,
-        },
+    const statusByTab = ["Pending", "Approved", "Rejected", "Deleted"];
+    const status = statusByTab[tabIndex];
+
+    // Create the dynamic query string
+    const queryParts: string[] = [];
+
+    // Mapping UI headings to API keys
+    const headingToKey: Record<string, string> = {
+      "Property Type": "propertyType",
+      "FurnishingType": "furnishingType",
+      "Commercial Type": "commercialType",
+      "Washroom": "washroom",
+      "Plot Type": "plotType",
+      "Facing": "facing",
+    };
+
+    const filterSection = filterOptions[properties === "all" ? "all" : properties] || [];
+    debugger;
+    filterSection.forEach((section) => {
+      const key = headingToKey[section.heading];
+      const selectedOptions = section.options.filter((opt) => filters.includes(opt));
+      if (key && selectedOptions.length) {
+        queryParts.push(`${key}=${selectedOptions.join(",")}`);
       }
-    );
+    });
+
+    // Optional: Add status only when no filters
+    if (filters.length === 0 && status) {
+      queryParts.push(`status=${status}`);
+    }
+
+    const baseUrl = `http://65.0.45.96:3002/api/${properties}`;
+    const queryString = queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
+    const fullUrl = `${baseUrl}${queryString}`;
+
+    console.log("Final API URL:", fullUrl);
+
+    const response = await axios.get(fullUrl);
 
     const dataObj = response.data.data;
-
     let result: Property[] = [];
-    if (properties === "residentials") result = dataObj.residential ?? [];
-    else if (properties === "commercials") result = dataObj.commercial ?? [];
-    else if (properties === "plots") result = dataObj.plot ?? [];
-    else if (properties === "all")
+
+    if (properties === "residentials") result = dataObj ?? [];
+    else if (properties === "commercials") result = dataObj ?? [];
+    else if (properties === "plots") result = dataObj ?? [];
+    else if (properties === "all") {
       result = [
         ...(dataObj.residential ?? []),
         ...(dataObj.commercial ?? []),
         ...(dataObj.plot ?? []),
       ];
+    }
 
     setTableValues(result);
   } catch (error) {
@@ -159,25 +209,32 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
     setTableValues([]);
   }
 };
-const handleApply = async () => {
-  await fetchFilteredData(currentCheckList, statusByTab[value]);
-  setIsFiltered(true);
-  handleClose();
-};
-useEffect(() => {
-  const currentStatus = statusByTab[value];
-  if (!isFiltered) {
-    fetchFilteredData([], currentStatus);
-  }
-}, [value, isFiltered]);
+
+  const handleApply = () => {
+    setIsFiltered(true); // Enable filtered mode
+
+    fetchFilteredData(currentCheckList, value); // Uses correct API and query logic
+
+    handleClose(); // Closes the popover
+  };
+
+  useEffect(() => {
+    if (!isFiltered) {
+      const status = statusByTab[value];
+      const filtered = allItems.filter(
+        (item) => item.status?.toLowerCase() === status.toLowerCase()
+      );
+      setTableValues(filtered);
+    }
+  }, [value, isFiltered, allItems]);
 
   // filterResetFunction
-const filterResetFunction = () => {
-  setCurrentCheckList([]);
-  setIsFiltered(false);
-  fetchFilteredData([], statusByTab[value]);
-  handleClose();
-};
+  const filterResetFunction = () => {
+    setCurrentCheckList([]);
+    setIsFiltered(false);
+    fetchFilteredData([], value); // ✅ No status
+    handleClose();
+  };
 
   // count function
   const handlePendingCount = useMemo((): number => {
@@ -237,7 +294,7 @@ const filterResetFunction = () => {
               <React.Fragment>
                 Pending &nbsp;
                 <span style={{ fontSize: "smaller" }}>
-                  {handlePendingCount}
+                  ({handlePendingCount})
                 </span>
               </React.Fragment>
             }
@@ -250,7 +307,7 @@ const filterResetFunction = () => {
               <React.Fragment>
                 Approved &nbsp;
                 <span style={{ fontSize: "smaller" }}>
-                  {handleApprovedCount}
+                  ({handleApprovedCount})
                 </span>
               </React.Fragment>
             }
@@ -263,7 +320,7 @@ const filterResetFunction = () => {
               <React.Fragment>
                 Rejected &nbsp;
                 <span style={{ fontSize: "smaller" }}>
-                  {handleRejectedCount}
+                  ({handleRejectedCount})
                 </span>
               </React.Fragment>
             }
@@ -276,7 +333,7 @@ const filterResetFunction = () => {
               <React.Fragment>
                 Deleted &nbsp;
                 <span style={{ fontSize: "smaller" }}>
-                  {handleDeletedCount}
+                  ({handleDeletedCount})
                 </span>
               </React.Fragment>
             }
@@ -313,7 +370,7 @@ const filterResetFunction = () => {
                     style={{
                       margin: "20% 8% 0 8%",
                       position: "absolute",
-                      zIndex: 1300,
+                      zIndex: 9999,
                     }}
                     anchorReference="anchorPosition"
                     anchorPosition={{
@@ -364,7 +421,7 @@ const filterResetFunction = () => {
                       <div className="checklist-content row">
                         {(
                           filterOptions[
-                            properties === "all" ? "residentials" : properties
+                            properties === "all" ? "all" : properties
                           ] ?? []
                         ).map((section, index) => (
                           <div className="checklist-list col-md-3" key={index}>
