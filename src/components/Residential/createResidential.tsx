@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useEffect } from "react";
+import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { InputField } from "../Common/input"; // Assuming InputField supports error props
 import GenericButton from "../Common/Button/button";
@@ -12,42 +14,75 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 
+
 // use <DynamicBreadcrumbs breadcrumbs={...} />
 
 // Define breadcrumb data
 const breadcrumbsData = [
-  { label: "Residential", href: "/residential" },
+  { label: "Residential", href: "/residentials" },
   // For the separator image in your original HTML, MUI Breadcrumbs uses an icon, so it replaces it automatically
   { label: "Create New Property" }, // current page, no href
 ];
+//Chip election Options
+
 
 export const CreateResidential = () => {
   // State for form data
   const navigate = useNavigate();
-  const [ownerFirstName, setOwnerFirstName] = useState("");
-  const [ownerLastName, setOwnerLastName] = useState("");
-  const [ownerEmail, setOwnerEmail] = useState("");
-  const [ownerPhone, setOwnerPhone] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [contact, setContact] = useState("");
   const [propertyType, setPropertyType] = useState("");
-  const [propertyTitle, setPropertyTitle] = useState("");
-  const [monthlyRent, setMonthlyRent] = useState("");
-  const [advanceDeposit, setAdvanceDeposit] = useState("");
-  const [tenure, setTenure] = useState("");
-  const [propertyCategory, setPropertyCategory] = useState("");
+  const [title, setTitle] = useState("");
+  const [rent, setRent] = useState("");
+  const [advanceAmount, setAdvanceAmount] = useState("");
+  const [leaseTenure, setLeaseTenure] = useState("");
+  const [residentialType, setResidentialType] = useState("");
   const [address, setAddress] = useState("");
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
-  const [propertyImages, setPropertyImages] = useState<File[]>([]); // For file upload
+  const [images, setImages] = useState<File[]>([]); // For file upload
   const [totalArea, setTotalArea] = useState("");
   const [builtUpArea, setBuiltUpArea] = useState("");
   const [carpetArea, setCarpetArea] = useState("");
-  const [facing, setFacing] = useState("");
+  const [facingDirection, setfacingDirection] = useState("");
   const [totalFloors, setTotalFloors] = useState("");
-  const [propertyOnFloor, setPropertyOnFloor] = useState("");
-  const [furnishedType, setFurnishedType] = useState("");
-  const [roomCount, setRoomCount] = useState("");
-  const [propertyDescription, setPropertyDescription] = useState("");
-  const [legalDocsAvailable, setLegalDocsAvailable] = useState("");
+  const [propertyFloor, setPropertyFloor] = useState("");
+  const [furnishingType, setFurnishingType] = useState("");
+  const [rooms, setRoomCount] = useState("");
+  const [description, setPropertyDescription] = useState("");
+  const [legalDocuments, setLegalDocsAvailable] = useState("");
+
+// Create an Object:
+const createPropertData = [{
+  FirstName: firstName,
+  LastName: lastName ,
+  Email: email,
+  Contact: contact,
+  PropertyType: propertyType,
+  Title: title,
+  Rent: rent,
+  AdvanceAmount: advanceAmount,
+  LeaseTenure: leaseTenure,
+  ResidentialType: residentialType,
+  Address: address,
+  Latitude: latitude,
+  Longitude: longitude,
+  Images: images, 
+  TotalArea: totalArea,
+  BuiltUpArea: builtUpArea,
+  CarpetArea: carpetArea,
+  FacingDirection: facingDirection,
+  TotalFloors: totalFloors,
+  PropertyFloor: propertyFloor,
+  FurnishingType: furnishingType,
+  Rooms: rooms,
+  Description: description,
+  LegalDocuments: legalDocuments,
+
+}];
+
 
   // State for validation errors
   interface Errors {
@@ -62,71 +97,71 @@ export const CreateResidential = () => {
     let isValid = true;
 
     // Owner Information Validation
-    if (!ownerFirstName.trim()) {
-      newErrors.ownerFirstName = "First Name is required.";
+    if (!firstName.trim()) {
+      newErrors.firstName = "First Name is required.";
       isValid = false;
     }
-    if (!ownerLastName.trim()) {
-      newErrors.ownerLastName = "Last Name is required.";
+    if (!lastName.trim()) {
+      newErrors.lastName = "Last Name is required.";
       isValid = false;
     }
-    if (!ownerEmail.trim()) {
-      newErrors.ownerEmail = "Email is required.";
+    if (!email.trim()) {
+      newErrors.email = "Email is required.";
       isValid = false;
-    } else if (!/\S+@\S+\.\S+/.test(ownerEmail)) {
-      newErrors.ownerEmail = "Email address is invalid.";
-      isValid = false;
-    }
-    if (!ownerPhone.trim()) {
-      newErrors.ownerPhone = "Phone Number is required.";
-      isValid = false;
-    } else if (!/^\d{10}$/.test(ownerPhone)) {
-      newErrors.ownerPhone = "Phone number must be 10 digits.";
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = "Email address is invalid.";
       isValid = false;
     }
+    // if (!ephone.trim()) {
+    //   newErrors.phone = "Phone Number is required.";
+    //   isValid = false;
+    // } else if (!/^\d{10}$/.test(phone)) {
+    //   newErrors.phone = "Phone number must be 10 digits.";
+    //   isValid = false;
+    // }
 
     // Property Overview Validation
     if (!propertyType) {
       newErrors.propertyType = "Property Type is required.";
       isValid = false;
     }
-    if (!propertyTitle.trim()) {
-      newErrors.propertyTitle = "Property Title is required.";
+    if (!title.trim()) {
+      newErrors.title = "Property Title is required.";
       isValid = false;
     }
-    if (!monthlyRent.trim()) {
-      newErrors.monthlyRent = "Monthly Rent is required.";
+    if (!rent.trim()) {
+      newErrors.rent = "Monthly Rent is required.";
       isValid = false;
-    } else if (isNaN(parseFloat(monthlyRent)) || parseFloat(monthlyRent) <= 0) {
-      newErrors.monthlyRent = "Monthly Rent must be a positive number.";
+    } else if (isNaN(parseFloat(rent)) || parseFloat(rent) <= 0) {
+      newErrors.rent = "Monthly Rent must be a positive number.";
       isValid = false;
     }
-    if (!advanceDeposit.trim()) {
+    if (!advanceAmount.trim()) {
       newErrors.advanceDeposit = "Advance Deposit is required.";
       isValid = false;
     } else if (
-      isNaN(parseFloat(advanceDeposit)) ||
-      parseFloat(advanceDeposit) < 0
+      isNaN(parseFloat(advanceAmount)) ||
+      parseFloat(advanceAmount) < 0
     ) {
-      newErrors.advanceDeposit =
+      newErrors.advanceAmount =
         "Advance Deposit must be a non-negative number.";
       isValid = false;
     }
-    if (!tenure.trim()) {
-      newErrors.tenure = "Tenure is required.";
+    if (!leaseTenure.trim()) {
+      newErrors.leaseTenure = "Tenure is required.";
       isValid = false;
-    } else if (isNaN(parseFloat(tenure)) || parseInt(tenure) <= 0) {
-      newErrors.tenure = "Tenure must be a positive number of years.";
+    } else if (isNaN(parseFloat(leaseTenure)) || parseInt(leaseTenure) <= 0) {
+      newErrors.leaseTenure = "Tenure must be a positive number of years.";
       isValid = false;
     }
-    if (!propertyCategory) {
-      newErrors.propertyCategory = "Property Category is required.";
+    if (!residentialType) {
+      newErrors.residentialType = "Property Category is required.";
       isValid = false;
     }
 
     // Location & Address Validation
     // For property images, check if a file has been selected (simplified for now)
-    if (!propertyImages) {
+    if (!images) {
       newErrors.propertyImages = "At least one property image is required.";
       isValid = false;
     }
@@ -184,98 +219,125 @@ export const CreateResidential = () => {
     //     newErrors.facing = "Facing direction is required.";
     //     isValid = false;
     // }
-    if (!totalFloors.trim()) {
-      newErrors.totalFloors = "Total Floors is required.";
-      isValid = false;
-    } else {
-      const totalFloorsNum = parseFloat(totalFloors);
-      if (isNaN(totalFloorsNum) || parseInt(totalFloors) < 0) {
-        newErrors.totalFloors = "Total Floors must be a non-negative integer.";
-        isValid = false;
-      }
-    }
+    // if (!totalFloors.trim()) {
+    //   newErrors.totalFloors = "Total Floors is required.";
+    //   isValid = false;
+    // } else {
+    //   const totalFloorsNum = parseFloat(totalFloors);
+    //   if (isNaN(totalFloorsNum) || parseInt(totalFloors) < 0) {
+    //     newErrors.totalFloors = "Total Floors must be a non-negative integer.";
+    //     isValid = false;
+    //   }
+    // }
 
-    if (!propertyOnFloor.trim()) {
-      newErrors.propertyOnFloor = "Property on Floor is required.";
-      isValid = false;
-    } else {
-      const propertyOnFloorNum = parseFloat(propertyOnFloor);
-      if (isNaN(propertyOnFloorNum) || parseInt(propertyOnFloor) < 0) {
-        newErrors.propertyOnFloor =
-          "Property on Floor must be a non-negative integer.";
-        isValid = false;
-      }
-    }
+    // if (!propertyFloor.trim()) {
+    //   newErrors.propertyFloor = "Property on Floor is required.";
+    //   isValid = false;
+    // } else {
+    //   const propertyFloorNum = parseFloat(propertyFloor);
+    //   if (isNaN(propertyFloorNum) || parseInt(propertyFloor) < 0) {
+    //     newErrors.propertyFloor =
+    //       "Property on Floor must be a non-negative integer.";
+    //     isValid = false;
+    //   }
+    // }
+
 
     // Furnished type could have validation for specific options if it's a dropdown/radio
-    // if (!furnishedType) {
-    //     newErrors.furnishedType = "Furnished Type is required.";
+    // if (!furnishingType) {
+    //     newErrors.furnishingType = "Furnished Type is required.";
     //     isValid = false;
     // }
-    if (!roomCount.trim()) {
-      newErrors.roomCount = "Room Count is required.";
+
+
+    if (!contact.trim()){
+      newErrors.contact = "Phone Number is required.";
+      isValid = false;
+    }
+
+
+    if (!rooms.trim()) {
+      newErrors.rooms = "Carpet Area is required.";
       isValid = false;
     } else {
-      const roomCountNum = parseFloat(roomCount);
-      if (isNaN(roomCountNum) || parseInt(roomCount) <= 0) {
-        newErrors.roomCount = "Room Count must be a positive integer.";
+      const roomsNum = parseFloat(rooms);
+      if (isNaN(roomsNum) || parseFloat(rooms) <= 0) {
+        newErrors.rooms = "Room Count must be a positive integer.";
         isValid = false;
       }
     }
 
+   
+
     // Additional Information Validation (Property Description is optional, but you could add max length)
-    // if (propertyDescription.length > 500) {
-    //   newErrors.propertyDescription = "Description cannot exceed 500 characters.";
+    // if (description.length > 500) {
+    //   newErrors.description = "Description cannot exceed 500 characters.";
     //   isValid = false;
     // }
 
     // Legal Documents Validation
-    if (!legalDocsAvailable) {
-      newErrors.legalDocsAvailable =
-        "Legal Documents availability is required.";
-      isValid = false;
-    }
+    // if (!legalDocuments) {
+    //   newErrors.legalDocuments =
+    //     "Legal Documents availability is required.";
+    //   isValid = false;
+    // }
 
     setErrors(newErrors);
     return isValid;
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  // Run logic once when the component mounts - useEffect
+  // Remember if you've already run the logic - useRef
+  const hasFetched = useRef(false);
+
+useEffect(() => {
+  if (hasFetched.current) return;
+  hasFetched.current = true;
+
+  fetch("http://65.0.45.96:3002/api/residentials")
+    .then((res) => res.json())
+    .then((data) => console.log("Fetched:", data)) // Already fetched? Exit.
+    .catch((err) => console.error("Error:", err)); // Mark as fetched.
+}, []);
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault(); // Prevent default form submission
 
     if (validateForm()) {
       // Form is valid, proceed with submission
       console.log("Form data is valid!", {
-        ownerFirstName,
-        ownerLastName,
-        ownerEmail,
-        ownerPhone,
+        firstName,
+        lastName,
+        // email,
+        contact,
         propertyType,
-        propertyTitle,
-        monthlyRent,
-        advanceDeposit,
-        tenure,
-        propertyCategory,
+        title,
+        rent,
+        advanceAmount,
+        leaseTenure,
+        residentialType,
         address,
-        latitude,
-        longitude,
-        propertyImages, // This will be a File object
+        // latitude,
+        // longitude,
+        images, // This will be a File object
         totalArea,
         builtUpArea,
         carpetArea,
-        facing,
-        totalFloors,
-        propertyOnFloor,
-        furnishedType,
-        roomCount,
-        propertyDescription,
-        legalDocsAvailable,
-      });
+        // facingDirection,
+        // totalFloors,
+        // propertyFloor,
+        // furnishingType,
+        rooms,
+        // description,
+        // legalDocuments,
+      }
+    );
       toast.success("Property created successfully!");
       // TODO: Send data to backend
       // Redirect after a short delay (so toast is visible)
       setTimeout(() => {
-        navigate("/residential"); // or wherever you want to go
+        navigate("/", {
+          state: { data: createPropertData },
+        });
       }, 2000);
     } else {
       console.log("Form has validation errors.");
@@ -287,7 +349,9 @@ export const CreateResidential = () => {
   return (
     <form onSubmit={handleSubmit}>
       <div className="createProperty container row">
-        <div className="col-12 col-md-3">{/* Sidebar placeholder */}</div>
+        <div className="col-12 col-md-3">
+          {/* Sidebar placeholder */}
+          </div>
         <div className="col-12 col-md-9">
           <div className="container-fluid px-3 px-md-5">
             <div className="ContentArea container">
@@ -313,10 +377,10 @@ export const CreateResidential = () => {
                         type="text"
                         id="ownerFirstName"
                         placeholder="Enter Owner's First Name"
-                        value={ownerFirstName}
-                        onChange={(e) => setOwnerFirstName(e.target.value)}
-                        error={!!errors.ownerFirstName}
-                        helperText={errors.ownerFirstName}
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        error={!!errors.firstName}
+                        helperText={errors.firstName}
                       />
                     </div>
                     <div className="col-12 col-md-6 mb-3">
@@ -327,41 +391,41 @@ export const CreateResidential = () => {
                         type="text"
                         id="ownerLastName"
                         placeholder="Enter Owner's Last Name"
-                        value={ownerLastName}
-                        onChange={(e) => setOwnerLastName(e.target.value)}
-                        error={!!errors.ownerLastName}
-                        helperText={errors.ownerLastName}
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        error={!!errors.lastName}
+                        helperText={errors.lastName}
                       />
                     </div>
                   </div>
 
                   <div className="row">
                     <div className="col-12 col-md-6 mb-3">
-                      <label className="TextLabel" htmlFor="ownerEmail">
+                      <label className="TextLabel" htmlFor="email">
                         Email <span className="star">*</span>
                       </label>
                       <InputField
                         type="email"
                         id="ownerEmail"
                         placeholder="Enter Owner’s Email Address"
-                        value={ownerEmail}
-                        onChange={(e) => setOwnerEmail(e.target.value)}
-                        error={!!errors.ownerEmail}
-                        helperText={errors.ownerEmail}
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        error={!!errors.email}
+                        helperText={errors.email}
                       />
                     </div>
                     <div className="col-12 col-md-6 mb-3">
-                      <label className="TextLabel" htmlFor="ownerPhone">
+                      <label className="TextLabel" htmlFor="contact">
                         Phone Number <span className="star">*</span>
                       </label>
                       <InputField
                         type="phone"
-                        id="ownerPhone"
+                        id="phone"
                         placeholder="Enter Owner’s Contact Number"
-                        value={ownerPhone}
-                        onPhoneChange={setOwnerPhone}
-                        error={!!errors.ownerPhone}
-                        helperText={errors.ownerPhone}
+                        value={contact}
+                        onPhoneChange={setContact}
+                        error={!!errors.contact}
+                        helperText={errors.contact}
                       />
                     </div>
                   </div>
@@ -383,8 +447,8 @@ export const CreateResidential = () => {
                       <InputField
                         type="dropdown"
                         id="propertyType"
-                        dropdownOptions={["Rent", "Commercial", "Plot"]}
-                        value={propertyType || "Rent"}
+                        dropdownOptions={["Select", "Rent", "Lease", "Sale"]}
+                        value={propertyType || "Select"}
                         onChange={(e) => setPropertyType(e.target.value)}
                         error={!!errors.propertyType}
                         helperText={errors.propertyType}
@@ -398,10 +462,10 @@ export const CreateResidential = () => {
                         type="text"
                         id="propertyTitle"
                         placeholder="Enter Property Title"
-                        value={propertyTitle}
-                        onChange={(e) => setPropertyTitle(e.target.value)}
-                        error={!!errors.propertyTitle}
-                        helperText={errors.propertyTitle}
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        error={!!errors.title}
+                        helperText={errors.title}
                       />
                     </div>
                   </div>
@@ -415,10 +479,10 @@ export const CreateResidential = () => {
                         type="text"
                         id="monthlyRent"
                         placeholder="Enter Amount in Rupees (₹)"
-                        value={monthlyRent}
-                        onChange={(e) => setMonthlyRent(e.target.value)}
-                        error={!!errors.monthlyRent}
-                        helperText={errors.monthlyRent}
+                        value={rent}
+                        onChange={(e) => setRent(e.target.value)}
+                        error={!!errors.rent}
+                        helperText={errors.rent}
                       />
                     </div>
                     <div className="col-12 col-md-3 mb-3">
@@ -429,10 +493,10 @@ export const CreateResidential = () => {
                         type="text"
                         id="advanceDeposit"
                         placeholder="Enter Deposit"
-                        value={advanceDeposit}
-                        onChange={(e) => setAdvanceDeposit(e.target.value)}
+                        value={advanceAmount}
+                        onChange={(e) => setAdvanceAmount(e.target.value)}
                         error={!!errors.advanceDeposit}
-                        helperText={errors.advanceDeposit}
+                        helperText={errors.advanceAmount}
                       />
                     </div>
                     <div className="col-12 col-md-3 mb-3">
@@ -443,10 +507,10 @@ export const CreateResidential = () => {
                         type="text"
                         id="tenure"
                         placeholder="Enter Tenure in Years"
-                        value={tenure}
-                        onChange={(e) => setTenure(e.target.value)}
-                        error={!!errors.tenure}
-                        helperText={errors.tenure}
+                        value={leaseTenure}
+                        onChange={(e) => setLeaseTenure(e.target.value)}
+                        error={!!errors.leaseTenure}
+                        helperText={errors.leaseTenure}
                       />
                     </div>
                   </div>
@@ -461,8 +525,8 @@ export const CreateResidential = () => {
                           type="radio"
                           radioOptions={["House", "Apartment", "Villa"]}
                           id="propertyCategory"
-                          value={propertyCategory || "House"}
-                          onChange={(e) => setPropertyCategory(e.target.value)}
+                          value={residentialType || "House"}
+                          onChange={(e) => setResidentialType(e.target.value)}
                           error={!!errors.propertyCategory}
                           helperText={errors.propertyCategory}
                         />
@@ -515,8 +579,8 @@ export const CreateResidential = () => {
                         <p className="image-p">
                           {/* {propertyImages
                           ? propertyImages.name : "No image chosen"} */}
-                          {propertyImages && propertyImages.length > 0
-                            ? `${propertyImages.length} image(s) selected`
+                          {images && images.length > 0
+                            ? `${images.length} image(s) selected`
                             : "No image chosen"}
                         </p>
                         <input
@@ -525,7 +589,7 @@ export const CreateResidential = () => {
                           style={{ display: "none" }}
                           onChange={(e) => {
                             if (e.target.files) {
-                              setPropertyImages(Array.from(e.target.files)); // Save all selected files as array
+                              setImages(Array.from(e.target.files)); // Save all selected files as array
                             }
                           }}
                           accept="image/*"
@@ -732,8 +796,8 @@ export const CreateResidential = () => {
                         "West",
                         "Select Direction Facing",
                       ]}
-                      value={facing || "Select Direction Facing"}
-                      onChange={(e) => setFacing(e.target.value)}
+                      value={facingDirection || "Select Direction Facing"}
+                      onChange={(e) => setfacingDirection(e.target.value)}
                     />
                   </div>
 
@@ -759,10 +823,10 @@ export const CreateResidential = () => {
                       type="text"
                       id="propertyOnFloor"
                       placeholder="Enter Floor Number"
-                      value={propertyOnFloor}
-                      onChange={(e) => setPropertyOnFloor(e.target.value)}
-                      error={!!errors.propertyOnFloor}
-                      helperText={errors.propertyOnFloor}
+                      value={propertyFloor}
+                      onChange={(e) => setPropertyFloor(e.target.value)}
+                      error={!!errors.propertyFloor}
+                      helperText={errors.propertyFloor}
                     />
                   </div>
 
@@ -774,8 +838,8 @@ export const CreateResidential = () => {
                       type="text" // Assuming this will become a dropdown or radio
                       id="furnishedType"
                       placeholder="Select Furnished Type"
-                      value={furnishedType}
-                      onChange={(e) => setFurnishedType(e.target.value)}
+                      value={furnishingType}
+                      onChange={(e) => setFurnishingType(e.target.value)}
                     />
                   </div>
                   <div className="col-12 col-md-6 mb-3">
@@ -786,10 +850,10 @@ export const CreateResidential = () => {
                       type="text"
                       id="roomCount"
                       placeholder="Number of Rooms"
-                      value={roomCount}
+                      value={rooms}
                       onChange={(e) => setRoomCount(e.target.value)}
-                      error={!!errors.roomCount}
-                      helperText={errors.roomCount}
+                      error={!!errors.rooms}
+                      helperText={errors.rooms}
                     />
                   </div>
                 </div>
@@ -1083,7 +1147,7 @@ export const CreateResidential = () => {
                   rows={4}
                   id="propertyDescription"
                   placeholder="Add a brief description of the property, including highlights, unique features, or nearby landmarks"
-                  value={propertyDescription}
+                  value={description}
                   onChange={(e) => setPropertyDescription(e.target.value)}
                 ></textarea>
               </section>
@@ -1107,10 +1171,10 @@ export const CreateResidential = () => {
                     type="radio"
                     radioOptions={["Yes", "No"]} // Corrected "NO" to "No" for consistency
                     id="legalDocsAvailable"
-                    value={legalDocsAvailable || "Yes"}
+                    value={legalDocuments || "Yes"}
                     onChange={(e) => setLegalDocsAvailable(e.target.value)}
-                    error={!!errors.legalDocsAvailable}
-                    helperText={errors.legalDocsAvailable}
+                    // error={!!errors.legalDocuments}
+                    // helperText={errors.legalDocuments}
                   />
                 </div>
               </div>

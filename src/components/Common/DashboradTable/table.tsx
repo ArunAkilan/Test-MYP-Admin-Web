@@ -5,6 +5,7 @@ import { Box, Typography, Modal } from "@mui/material";
 import * as React from "react";
 import "./table.scss";
 import Button from "@mui/material/Button";
+import { useLocation } from "react-router-dom";
 import axios from "axios";
 interface TableProps {
   //data: ResidentialProperty[];
@@ -28,6 +29,12 @@ function Table({ data, properties }: TableProps) {
  console.log("Table received data:", data);
     console.log("properties", properties);
   const navigate = useNavigate();
+
+
+  const location = useLocation();
+  const propertyData = location.state?.data ;
+  console.log("propertyData", propertyData)
+
 
   const getSingularProperty = () => {
     if (properties === "residentials") return "residential";
@@ -154,6 +161,8 @@ const handleAction = async (id: string, status: number) => {
           </tr>
         </thead>
         <tbody>
+
+          
           {formatedData.map((item, index) => (
             <tr key={index}>
               <td className="checkbox-align">

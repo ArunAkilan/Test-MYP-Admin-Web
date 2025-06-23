@@ -25,7 +25,9 @@ import { styled } from "@mui/system";
 
 import { MuiTelInput } from "mui-tel-input";
 import type { Theme } from "@mui/system";
-import type { SelectChangeEvent } from "@mui/material/Select";
+import Avatar from "@mui/material/Avatar";
+import type { SelectChangeEvent } from "@mui/material";
+
 
 // ---------------- Types -------------------
 type InputType =
@@ -57,12 +59,15 @@ interface InputFieldProps {
   onPhoneChange?: (value: string) => void;
   className?: string;
   radioOptions?: string[];
-  icon?: React.ReactElement;
+  // icon?: React.ReactElement;
+  icon?: React.ReactNode;
   ariaLabel?: string;
   error?: boolean;
   helperText?: string;
   Selected?: string;
   breadcrumbs?: BreadcrumbItem[];
+  selectedChips?: string[];                     // Currently selected chip labels
+  onChipToggle?: (label: string) => void;       // Toggle handler when chip clicked
 }
 
 // ---------------- Styles -------------------
@@ -148,6 +153,8 @@ const InputField: React.FC<InputFieldProps> = ({
   error,
   helperText,
   breadcrumbs,
+  selectedChips,  
+  onChipToggle,  
 }) => {
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -297,10 +304,10 @@ const InputField: React.FC<InputFieldProps> = ({
         </FormControl>
       )}
 
-      {type === "chip" && icon && (
+      {type === "chip" && icon && label && (
         <Stack direction="row" spacing={1}>
           <Chip
-            avatar={icon}
+            avatar={<Avatar>{icon}</Avatar>} // <-- use Avatar here
             label={
               <Typography 
               sx={{ 
@@ -311,7 +318,11 @@ const InputField: React.FC<InputFieldProps> = ({
                 {label}
               </Typography>
             }
-            variant="outlined"
+            variant={selectedChips?.includes(label!) ? "filled" : "outlined"}
+            color={selectedChips?.includes(label!) ? "primary" : "default"}
+
+            onClick={() => onChipToggle && label && onChipToggle(label)}
+            // "outlined"
             sx={{
               maxWidth: "none",
               whiteSpace: "normal",
@@ -319,7 +330,7 @@ const InputField: React.FC<InputFieldProps> = ({
               overflow: "visible",
               height: "auto",
               paddingY: 1,
-              
+              cursor: "pointer", // add cursor pointer for better UX
               
             }}
           />

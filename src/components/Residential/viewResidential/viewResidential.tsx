@@ -8,7 +8,7 @@ const ViewResidential = () => {
   console.log("mode", propertyData);
 
   if (!propertyData) {
-    return <p>No property data found</p>;
+    return <p className="mt-5">No property data found</p>;
   }
 
   return (

@@ -5,6 +5,7 @@ import "./Dashboard.scss";
 import GenericButton from "../Common/Button/button";
 import iconAdd from "../../../public/ICO_Add-1.svg";
 import Dashboardtab from "../Common/HorizondalTab/Dashboardtab";
+import { useLocation } from "react-router-dom";
 
 import type { ResidentialProperty } from "../AdminResidencial/AdminResidencial.model";
 
@@ -37,6 +38,11 @@ function Home({ properties }: HomeProps) {
     plots: "plot",
     all: "residential", // not used directly
   };
+
+
+  const location = useLocation();
+  const propertyData = location.state?.data ;
+  console.log("propertyData", propertyData)
 
   useEffect(() => {
     const fetchAllData = async () => {
