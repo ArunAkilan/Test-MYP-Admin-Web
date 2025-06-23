@@ -2,11 +2,10 @@ import "./App.css";
 import Header from "./components/Common/Navbar/Navbar";
 import Sidebar from "../src/components/Common/Sidebar/Sidebar";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import CreateResidential from "./components/Residential/createResidential";
 import ViewResidential from "./components/Residential/viewResidential/viewResidential";
-
 
 function App() {
   return (
@@ -19,16 +18,18 @@ function App() {
       />
       <div className="container body-content-container">
         <Router>
+          <div className="app-container d-flex">
+            <Sidebar />
+          </div>
           <Routes>
-            <Route path="/" element={<Sidebar />} />
-            <Route path="/createResidential" element={<CreateResidential />} />
+            {/* <Route path="/" element={<Sidebar />} /> */}
+            {/* <Route path="/createResidential" element={<CreateResidential />} /> */}
             <Route path="/view-residential" element={<ViewResidential/>} />
             <Route path="/view-residential/:id" element={<ViewResidential />} />
 
           </Routes>
         </Router>
       </div>
-     
     </div>
   );
 }

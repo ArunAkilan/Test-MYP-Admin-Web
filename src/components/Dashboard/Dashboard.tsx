@@ -13,6 +13,7 @@ type PropertyType = "all" | "residentials" | "commercials" | "plots";
 
 interface HomeProps {
   properties: PropertyType;
+  onAddNew?: () => void;
 }
 
 interface PropertyData {
@@ -21,7 +22,7 @@ interface PropertyData {
   plot: ResidentialProperty[];
 }
 
-function Home({ properties }: HomeProps) {
+function Home({ properties, onAddNew }: HomeProps) {
   const [dashboardData, setDashboardData] = useState<PropertyData>({
     residential: [],
     commercial: [],
@@ -39,16 +40,16 @@ function Home({ properties }: HomeProps) {
     all: "residential", // not used directly
   };
 
-
   const location = useLocation();
-  const propertyData = location.state?.data ;
-  console.log("propertyData", propertyData)
+  const propertyData = location.state?.data;
+  console.log("propertyData", propertyData);
 
   useEffect(() => {
     const fetchAllData = async () => {
-      
       try {
-        const response = await axios.get(`http://65.0.45.96:3002/api/${properties}`);
+        const response = await axios.get(
+          `http://65.0.45.96:3002/api/${properties}`
+        );
 
         if (properties === "all") {
           setDashboardData({
@@ -62,7 +63,7 @@ function Home({ properties }: HomeProps) {
             [mapKey[properties]]: response.data.data ?? [],
           }));
         }
-          console.log("API data cpmmercial:", response.data.data);
+        console.log("API data cpmmercial:", response.data.data);
         setLoading(false);
       } catch (err) {
         if (axios.isAxiosError(err) && err.message) {
@@ -77,10 +78,11 @@ function Home({ properties }: HomeProps) {
     fetchAllData();
   }, [properties]);
 
-  if (loading) return <p style={{ padding: "1rem" }}>Loading data for {properties}...</p>;
+  if (loading)
+    return <p style={{ padding: "1rem" }}>Loading data for {properties}...</p>;
   if (error) return <p style={{ color: "red" }}>Error: {error}</p>;
 
-  console.log("dashboardData msg",dashboardData)
+  console.log("dashboardData msg", dashboardData);
   const hasData =
     dashboardData.residential.length > 0 ||
     dashboardData.commercial.length > 0 ||
@@ -107,9 +109,11 @@ function Home({ properties }: HomeProps) {
               iconPosition="left"
               label={"Add New Property"}
               className="genericNewPostStyles"
-              onClick={() =>
-                navigate("/createResidential", { state: { mode: "create" } })
-              }
+              onClick={() => {
+                onAddNew?.();
+                // navigate("/createResidential",
+                //    { state: { mode: "create" } });
+              }}
             />
           </div>
         </div>
@@ -118,7 +122,6 @@ function Home({ properties }: HomeProps) {
       <div className="container">
         <div className="pending-approve">
           <Dashboardtab data={dashboardData} properties={properties} />
-          
         </div>
       </div>
     </div>

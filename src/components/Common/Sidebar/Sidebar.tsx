@@ -6,37 +6,23 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Home from "../../Dashboard/Dashboard";
 import { Avatar } from '@mui/material';
-
+import CreateResidential from "../../Residential/createResidential";
+import { useNavigate, useLocation, Routes, Route } from "react-router-dom";
 
 const styles = {
   fontSize: 16,
   display: "flex",
   alignItems: "start",
-  Padding: 0,
+  padding: 0,
   fontFamily: "Raleway",
   fontWeight: 600,
   letterSpacing: 0,
   lineHeight: 18,
 };
 
-
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
-
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-
+function TabPanel({ children, value, index }: any) {
   return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`vertical-tabpanel-${index}`}
-      aria-labelledby={`vertical-tab-${index}`}
-      {...other}
-    >
+    <div hidden={value !== index}>
       {value === index && (
         <Box sx={{ p: 3 }}>
           <Typography component="div">{children}</Typography>
@@ -46,86 +32,78 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
-function a11yProps(index: number) {
-  return {
-    id: `vertical-tab-${index}`,
-    "aria-controls": `vertical-tabpanel-${index}`,
-  };
-}
+const tabRoutes = ["/", "/commercial", "/residential", "/plots"];
 
 export default function VerticalTabs() {
-  const [value, setValue] = React.useState(0);
+  const navigate = useNavigate();
+  const location = useLocation();
 
+  // Match the current path to tab index
+  const currentTabIndex = tabRoutes.findIndex((path) => location.pathname.startsWith(path));
+  const [value, setValue] = React.useState(currentTabIndex >= 0 ? currentTabIndex : 0);
+
+  React.useEffect(() => {
+    // Update tab index when route changes (e.g., user clicks back/forward)
+    const index = tabRoutes.findIndex((path) => location.pathname.startsWith(path));
+    if (index !== -1 && index !== value) {
+      setValue(index);
+    }
+  }, [location.pathname]);
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
-     setValue(newValue);
+    setValue(newValue);
+    navigate(tabRoutes[newValue]); // Navigate to respective route
+  };
+
+  const openCreateResidential = () => {
+    navigate("/residential/create");
   };
 
   return (
-    <div className="tab-row row">
-      <div id="nav-common-tab" className="col-md-3 nav-tabs">
+    <div className="tab-row row" style={{ height: "100vh" }}>
+      <div id="nav-common-tab" className="col-md-3 nav-tabs" style={{ borderRight: "1px solid #ccc" }}>
         <Tabs
           orientation="vertical"
           value={value}
-           
           onChange={handleChange}
           variant="fullWidth"
           aria-label="Vertical tabs example"
-          sx={{}}
         >
           <Tab
-            className="tab-outerlayer-div"
             sx={{ styles }}
             icon={<Avatar alt="test avatar" src="/Dash.svg" />}
             iconPosition="start"
             label="Dashboard"
-            {...a11yProps(0)}
           />
-
           <Tab
             sx={{ styles }}
             label="Commercial"
-            {...a11yProps(1)}
-            icon={<Avatar alt="test avatar" src="/solar_buildings-linear.svg" />} 
+            icon={<Avatar alt="test avatar" src="/solar_buildings-linear.svg" />}
             iconPosition="start"
-            id="tab-custom"
-            className="tab-outerlayer-div"
           />
           <Tab
             sx={{ styles }}
             label="Residential"
-            {...a11yProps(2)}
             icon={<Avatar alt="test avatar" src="/hugeicons_house-02.svg" />}
-             iconPosition="start"
-            
-            className="tab-outerlayer-div"
+            iconPosition="start"
           />
           <Tab
             sx={{ styles }}
             label="Plots"
-            {...a11yProps(3)}
             icon={<Avatar alt="test avatar" src="/lucide_land-plot.svg" />}
             iconPosition="start"
-            
-            className="tab-outerlayer-div "
           />
-          
         </Tabs>
       </div>
-      <div className="col-md-9 tab-content">
-        <TabPanel value={value} index={0}>
-          <Home properties="all" />
-        </TabPanel>
-        <TabPanel value={value} index={1}>
-          <Home properties="commercials"/>
-        </TabPanel>
-        <TabPanel value={value} index={2}>
-          <Home properties="residentials" />
-          
-        </TabPanel>
-        <TabPanel value={value} index={3}>
-          <Home properties="plots" />
-        </TabPanel>
+
+      <div className="col-md-9 tab-content" style={{ overflowY: "auto" }}>
+        <Routes>
+          <Route path="/" element={<Home properties="all" onAddNew={openCreateResidential} />} />
+          <Route path="/commercial" element={<Home properties="commercials" onAddNew={openCreateResidential} />} />
+          <Route path="/residential" element={<Home properties="residentials" onAddNew={openCreateResidential} />} />
+          <Route path="/plots" element={<Home properties="plots" onAddNew={openCreateResidential} />} />
+          <Route path="/residential/create" element={<CreateResidential />} />
+        </Routes>
       </div>
     </div>
   );
