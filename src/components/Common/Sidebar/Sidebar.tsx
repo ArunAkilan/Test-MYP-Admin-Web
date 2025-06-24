@@ -2,8 +2,8 @@ import './sidebar.scss';
 import * as React from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
-import Typography from "@mui/material/Typography";
-import Box from "@mui/material/Box";
+// import Typography from "@mui/material/Typography";
+// import Box from "@mui/material/Box";
 import Home from "../../Dashboard/Dashboard";
 import { Avatar } from '@mui/material';
 import CreateResidential from "../../Residential/createResidential";
@@ -20,19 +20,19 @@ const styles = {
   lineHeight: 18,
 };
 
-function TabPanel({ children, value, index }: any) {
-  return (
-    <div hidden={value !== index}>
-      {value === index && (
-        <Box sx={{ p: 3 }}>
-          <Typography component="div">{children}</Typography>
-        </Box>
-      )}
-    </div>
-  );
-}
+// function TabPanel({ children, value, index }: any) {
+//   return (
+//     <div hidden={value !== index}>
+//       {value === index && (
+//         <Box sx={{ p: 3 }}>
+//           <Typography component="div">{children}</Typography>
+//         </Box>
+//       )}
+//     </div>
+//   );
+// }
 
-const tabRoutes = ["/", "/commercial", "/residential", "/plots"];
+const tabRoutes = ["/dashboard", "/commercial", "/residential", "/plots"];
 
 export default function VerticalTabs() {
   const navigate = useNavigate();
@@ -98,7 +98,7 @@ export default function VerticalTabs() {
 
       <div className="col-md-9 tab-content" style={{ overflowY: "auto" }}>
         <Routes>
-          <Route path="/" element={<Home properties="all" onAddNew={openCreateResidential} />} />
+          <Route path="/dashboard" element={<Home properties="all" onAddNew={openCreateResidential} />} />
           <Route path="/commercial" element={<Home properties="commercials" onAddNew={openCreateResidential} />} />
           <Route path="/residential" element={<Home properties="residentials" onAddNew={openCreateResidential} />} />
           <Route path="/plots" element={<Home properties="plots" onAddNew={openCreateResidential} />} />

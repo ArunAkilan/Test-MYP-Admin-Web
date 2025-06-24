@@ -1,0 +1,143 @@
+#pending-approval-tab {
+  width: 100%;
+}
+
+#pending-approval-tab button img {
+  width: -moz-max-content !important;
+  width: max-content !important;
+  height: -moz-max-content !important;
+  height: max-content !important;
+}
+
+#pending-approval-tab .MuiTabs-indicator {
+  background: #00BFA6 !important;
+  height: 4px !important;
+  border-radius: 100px;
+  margin-left: 3px;
+}
+
+#pending-approval-tab button {
+  min-height: 48px !important;
+  color: #81838C;
+  font-size: 16px;
+  line-height: 18px;
+  font-weight: 600;
+  letter-spacing: 0px;
+  font-family: "Raleway";
+  text-transform: capitalize;
+  padding: 12px 24px;
+  margin-right: 24px;
+}
+
+#pending-approval-tab button.Mui-selected {
+  color: #214999;
+}
+
+#pending-approval-tab button img {
+  width: -moz-max-content !important;
+  width: max-content !important;
+  height: -moz-max-content !important;
+  height: max-content !important;
+  margin-right: 0;
+}
+
+.MuiTab-iconWrapper {
+  margin-right: 0 !important;
+}
+
+.search input {
+  width: 197px;
+  border-radius: 6px;
+}
+
+.filter-div-wrapper {
+  padding: 24px;
+}
+
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  align-items: center;
+}
+
+.filter-header p {
+  color: #81838C;
+  font-family: "Raleway";
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 18px;
+  letter-spacing: 0px;
+  margin: 0;
+}
+
+.apply-reset-btn {
+  display: flex;
+}
+
+.genericFilterApplyStyles, .refresh-btn {
+  padding: 14px 24px !important;
+  border-radius: 6px !important;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: "Raleway";
+  line-height: 18px !important;
+  letter-spacing: 0;
+  height: 48px !important;
+  display: flex !important;
+  align-items: center;
+}
+
+.genericFilterApplyStyles {
+  background: #214999 !important;
+  color: #fff !important;
+}
+
+.genericFilterApplyStyles img {
+  padding-right: 0px;
+}
+
+.genericFilterApplyStyles:hover {
+  background: #214999;
+}
+
+.refresh-btn {
+  border: none;
+  background: none;
+  margin-right: 16px;
+  color: #214999;
+}
+
+.checklist-content-1 {
+  padding-bottom: 16px;
+}
+
+.checklist-content h6 {
+  font-size: 16px;
+  font-weight: 600;
+  font-family: "Raleway";
+  line-height: 18px !important;
+  letter-spacing: 0;
+  color: #2E2E2F;
+  margin-bottom: 16px;
+}
+
+.label-wrapper label {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.label-wrapper label span {
+  font-size: 14px;
+  font-weight: 400;
+  font-family: "Open Sans";
+  line-height: 22px;
+  letter-spacing: 0.1px;
+  color: #55565C;
+  margin-left: 0 !important;
+  padding-left: 0;
+}
+
+.filter-link button {
+  margin-right: 0 !important;
+}/*# sourceMappingURL=Dashboardtab.css.map */

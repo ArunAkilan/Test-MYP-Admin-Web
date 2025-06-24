@@ -12,8 +12,8 @@ import "./createResidential/createResidential.scss"; // Your styling
 import { DynamicBreadcrumbs } from "../Common/input";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-
+import axios from "axios";
+import { AxiosError } from "axios";
 
 // use <DynamicBreadcrumbs breadcrumbs={...} />
 
@@ -23,8 +23,6 @@ const breadcrumbsData = [
   // For the separator image in your original HTML, MUI Breadcrumbs uses an icon, so it replaces it automatically
   { label: "Create New Property" }, // current page, no href
 ];
-//Chip election Options
-
 
 export const CreateResidential = () => {
   // State for form data
@@ -32,7 +30,7 @@ export const CreateResidential = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
-  const [contact, setContact] = useState("");
+  const [phone1, setPhone1] = useState("");
   const [propertyType, setPropertyType] = useState("");
   const [title, setTitle] = useState("");
   const [rent, setRent] = useState("");
@@ -54,37 +52,8 @@ export const CreateResidential = () => {
   const [description, setPropertyDescription] = useState("");
   const [legalDocuments, setLegalDocsAvailable] = useState("");
 
-// Create an Object:
-const createPropertData = [{
-  FirstName: firstName,
-  LastName: lastName ,
-  Email: email,
-  Contact: contact,
-  PropertyType: propertyType,
-  Title: title,
-  Rent: rent,
-  AdvanceAmount: advanceAmount,
-  LeaseTenure: leaseTenure,
-  ResidentialType: residentialType,
-  Address: address,
-  Latitude: latitude,
-  Longitude: longitude,
-  Images: images, 
-  TotalArea: totalArea,
-  BuiltUpArea: builtUpArea,
-  CarpetArea: carpetArea,
-  FacingDirection: facingDirection,
-  TotalFloors: totalFloors,
-  PropertyFloor: propertyFloor,
-  FurnishingType: furnishingType,
-  Rooms: rooms,
-  Description: description,
-  LegalDocuments: legalDocuments,
 
-}];
-
-
-  // State for validation errors
+  // Validation errors state
   interface Errors {
     [key: string]: string;
   }
@@ -242,19 +211,16 @@ const createPropertData = [{
     //   }
     // }
 
-
     // Furnished type could have validation for specific options if it's a dropdown/radio
     // if (!furnishingType) {
     //     newErrors.furnishingType = "Furnished Type is required.";
     //     isValid = false;
     // }
 
-
-    if (!contact.trim()){
-      newErrors.contact = "Phone Number is required.";
+    if (!phone1.trim()) {
+      newErrors.phone1 = "Phone Number is required.";
       isValid = false;
     }
-
 
     if (!rooms.trim()) {
       newErrors.rooms = "Carpet Area is required.";
@@ -266,8 +232,6 @@ const createPropertData = [{
         isValid = false;
       }
     }
-
-   
 
     // Additional Information Validation (Property Description is optional, but you could add max length)
     // if (description.length > 500) {
@@ -290,25 +254,27 @@ const createPropertData = [{
   // Remember if you've already run the logic - useRef
   const hasFetched = useRef(false);
 
-useEffect(() => {
-  if (hasFetched.current) return;
-  hasFetched.current = true;
+  useEffect(() => {
+    if (hasFetched.current) return;
+    hasFetched.current = true;
 
-  fetch("http://65.0.45.96:3002/api/residentials")
-    .then((res) => res.json())
-    .then((data) => console.log("Fetched:", data)) // Already fetched? Exit.
-    .catch((err) => console.error("Error:", err)); // Mark as fetched.
-}, []);
+    fetch("http://65.0.45.96:3002/api/residentials")
+      .then((res) => res.json())
+      .then((data) => console.log("Fetched:", data)) // Already fetched? Exit.
+      .catch((err) => console.error("Error:", err)); // Mark as fetched.
+  }, []);
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault(); // Prevent default form submission
 
-    if (validateForm()) {
+    const isValid = validateForm();
+
+    if (isValid) {
       // Form is valid, proceed with submission
       console.log("Form data is valid!", {
         firstName,
         lastName,
         // email,
-        contact,
+        phone1,
         propertyType,
         title,
         rent,
@@ -329,16 +295,115 @@ useEffect(() => {
         rooms,
         // description,
         // legalDocuments,
+      });
+      try {
+        const payload = {
+          owner: {
+            firstName,
+            lastName,
+            contact: {
+              phone1,
+              // phone2,
+              email,
+              getUpdates: false,
+            },
+          },
+          propertyType,
+          rent: {
+            rentAmount: parseFloat(rent),
+            negotiable: true,
+            advanceAmount: parseFloat(advanceAmount),
+          },
+          location: {
+            landmark: "Near Green Park",
+            map: {
+              latitude: parseFloat(latitude),
+              longitude: parseFloat(longitude),
+            },
+            address,
+          },
+          area: {
+            totalArea: `${totalArea} sqft`, // convert number to expected string format
+            length: "50 ft",                // static or make dynamic with a field
+            width: "30 ft",                 // static or make dynamic with a field
+          },
+          images,
+          title,
+          residentialType,
+          facingDirection,
+          rooms,                   // e.g., "3BHK"
+          totalFloors: parseInt(totalFloors),
+          propertyFloor: parseInt(propertyFloor),
+           furnishingType,          // e.g., "Semi Furnished"
+          availability: {
+            transport: {
+              nearbyBusStop: true,
+              nearbyAirport: false,
+              nearbyPort: false,
+            },
+            broadband: true,
+            securities: true,
+          },
+          facility: {
+            maintenance: true,
+            waterFacility: true,
+            roadFacility: true,
+            drainage: true,
+            parking: true,
+            balcony: true,
+            terrace: false,
+          },
+          accessibility: {
+            ramp: false,
+            steps: true,
+            lift: true,
+          },
+          amenities: {
+            separateEBConnection: true,
+            nearbyMarket: true,
+            nearbyGym: false,
+            nearbyTurf: true,
+            nearbyArena: false,
+            nearbyMall: true,
+          },
+          restrictions: {
+            guestAllowed: true,
+            petsAllowed: false,
+            numberOfPeopleAllowed: 5,
+            bachelorsAllowed: true,
+          },
+          description,
+        };
+
+
+        // Send POST request
+        const response = await axios.post(
+          `${import.meta.env.VITE_BackEndUrl}/api/residential/create`,
+          payload
+        );
+
+        toast.success("Property created successfully!");
+        // TODO: Send data to backend
+        // Redirect after a short delay (so toast is visible)
+        setTimeout(() => {
+          navigate("/", {
+            state: { data: response.data },
+          });
+        }, 2000);
+      } 
+      catch (err) {
+        const error = err as AxiosError<{ message?: string; error?: string }>;
+      
+        console.error("Submission error:", error.response || error);
+      
+        const errorMessage =
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          error.message ||
+          "Something went wrong!";
+      
+        toast.error(`Failed to create property: ${errorMessage}`);
       }
-    );
-      toast.success("Property created successfully!");
-      // TODO: Send data to backend
-      // Redirect after a short delay (so toast is visible)
-      setTimeout(() => {
-        navigate("/", {
-          state: { data: createPropertData },
-        });
-      }, 2000);
     } else {
       console.log("Form has validation errors.");
       toast.error("Please correct the highlighted errors before submitting.");
@@ -349,10 +414,8 @@ useEffect(() => {
   return (
     <form onSubmit={handleSubmit}>
       <div className="createProperty container row">
-        <div className="col-12 col-md-3">
-          {/* Sidebar placeholder */}
-          </div>
-        <div className="col-12 col-md-9">
+        <div className="col-12 col-md-3">{/* Sidebar placeholder */}</div>
+        <div className="col-12">
           <div className="container-fluid px-3 px-md-5">
             <div className="ContentArea container">
               {/* Breadcrumb */}
@@ -415,17 +478,17 @@ useEffect(() => {
                       />
                     </div>
                     <div className="col-12 col-md-6 mb-3">
-                      <label className="TextLabel" htmlFor="contact">
+                      <label className="TextLabel" htmlFor="phone1">
                         Phone Number <span className="star">*</span>
                       </label>
                       <InputField
                         type="phone"
                         id="phone"
-                        placeholder="Enter Owner’s Contact Number"
-                        value={contact}
-                        onPhoneChange={setContact}
-                        error={!!errors.contact}
-                        helperText={errors.contact}
+                        placeholder="Enter Owner’s Phone Number"
+                        value={phone1}
+                        onPhoneChange={setPhone1}
+                        error={!!errors.phone1}
+                        helperText={errors.phone1}
                       />
                     </div>
                   </div>
