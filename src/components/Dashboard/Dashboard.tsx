@@ -43,7 +43,6 @@ function Home({ properties }: HomeProps) {
       
       try {
         const response = await axios.get(`${import.meta.env.VITE_BackEndUrl}/api/${properties}`);
-
         if (properties === "all") {
           setDashboardData({
             residential: response.data.data.residential ?? [],
