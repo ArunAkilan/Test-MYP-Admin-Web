@@ -42,7 +42,7 @@ function Home({ properties }: HomeProps) {
     const fetchAllData = async () => {
       
       try {
-        const response = await axios.get(`http://65.0.45.96:3002/api/${properties}`);
+        const response = await axios.get(`${import.meta.env.VITE_BackEndUrl}/api/${properties}`);
 
         if (properties === "all") {
           setDashboardData({

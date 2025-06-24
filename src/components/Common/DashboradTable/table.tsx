@@ -39,7 +39,7 @@ const updateStatus = async (id: string, status: number) => {
       const singularProperty = getSingularProperty();
 
   try {
-    const response = await axios.put(`http://192.168.1.70:3002/api/adminpermission/${singularProperty}/${id}`, {
+    const response = await axios.put(`${import.meta.env.VITE_BackEndUrl}/api/adminpermission/${singularProperty}/${id}`, {
       status:`${status}`,
     });
     return response.data;
@@ -141,13 +141,20 @@ const handleAction = async (id: string, status: number) => {
             </th>
             <th>Listing Name</th>
             <th>Area</th>
-            <th>Status</th>
-            <th>Floors</th>
-            <th>Facing</th>
+            <th>status</th>
+            {properties === "all" && <th>Floors</th>}
+            {properties === "residentials" && <th>Floors</th>}
+            {properties === "commercials" && <th>Floors</th>}
+            {properties === "all" && <th>Facing</th>}
+            {properties === "residentials" && <th>Facing</th>}
+            {properties === "commercials" && <th>Facing</th>}
+            
             {properties === "all" && <th>Furnish</th>}
             {properties === "residentials" && <th>Furnish</th>}
             {properties === "all" && <th>Washroom</th>}
             {properties === "commercials" && <th>Washroom</th>}
+            {properties === "all" && <th>Plot Type</th>}
+            {properties === "plots" && <th>Plot Type</th>}
             <th>Type</th>
             <th className="link-h">Link</th>
             
@@ -196,8 +203,13 @@ const handleAction = async (id: string, status: number) => {
               </td>
               <td>{item?.area?.totalArea}</td>
               <td>{item.status}</td>
+              {(properties === "commercials" || properties === "all" || properties === "residentials") && (
               <td>{item?.totalFloors}</td>
+              )}
+              {(properties === "commercials" || properties === "all" || properties === "residentials") && (
               <td>{item?.facingDirection}</td>
+              )}
+              
               {(properties === "residentials" || properties === "all") && (
                 <td
                   className="furnish"
@@ -227,6 +239,16 @@ const handleAction = async (id: string, status: number) => {
                   title="Unfurnished"
                 >
                   {item?.washroom}
+                </td>
+              )}
+              {(properties === "plots" || properties === "all") && (
+                <td
+                  className="furnish"
+                  data-bs-toggle="tooltip"
+                  data-bs-placement="bottom"
+                  title="Unfurnished"
+                >
+                  {item?.plotType}
                 </td>
               )}
               <td className="type ">

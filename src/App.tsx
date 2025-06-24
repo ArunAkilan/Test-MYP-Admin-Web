@@ -7,12 +7,11 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import CreateResidential from "./components/Residential/createResidential";
 import ViewResidential from "./components/Residential/viewResidential/viewResidential";
 
-
 function App() {
   return (
     <div className="grid-container">
       <Header
-        MainLogo="prh-admin-new.svg"
+        MainLogo="../src/assets/navbar/PRH Admin-resize.svg"
         Title="Admin"
         ProfileLogo="Ellipse 1.svg"
         Profile={false}
