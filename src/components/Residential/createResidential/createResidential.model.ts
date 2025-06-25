@@ -76,4 +76,35 @@ export type Contact = {
       description?: string;
 
     };
-  
+    export type UploadedImage = {
+      url: string;
+      name?: string;
+    };
+    
+    export type ResidentialFormState = {
+      firstName: string;
+      lastName: string;
+      email: string;
+      phone1: string;
+      propertyType: string;
+      title: string;
+      rent: string;
+      advanceAmount: string;
+      leaseTenure: string;
+      residentialType: string;
+      address: string;
+      latitude: string;
+      longitude: string;
+      images: UploadedImage[];
+      totalArea: string;
+      builtUpArea: string;
+      carpetArea: string;
+      facingDirection: string;
+      totalFloors: string;
+      propertyFloor: string;
+      furnishingType: string;
+      rooms: string;
+      description: string;
+      legalDocuments: string;
+    };
+    export type PlainObject = Record<string, unknown>;

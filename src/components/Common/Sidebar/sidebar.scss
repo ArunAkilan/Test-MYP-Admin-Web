@@ -50,6 +50,8 @@
   letter-spacing: 0px;
   font-family: 'Open Sans';
   text-transform: capitalize;
+  display: flex;
+  align-items: center;
 }
 #nav-common-tab button img {
     width: max-content !important;
@@ -63,4 +65,10 @@
   .tab-outerlayer-div {
     padding-left: 14px !important;
   }
+}
+
+.fixed-col {
+  position: fixed;
+  z-index: 1030;
+  overflow-y: auto;
 }

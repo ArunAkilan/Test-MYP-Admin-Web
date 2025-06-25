@@ -50,8 +50,8 @@ export default function Sidebar() {
   return (
     <div
       id="nav-common-tab"
-      className="col-md-3 nav-tabs"
-      style={{ borderRight: "1px solid #ccc", height: "100vh" }}
+      className="col-md-3 fixed-col nav-tabs"
+      style={{ height: "100vh" }}
     >
       <Tabs
         orientation="vertical"
@@ -59,30 +59,35 @@ export default function Sidebar() {
         onChange={handleChange}
         variant="fullWidth"
         aria-label="Vertical tabs example"
+        className="tab-outerlayer-div"
       >
         <Tab
           sx={{ ...styles }}
           icon={<Avatar alt="Dashboard" src="/Dash.svg" />}
           iconPosition="start"
           label="Dashboard"
+          className="tab-outerlayer-div"
         />
         <Tab
           sx={{ ...styles }}
           icon={<Avatar alt="Commercial" src="/solar_buildings-linear.svg" />}
           iconPosition="start"
           label="Commercial"
+          className="tab-outerlayer-div"
         />
         <Tab
           sx={{ ...styles }}
           icon={<Avatar alt="Residential" src="/hugeicons_house-02.svg" />}
           iconPosition="start"
           label="Residential"
+          className="tab-outerlayer-div"
         />
         <Tab
           sx={{ ...styles }}
           icon={<Avatar alt="Plots" src="/lucide_land-plot.svg" />}
           iconPosition="start"
           label="Plots"
+          className="tab-outerlayer-div"
         />
       </Tabs>
     </div>

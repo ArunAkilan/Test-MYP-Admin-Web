@@ -17,9 +17,9 @@ function AppRoutes() {
   };
 
   return (
-    <div className="app-container d-flex">
+    <div className="app-container row">
       <Sidebar />
-      <div className="content-area" style={{ flex: 1, overflowY: "auto" }}>
+      <div className="col-md-9 offset-md-3 content-area" style={{ flex: 1, overflowY: "auto" }}>
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" />} />
           <Route

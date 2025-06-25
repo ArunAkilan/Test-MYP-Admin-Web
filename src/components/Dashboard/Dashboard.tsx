@@ -28,6 +28,24 @@ function Home({ properties, onAddNew }: HomeProps) {
     commercial: [],
     plot: [],
   });
+//dynamic changing :
+  const headingMap: Record<PropertyType, string> = {
+    all: "Dashboard",   
+    residentials: "Manage Residential Properties",
+    commercials: "Manage Commercial Properties",
+    plots: "Manage Plots Properties",
+  };
+  const heading = headingMap[properties] || "Properties";
+
+  const paragMap: Record<PropertyType, string> = {
+    all: "Get a comprehensive view of all the properties",   
+    residentials: "Review and track residential property entries easily",
+    commercials: "Review and track commercial property entries easily",
+    plots: "Review and track plots property entries easily",
+  };
+  const para = paragMap[properties] || "Properties";
+
+
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -95,10 +113,9 @@ function Home({ properties, onAddNew }: HomeProps) {
         <div className="container">
           <div className="house-topic">
             <div className="house-topic-content">
-              <h3>Residential Properties</h3>
+              <h3>{heading}</h3>
               <p>
-                Manage listing data efficiently for streamlined rental property
-                tracking
+                {para}
               </p>
             </div>
 

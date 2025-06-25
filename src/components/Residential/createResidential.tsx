@@ -14,6 +14,77 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import { AxiosError } from "axios";
+import type { ResidentialProperty, ResidentialFormState, UploadedImage, PlainObject} from "./createResidential/createResidential.model";
+
+
+
+// Utility function to set nested value dynamically
+function setNested(obj: PlainObject, path: string, value: unknown) {
+  const keys = path.split(".");
+  let current = obj;
+
+  keys.forEach((key, index) => {
+    if (index === keys.length - 1) {
+      current[key] = value;
+    } else {
+      if (!current[key] || typeof current[key] !== "object") {
+        current[key] = {};
+      }
+      current = current[key];
+    }
+  });
+}
+
+// Build payload dynamically based on form state
+function buildPayloadDynamic(formState: ResidentialFormState): ResidentialProperty {
+
+  const payload: Partial<ResidentialProperty> = {};
+
+  setNested(payload, "owner.firstName", formState.firstName.trim());
+  setNested(payload, "owner.lastName", formState.lastName.trim());
+  setNested(payload, "owner.contact.phone1", formState.phone1.trim());
+  setNested(payload, "owner.contact.email", formState.email.trim());
+  setNested(payload, "owner.contact.getUpdates", false);
+
+  setNested(payload, "propertyType", formState.propertyType);
+  setNested(payload, "rent.rentAmount", parseFloat(formState.rent));
+  setNested(payload, "rent.negotiable", true);
+  setNested(payload, "rent.advanceAmount", parseFloat(formState.advanceAmount));
+
+  setNested(payload, "location.landmark", "Near Green Park");
+  if (formState.latitude)
+    setNested(payload, "location.map.latitude", parseFloat(formState.latitude));
+  if (formState.longitude)
+    setNested(
+      payload,
+      "location.map.longitude",
+      parseFloat(formState.longitude)
+    );
+  setNested(payload, "location.address", formState.address);
+
+  setNested(payload, "area.totalArea", `${formState.totalArea} sqft`);
+  setNested(payload, "area.length", "50 ft");
+  setNested(payload, "area.width", "30 ft");
+
+  // Add other fields similarly
+  setNested(
+    payload,
+    "images",
+    (formState.images as UploadedImage[]).map((file) => file.url)
+  );
+  setNested(payload, "title", formState.title);
+  setNested(payload, "residentialType", formState.residentialType);
+  setNested(payload, "facingDirection", formState.facingDirection);
+  setNested(payload, "rooms", formState.rooms);
+  setNested(payload, "totalFloors", formState.totalFloors ? parseInt(formState.totalFloors) : 0);
+  setNested(payload, "propertyFloor", formState.propertyFloor ? parseInt(formState.propertyFloor) : 0);
+  setNested(payload, "furnishingType", formState.furnishingType);
+  setNested(payload, "description", formState.description);
+
+
+
+  return payload;
+}
 
 // Define breadcrumb data
 const breadcrumbsData = [
@@ -38,7 +109,7 @@ export const CreateResidential = () => {
   const [address, setAddress] = useState("");
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
-  const [images, setImages] = useState<File[]>([]); // For file upload
+  const [images, setImages] = useState<UploadedImage[]>([]); // For file upload
   const [totalArea, setTotalArea] = useState("");
   const [builtUpArea, setBuiltUpArea] = useState("");
   const [carpetArea, setCarpetArea] = useState("");
@@ -256,7 +327,7 @@ export const CreateResidential = () => {
     if (hasFetched.current) return;
     hasFetched.current = true;
 
-    fetch(`${import.meta.env.VITE_BackEndUrl}/api/residential/create`)
+    fetch(`${import.meta.env.VITE_FRONTEND}/api/residential`)
       .then((res) => res.json())
       .then((data) => console.log("Fetched:", data)) // Already fetched? Exit.
       .catch((err) => console.error("Error:", err)); // Mark as fetched.
@@ -268,10 +339,10 @@ export const CreateResidential = () => {
 
     if (isValid) {
       // Form is valid, proceed with submission
-      console.log("Form data is valid!", {
+      const formState = {
         firstName,
         lastName,
-        // email,
+        email,
         phone1,
         propertyType,
         title,
@@ -280,99 +351,26 @@ export const CreateResidential = () => {
         leaseTenure,
         residentialType,
         address,
-        // latitude,
-        // longitude,
-        images, // This will be a File object
+        latitude,
+        longitude,
+        images,
         totalArea,
         builtUpArea,
         carpetArea,
-        // facingDirection,
-        // totalFloors,
-        // propertyFloor,
-        // furnishingType,
+        facingDirection,
+        totalFloors,
+        propertyFloor,
+        furnishingType,
         rooms,
-        // description,
-        // legalDocuments,
-      });
-      try {
-        const payload = {
-          owner: {
-            firstName,
-            lastName,
-            contact: {
-              phone1,
-              // phone2,
-              email,
-              getUpdates: false,
-            },
-          },
-          propertyType,
-          rent: {
-            rentAmount: parseFloat(rent),
-            negotiable: true,
-            advanceAmount: parseFloat(advanceAmount),
-          },
-          location: {
-            landmark: "Near Green Park",
-            map: {
-              latitude: parseFloat(latitude),
-              longitude: parseFloat(longitude),
-            },
-            address,
-          },
-          area: {
-            totalArea: `${totalArea} sqft`, // convert number to expected string format
-            length: "50 ft", // static or make dynamic with a field
-            width: "30 ft", // static or make dynamic with a field
-          },
-          images,
-          title,
-          residentialType,
-          facingDirection,
-          rooms, // e.g., "3BHK"
-          totalFloors: parseInt(totalFloors),
-          propertyFloor: parseInt(propertyFloor),
-          furnishingType, // e.g., "Semi Furnished"
-          availability: {
-            transport: {
-              nearbyBusStop: true,
-              nearbyAirport: false,
-              nearbyPort: false,
-            },
-            broadband: true,
-            securities: true,
-          },
-          facility: {
-            maintenance: true,
-            waterFacility: true,
-            roadFacility: true,
-            drainage: true,
-            parking: true,
-            balcony: true,
-            terrace: false,
-          },
-          accessibility: {
-            ramp: false,
-            steps: true,
-            lift: true,
-          },
-          amenities: {
-            separateEBConnection: true,
-            nearbyMarket: true,
-            nearbyGym: false,
-            nearbyTurf: true,
-            nearbyArena: false,
-            nearbyMall: true,
-          },
-          restrictions: {
-            guestAllowed: true,
-            petsAllowed: false,
-            numberOfPeopleAllowed: 5,
-            bachelorsAllowed: true,
-          },
-          description,
-        };
+        description,
+        legalDocuments,
+      };
 
+      const payload = buildPayloadDynamic(formState);
+
+      console.log("Payload being sent to backend:", payload);
+
+      try {
         // Send POST request
         const response = await axios.post(
           `${import.meta.env.VITE_BackEndUrl}/api/residential/create`,
@@ -380,6 +378,7 @@ export const CreateResidential = () => {
         );
 
         toast.success("Property created successfully!");
+
         // TODO: Send data to backend
         // Redirect after a short delay (so toast is visible)
         setTimeout(() => {
@@ -648,7 +647,14 @@ export const CreateResidential = () => {
                           style={{ display: "none" }}
                           onChange={(e) => {
                             if (e.target.files) {
-                              setImages(Array.from(e.target.files)); // Save all selected files as array
+                              const files = Array.from(e.target.files);
+                              const uploaded = files.map((file) => ({
+                                file,
+                                url: URL.createObjectURL(file),
+                              }));
+                              setImages(uploaded);
+
+                              // setImages(Array.from(e.target.files)); // Save all selected files as array
                             }
                           }}
                           accept="image/*"
@@ -920,7 +926,7 @@ export const CreateResidential = () => {
 
               {/* Amenities Section - No direct validation needed unless you have min/max selections */}
               <section className="container AmenitiesSection mb-4">
-                <div className="ownerTitle">
+                <div className="ownerTitle mb-3">
                   <h6>Nearby Services & Essentials</h6>
                   <p>
                     Select the important places or services available near this
@@ -928,12 +934,13 @@ export const CreateResidential = () => {
                   </p>
                 </div>
 
-                <div className="chipField row">
+                <div className="chipField row g-3">
                   <div
                     className="chipcard d-flex gap-4 col-6 col-md-3 mb-3"
                     style={{ padding: "31px" }}
                   >
                     <InputField
+                      className="col-6 col-sm-4 col-md-3 col-lg-2 d-flex"
                       type="chip"
                       label="Separate Electricity Billing"
                       icon={
@@ -944,13 +951,17 @@ export const CreateResidential = () => {
                         />
                       }
                       selectedChips={selectedChips}
-                      onChipToggle={(label) => { 
-                        setSelectedChips((prev) => prev.includes(label) ? prev.filter((chip) => chip !== label): [...prev, label]
+                      onChipToggle={(label) => {
+                        setSelectedChips((prev) =>
+                          prev.includes(label)
+                            ? prev.filter((chip) => chip !== label)
+                            : [...prev, label]
                         );
                       }}
                     />
 
                     <InputField
+                      className="col-6 col-sm-4 col-md-3 col-lg-2 d-flex"
                       type="chip"
                       label="Public Park"
                       icon={
@@ -961,13 +972,17 @@ export const CreateResidential = () => {
                         />
                       }
                       selectedChips={selectedChips}
-                      onChipToggle={(label) => { 
-                        setSelectedChips((prev) => prev.includes(label) ? prev.filter((chip) => chip !== label): [...prev, label]
+                      onChipToggle={(label) => {
+                        setSelectedChips((prev) =>
+                          prev.includes(label)
+                            ? prev.filter((chip) => chip !== label)
+                            : [...prev, label]
                         );
                       }}
                     />
 
                     <InputField
+                      className="col-6 col-sm-4 col-md-3 col-lg-2 d-flex"
                       type="chip"
                       label="Gym"
                       icon={
@@ -978,12 +993,16 @@ export const CreateResidential = () => {
                         />
                       }
                       selectedChips={selectedChips}
-                      onChipToggle={(label) => { 
-                        setSelectedChips((prev) => prev.includes(label) ? prev.filter((chip) => chip !== label): [...prev, label]
+                      onChipToggle={(label) => {
+                        setSelectedChips((prev) =>
+                          prev.includes(label)
+                            ? prev.filter((chip) => chip !== label)
+                            : [...prev, label]
                         );
                       }}
                     />
                     <InputField
+                      className="col-6 col-sm-4 col-md-3 col-lg-2 d-flex"
                       type="chip"
                       label="Movie Theater"
                       icon={
@@ -994,12 +1013,16 @@ export const CreateResidential = () => {
                         />
                       }
                       selectedChips={selectedChips}
-                      onChipToggle={(label) => { 
-                        setSelectedChips((prev) => prev.includes(label) ? prev.filter((chip) => chip !== label): [...prev, label]
+                      onChipToggle={(label) => {
+                        setSelectedChips((prev) =>
+                          prev.includes(label)
+                            ? prev.filter((chip) => chip !== label)
+                            : [...prev, label]
                         );
                       }}
                     />
                     <InputField
+                      className="col-6 col-sm-4 col-md-3 col-lg-2 d-flex"
                       type="chip"
                       label="Shopping Mall"
                       icon={
@@ -1010,8 +1033,11 @@ export const CreateResidential = () => {
                         />
                       }
                       selectedChips={selectedChips}
-                      onChipToggle={(label) => { 
-                        setSelectedChips((prev) => prev.includes(label) ? prev.filter((chip) => chip !== label): [...prev, label]
+                      onChipToggle={(label) => {
+                        setSelectedChips((prev) =>
+                          prev.includes(label)
+                            ? prev.filter((chip) => chip !== label)
+                            : [...prev, label]
                         );
                       }}
                     />
@@ -1044,8 +1070,11 @@ export const CreateResidential = () => {
                         />
                       }
                       selectedChips={selectedChips}
-                      onChipToggle={(label) => { 
-                        setSelectedChips((prev) => prev.includes(label) ? prev.filter((chip) => chip !== label): [...prev, label]
+                      onChipToggle={(label) => {
+                        setSelectedChips((prev) =>
+                          prev.includes(label)
+                            ? prev.filter((chip) => chip !== label)
+                            : [...prev, label]
                         );
                       }}
                     />
@@ -1061,8 +1090,11 @@ export const CreateResidential = () => {
                         />
                       }
                       selectedChips={selectedChips}
-                      onChipToggle={(label) => { 
-                        setSelectedChips((prev) => prev.includes(label) ? prev.filter((chip) => chip !== label): [...prev, label]
+                      onChipToggle={(label) => {
+                        setSelectedChips((prev) =>
+                          prev.includes(label)
+                            ? prev.filter((chip) => chip !== label)
+                            : [...prev, label]
                         );
                       }}
                     />
@@ -1078,8 +1110,11 @@ export const CreateResidential = () => {
                         />
                       }
                       selectedChips={selectedChips}
-                      onChipToggle={(label) => { 
-                        setSelectedChips((prev) => prev.includes(label) ? prev.filter((chip) => chip !== label): [...prev, label]
+                      onChipToggle={(label) => {
+                        setSelectedChips((prev) =>
+                          prev.includes(label)
+                            ? prev.filter((chip) => chip !== label)
+                            : [...prev, label]
                         );
                       }}
                     />
@@ -1111,10 +1146,13 @@ export const CreateResidential = () => {
                           />
                         }
                         selectedChips={selectedChips}
-                      onChipToggle={(label) => { 
-                        setSelectedChips((prev) => prev.includes(label) ? prev.filter((chip) => chip !== label): [...prev, label]
-                        );
-                      }}
+                        onChipToggle={(label) => {
+                          setSelectedChips((prev) =>
+                            prev.includes(label)
+                              ? prev.filter((chip) => chip !== label)
+                              : [...prev, label]
+                          );
+                        }}
                       />
 
                       <InputField
@@ -1128,10 +1166,13 @@ export const CreateResidential = () => {
                           />
                         }
                         selectedChips={selectedChips}
-                      onChipToggle={(label) => { 
-                        setSelectedChips((prev) => prev.includes(label) ? prev.filter((chip) => chip !== label): [...prev, label]
-                        );
-                      }}
+                        onChipToggle={(label) => {
+                          setSelectedChips((prev) =>
+                            prev.includes(label)
+                              ? prev.filter((chip) => chip !== label)
+                              : [...prev, label]
+                          );
+                        }}
                       />
 
                       <InputField
@@ -1144,7 +1185,14 @@ export const CreateResidential = () => {
                             className="avatarImg"
                           />
                         }
-                        
+                        selectedChips={selectedChips}
+                        onChipToggle={(label) => {
+                          setSelectedChips((prev) =>
+                            prev.includes(label)
+                              ? prev.filter((chip) => chip !== label)
+                              : [...prev, label]
+                          );
+                        }}
                       />
                     </div>
 
@@ -1159,6 +1207,14 @@ export const CreateResidential = () => {
                             className="avatarImg"
                           />
                         }
+                        selectedChips={selectedChips}
+                        onChipToggle={(label) => {
+                          setSelectedChips((prev) =>
+                            prev.includes(label)
+                              ? prev.filter((chip) => chip !== label)
+                              : [...prev, label]
+                          );
+                        }}
                       />
                       <InputField
                         type="chip"
@@ -1170,6 +1226,14 @@ export const CreateResidential = () => {
                             className="avatarImg"
                           />
                         }
+                        selectedChips={selectedChips}
+                        onChipToggle={(label) => {
+                          setSelectedChips((prev) =>
+                            prev.includes(label)
+                              ? prev.filter((chip) => chip !== label)
+                              : [...prev, label]
+                          );
+                        }}
                       />
                       <InputField
                         type="chip"
@@ -1181,6 +1245,14 @@ export const CreateResidential = () => {
                             className="avatarImg"
                           />
                         }
+                        selectedChips={selectedChips}
+                        onChipToggle={(label) => {
+                          setSelectedChips((prev) =>
+                            prev.includes(label)
+                              ? prev.filter((chip) => chip !== label)
+                              : [...prev, label]
+                          );
+                        }}
                       />
                     </div>
                   </div>
@@ -1214,6 +1286,14 @@ export const CreateResidential = () => {
                           sx={{ width: 18, height: 18 }}
                         />
                       }
+                      selectedChips={selectedChips}
+                      onChipToggle={(label) => {
+                        setSelectedChips((prev) =>
+                          prev.includes(label)
+                            ? prev.filter((chip) => chip !== label)
+                            : [...prev, label]
+                        );
+                      }}
                     />
 
                     <InputField
@@ -1226,6 +1306,14 @@ export const CreateResidential = () => {
                           className="avatarImg"
                         />
                       }
+                      selectedChips={selectedChips}
+                      onChipToggle={(label) => {
+                        setSelectedChips((prev) =>
+                          prev.includes(label)
+                            ? prev.filter((chip) => chip !== label)
+                            : [...prev, label]
+                        );
+                      }}
                     />
 
                     <InputField
@@ -1238,6 +1326,14 @@ export const CreateResidential = () => {
                           className="avatarImg"
                         />
                       }
+                      selectedChips={selectedChips}
+                      onChipToggle={(label) => {
+                        setSelectedChips((prev) =>
+                          prev.includes(label)
+                            ? prev.filter((chip) => chip !== label)
+                            : [...prev, label]
+                        );
+                      }}
                     />
                   </div>
                 </div>
