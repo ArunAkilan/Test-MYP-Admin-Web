@@ -68,6 +68,10 @@ function Home({ properties }: HomeProps) {
     };
 
     fetchAllData();
+     const handleRefresh = () => fetchAllData(); // refresh handler
+
+  window.addEventListener("refreshTableData", handleRefresh);
+  return () => window.removeEventListener("refreshTableData", handleRefresh);
   }, [properties]);
 
   if (loading) return <p style={{ padding: "1rem" }}>Loading data for {properties}...</p>;

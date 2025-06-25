@@ -318,9 +318,7 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
 
   const handleApply = () => {
     setIsFiltered(true); // Enable filtered mode
-
     fetchFilteredData(currentCheckList, value); // Uses correct API and query logic
-
     handleClose(); // Closes the popover
     
   };

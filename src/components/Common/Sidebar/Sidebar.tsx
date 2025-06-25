@@ -96,8 +96,7 @@ export default function VerticalTabs() {
             label="Residential"
             {...a11yProps(2)}
             icon={<Avatar alt="test avatar" src="/hugeicons_house-02.svg" />}
-             iconPosition="start"
-            
+            iconPosition="start"
             className="tab-outerlayer-div"
           />
           <Tab
