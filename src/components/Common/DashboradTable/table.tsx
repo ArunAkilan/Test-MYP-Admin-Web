@@ -94,7 +94,7 @@ const handleAction = async (id: string, status: number) => {
     const selectedItem = data.find((item: any) => item._id === id);
 
     if (selectedItem) {
-      navigate("/view-residential", {
+      navigate("/plots/view-residential", {
         state: { data: selectedItem, mode: "view" },
       });
     } else {

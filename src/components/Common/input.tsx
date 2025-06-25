@@ -28,7 +28,6 @@ import type { Theme } from "@mui/system";
 import Avatar from "@mui/material/Avatar";
 import type { SelectChangeEvent } from "@mui/material";
 
-
 // ---------------- Types -------------------
 type InputType =
   | "text"
@@ -55,7 +54,9 @@ interface InputFieldProps {
   placeholder?: string;
   dropdownOptions?: string[];
   value?: string | number;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onChange?: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
   onPhoneChange?: (value: string) => void;
   className?: string;
   radioOptions?: string[];
@@ -66,8 +67,8 @@ interface InputFieldProps {
   helperText?: string;
   Selected?: string;
   breadcrumbs?: BreadcrumbItem[];
-  selectedChips?: string[];                     // Currently selected chip labels
-  onChipToggle?: (label: string) => void;       // Toggle handler when chip clicked
+  selectedChips?: string[]; // Currently selected chip labels
+  onChipToggle?: (label: string) => void; // Toggle handler when chip clicked
 }
 
 // ---------------- Styles -------------------
@@ -108,9 +109,14 @@ const StyledTextarea = styled(TextareaAutosize)(
 );
 
 // ---------------- Subcomponent: Breadcrumbs -------------------
-const DynamicBreadcrumbs: React.FC<{ breadcrumbs: BreadcrumbItem[] }> = ({ breadcrumbs }) => (
+const DynamicBreadcrumbs: React.FC<{ breadcrumbs: BreadcrumbItem[] }> = ({
+  breadcrumbs,
+}) => (
   <Stack spacing={2} sx={{ mb: 2 }}>
-    <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
+    <Breadcrumbs
+      separator={<NavigateNextIcon fontSize="small" />}
+      aria-label="breadcrumb"
+    >
       {breadcrumbs.map((crumb, index) =>
         crumb.href && index !== breadcrumbs.length - 1 ? (
           <Link
@@ -153,8 +159,8 @@ const InputField: React.FC<InputFieldProps> = ({
   error,
   helperText,
   breadcrumbs,
-  selectedChips,  
-  onChipToggle,  
+  selectedChips,
+  onChipToggle,
 }) => {
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -257,7 +263,6 @@ const InputField: React.FC<InputFieldProps> = ({
             labelId={`${id}-select-label`}
             id={id}
             value={value !== undefined && value !== null ? String(value) : ""}
-
             onChange={handleSelectChange}
             displayEmpty
             label={label}
@@ -284,7 +289,7 @@ const InputField: React.FC<InputFieldProps> = ({
             row
             aria-labelledby={`${id}-radio-label`}
             name={name}
-            value={value }
+            value={value}
             onChange={handleInputChange}
           >
             {radioOptions.map((option: string, index: number) => (
@@ -306,34 +311,48 @@ const InputField: React.FC<InputFieldProps> = ({
 
       {type === "chip" && icon && label && (
         <Stack direction="row" spacing={1}>
-          <Chip
-            avatar={<Avatar>{icon}</Avatar>} // <-- use Avatar here
-            label={
-              <Typography 
-              sx={{ 
-                // whiteSpace: "normal",
-                // overflowWrap: "break-word",
-              }}
-              >
-                {label}
-              </Typography>
-            }
-            variant={selectedChips?.includes(label!) ? "filled" : "outlined"}
-            color={selectedChips?.includes(label!) ? "primary" : "default"}
+          {(() => {
+            const isSelected = selectedChips?.includes(label) ?? false;
+            return (
+              <Chip
+                avatar={<Avatar>{icon}</Avatar>} // <-- use Avatar here
+                label={
+                  <Typography
+                    sx={
+                      {
+                        // whiteSpace: "normal",
+                        // overflowWrap: "break-word",
+                      }
+                    }
+                  >
+                    {label}
+                  </Typography>
+                }
+                // variant={selectedChips?.includes(label!) ? "filled" : "outlined"}
+                // color={selectedChips?.includes(label!) ? "primary" : "default"}
 
-            onClick={() => onChipToggle && label && onChipToggle(label)}
-            // "outlined"
-            sx={{
-              maxWidth: "none",
-              whiteSpace: "normal",
-              textOverflow: "unset",
-              overflow: "visible",
-              height: "auto",
-              paddingY: 1,
-              cursor: "pointer", // add cursor pointer for better UX
-              
-            }}
-          />
+                variant={isSelected ? "filled" : "outlined"}
+                color={isSelected ? "primary" : "default"}
+                onClick={() => onChipToggle && label && onChipToggle(label)}
+                // "outlined"
+                sx={{
+                  maxWidth: "none",
+                  whiteSpace: "normal",
+                  textOverflow: "unset",
+                  overflow: "visible",
+                  height: "auto",
+                  paddingY: 1,
+                  cursor: "pointer", // add cursor pointer for better UX
+                  backgroundColor: isSelected ? "#45484F1A" : "transparent",
+                  color: "#45484F", // Optional: set consistent text color
+                  border: isSelected ? "none" : "1px solid #45484F", // Optional border for unselected
+                  "&:hover": {
+                    backgroundColor: isSelected ? "#45484F1A" : "#f2f2f2", // Hover effect
+                  },
+                }}
+              />
+            );
+          })()}
         </Stack>
       )}
     </div>
@@ -381,4 +400,3 @@ export function BasicModal() {
 }
 
 export { InputField, DynamicBreadcrumbs };
-

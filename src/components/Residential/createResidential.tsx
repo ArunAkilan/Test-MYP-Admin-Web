@@ -15,8 +15,6 @@ import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import { AxiosError } from "axios";
 
-// use <DynamicBreadcrumbs breadcrumbs={...} />
-
 // Define breadcrumb data
 const breadcrumbsData = [
   { label: "Residential", href: "/residentials" },
@@ -51,7 +49,7 @@ export const CreateResidential = () => {
   const [rooms, setRoomCount] = useState("");
   const [description, setPropertyDescription] = useState("");
   const [legalDocuments, setLegalDocsAvailable] = useState("");
-
+  const [selectedChips, setSelectedChips] = useState<string[]>([]);
 
   // Validation errors state
   interface Errors {
@@ -258,7 +256,7 @@ export const CreateResidential = () => {
     if (hasFetched.current) return;
     hasFetched.current = true;
 
-    fetch("http://65.0.45.96:3002/api/residentials")
+    fetch(`${import.meta.env.VITE_BackEndUrl}/api/residential/create`)
       .then((res) => res.json())
       .then((data) => console.log("Fetched:", data)) // Already fetched? Exit.
       .catch((err) => console.error("Error:", err)); // Mark as fetched.
@@ -324,17 +322,17 @@ export const CreateResidential = () => {
           },
           area: {
             totalArea: `${totalArea} sqft`, // convert number to expected string format
-            length: "50 ft",                // static or make dynamic with a field
-            width: "30 ft",                 // static or make dynamic with a field
+            length: "50 ft", // static or make dynamic with a field
+            width: "30 ft", // static or make dynamic with a field
           },
           images,
           title,
           residentialType,
           facingDirection,
-          rooms,                   // e.g., "3BHK"
+          rooms, // e.g., "3BHK"
           totalFloors: parseInt(totalFloors),
           propertyFloor: parseInt(propertyFloor),
-           furnishingType,          // e.g., "Semi Furnished"
+          furnishingType, // e.g., "Semi Furnished"
           availability: {
             transport: {
               nearbyBusStop: true,
@@ -375,7 +373,6 @@ export const CreateResidential = () => {
           description,
         };
 
-
         // Send POST request
         const response = await axios.post(
           `${import.meta.env.VITE_BackEndUrl}/api/residential/create`,
@@ -390,18 +387,17 @@ export const CreateResidential = () => {
             state: { data: response.data },
           });
         }, 2000);
-      } 
-      catch (err) {
+      } catch (err) {
         const error = err as AxiosError<{ message?: string; error?: string }>;
-      
+
         console.error("Submission error:", error.response || error);
-      
+
         const errorMessage =
           error.response?.data?.message ||
           error.response?.data?.error ||
           error.message ||
           "Something went wrong!";
-      
+
         toast.error(`Failed to create property: ${errorMessage}`);
       }
     } else {
@@ -947,6 +943,11 @@ export const CreateResidential = () => {
                           className="avatarImg"
                         />
                       }
+                      selectedChips={selectedChips}
+                      onChipToggle={(label) => { 
+                        setSelectedChips((prev) => prev.includes(label) ? prev.filter((chip) => chip !== label): [...prev, label]
+                        );
+                      }}
                     />
 
                     <InputField
@@ -959,6 +960,11 @@ export const CreateResidential = () => {
                           className="avatarImg"
                         />
                       }
+                      selectedChips={selectedChips}
+                      onChipToggle={(label) => { 
+                        setSelectedChips((prev) => prev.includes(label) ? prev.filter((chip) => chip !== label): [...prev, label]
+                        );
+                      }}
                     />
 
                     <InputField
@@ -971,6 +977,11 @@ export const CreateResidential = () => {
                           className="avatarImg"
                         />
                       }
+                      selectedChips={selectedChips}
+                      onChipToggle={(label) => { 
+                        setSelectedChips((prev) => prev.includes(label) ? prev.filter((chip) => chip !== label): [...prev, label]
+                        );
+                      }}
                     />
                     <InputField
                       type="chip"
@@ -982,6 +993,11 @@ export const CreateResidential = () => {
                           className="avatarImg"
                         />
                       }
+                      selectedChips={selectedChips}
+                      onChipToggle={(label) => { 
+                        setSelectedChips((prev) => prev.includes(label) ? prev.filter((chip) => chip !== label): [...prev, label]
+                        );
+                      }}
                     />
                     <InputField
                       type="chip"
@@ -993,6 +1009,11 @@ export const CreateResidential = () => {
                           className="avatarImg"
                         />
                       }
+                      selectedChips={selectedChips}
+                      onChipToggle={(label) => { 
+                        setSelectedChips((prev) => prev.includes(label) ? prev.filter((chip) => chip !== label): [...prev, label]
+                        );
+                      }}
                     />
                   </div>
                 </div>
@@ -1022,6 +1043,11 @@ export const CreateResidential = () => {
                           className="avatarImg"
                         />
                       }
+                      selectedChips={selectedChips}
+                      onChipToggle={(label) => { 
+                        setSelectedChips((prev) => prev.includes(label) ? prev.filter((chip) => chip !== label): [...prev, label]
+                        );
+                      }}
                     />
 
                     <InputField
@@ -1034,6 +1060,11 @@ export const CreateResidential = () => {
                           className="avatarImg"
                         />
                       }
+                      selectedChips={selectedChips}
+                      onChipToggle={(label) => { 
+                        setSelectedChips((prev) => prev.includes(label) ? prev.filter((chip) => chip !== label): [...prev, label]
+                        );
+                      }}
                     />
 
                     <InputField
@@ -1046,6 +1077,11 @@ export const CreateResidential = () => {
                           className="avatarImg"
                         />
                       }
+                      selectedChips={selectedChips}
+                      onChipToggle={(label) => { 
+                        setSelectedChips((prev) => prev.includes(label) ? prev.filter((chip) => chip !== label): [...prev, label]
+                        );
+                      }}
                     />
                   </div>
                 </div>
@@ -1074,6 +1110,11 @@ export const CreateResidential = () => {
                             className="avatarImg"
                           />
                         }
+                        selectedChips={selectedChips}
+                      onChipToggle={(label) => { 
+                        setSelectedChips((prev) => prev.includes(label) ? prev.filter((chip) => chip !== label): [...prev, label]
+                        );
+                      }}
                       />
 
                       <InputField
@@ -1086,6 +1127,11 @@ export const CreateResidential = () => {
                             className="avatarImg"
                           />
                         }
+                        selectedChips={selectedChips}
+                      onChipToggle={(label) => { 
+                        setSelectedChips((prev) => prev.includes(label) ? prev.filter((chip) => chip !== label): [...prev, label]
+                        );
+                      }}
                       />
 
                       <InputField
@@ -1098,6 +1144,7 @@ export const CreateResidential = () => {
                             className="avatarImg"
                           />
                         }
+                        
                       />
                     </div>
 

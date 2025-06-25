@@ -1,35 +1,67 @@
 import "./App.css";
 import Header from "./components/Common/Navbar/Navbar";
-import Sidebar from "../src/components/Common/Sidebar/Sidebar";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Sidebar from "./components/Common/Sidebar/Sidebar";
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
+
+import Home from "./components/Dashboard/Dashboard";
+import CreateResidential from "./components/Residential/createResidential";
 import ViewResidential from "./components/Residential/viewResidential/viewResidential";
+
+function AppRoutes() {
+  const navigate = useNavigate();
+
+  const openCreateResidential = () => {
+    navigate("/residential/create");
+  };
+
+  return (
+    <div className="app-container d-flex">
+      <Sidebar />
+      <div className="content-area" style={{ flex: 1, overflowY: "auto" }}>
+        <Routes>
+          <Route path="/" element={<Navigate to="/dashboard" />} />
+          <Route
+            path="/dashboard"
+            element={<Home properties="all" onAddNew={openCreateResidential} />}
+          />
+          <Route
+            path="/commercial"
+            element={<Home properties="commercials" onAddNew={openCreateResidential} />}
+          />
+          <Route
+            path="/residential"
+            element={<Home properties="residentials" onAddNew={openCreateResidential} />}
+          />
+          <Route
+            path="/plots"
+            element={<Home properties="plots" onAddNew={openCreateResidential} />}
+          />
+          <Route path="/residential/create" element={<CreateResidential />} />
+          <Route path="/plots/view-residential" element={<ViewResidential />} />
+          <Route path="/plots/view-residential/:id" element={<ViewResidential />} />
+        </Routes>
+      </div>
+    </div>
+  );
+}
 
 function App() {
   return (
-    <div className="grid-container">
-      <Header
-        MainLogo="prh-admin-new.svg"
-        Title="Admin"
-        ProfileLogo="Ellipse 1.svg"
-        Profile={false}
-      />
-      <div className="container body-content-container">
-        <Router>
-          <div className="app-container d-flex">
-            <Sidebar />
-          </div>
-          <Routes>
-            {/* <Route path="/" element={<Sidebar />} /> */}
-            {/* <Route path="/createResidential" element={<CreateResidential />} /> */}
-            <Route path="/view-residential" element={<ViewResidential/>} />
-            <Route path="/view-residential/:id" element={<ViewResidential />} />
-
-          </Routes>
-        </Router>
+    <Router>
+      <div className="grid-container">
+        <Header
+          MainLogo="prh-admin-new.svg"
+          Title="Admin"
+          ProfileLogo="Ellipse 1.svg"
+          Profile={false}
+        />
+        <div className="container body-content-container">
+          <AppRoutes />
+        </div>
       </div>
-    </div>
+    </Router>
   );
 }
 
