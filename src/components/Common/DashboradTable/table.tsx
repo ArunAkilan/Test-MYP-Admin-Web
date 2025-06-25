@@ -10,8 +10,21 @@ import axios from "axios";
 interface TableProps {
   //data: ResidentialProperty[];
   data: any;
-  properties?: "all" | "residential" | "residentials" | "commercial" | "commercials" | "plot" | "plots" | undefined;
+  properties?:
+    | "all"
+    | "residential"
+    | "residentials"
+    | "commercial"
+    | "commercials"
+    | "plot"
+    | "plots"
+    | undefined;
 }
+// const actionMap: Record<string, number> = {
+//   Approve: 0,
+//   Deny: 1,
+//   Delete: 2,
+// };
 
 const modalStyle = {
   position: "absolute" as const,
@@ -26,8 +39,8 @@ const modalStyle = {
 };
 
 function Table({ data, properties }: TableProps) {
- console.log("Table received data:", data);
-    console.log("properties", properties);
+  console.log("Table received data:", data);
+  console.log("properties", properties);
   const navigate = useNavigate();
 
 
@@ -37,41 +50,59 @@ function Table({ data, properties }: TableProps) {
 
 
   const getSingularProperty = () => {
-    if (properties === "residentials") return "residential";
-    if (properties === "commercials") return "commercial";
-    return "plot"; 
+    switch (properties) {
+      case "residentials":
+        return "residential";
+      case "commercials":
+        return "commercial";
+      case "plots":
+        return "plot"; // 👈 only if backend supports this
+      default:
+        return "residential"; // fallback to avoid calling wrong endpoint
+    }
   };
 
-const updateStatus = async (id: string, status: number) => {
-      const singularProperty = getSingularProperty();
+  // const updateStatus = async (id: string, status: number) => {
+  //   const singularProperty = getSingularProperty();
 
-  try {
-    const response = await axios.put(`http://192.168.1.70:3002/api/adminpermission/${singularProperty}/${id}`, {
-      status:`${status}`,
-    });
-    return response.data;
-  } catch (error) {
-    console.error('API Error:', error);
-    throw error;
-  }
-};
+  //   try {
+  //     const response = await axios.put(
+  //       `${
+  //         import.meta.env.VITE_BackEndUrl
+  //       }/api/adminpermission/${singularProperty}/${id}`,
+  //       {
+  //         status: `${status}`,
+  //       }
+  //     );
+  //     return response.data;
+  //   } catch (error) {
+  //     console.error("API Error:", error);
+  //     throw error;
+  //   }
+  // };
 
-const handleAction = async (id: string, status: number) => {
-  try {
-    const result = await updateStatus(id, status);
-    console.log('Status updated:', result);
-  } catch (err) {
-    console.error('Failed to update status');
-  }
-};
- 
+  const handleAction = async (id: string, status: number) => {
+    const singularProperty = getSingularProperty();
+    try {
+      const response = await axios.put(
+        `${
+          import.meta.env.VITE_BackEndUrl
+        }/api/adminpermission/${singularProperty}/${id}`,
+        { status: `${status}` }
+      );
+      console.log("Status updated:", response.data);
+    } catch (err) {
+      console.error("Failed to update status");
+    }
+  };
+
   const formatedData = Array.isArray(data)
     ? data // already flat array
     : [
         ...(data?.residentials ?? []),
         ...(data?.commercials ?? []),
         ...(data?.plots ?? []),
-        ...(data?.residential ?? []), 
+        ...(data?.residential ?? []),
         ...(data?.commercial ?? []),
         ...(data?.plot ?? []),
       ];
@@ -102,11 +133,12 @@ const handleAction = async (id: string, status: number) => {
     }
   };
 
-  // const handleOpenModal = (action: string, item: ResidentialProperty) => {
-  //   setSelectedAction(action);
-  //   setSelectedItem(item);
-  //   setOpen(true);
-  // };
+  const handleOpenModal = (action: string, item: ResidentialProperty) => {
+    console.log("🟡 Opening modal with action:", action, "on item:", item._id);
+    setSelectedAction(action);
+    setSelectedItem(item);
+    setOpen(true);
+  };
 
   const handleCloseModal = () => {
     setOpen(false);
@@ -114,17 +146,16 @@ const handleAction = async (id: string, status: number) => {
     setSelectedItem(null);
   };
 
-  const handleConfirmAction = () => {
-    // Here you can handle the logic for Approve, Deny, or Delete
-    alert(
-      `Action: ${selectedAction} confirmed for ${
-        selectedItem?.location?.address || "unknown item"
-      }`
-    );
+  const handleConfirmAction = async (id: string, status: number) => {
+  try {
+    await handleAction(id, status); // this will call the API
 
-    // Close modal after action
-    handleCloseModal();
-  };
+    handleCloseModal(); // close modal
+    window.dispatchEvent(new Event("refreshTableData")); // refresh
+  } catch (e) {
+    console.error("Error performing action:", e);
+  }
+};
 
   if (!Array.isArray(data)) {
     const fallback =
@@ -148,16 +179,22 @@ const handleAction = async (id: string, status: number) => {
             </th>
             <th>Listing Name</th>
             <th>Area</th>
-            <th>Status</th>
-            <th>Floors</th>
-            <th>Facing</th>
+            <th>status</th>
+            {properties === "all" && <th>Floors</th>}
+            {properties === "residentials" && <th>Floors</th>}
+            {properties === "commercials" && <th>Floors</th>}
+            {properties === "all" && <th>Facing</th>}
+            {properties === "residentials" && <th>Facing</th>}
+            {properties === "commercials" && <th>Facing</th>}
+
             {properties === "all" && <th>Furnish</th>}
             {properties === "residentials" && <th>Furnish</th>}
             {properties === "all" && <th>Washroom</th>}
             {properties === "commercials" && <th>Washroom</th>}
+            {properties === "all" && <th>Plot Type</th>}
+            {properties === "plots" && <th>Plot Type</th>}
             <th>Type</th>
             <th className="link-h">Link</th>
-            
           </tr>
         </thead>
         <tbody>
@@ -181,7 +218,6 @@ const handleAction = async (id: string, status: number) => {
                         : landmark;
                     })()}
                   </span>
-                  
                 </h3>
                 <p
                   data-bs-toggle="tooltip"
@@ -189,8 +225,8 @@ const handleAction = async (id: string, status: number) => {
                   title={item?.location?.address}
                 >
                   <img src="ICON_Location.svg" alt="location png" />
-                 
-                      <span className="truncate-text">
+
+                  <span className="truncate-text">
                     {(() => {
                       const address = item?.location?.address;
                       if (!address) return null;
@@ -205,14 +241,21 @@ const handleAction = async (id: string, status: number) => {
               </td>
               <td>{item?.area?.totalArea}</td>
               <td>{item.status}</td>
-              <td>{item?.totalFloors}</td>
-              <td>{item?.facingDirection}</td>
+              {(properties === "commercials" ||
+                properties === "all" ||
+                properties === "residentials") && <td>{item?.totalFloors}</td>}
+              {(properties === "commercials" ||
+                properties === "all" ||
+                properties === "residentials") && (
+                <td>{item?.facingDirection}</td>
+              )}
+
               {(properties === "residentials" || properties === "all") && (
                 <td
                   className="furnish"
                   data-bs-toggle="tooltip"
                   data-bs-placement="bottom"
-                  title="item?.furnishingType"
+                  title={item?.furnishingType}
                 >
                   {}
                   <span className="truncate-text">
@@ -236,6 +279,16 @@ const handleAction = async (id: string, status: number) => {
                   title="Unfurnished"
                 >
                   {item?.washroom}
+                </td>
+              )}
+              {(properties === "plots" || properties === "all") && (
+                <td
+                  className="furnish"
+                  data-bs-toggle="tooltip"
+                  data-bs-placement="bottom"
+                  title="Unfurnished"
+                >
+                  {item?.plotType}
                 </td>
               )}
               <td className="type ">
@@ -278,25 +331,26 @@ const handleAction = async (id: string, status: number) => {
                   <img
                     src="Approve.svg"
                     alt="Approve svg"
-                    onClick={() => item._id && handleAction(item._id,0)}
-                    // onClick={() => handleOpenModal("Approve", item)}
+                    // onClick={() => item._id && handleAction(item._id,0)}
+                    onClick={() => handleOpenModal("Approve", item)}
                     style={{ cursor: "pointer" }}
                   />
                   <img
                     src="Deny.svg"
                     alt="Deny svg"
-                    onClick={() => item._id && handleAction(item._id, 1)}
+                    // onClick={() => item._id && handleAction(item._id, 1)}
+                    onClick={() => handleOpenModal("Deny", item)}
                     style={{ cursor: "pointer" }}
                   />
                   <img
                     src="Delete.svg"
                     alt="Delete img"
-                    onClick={() => item._id && handleAction(item._id, 2)}
+                    // onClick={() => item._id && handleAction(item._id, 2)}
+                    onClick={() => handleOpenModal("Delete", item)}
                     style={{ cursor: "pointer" }}
                   />
                 </div>
               </td>
-              
             </tr>
           ))}
         </tbody>
@@ -323,7 +377,19 @@ const handleAction = async (id: string, status: number) => {
           <Button
             variant="contained"
             color="primary"
-            onClick={handleConfirmAction}
+            onClick={() => {
+              if (!selectedItem?._id || !selectedAction) return;
+
+              const statusMap: Record<string, number> = {
+                Approve: 0,
+                Deny: 1,
+                Delete: 2,
+              };
+
+              const statusCode = statusMap[selectedAction];
+              console.log("✅ Confirm Clicked:", selectedAction, "Status Code:", statusCode);
+              handleConfirmAction(selectedItem._id, statusCode);
+            }}
             sx={{ mr: 1 }}
           >
             Confirm

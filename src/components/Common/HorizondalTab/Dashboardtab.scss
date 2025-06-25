@@ -22,12 +22,13 @@
     letter-spacing: 0px;
     font-family: 'Raleway';
     text-transform: capitalize;
-    padding: 12px 24px ;
+    
     margin-right: 24px;
 
 }
 #pending-approval-tab button.Mui-selected {
   color: #214999;
+  font-weight: 700;
 }
 #pending-approval-tab button img {
     width: max-content !important;
@@ -40,6 +41,12 @@
 
 
 // dashboard tab bottom
+.new-listing-wrap-list .result {
+  color: #81838C;
+}
+.resultCount {
+  color: #2E2E2F;
+}
 // search
 .search input  {
   width: 197px;

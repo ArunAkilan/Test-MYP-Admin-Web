@@ -11,6 +11,7 @@ import GenericButton from "../Button/button";
 import filterTick from "../../../../public/Icon_Tick.svg";
 import { Checkbox, FormControlLabel } from "@mui/material";
 import { useState, useEffect, useMemo } from "react";
+import axios from "axios";
 
 type Property = {
   status?: string;
@@ -56,6 +57,7 @@ function a11yProps(index: number) {
 }
 
 export default function Dashboardtab({ data, properties }: DashboardtabProps) {
+  const [isFiltered, setIsFiltered] = useState(false);
   const [currentCheckList, setCurrentCheckList] = useState<string[]>([]);
 
   const statusByTab = ["Pending", "Approved", "Rejected", "Deleted"];
@@ -64,29 +66,143 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
   const currentStatus = statusByTab[value];
   console.log(currentStatus);
   const filterOptions = {
-    residentials: [
+    all: [
       { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
       {
-        heading: "Furnishing",
-        options: ["Furnished", "Semi-Furnished", "Unfurnished"],
+        heading: "Facing",
+        options: [
+          "East",
+          "West",
+          "North",
+          "South",
+          "South East",
+          "South West",
+          "North East",
+          "North West",
+        ],
+      },
+      {
+        heading: "Locality",
+        options: [
+          "Old Bus Stand",
+          "Thuraimangalam",
+          "NH-45 Bypass",
+          "Collector Office Road",
+          "Elambalur",
+          "Sungu Pettai",
+          "V.Kalathur",
+        ],
+      },
+    ],
+    residentials: [
+      { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
+      { heading: "Residential Type", options: ["House", "Apartment", "Villa"] },
+      {
+        heading: "Rooms",
+        options: ["1 BHK", "2 BHK", "3 BHK", "4 BHK", "5+ BHK"],
+      },
+      {
+        heading: "Locality",
+        options: [
+          "Old Bus Stand",
+          "Thuraimangalam",
+          "NH-45 Bypass",
+          "Collector Office Road",
+          "Elambalur",
+          "Sungu Pettai",
+          "V.Kalathur",
+        ],
+      },
+      {
+        heading: "FurnishingType",
+        options: ["Fully Furnished", "Semi Furnished", "Unfurnished"],
+      },
+      { heading: "Parking", options: ["None", "With Parking"] },
+      { heading: "Tenant Preference", options: ["Bachelor", "Family Only"] },
+      {
+        heading: "Accessibility",
+        options: ["Lift Access", "Ramp Access", "Stair Access"],
       },
     ],
     commercials: [
-      { heading: "Commercial Type", options: ["Building", "Shop", "Office"] },
+      { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
+      {
+        heading: "Commercial Type",
+        options: [
+          "Building",
+          "Shop",
+          "Co- working",
+          "Office Space",
+          "Showrrom",
+          "Shed",
+        ],
+      },
+      {
+        heading: "Facing",
+        options: [
+          "East",
+          "West",
+          "North",
+          "South",
+          "South East",
+          "South West",
+          "North East",
+          "North West",
+        ],
+      },
+      {
+        heading: "Locality",
+        options: [
+          "Old Bus Stand",
+          "Thuraimangalam",
+          "NH-45 Bypass",
+          "Collector Office Road",
+          "Elambalur",
+          "Sungu Pettai",
+          "V.Kalathur",
+        ],
+      },
+      { heading: "RTO", options: ["Yes", "No"] },
+      { heading: "Parking", options: ["None", "With Parking"] },
       { heading: "Washroom", options: ["None", "Private", "Common"] },
+      {
+        heading: "Accessibility",
+        options: ["Lift Access", "Ramp Access", "Stair Access"],
+      },
     ],
     plots: [
+      { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
       {
         heading: "Plot Type",
-        options: ["Residential", "Agricultural", "Industrial"],
+        options: [
+          "Commercial Use",
+          "Agriculture",
+          " Industrial Use",
+          "Personal Use",
+          "Parking",
+          "Shed/Storage",
+          "Poultry or Livestock",
+          "Events or Functions",
+          "Investment Purpose",
+          "Renewable Energy Projects",
+          "Timber/Tree Plantation",
+          "Nursery/Gardening Business",
+          "Telecom Towers",
+        ],
       },
-      { heading: "Facing", options: ["East", "West", "North", "South"] },
+      {
+        heading: "Locality",
+        options: [
+          "Old Bus Stand",
+          "Thuraimangalam",
+          "NH-45 Bypass",
+          "Collector Office Road",
+          "Elambalur",
+          "Sungu Pettai",
+          "V.Kalathur",
+        ],
+      },
     ],
-  };
-
-  // Handle tab change
-  const handleChange = (_: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
   };
 
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -99,6 +215,19 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
     setAnchorEl(null);
   };
 
+  // Handle tab change
+  const handleChange = (_: React.SyntheticEvent, newValue: number) => {
+    setValue(newValue);
+    setIsFiltered(false);
+    setCurrentCheckList([]);
+
+    const newStatus = statusByTab[newValue];
+    const filtered = allItems.filter(
+      (item) => item.status?.toLowerCase() === newStatus.toLowerCase()
+    );
+    setTableValues(filtered);
+  };
+
   const filterOpen = Boolean(anchorEl);
   const id = filterOpen ? "simple-popover" : undefined;
   const allItems = useMemo(
@@ -109,107 +238,178 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
     ],
     [data]
   );
-  console.log(
-    "All statuses:",
-    allItems.map((item) => item.status)
-  );
-  console.log("Current tab value:", value, "Status:", statusByTab[value]);
-  useEffect(() => {
-    if (!allItems.length) return;
-    const currentStatus = statusByTab[value];
-    const filtered = allItems.filter(
-      (item) => item.status?.toLowerCase() === currentStatus?.toLowerCase()
-    );
-    setTableValues(filtered);
-  }, [value, allItems]);
+
+  // handleCheckbox
+  const handleCheckboxChange = (option: string) => {
+    setCurrentCheckList((prev) => {
+      const newList = prev.includes(option)
+        ? prev.filter((item) => item !== option)
+        : [...prev, option];
+      return newList;
+    });
+  };
 
   // filter function
-  const handleCheckboxChange = (option: string) => {
-    setCurrentCheckList((prevList) =>
-      prevList.includes(option)
-        ? prevList.filter((item) => item !== option)
-        : [...prevList, option]
+
+  const fetchFilteredData = async (filters: string[], tabIndex: number) => {
+    try {
+      const status = statusByTab[tabIndex];
+      // Create the dynamic query string
+      const queryParts: string[] = [];
+
+      // Mapping UI headings to API keys
+      const headingToKey: Record<string, string> = {
+        "Property Type": "propertyType",
+        FurnishingType: "furnishingType",
+        "Commercial Type": "commercialType",
+        Washroom: "washroom",
+        "Plot Type": "plotType",
+        Facing: "facing",
+      };
+
+      const filterSection =
+        filterOptions[properties === "all" ? "all" : properties] || [];
+      filterSection.forEach((section) => {
+        const key = headingToKey[section.heading];
+        const selectedOptions = section.options.filter((opt) =>
+          filters.includes(opt)
+        );
+        if (key && selectedOptions.length) {
+          queryParts.push(`${key}=${selectedOptions.join(",")}`);
+        }
+      });
+
+      if (status) {
+        queryParts.push(`status=${status}`);
+      }
+
+      const baseUrl = `${import.meta.env.VITE_BackEndUrl}/api/${properties}`;
+      const queryString =
+        queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
+      const fullUrl = `${baseUrl}${queryString}`;
+
+      console.log("Final API URL:", fullUrl);
+
+      const response = await axios.get(fullUrl);
+
+      const dataObj = response.data.data;
+      let result: Property[] = [];
+
+      if (properties === "residentials") result = dataObj ?? [];
+      else if (properties === "commercials") result = dataObj ?? [];
+      else if (properties === "plots") result = dataObj ?? [];
+      else if (properties === "all") {
+        result = [
+          ...(dataObj.residential ?? []),
+          ...(dataObj.commercial ?? []),
+          ...(dataObj.plot ?? []),
+        ];
+      }
+    const filteredByStatus = result.filter(
+      (item) => item.status?.toLowerCase() === status.toLowerCase()
     );
+
+    setTableValues(filteredByStatus);
+    } catch (error) {
+      console.error("Fetch error:", error);
+      setTableValues([]);
+    }
   };
 
   const handleApply = () => {
-    if (!allItems.length || !currentCheckList.length) return;
-
-    const selectedValues = currentCheckList.map((v) => v.toLowerCase());
-    const currentStatus = statusByTab[value];
-
-    const filtered = allItems.filter((item) => {
-      const matchesStatus =
-        item.status?.toLowerCase() === currentStatus.toLowerCase();
-
-      // Check if any selected value is present in any field of the item
-      const matchesChecklist = Object.values(item).some((val) =>
-        selectedValues.includes(String(val).toLowerCase())
-      );
-
-      return matchesStatus && matchesChecklist;
-    });
-
-    setTableValues(filtered);
-    handleClose();
+    setIsFiltered(true); // Enable filtered mode
+    fetchFilteredData(currentCheckList, value); // Uses correct API and query logic
+    handleClose(); // Closes the popover
+    
   };
+
+  useEffect(() => {
+    if (!isFiltered) {
+      const status = statusByTab[value];
+      const filtered = allItems.filter(
+        (item) => item.status?.toLowerCase() === status.toLowerCase()
+      );
+      setTableValues(filtered);
+    }
+  }, [value, isFiltered, allItems]);
 
   // filterResetFunction
   const filterResetFunction = () => {
     setCurrentCheckList([]);
-    const currentStatus = statusByTab[value];
-    const filtered = allItems.filter(
-      (item) => item.status?.toLowerCase() === currentStatus.toLowerCase()
-    );
-    setTableValues(filtered);
+    setIsFiltered(false);
+    fetchFilteredData([], value); // ✅ No status
     handleClose();
   };
- 
-  // count function 
-  const handlePendingCount = useMemo( (): number => {
-  const allItems = [
-    ...(data.residential || []),
-    ...(data.commercial || []),
-    ...(data.plot || []),
-  ];
-  return allItems.filter(
-    (item) => item.status?.toLowerCase() === "pending"
-  ).length;
-}, [data]);
-console.log(handlePendingCount);
 
-   const handleApprovedCount  = useMemo( (): number => {
-  const allItems = [
-    ...(data.residential || []),
-    ...(data.commercial || []),
-    ...(data.plot || []),
-  ];
-  return allItems.filter(
-    (item) => item.status?.toLowerCase() === "approved"
-  ).length;
-}, [data]);
+  // count function
+  const handlePendingCount = useMemo((): number => {
+    const allItems = [
+      ...(data.residential || []),
+      ...(data.commercial || []),
+      ...(data.plot || []),
+    ];
+    return allItems.filter((item) => item.status?.toLowerCase() === "pending")
+      .length;
+  }, [data]);
 
-   const handleRejectedCount = useMemo( (): number => {
-  const allItems = [
-    ...(data.residential || []),
-    ...(data.commercial || []),
-    ...(data.plot || []),
-  ];
-  return allItems.filter(
-    (item) => item.status?.toLowerCase() === "rejected"
-  ).length;
-}, [data]);
+  const handleApprovedCount = useMemo((): number => {
+    const allItems = [
+      ...(data.residential || []),
+      ...(data.commercial || []),
+      ...(data.plot || []),
+    ];
+    return allItems.filter((item) => item.status?.toLowerCase() === "approved")
+      .length;
+  }, [data]);
 
-   const handleDeletedCount  = useMemo( (): number => {
-  const allItems = [
-    ...(data.residential || []),
-    ...(data.commercial || []),
-    ...(data.plot || []),
-  ];
-  return allItems.filter(
-    (item) => item.status?.toLowerCase() === "deleted"
-  ).length;
-}, [data]);
+  const handleRejectedCount = useMemo((): number => {
+    const allItems = [
+      ...(data.residential || []),
+      ...(data.commercial || []),
+      ...(data.plot || []),
+    ];
+    return allItems.filter((item) => item.status?.toLowerCase() === "rejected")
+      .length;
+  }, [data]);
+
+  const handleDeletedCount = useMemo((): number => {
+    const allItems = [
+      ...(data.residential || []),
+      ...(data.commercial || []),
+      ...(data.plot || []),
+    ];
+    return allItems.filter((item) => item.status?.toLowerCase() === "deleted")
+      .length;
+  }, [data]);
+
+  //resultcount
+  const handleFilteredCount = useMemo(() => {
+    return tableValues.length;
+  }, [tableValues]);
+
+  const getResultCount = useMemo(() => {
+    if (isFiltered) return handleFilteredCount;
+    switch (value) {
+      case 0:
+        return handlePendingCount;
+      case 1:
+        return handleApprovedCount;
+      case 2:
+        return handleRejectedCount;
+      case 3:
+        return handleDeletedCount;
+      default:
+        return 0;
+    }
+  }, [
+    isFiltered,
+    handleFilteredCount,
+    value,
+    handlePendingCount,
+    handleApprovedCount,
+    handleRejectedCount,
+    handleDeletedCount,
+  ]);
 
   return (
     <div id="pending-approval-tab">
@@ -223,56 +423,62 @@ console.log(handlePendingCount);
           }}
         >
           <Tab
-           label={
+            label={
               <React.Fragment>
-                Pending &nbsp; 
-                <span 
-                style={{ fontSize: "smaller" }}> 
-                  {handlePendingCount} 
-                </span>
+                Pending &nbsp;
+                {value !== 0 && (
+                  <span style={{ fontSize: "smaller" }}>
+                    ({handlePendingCount})
+                  </span>
+                )}
               </React.Fragment>
             }
-            
             {...a11yProps(0)}
             icon={<Avatar alt="test avatar" src="/pending-action.svg" />}
             iconPosition="start"
           />
+
           <Tab
             label={
               <React.Fragment>
-                Approved  &nbsp; 
-                <span  
-                style={{ fontSize: "smaller" }}> 
-                  {handleApprovedCount}
-                </span>
+                Approved &nbsp;
+                {value !== 1 && (
+                  <span style={{ fontSize: "smaller" }}>
+                    ({handleApprovedCount})
+                  </span>
+                )}
               </React.Fragment>
             }
             {...a11yProps(1)}
             icon={<Avatar alt="test avatar" src="/pending-approval.svg" />}
             iconPosition="start"
           />
+
           <Tab
-             label={
+            label={
               <React.Fragment>
-                Rejected &nbsp; 
-                <span 
-                style={{ fontSize: "smaller" }}> 
-                  {handleRejectedCount}
-                </span>
+                Rejected &nbsp;
+                {value !== 2 && (
+                  <span style={{ fontSize: "smaller" }}>
+                    ({handleRejectedCount})
+                  </span>
+                )}
               </React.Fragment>
             }
             {...a11yProps(2)}
             icon={<Avatar alt="test avatar" src="/pending-reject.svg" />}
             iconPosition="start"
           />
+
           <Tab
-             label={
+            label={
               <React.Fragment>
-                Deleted  &nbsp; 
-                <span 
-                style={{ fontSize: "smaller" }}> 
-                  {handleDeletedCount} 
-                </span>
+                Deleted &nbsp;
+                {value !== 3 && (
+                  <span style={{ fontSize: "smaller" }}>
+                    ({handleDeletedCount})
+                  </span>
+                )}
               </React.Fragment>
             }
             {...a11yProps(3)}
@@ -286,9 +492,9 @@ console.log(handlePendingCount);
           <div className="container">
             <div className="new-listing">
               <div className="new-listing-wrap-list">
-                <h3 className="fresh-list">36 Fresh Properties</h3>
-                <img src="Ellipse 24.svg" alt="dot svg" />
-                <h3 className="pending-list">136 Pending Request</h3>
+                <h3 className="result">
+                  <span className="resultCount">{getResultCount}</span> Results
+                </h3>
               </div>
               <div className="list-panel">
                 <div className="search">
@@ -305,7 +511,11 @@ console.log(handlePendingCount);
                     Filter
                   </Button>
                   <Popover
-                    style={{ margin: "20% 8% 0 8%", position: "absolute" }}
+                    style={{
+                      margin: "20% 8% 0 8%",
+                      position: "absolute",
+                      zIndex: 9999,
+                    }}
                     anchorReference="anchorPosition"
                     anchorPosition={{
                       top: 144,
@@ -323,6 +533,14 @@ console.log(handlePendingCount);
                     open={filterOpen}
                     anchorEl={anchorEl}
                     onClose={handleClose}
+                    slotProps={{
+                      paper: {
+                        sx: {
+                          pointerEvents: "auto", // 🛠️ allows checkbox clicks
+                          p: 2,
+                        },
+                      },
+                    }}
                   >
                     <div className="filter-div-wrapper">
                       <div className="filter-header">
@@ -347,7 +565,7 @@ console.log(handlePendingCount);
                       <div className="checklist-content row">
                         {(
                           filterOptions[
-                            properties === "all" ? "residentials" : properties
+                            properties === "all" ? "all" : properties
                           ] ?? []
                         ).map((section, index) => (
                           <div className="checklist-list col-md-3" key={index}>
@@ -362,6 +580,7 @@ console.log(handlePendingCount);
                                     <Checkbox
                                       checked={currentCheckList.includes(opt)}
                                       onChange={() => handleCheckboxChange(opt)}
+                                      inputProps={{ "aria-label": opt }}
                                     />
                                   }
                                   label={opt}
@@ -385,9 +604,9 @@ console.log(handlePendingCount);
           <div className="container">
             <div className="new-listing">
               <div className="new-listing-wrap-list">
-                <h3 className="fresh-list">36 Fresh Properties</h3>
-                <img src="Ellipse 24.svg" alt="dot svg" />
-                <h3 className="pending-list">136 Pending Request</h3>
+                <h3 className="result">
+                  <span className="resultCount">{getResultCount}</span> Results
+                </h3>
               </div>
               <div className="list-panel">
                 <div className="search">
@@ -484,9 +703,9 @@ console.log(handlePendingCount);
           <div className="container">
             <div className="new-listing">
               <div className="new-listing-wrap-list">
-                <h3 className="fresh-list">36 Fresh Properties</h3>
-                <img src="Ellipse 24.svg" alt="dot svg" />
-                <h3 className="pending-list">136 Pending Request</h3>
+                <h3 className="result">
+                  <span className="resultCount">{getResultCount}</span> Results
+                </h3>
               </div>
               <div className="list-panel">
                 <div className="search">
@@ -583,9 +802,9 @@ console.log(handlePendingCount);
           <div className="container">
             <div className="new-listing">
               <div className="new-listing-wrap-list">
-                <h3 className="fresh-list">36 Fresh Properties</h3>
-                <img src="Ellipse 24.svg" alt="dot svg" />
-                <h3 className="pending-list">136 Pending Request</h3>
+                <h3 className="result">
+                  <span className="resultCount">{getResultCount}</span> Results
+                </h3>
               </div>
               <div className="list-panel">
                 <div className="search">

@@ -93,6 +93,10 @@ function Home({ properties, onAddNew }: HomeProps) {
     };
 
     fetchAllData();
+     const handleRefresh = () => fetchAllData(); // refresh handler
+
+  window.addEventListener("refreshTableData", handleRefresh);
+  return () => window.removeEventListener("refreshTableData", handleRefresh);
   }, [properties]);
 
   if (loading)
