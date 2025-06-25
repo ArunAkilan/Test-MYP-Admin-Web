@@ -30,6 +30,7 @@ function setNested(obj: PlainObject, path: string, value: unknown) {
       if (!current[key] || typeof current[key] !== "object") {
         current[key] = {};
       }
+      //@ts-ignore
       current = current[key];
     }
   });
@@ -80,9 +81,7 @@ function buildPayloadDynamic(formState: ResidentialFormState): ResidentialProper
   setNested(payload, "propertyFloor", formState.propertyFloor ? parseInt(formState.propertyFloor) : 0);
   setNested(payload, "furnishingType", formState.furnishingType);
   setNested(payload, "description", formState.description);
-
-
-
+  //@ts-ignore
   return payload;
 }
 

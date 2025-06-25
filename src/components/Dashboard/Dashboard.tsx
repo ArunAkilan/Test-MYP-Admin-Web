@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+//import { useNavigate } from "react-router-dom";
 import "./Dashboard.scss";
 import GenericButton from "../Common/Button/button";
 import iconAdd from "../../../public/ICO_Add-1.svg";
@@ -49,7 +49,7 @@ function Home({ properties, onAddNew }: HomeProps) {
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
+  //const navigate = useNavigate();
 
   const mapKey: Record<PropertyType, keyof PropertyData> = {
     residentials: "residential",
