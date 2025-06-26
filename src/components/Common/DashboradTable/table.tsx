@@ -134,7 +134,7 @@ function Table({ data, properties }: TableProps) {
   };
 
   const handleOpenModal = (action: string, item: ResidentialProperty) => {
-    console.log("🟡 Opening modal with action:", action, "on item:", item._id);
+    console.log(" Opening modal with action:", action, "on item:", item._id);
     setSelectedAction(action);
     setSelectedItem(item);
     setOpen(true);
@@ -381,13 +381,13 @@ function Table({ data, properties }: TableProps) {
               if (!selectedItem?._id || !selectedAction) return;
 
               const statusMap: Record<string, number> = {
-                Approve: 0,
-                Deny: 1,
+                Approve: 1,
+                Deny: 0,
                 Delete: 2,
               };
 
               const statusCode = statusMap[selectedAction];
-              console.log("✅ Confirm Clicked:", selectedAction, "Status Code:", statusCode);
+              console.log("✅ Confirm Clicked:", selectedItem._id, "Status Code:", statusCode);
               handleConfirmAction(selectedItem._id, statusCode);
             }}
             sx={{ mr: 1 }}

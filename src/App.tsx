@@ -4,7 +4,7 @@ import Sidebar from "./components/Common/Sidebar/Sidebar";
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-
+import navbarLogo from "../src/assets/navbar/PRH Admin-resize.svg"
 import Home from "./components/Dashboard/Dashboard";
 import CreateResidential from "./components/Residential/createResidential";
 import ViewResidential from "./components/Residential/viewResidential/viewResidential";
@@ -52,7 +52,7 @@ function App() {
     <Router>
       <div className="grid-container">
         <Header
-          MainLogo="prh-admin-new.svg"
+          MainLogo={navbarLogo}
           Title="Admin"
           ProfileLogo="Ellipse 1.svg"
           Profile={false}

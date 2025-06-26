@@ -12,6 +12,11 @@ import filterTick from "../../../../public/Icon_Tick.svg";
 import { Checkbox, FormControlLabel } from "@mui/material";
 import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
+import Drawer from "@mui/material/Drawer";
+import Accordion from "@mui/material/Accordion";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
 
 type Property = {
   status?: string;
@@ -59,10 +64,11 @@ function a11yProps(index: number) {
 export default function Dashboardtab({ data, properties }: DashboardtabProps) {
   const [isFiltered, setIsFiltered] = useState(false);
   const [currentCheckList, setCurrentCheckList] = useState<string[]>([]);
-
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const statusByTab = ["Pending", "Approved", "Rejected", "Deleted"];
   const [value, setValue] = useState(0);
   const [tableValues, setTableValues] = useState<Property[]>([]);
+  const [resetCounter, setResetCounter] = useState(0);
   const currentStatus = statusByTab[value];
   console.log(currentStatus);
   const filterOptions = {
@@ -215,18 +221,7 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
     setAnchorEl(null);
   };
 
-  // Handle tab change
-  const handleChange = (_: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
-    setIsFiltered(false);
-    setCurrentCheckList([]);
-
-    const newStatus = statusByTab[newValue];
-    const filtered = allItems.filter(
-      (item) => item.status?.toLowerCase() === newStatus.toLowerCase()
-    );
-    setTableValues(filtered);
-  };
+  
 
   const filterOpen = Boolean(anchorEl);
   const id = filterOpen ? "simple-popover" : undefined;
@@ -239,6 +234,19 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
     [data]
   );
 
+  // Handle tab change
+  const handleChange = (_: React.SyntheticEvent, newValue: number) => {
+    setValue(newValue);
+    setIsFiltered(false);
+    setCurrentCheckList([]);
+
+    const newStatus = statusByTab[newValue];
+    const filtered = allItems.filter(
+      (item) => item.status?.toLowerCase() === newStatus.toLowerCase()
+    );
+    setTableValues(filtered);
+  }; 
+  
   // handleCheckbox
   const handleCheckboxChange = (option: string) => {
     setCurrentCheckList((prev) => {
@@ -248,6 +256,8 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
       return newList;
     });
   };
+  console.log("currentCheckList:", currentCheckList);
+
 
   // filter function
 
@@ -305,11 +315,11 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
           ...(dataObj.plot ?? []),
         ];
       }
-    const filteredByStatus = result.filter(
-      (item) => item.status?.toLowerCase() === status.toLowerCase()
-    );
+      const filteredByStatus = result.filter(
+        (item) => item.status?.toLowerCase() === status.toLowerCase()
+      );
 
-    setTableValues(filteredByStatus);
+      setTableValues(filteredByStatus);
     } catch (error) {
       console.error("Fetch error:", error);
       setTableValues([]);
@@ -320,7 +330,7 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
     setIsFiltered(true); // Enable filtered mode
     fetchFilteredData(currentCheckList, value); // Uses correct API and query logic
     handleClose(); // Closes the popover
-    
+
   };
 
   useEffect(() => {
@@ -338,7 +348,8 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
     setCurrentCheckList([]);
     setIsFiltered(false);
     fetchFilteredData([], value); // ✅ No status
-    handleClose();
+    setDrawerOpen(false);
+    setResetCounter((prev) => prev + 1);
   };
 
   // count function
@@ -410,6 +421,23 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
     handleRejectedCount,
     handleDeletedCount,
   ]);
+  // filter drawer
+
+  const toggleDrawer = (drawerOpen: boolean) => (
+  event: React.KeyboardEvent | React.MouseEvent | {}
+) => {
+  if (
+    event &&
+    "type" in event &&
+    event.type === "keydown" &&
+    ((event as React.KeyboardEvent).key === "Tab" ||
+      (event as React.KeyboardEvent).key === "Shift")
+  ) {
+    return;
+  }
+
+  setDrawerOpen(drawerOpen); // ✅ updated
+};
 
   return (
     <div id="pending-approval-tab">
@@ -505,62 +533,20 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
                   <Button
                     className="filter-text"
                     aria-describedby={id}
-                    onClick={handleClick}
+                    // onClick={handleClick}
+                    onClick={toggleDrawer(true)}
                   >
                     <img src="majesticons_filter-line.svg" alt="filter img" />
                     Filter
                   </Button>
-                  <Popover
-                    style={{
-                      margin: "20% 8% 0 8%",
-                      position: "absolute",
-                      zIndex: 9999,
-                    }}
-                    anchorReference="anchorPosition"
-                    anchorPosition={{
-                      top: 144,
-                      left: 260,
-                    }}
-                    anchorOrigin={{
-                      vertical: "top",
-                      horizontal: "left",
-                    }}
-                    transformOrigin={{
-                      vertical: "top",
-                      horizontal: "left",
-                    }}
-                    id={id}
-                    open={filterOpen}
-                    anchorEl={anchorEl}
-                    onClose={handleClose}
-                    slotProps={{
-                      paper: {
-                        sx: {
-                          pointerEvents: "auto", // 🛠️ allows checkbox clicks
-                          p: 2,
-                        },
-                      },
-                    }}
+                  <Drawer
+                    anchor="right"
+                    open={drawerOpen}
+                    onClose={toggleDrawer(false)}
                   >
                     <div className="filter-div-wrapper">
                       <div className="filter-header">
                         <p>Filter By</p>
-                        <div className="apply-reset-btn">
-                          <button
-                            className="refresh-btn"
-                            onClick={filterResetFunction}
-                          >
-                            <img src="mynaui_refresh.svg" alt="refresh icon" />
-                            Reset
-                          </button>
-                          <GenericButton
-                            image={filterTick}
-                            iconPosition="left"
-                            label={"Apply"}
-                            className="genericFilterApplyStyles"
-                            onClick={handleApply}
-                          />
-                        </div>
                       </div>
                       <div className="checklist-content row">
                         {(
@@ -568,30 +554,78 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
                             properties === "all" ? "all" : properties
                           ] ?? []
                         ).map((section, index) => (
-                          <div className="checklist-list col-md-3" key={index}>
-                            <Typography variant="h6">
-                              {section.heading}
-                            </Typography>
-                            <div className="label-wrapper">
-                              {section.options.map((opt, i) => (
-                                <FormControlLabel
-                                  key={i}
-                                  control={
-                                    <Checkbox
-                                      checked={currentCheckList.includes(opt)}
-                                      onChange={() => handleCheckboxChange(opt)}
-                                      inputProps={{ "aria-label": opt }}
+                          <div className="checklist-list col-md-12" key={index}>
+                            <Accordion>
+                              <AccordionSummary
+                                expandIcon={<ExpandMoreIcon />}
+                                aria-controls="panel1-content"
+                                id="panel1-header"
+                              >
+                                <Typography variant="h6">
+                                  {section.heading}
+                                </Typography>
+                              </AccordionSummary>
+
+                              <AccordionDetails key={resetCounter}>
+                                <div className="label-wrapper">
+                                  {section.options.map((opt, i) => (
+                                    <FormControlLabel
+                                      key={i}
+                                      control={
+                                        <Checkbox
+                                          checked={currentCheckList.includes(
+                                            opt
+                                          )}
+                                          onChange={() =>
+                                            handleCheckboxChange(opt)
+                                            
+                                          }
+                                          inputProps={{ "aria-label": opt }}
+                                        />
+                                        
+                                      }
+                                      label={opt}
                                     />
-                                  }
-                                  label={opt}
-                                />
-                              ))}
-                            </div>
+                                  ))}
+                                </div>
+                              </AccordionDetails>
+                            </Accordion>
                           </div>
                         ))}
                       </div>
+                      <div className="apply-reset-btn">
+                        <button
+                          className="refresh-btn"
+                          onClick={() => {
+                            filterResetFunction;
+                            setDrawerOpen(false);
+                          }}
+                        >
+                          <img src="mynaui_refresh.svg" alt="refresh icon" />
+                          Reset
+                        </button>
+                        <GenericButton
+                          image={filterTick}
+                          iconPosition="left"
+                          label={"Apply"}
+                          className="genericFilterApplyStyles"
+                          onClick={() => {
+                            handleApply(); // your filter logic
+                            setDrawerOpen(false); // closes the drawer
+                          }}
+                        />
+                      </div>
                     </div>
-                  </Popover>
+                  </Drawer>
+                </div>
+                <div className="sort-link color-edit">
+                  <Button className="filter-text" aria-describedby={id}>
+                    <img
+                      src="material-symbols_sort-rounded.svg"
+                      alt="filter img"
+                    />
+                    Sort
+                  </Button>
                 </div>
               </div>
             </div>
