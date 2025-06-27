@@ -52,6 +52,8 @@
         }
       }
     }
+    top:0;
+    position: relative;
   }
 
   .pending-approve {
@@ -274,7 +276,20 @@
           margin-left: 16px;
           color: #2E2E2F;
         }
-          img {
-            padding-right: 8px;
-          }
+  img {
+    padding-right: 8px;
+  }
+
+.header-wrap {
+  box-shadow: 4px 8px 16px 0px rgba(138, 182, 229, 0.06), 2px 4px 8px 0px rgba(178, 178, 178, 0.04), 1px 2px 4px 0px rgba(178, 178, 178, 0.04), 0px 1px 2px 0px rgba(178, 178, 178, 0.04);
+  position:  sticky !important;
+  top: 0;
+  z-index: 9;
+  background: #fff;
+  padding: 0 !important;
+}
+.new-post-wrap.hide {
+  top: -100px; /* Hide it out of view */
+  height: 0px;
+}
         

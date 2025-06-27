@@ -68,7 +68,7 @@ const idSecond = openSecond ? "second-popover" : undefined;
       setLastScrollY(currentScrollY);
     };
 
-    window.addEventListener("scroll", handleScroll);
+    //window.addEventListener("scroll", handleScroll);
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
