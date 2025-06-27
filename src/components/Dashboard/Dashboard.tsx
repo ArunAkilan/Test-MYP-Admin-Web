@@ -6,7 +6,6 @@ import GenericButton from "../Common/Button/button";
 import iconAdd from "../../../public/ICO_Add-1.svg";
 import Dashboardtab from "../Common/HorizondalTab/Dashboardtab";
 import { useLocation } from "react-router-dom";
-
 import type { ResidentialProperty } from "../AdminResidencial/AdminResidencial.model";
 
 type PropertyType = "all" | "residentials" | "commercials" | "plots";
@@ -23,14 +22,15 @@ interface PropertyData {
 }
 
 function Home({ properties, onAddNew }: HomeProps) {
+
   const [dashboardData, setDashboardData] = useState<PropertyData>({
     residential: [],
     commercial: [],
     plot: [],
   });
-//dynamic changing :
+  //dynamic changing :
   const headingMap: Record<PropertyType, string> = {
-    all: "Dashboard",   
+    all: "Dashboard",
     residentials: "Manage Residential Properties",
     commercials: "Manage Commercial Properties",
     plots: "Manage Plots Properties",
@@ -38,18 +38,32 @@ function Home({ properties, onAddNew }: HomeProps) {
   const heading = headingMap[properties] || "Properties";
 
   const paragMap: Record<PropertyType, string> = {
-    all: "Get a comprehensive view of all the properties",   
+    all: "Get a comprehensive view of all the properties",
     residentials: "Review and track residential property entries easily",
     commercials: "Review and track commercial property entries easily",
     plots: "Review and track plots property entries easily",
   };
   const para = paragMap[properties] || "Properties";
 
-
-
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  //const navigate = useNavigate();
+  const [hideHeader, setHideHeader] = useState(false);
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const handleChildScroll = (scrollTop: number) => {
+     // setIsFixed(scrollTop > 50);
+      const currentScrollY = scrollTop;
+
+      // Show header when scrolling up
+      if (currentScrollY < lastScrollY || currentScrollY < 20) {
+        setHideHeader(false);
+      } else {
+        setHideHeader(true);
+      }
+
+      setLastScrollY(currentScrollY);
+  };
+
+ 
 
   const mapKey: Record<PropertyType, keyof PropertyData> = {
     residentials: "residential",
@@ -93,10 +107,10 @@ function Home({ properties, onAddNew }: HomeProps) {
     };
 
     fetchAllData();
-     const handleRefresh = () => fetchAllData(); // refresh handler
+    const handleRefresh = () => fetchAllData(); // refresh handler
 
-  window.addEventListener("refreshTableData", handleRefresh);
-  return () => window.removeEventListener("refreshTableData", handleRefresh);
+    window.addEventListener("refreshTableData", handleRefresh);
+    return () => window.removeEventListener("refreshTableData", handleRefresh);
   }, [properties]);
 
   if (loading)
@@ -109,11 +123,11 @@ function Home({ properties, onAddNew }: HomeProps) {
     dashboardData.commercial.length > 0 ||
     dashboardData.plot.length > 0;
 
-  if (!hasData) return <p>No data found for {properties}</p>;
+  if (!hasData) {return <p>No data found for {properties}</p>};
 
   return (
-    <div className="home-sec ">
-      <div className="new-post-wrap">
+    <div className="home-sec">
+      <div className={`new-post-wrap ${hideHeader ? "hide" : ""}`}>
         <div className="container">
           <div className="house-topic">
             <div className="house-topic-content">
@@ -141,7 +155,7 @@ function Home({ properties, onAddNew }: HomeProps) {
 
       <div className="container">
         <div className="pending-approve">
-          <Dashboardtab data={dashboardData} properties={properties} />
+          <Dashboardtab data={dashboardData}  properties={properties} onScrollChangeParent={handleChildScroll}/>
         </div>
       </div>
     </div>

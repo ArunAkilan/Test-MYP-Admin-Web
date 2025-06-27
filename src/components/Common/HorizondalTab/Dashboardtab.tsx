@@ -1,9 +1,9 @@
-import * as React from "react";
+import React, { useRef } from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import Table from "../DashboradTable/table";
-import { Avatar, Typography } from "@mui/material";
+import { Avatar, Typography, Card, CardContent, CardMedia, Grid, Switch } from "@mui/material";
 import "./Dashboardtab.scss";
 import Popover from "@mui/material/Popover";
 import Button from "@mui/material/Button";
@@ -17,6 +17,7 @@ import Accordion from "@mui/material/Accordion";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
+import { debounce } from "lodash";
 
 type Property = {
   status?: string;
@@ -30,6 +31,7 @@ type PropertyData = {
 interface DashboardtabProps {
   data: PropertyData;
   properties: "all" | "residentials" | "commercials" | "plots";
+  onScrollChangeParent: (scrollTop: number) => void;
 }
 
 interface TabPanelProps {
@@ -61,7 +63,7 @@ function a11yProps(index: number) {
   };
 }
 
-export default function Dashboardtab({ data, properties }: DashboardtabProps) {
+export default function Dashboardtab({ data, properties, onScrollChangeParent}: DashboardtabProps) {
   const [isFiltered, setIsFiltered] = useState(false);
   const [currentCheckList, setCurrentCheckList] = useState<string[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -69,8 +71,7 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
   const [value, setValue] = useState(0);
   const [tableValues, setTableValues] = useState<Property[]>([]);
   const [resetCounter, setResetCounter] = useState(0);
-  const currentStatus = statusByTab[value];
-  console.log(currentStatus);
+  //const currentStatus = statusByTab[value];
   const filterOptions = {
     all: [
       { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
@@ -221,7 +222,7 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
     setAnchorEl(null);
   };
 
-  
+
 
   const filterOpen = Boolean(anchorEl);
   const id = filterOpen ? "simple-popover" : undefined;
@@ -245,8 +246,8 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
       (item) => item.status?.toLowerCase() === newStatus.toLowerCase()
     );
     setTableValues(filtered);
-  }; 
-  
+  };
+
   // handleCheckbox
   const handleCheckboxChange = (option: string) => {
     setCurrentCheckList((prev) => {
@@ -424,30 +425,65 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
   // filter drawer
 
   const toggleDrawer = (drawerOpen: boolean) => (
-  event: React.KeyboardEvent | React.MouseEvent | {}
-) => {
-  if (
-    event &&
-    "type" in event &&
-    event.type === "keydown" &&
-    ((event as React.KeyboardEvent).key === "Tab" ||
-      (event as React.KeyboardEvent).key === "Shift")
-  ) {
-    return;
-  }
+    event: React.KeyboardEvent | React.MouseEvent | {}
+  ) => {
+    if (
+      event &&
+      "type" in event &&
+      event.type === "keydown" &&
+      ((event as React.KeyboardEvent).key === "Tab" ||
+        (event as React.KeyboardEvent).key === "Shift")
+    ) {
+      return;
+    }
 
-  setDrawerOpen(drawerOpen); // ✅ updated
-};
+    setDrawerOpen(drawerOpen); // ✅ updated
+  };
+
+  const [cardView, setCardView] = useState(true);
+  //const [isFixed, setIsFixed] = useState(false);
+  // sticky function
+  const [hideHeader, setHideHeader] = useState(false);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  const handleChangeSwitch = (event: any) => {
+    setCardView(event.target.checked);
+  };
+
+  const handleChildScroll = (scrollTop: number) => {
+      //setIsFixed(scrollTop > 50);
+      const currentScrollY = scrollTop;
+
+      // Show header when scrolling up
+      if (currentScrollY < lastScrollY || currentScrollY < 20) {
+        setHideHeader(false);
+      } else {
+        setHideHeader(true);
+      }
+
+      setLastScrollY(currentScrollY);
+      onScrollChangeParent(scrollTop);
+  };
 
   return (
     <div id="pending-approval-tab">
-      <Box>
+      <Box
+        sx={{
+          //display: hideHeader ? "block" : "none",
+          position: hideHeader ? "fixed" : "static",
+          zIndex: "99",
+          width: hideHeader ? "66%" : "100%",
+          backgroundColor: "#ffffff",
+          top: hideHeader ? "0px" : "124px",
+        }}
+      >
         <Tabs
           value={value}
           onChange={handleChange}
           aria-label="basic tabs example"
           sx={{
-            paddingBottom: "24px",
+            paddingBottom: hideHeader ? "0" : "24px",
+            display: hideHeader ? "block" : "true"
           }}
         >
           <Tab
@@ -514,422 +550,573 @@ export default function Dashboardtab({ data, properties }: DashboardtabProps) {
             iconPosition="start"
           />
         </Tabs>
+        <CustomTabPanel value={value} index={0}>
+          <div className="new-listing-wrap">
+            <div className="container">
+              <div className="new-listing">
+                <div className="new-listing-wrap-list">
+                  <h3 className="result">
+                    <span className="resultCount">{getResultCount}</span> Results
+                  </h3>
+                </div>
+                <div className="list-panel">
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={cardView}
+                        onChange={handleChangeSwitch}
+                        color="primary"
+                      />
+                    }
+                    label={cardView ? 'On' : 'Off'}
+                  /> 
+                  <div className="search">
+                    <input type="search" placeholder="Search Properties" />
+                    <img src="Search-1.svg" alt="search svg" />
+                  </div>
+                  <div className="filter-link color-edit">
+                    <Button
+                      className="filter-text"
+                      aria-describedby={id}
+                      // onClick={handleClick}
+                      onClick={toggleDrawer(true)}
+                    >
+                      <img src="majesticons_filter-line.svg" alt="filter img" />
+                      Filter
+                    </Button>
+                  </div>
+                  <div className="sort-link color-edit">
+                    <Button className="filter-text" aria-describedby={id}>
+                      <img
+                        src="material-symbols_sort-rounded.svg"
+                        alt="filter img"
+                      />
+                      Sort
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CustomTabPanel>
+        <CustomTabPanel value={value} index={1}>
+          <div className="new-listing-wrap">
+            <div className="container">
+              <div className="new-listing">
+                <div className="new-listing-wrap-list">
+                  <h3 className="result">
+                    <span className="resultCount">{getResultCount}</span> Results
+                  </h3>
+                </div>
+                <div className="list-panel">
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={cardView}
+                        onChange={handleChangeSwitch}
+                        color="primary"
+                      />
+                    }
+                    label={cardView ? 'On' : 'Off'}
+                  />
+                  <div className="search">
+                    <input type="search" placeholder="Search Properties" />
+                    <img src="Search-1.svg" alt="search svg" />
+                  </div>
+                  <div className="filter-link color-edit">
+                    <Button
+                      className="filter-text"
+                      aria-describedby={id}
+                      onClick={handleClick}
+                    >
+                      <img src="majesticons_filter-line.svg" alt="filter img" />
+                      Filter
+                    </Button>
+                    <Popover
+                      style={{ margin: "20% 8% 0 8%", position: "absolute" }}
+                      anchorReference="anchorPosition"
+                      anchorPosition={{
+                        top: 144,
+                        left: 260,
+                      }}
+                      anchorOrigin={{
+                        vertical: "top",
+                        horizontal: "left",
+                      }}
+                      transformOrigin={{
+                        vertical: "top",
+                        horizontal: "left",
+                      }}
+                      id={id}
+                      open={filterOpen}
+                      anchorEl={anchorEl}
+                      onClose={handleClose}
+                    >
+                      <div className="filter-div-wrapper">
+                        <div className="filter-header">
+                          <p>Filter By</p>
+                          <div className="apply-reset-btn">
+                            <button
+                              className="refresh-btn"
+                              onClick={filterResetFunction}
+                            >
+                              <img src="mynaui_refresh.svg" alt="refresh icon" />
+                              Reset
+                            </button>
+                            <GenericButton
+                              image={filterTick}
+                              iconPosition="left"
+                              label={"Apply"}
+                              className="genericFilterApplyStyles"
+                              onClick={handleApply}
+                            />
+                          </div>
+                        </div>
+                        <div className="checklist-content row">
+                          {(
+                            filterOptions[
+                            properties === "all" ? "residentials" : properties
+                            ] ?? []
+                          ).map((section, index) => (
+                            <div className="checklist-list col-md-3" key={index}>
+                              <Typography variant="h6">
+                                {section.heading}
+                              </Typography>
+                              <div className="label-wrapper">
+                                {section.options.map((opt, i) => (
+                                  <FormControlLabel
+                                    key={i}
+                                    control={
+                                      <Checkbox
+                                        checked={currentCheckList.includes(opt)}
+                                        onChange={() => handleCheckboxChange(opt)}
+                                      />
+                                    }
+                                    label={opt}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </Popover>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CustomTabPanel>
+        <CustomTabPanel value={value} index={2}>
+          <div className="new-listing-wrap">
+            <div className="container">
+              <div className="new-listing">
+                <div className="new-listing-wrap-list">
+                  <h3 className="result">
+                    <span className="resultCount">{getResultCount}</span> Results
+                  </h3>
+                </div>
+                <div className="list-panel">
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={cardView}
+                        onChange={handleChangeSwitch}
+                        color="primary"
+                      />
+                    }
+                    label={cardView ? 'On' : 'Off'}
+                  />
+                  <div className="search">
+                    <input type="search" placeholder="Search Properties" />
+                    <img src="Search-1.svg" alt="search svg" />
+                  </div>
+                  <div className="filter-link color-edit">
+                    <Button
+                      className="filter-text"
+                      aria-describedby={id}
+                      onClick={handleClick}
+                    >
+                      <img src="majesticons_filter-line.svg" alt="filter img" />
+                      Filter
+                    </Button>
+                    <Popover
+                      style={{ margin: "20% 8% 0 8%", position: "absolute" }}
+                      anchorReference="anchorPosition"
+                      anchorPosition={{
+                        top: 144,
+                        left: 260,
+                      }}
+                      anchorOrigin={{
+                        vertical: "top",
+                        horizontal: "left",
+                      }}
+                      transformOrigin={{
+                        vertical: "top",
+                        horizontal: "left",
+                      }}
+                      id={id}
+                      open={filterOpen}
+                      anchorEl={anchorEl}
+                      onClose={handleClose}
+                    >
+                      <div className="filter-div-wrapper">
+                        <div className="filter-header">
+                          <p>Filter By</p>
+                          <div className="apply-reset-btn">
+                            <button
+                              className="refresh-btn"
+                              onClick={filterResetFunction}
+                            >
+                              <img src="mynaui_refresh.svg" alt="refresh icon" />
+                              Reset
+                            </button>
+                            <GenericButton
+                              image={filterTick}
+                              iconPosition="left"
+                              label={"Apply"}
+                              className="genericFilterApplyStyles"
+                              onClick={handleApply}
+                            />
+                          </div>
+                        </div>
+                        <div className="checklist-content row">
+                          {(
+                            filterOptions[
+                            properties === "all" ? "residentials" : properties
+                            ] ?? []
+                          ).map((section, index) => (
+                            <div className="checklist-list col-md-3" key={index}>
+                              <Typography variant="h6">
+                                {section.heading}
+                              </Typography>
+                              <div className="label-wrapper">
+                                {section.options.map((opt, i) => (
+                                  <FormControlLabel
+                                    key={i}
+                                    control={
+                                      <Checkbox
+                                        checked={currentCheckList.includes(opt)}
+                                        onChange={() => handleCheckboxChange(opt)}
+                                      />
+                                    }
+                                    label={opt}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </Popover>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CustomTabPanel>
+        <CustomTabPanel value={value} index={3}>
+          <div className="new-listing-wrap">
+            <div className="container">
+              <div className="new-listing">
+                <div className="new-listing-wrap-list">
+                  <h3 className="result">
+                    <span className="resultCount">{getResultCount}</span> Results
+                  </h3>
+                </div>
+                <div className="list-panel">
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={cardView}
+                        onChange={handleChangeSwitch}
+                        color="primary"
+                      />
+                    }
+                    label={cardView ? 'On' : 'Off'}
+                  />
+                  <div className="search">
+                    <input type="search" placeholder="Search Properties" />
+                    <img src="Search-1.svg" alt="search svg" />
+                  </div>
+                  <div className="filter-link color-edit">
+                    <Button
+                      className="filter-text"
+                      aria-describedby={id}
+                      onClick={handleClick}
+                    >
+                      <img src="majesticons_filter-line.svg" alt="filter img" />
+                      Filter
+                    </Button>
+                    <Popover
+                      style={{ margin: "20% 8% 0 8%", position: "absolute" }}
+                      anchorReference="anchorPosition"
+                      anchorPosition={{
+                        top: 144,
+                        left: 260,
+                      }}
+                      anchorOrigin={{
+                        vertical: "top",
+                        horizontal: "left",
+                      }}
+                      transformOrigin={{
+                        vertical: "top",
+                        horizontal: "left",
+                      }}
+                      id={id}
+                      open={filterOpen}
+                      anchorEl={anchorEl}
+                      onClose={handleClose}
+                    >
+                      <div className="filter-div-wrapper">
+                        <div className="filter-header">
+                          <p>Filter By</p>
+                          <div className="apply-reset-btn">
+                            <button
+                              className="refresh-btn"
+                              onClick={filterResetFunction}
+                            >
+                              <img src="mynaui_refresh.svg" alt="refresh icon" />
+                              Reset
+                            </button>
+                            <GenericButton
+                              image={filterTick}
+                              iconPosition="left"
+                              label={"Apply"}
+                              className="genericFilterApplyStyles"
+                              onClick={handleApply}
+                            />
+                          </div>
+                        </div>
+                        <div className="checklist-content row">
+                          {(
+                            filterOptions[
+                            properties === "all" ? "residentials" : properties
+                            ] ?? []
+                          ).map((section, index) => (
+                            <div className="checklist-list col-md-3" key={index}>
+                              <Typography variant="h6">
+                                {section.heading}
+                              </Typography>
+                              <div className="label-wrapper">
+                                {section.options.map((opt, i) => (
+                                  <FormControlLabel
+                                    key={i}
+                                    control={
+                                      <Checkbox
+                                        checked={currentCheckList.includes(opt)}
+                                        onChange={() => handleCheckboxChange(opt)}
+                                      />
+                                    }
+                                    label={opt}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </Popover>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CustomTabPanel>
       </Box>
-      <CustomTabPanel value={value} index={0}>
-        <div className="new-listing-wrap">
-          <div className="container">
-            <div className="new-listing">
-              <div className="new-listing-wrap-list">
-                <h3 className="result">
-                  <span className="resultCount">{getResultCount}</span> Results
-                </h3>
-              </div>
-              <div className="list-panel">
-                <div className="search">
-                  <input type="search" placeholder="Search Properties" />
-                  <img src="Search-1.svg" alt="search svg" />
-                </div>
-                <div className="filter-link color-edit">
-                  <Button
-                    className="filter-text"
-                    aria-describedby={id}
-                    // onClick={handleClick}
-                    onClick={toggleDrawer(true)}
-                  >
-                    <img src="majesticons_filter-line.svg" alt="filter img" />
-                    Filter
-                  </Button>
-                  <Drawer
-                    anchor="right"
-                    open={drawerOpen}
-                    onClose={toggleDrawer(false)}
-                  >
-                    <div className="filter-div-wrapper">
-                      <div className="filter-header">
-                        <p>Filter By</p>
-                      </div>
-                      <div className="checklist-content row">
-                        {(
-                          filterOptions[
-                            properties === "all" ? "all" : properties
-                          ] ?? []
-                        ).map((section, index) => (
-                          <div className="checklist-list col-md-12" key={index}>
-                            <Accordion>
-                              <AccordionSummary
-                                expandIcon={<ExpandMoreIcon />}
-                                aria-controls="panel1-content"
-                                id="panel1-header"
-                              >
-                                <Typography variant="h6">
-                                  {section.heading}
-                                </Typography>
-                              </AccordionSummary>
 
-                              <AccordionDetails key={resetCounter}>
-                                <div className="label-wrapper">
-                                  {section.options.map((opt, i) => (
-                                    <FormControlLabel
-                                      key={i}
-                                      control={
-                                        <Checkbox
-                                          checked={currentCheckList.includes(
-                                            opt
-                                          )}
-                                          onChange={() =>
-                                            handleCheckboxChange(opt)
-                                            
-                                          }
-                                          inputProps={{ "aria-label": opt }}
-                                        />
-                                        
-                                      }
-                                      label={opt}
-                                    />
-                                  ))}
-                                </div>
-                              </AccordionDetails>
-                            </Accordion>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="apply-reset-btn">
-                        <button
-                          className="refresh-btn"
-                          onClick={() => {
-                            filterResetFunction;
-                            setDrawerOpen(false);
-                          }}
-                        >
-                          <img src="mynaui_refresh.svg" alt="refresh icon" />
-                          Reset
-                        </button>
-                        <GenericButton
-                          image={filterTick}
-                          iconPosition="left"
-                          label={"Apply"}
-                          className="genericFilterApplyStyles"
-                          onClick={() => {
-                            handleApply(); // your filter logic
-                            setDrawerOpen(false); // closes the drawer
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </Drawer>
-                </div>
-                <div className="sort-link color-edit">
-                  <Button className="filter-text" aria-describedby={id}>
-                    <img
-                      src="material-symbols_sort-rounded.svg"
-                      alt="filter img"
-                    />
-                    Sort
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <Table data={tableValues} properties={properties} />
+      <CustomTabPanel value={value} index={0}>
+        {!cardView ? <Table data={tableValues} properties={properties} onScrollChange={handleChildScroll} /> :
+          <PropertyCardList properties={tableValues} onScrollChange={handleChildScroll}/>}
       </CustomTabPanel>
+
       <CustomTabPanel value={value} index={1}>
-        <div className="new-listing-wrap">
-          <div className="container">
-            <div className="new-listing">
-              <div className="new-listing-wrap-list">
-                <h3 className="result">
-                  <span className="resultCount">{getResultCount}</span> Results
-                </h3>
-              </div>
-              <div className="list-panel">
-                <div className="search">
-                  <input type="search" placeholder="Search Properties" />
-                  <img src="Search-1.svg" alt="search svg" />
-                </div>
-                <div className="filter-link color-edit">
-                  <Button
-                    className="filter-text"
-                    aria-describedby={id}
-                    onClick={handleClick}
-                  >
-                    <img src="majesticons_filter-line.svg" alt="filter img" />
-                    Filter
-                  </Button>
-                  <Popover
-                    style={{ margin: "20% 8% 0 8%", position: "absolute" }}
-                    anchorReference="anchorPosition"
-                    anchorPosition={{
-                      top: 144,
-                      left: 260,
-                    }}
-                    anchorOrigin={{
-                      vertical: "top",
-                      horizontal: "left",
-                    }}
-                    transformOrigin={{
-                      vertical: "top",
-                      horizontal: "left",
-                    }}
-                    id={id}
-                    open={filterOpen}
-                    anchorEl={anchorEl}
-                    onClose={handleClose}
-                  >
-                    <div className="filter-div-wrapper">
-                      <div className="filter-header">
-                        <p>Filter By</p>
-                        <div className="apply-reset-btn">
-                          <button
-                            className="refresh-btn"
-                            onClick={filterResetFunction}
-                          >
-                            <img src="mynaui_refresh.svg" alt="refresh icon" />
-                            Reset
-                          </button>
-                          <GenericButton
-                            image={filterTick}
-                            iconPosition="left"
-                            label={"Apply"}
-                            className="genericFilterApplyStyles"
-                            onClick={handleApply}
-                          />
-                        </div>
-                      </div>
-                      <div className="checklist-content row">
-                        {(
-                          filterOptions[
-                            properties === "all" ? "residentials" : properties
-                          ] ?? []
-                        ).map((section, index) => (
-                          <div className="checklist-list col-md-3" key={index}>
-                            <Typography variant="h6">
-                              {section.heading}
-                            </Typography>
-                            <div className="label-wrapper">
-                              {section.options.map((opt, i) => (
-                                <FormControlLabel
-                                  key={i}
-                                  control={
-                                    <Checkbox
-                                      checked={currentCheckList.includes(opt)}
-                                      onChange={() => handleCheckboxChange(opt)}
-                                    />
-                                  }
-                                  label={opt}
-                                />
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </Popover>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <Table data={tableValues} properties={properties} />
+        {!cardView ? <Table data={tableValues} properties={properties} onScrollChange={handleChildScroll}/> :
+          <PropertyCardList properties={tableValues} onScrollChange={handleChildScroll}/>}
       </CustomTabPanel>
+
       <CustomTabPanel value={value} index={2}>
-        <div className="new-listing-wrap">
-          <div className="container">
-            <div className="new-listing">
-              <div className="new-listing-wrap-list">
-                <h3 className="result">
-                  <span className="resultCount">{getResultCount}</span> Results
-                </h3>
-              </div>
-              <div className="list-panel">
-                <div className="search">
-                  <input type="search" placeholder="Search Properties" />
-                  <img src="Search-1.svg" alt="search svg" />
-                </div>
-                <div className="filter-link color-edit">
-                  <Button
-                    className="filter-text"
-                    aria-describedby={id}
-                    onClick={handleClick}
-                  >
-                    <img src="majesticons_filter-line.svg" alt="filter img" />
-                    Filter
-                  </Button>
-                  <Popover
-                    style={{ margin: "20% 8% 0 8%", position: "absolute" }}
-                    anchorReference="anchorPosition"
-                    anchorPosition={{
-                      top: 144,
-                      left: 260,
-                    }}
-                    anchorOrigin={{
-                      vertical: "top",
-                      horizontal: "left",
-                    }}
-                    transformOrigin={{
-                      vertical: "top",
-                      horizontal: "left",
-                    }}
-                    id={id}
-                    open={filterOpen}
-                    anchorEl={anchorEl}
-                    onClose={handleClose}
-                  >
-                    <div className="filter-div-wrapper">
-                      <div className="filter-header">
-                        <p>Filter By</p>
-                        <div className="apply-reset-btn">
-                          <button
-                            className="refresh-btn"
-                            onClick={filterResetFunction}
-                          >
-                            <img src="mynaui_refresh.svg" alt="refresh icon" />
-                            Reset
-                          </button>
-                          <GenericButton
-                            image={filterTick}
-                            iconPosition="left"
-                            label={"Apply"}
-                            className="genericFilterApplyStyles"
-                            onClick={handleApply}
-                          />
-                        </div>
-                      </div>
-                      <div className="checklist-content row">
-                        {(
-                          filterOptions[
-                            properties === "all" ? "residentials" : properties
-                          ] ?? []
-                        ).map((section, index) => (
-                          <div className="checklist-list col-md-3" key={index}>
-                            <Typography variant="h6">
-                              {section.heading}
-                            </Typography>
-                            <div className="label-wrapper">
-                              {section.options.map((opt, i) => (
-                                <FormControlLabel
-                                  key={i}
-                                  control={
-                                    <Checkbox
-                                      checked={currentCheckList.includes(opt)}
-                                      onChange={() => handleCheckboxChange(opt)}
-                                    />
-                                  }
-                                  label={opt}
-                                />
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </Popover>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <Table data={tableValues} properties={properties} />
+        {!cardView ? <Table data={tableValues} properties={properties} onScrollChange={handleChildScroll}/> :
+          <PropertyCardList properties={tableValues} onScrollChange={handleChildScroll}/>}
       </CustomTabPanel>
+
       <CustomTabPanel value={value} index={3}>
-        <div className="new-listing-wrap">
-          <div className="container">
-            <div className="new-listing">
-              <div className="new-listing-wrap-list">
-                <h3 className="result">
-                  <span className="resultCount">{getResultCount}</span> Results
-                </h3>
-              </div>
-              <div className="list-panel">
-                <div className="search">
-                  <input type="search" placeholder="Search Properties" />
-                  <img src="Search-1.svg" alt="search svg" />
-                </div>
-                <div className="filter-link color-edit">
-                  <Button
-                    className="filter-text"
-                    aria-describedby={id}
-                    onClick={handleClick}
-                  >
-                    <img src="majesticons_filter-line.svg" alt="filter img" />
-                    Filter
-                  </Button>
-                  <Popover
-                    style={{ margin: "20% 8% 0 8%", position: "absolute" }}
-                    anchorReference="anchorPosition"
-                    anchorPosition={{
-                      top: 144,
-                      left: 260,
-                    }}
-                    anchorOrigin={{
-                      vertical: "top",
-                      horizontal: "left",
-                    }}
-                    transformOrigin={{
-                      vertical: "top",
-                      horizontal: "left",
-                    }}
-                    id={id}
-                    open={filterOpen}
-                    anchorEl={anchorEl}
-                    onClose={handleClose}
-                  >
-                    <div className="filter-div-wrapper">
-                      <div className="filter-header">
-                        <p>Filter By</p>
-                        <div className="apply-reset-btn">
-                          <button
-                            className="refresh-btn"
-                            onClick={filterResetFunction}
-                          >
-                            <img src="mynaui_refresh.svg" alt="refresh icon" />
-                            Reset
-                          </button>
-                          <GenericButton
-                            image={filterTick}
-                            iconPosition="left"
-                            label={"Apply"}
-                            className="genericFilterApplyStyles"
-                            onClick={handleApply}
-                          />
-                        </div>
-                      </div>
-                      <div className="checklist-content row">
-                        {(
-                          filterOptions[
-                            properties === "all" ? "residentials" : properties
-                          ] ?? []
-                        ).map((section, index) => (
-                          <div className="checklist-list col-md-3" key={index}>
-                            <Typography variant="h6">
-                              {section.heading}
-                            </Typography>
-                            <div className="label-wrapper">
-                              {section.options.map((opt, i) => (
-                                <FormControlLabel
-                                  key={i}
-                                  control={
-                                    <Checkbox
-                                      checked={currentCheckList.includes(opt)}
-                                      onChange={() => handleCheckboxChange(opt)}
-                                    />
-                                  }
-                                  label={opt}
-                                />
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </Popover>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <Table data={tableValues} properties={properties} />
+        {!cardView ? <Table data={tableValues} properties={properties} onScrollChange={handleChildScroll}/> :
+          <PropertyCardList properties={tableValues} onScrollChange={handleChildScroll}/>}
       </CustomTabPanel>
+
+      <Drawer
+      anchor="right"
+      open={drawerOpen}
+      onClose={toggleDrawer(false)}
+    >
+      <div className="filter-div-wrapper">
+        <div className="filter-header">
+          <p>Filter By</p>
+        </div>
+        <div className="checklist-content row">
+          {(
+            filterOptions[
+            properties === "all" ? "all" : properties
+            ] ?? []
+          ).map((section: any, index: any) => (
+            <div className="checklist-list col-md-12" key={index}>
+              <Accordion>
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls="panel1-content"
+                  id="panel1-header"
+                >
+                  <Typography variant="h6">
+                    {section.heading}
+                  </Typography>
+                </AccordionSummary>
+
+                <AccordionDetails key={resetCounter}>
+                  <div className="label-wrapper">
+                    {section.options.map((opt:any, i:any) => (
+                      <FormControlLabel
+                        key={i}
+                        control={
+                          <Checkbox
+                            checked={currentCheckList.includes(
+                              opt
+                            )}
+                            onChange={() =>
+                              handleCheckboxChange(opt)
+
+                            }
+                            inputProps={{ "aria-label": opt }}
+                          />
+
+                        }
+                        label={opt}
+                      />
+                    ))}
+                  </div>
+                </AccordionDetails>
+              </Accordion>
+            </div>
+          ))}
+        </div>
+        <div className="apply-reset-btn">
+          <button
+            className="refresh-btn"
+            onClick={() => {
+              filterResetFunction;
+              setDrawerOpen(false);
+            }}
+          >
+            <img src="mynaui_refresh.svg" alt="refresh icon" />
+            Reset
+          </button>
+          <GenericButton
+            image={filterTick}
+            iconPosition="left"
+            label={"Apply"}
+            className="genericFilterApplyStyles"
+            onClick={() => {
+              handleApply(); // your filter logic
+              setDrawerOpen(false); // closes the drawer
+            }}
+          />
+        </div>
+      </div>
+    </Drawer>
     </div>
   );
 }
+
+interface ProCardProps {
+  properties: any;
+  onScrollChange: (scrollTop: number) => void;
+}
+
+const PropertyCardList = ({properties, onScrollChange }:ProCardProps) => {
+  
+  const [visibleCount, setVisibleCount] = useState<number>(5);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const formatedData = properties;
+  console.log("333", formatedData);
+
+  // Debounced scroll handler
+  const handleScroll = debounce(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = container;
+
+    if (scrollTop + clientHeight >= scrollHeight - 50) {
+      setVisibleCount((prev) => Math.min(prev + 5, formatedData.length));
+    }
+  }, 200);
+
+   useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    container.addEventListener('scroll', handleScroll);
+    //return () => container.removeEventListener('scroll', handleScroll);
+   }, []);
+   
+    //change height of card container
+    const [hideHeader, setHideHeader] = React.useState(false);
+    const [lastScrollY, setLastScrollY] = React.useState(0);
+    React.useEffect(() => {
+        const container = containerRef.current;
+    
+        const handleScroll = () => {
+          if (container) {
+            onScrollChange(container.scrollTop);
+          }
+          // Show header when scrolling up
+          const currentScrollY = container?.scrollTop || 0;
+         if (currentScrollY < lastScrollY || currentScrollY < 50) {
+          setHideHeader(false);
+        } else {
+          setHideHeader(true);
+        }
+        setLastScrollY(currentScrollY);
+        };
+    
+        container?.addEventListener('scroll', handleScroll);
+        return () => container?.removeEventListener('scroll', handleScroll);
+    }, [onScrollChange]);
+
+  return (
+    <Box sx={{ flexGrow: 1, p: 2 }}>
+      <Grid >
+        <div
+           ref={containerRef}
+            style={{
+              height: hideHeader ? '450px':'315px',
+              overflowY: 'auto',
+              marginBottom: '50px',
+            }}
+          >
+        {formatedData.slice(0, visibleCount).map((tableValues: any) => (
+          <Grid item xs={12} sm={12} md={12} key={tableValues.id}>
+            <Card>
+              <CardMedia
+                component="img"
+                height="200"
+                image='https://s3.us-east-1.amazonaws.com/sumisa.prh/cf5ac4795c25447.jpeg'
+                alt={tableValues.title}
+              />
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  {tableValues.title}
+                </Typography>
+                <Typography variant="body1" color="text.secondary">
+                  {tableValues.price}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+       </div>
+      </Grid>
+    </Box>
+  );
+};
+
