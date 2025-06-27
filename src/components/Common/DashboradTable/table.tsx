@@ -273,20 +273,14 @@ function Table({ data, properties }: TableProps) {
               )}
               {(properties === "commercials" || properties === "all") && (
                 <td
-                  className="furnish"
-                  data-bs-toggle="tooltip"
-                  data-bs-placement="bottom"
-                  title="Unfurnished"
+                  className="washroom"
                 >
                   {item?.washroom}
                 </td>
               )}
               {(properties === "plots" || properties === "all") && (
                 <td
-                  className="furnish"
-                  data-bs-toggle="tooltip"
-                  data-bs-placement="bottom"
-                  title="Unfurnished"
+                  className="plot-type"
                 >
                   {item?.plotType}
                 </td>

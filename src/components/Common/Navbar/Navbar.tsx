@@ -121,7 +121,7 @@ const idSecond = openSecond ? "second-popover" : undefined;
                   </button>
                   <Popover
                     anchorReference="anchorPosition"
-                    anchorPosition={{ top: 60, left: 831 }}
+                    anchorPosition={{ top: 60, left: 816 }}
                     id={idFirst}
                     open={openFirst}
                     anchorEl={firstAnchorEl}
@@ -151,7 +151,7 @@ const idSecond = openSecond ? "second-popover" : undefined;
                 </div>
                 <Popover
                   anchorReference="anchorPosition"
-                  anchorPosition={{ top: 60, left: 951 }}
+                  anchorPosition={{ top: 60, left: 941 }}
                   id={idSecond}
                   open={openSecond}
                   anchorEl={secondAnchorEl}
