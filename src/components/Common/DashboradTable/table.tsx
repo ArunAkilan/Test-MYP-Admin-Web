@@ -11,14 +11,14 @@ interface TableProps {
   //data: ResidentialProperty[];
   data: any;
   properties?:
-  | "all"
-  | "residential"
-  | "residentials"
-  | "commercial"
-  | "commercials"
-  | "plot"
-  | "plots"
-  | undefined;
+    | "all"
+    | "residential"
+    | "residentials"
+    | "commercial"
+    | "commercials"
+    | "plot"
+    | "plots"
+    | undefined;
   onScrollChange: (scrollTop: number) => void;
 }
 // const actionMap: Record<string, number> = {
@@ -44,11 +44,9 @@ function Table({ data, properties, onScrollChange }: TableProps) {
   console.log("properties", properties);
   const navigate = useNavigate();
 
-
   const location = useLocation();
   const propertyData = location.state?.data;
-  console.log("propertyData", propertyData)
-
+  console.log("propertyData", propertyData);
 
   const getSingularProperty = () => {
     switch (properties) {
@@ -86,7 +84,8 @@ function Table({ data, properties, onScrollChange }: TableProps) {
     const singularProperty = getSingularProperty();
     try {
       const response = await axios.put(
-        `${import.meta.env.VITE_BackEndUrl
+        `${
+          import.meta.env.VITE_BackEndUrl
         }/api/adminpermission/${singularProperty}/${id}`,
         { status: `${status}` }
       );
@@ -99,13 +98,13 @@ function Table({ data, properties, onScrollChange }: TableProps) {
   const formatedData = Array.isArray(data)
     ? data // already flat array
     : [
-      ...(data?.residentials ?? []),
-      ...(data?.commercials ?? []),
-      ...(data?.plots ?? []),
-      ...(data?.residential ?? []),
-      ...(data?.commercial ?? []),
-      ...(data?.plot ?? []),
-    ];
+        ...(data?.residentials ?? []),
+        ...(data?.commercials ?? []),
+        ...(data?.plots ?? []),
+        ...(data?.residential ?? []),
+        ...(data?.commercial ?? []),
+        ...(data?.plot ?? []),
+      ];
 
   console.log("formatedData", formatedData);
 
@@ -168,38 +167,41 @@ function Table({ data, properties, onScrollChange }: TableProps) {
       return <p>Error: Invalid data format</p>;
     }
   }
-  
+
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const [hideHeader, setHideHeader] = React.useState(false);
   const [lastScrollY, setLastScrollY] = React.useState(0);
   React.useEffect(() => {
-      const container = containerRef.current;
-  
-      const handleScroll = () => {
-        if (container) {
-          onScrollChange(container.scrollTop);
-        }
-        // Show header when scrolling up
-        const currentScrollY = container?.scrollTop || 0;
-       if (currentScrollY < lastScrollY || currentScrollY < 50) {
+    const container = containerRef.current;
+
+    const handleScroll = () => {
+      if (container) {
+        onScrollChange(container.scrollTop);
+      }
+
+
+// Show header when scrolling up
+      const currentScrollY = container?.scrollTop || 0;
+      if (currentScrollY < lastScrollY || currentScrollY < 50) {
         setHideHeader(false);
       } else {
         setHideHeader(true);
       }
       setLastScrollY(currentScrollY);
-      };
+    };
+
+    container?.addEventListener("scroll", handleScroll);
+    return () => container?.removeEventListener("scroll", handleScroll);
+  }, [onScrollChange]);
   
-      container?.addEventListener('scroll', handleScroll);
-      return () => container?.removeEventListener('scroll', handleScroll);
-    }, [onScrollChange]);
 
   return (
     <div
       ref={containerRef}
       style={{
-        height: hideHeader ? '450px':'315px',
-        overflowY: 'auto',
-        marginBottom: '50px',
+        height: hideHeader ? "450px" : "315px",
+        overflowY: "auto",
+        marginBottom: "50px",
       }}
     >
       <div className="container table-responsive">
@@ -230,8 +232,6 @@ function Table({ data, properties, onScrollChange }: TableProps) {
             </tr>
           </thead>
           <tbody>
-
-
             {formatedData.map((item, index) => (
               <tr key={index}>
                 <td className="checkbox-align">
@@ -275,12 +275,14 @@ function Table({ data, properties, onScrollChange }: TableProps) {
                 <td>{item.status}</td>
                 {(properties === "commercials" ||
                   properties === "all" ||
-                  properties === "residentials") && <td>{item?.totalFloors}</td>}
+                  properties === "residentials") && (
+                  <td>{item?.totalFloors}</td>
+                )}
                 {(properties === "commercials" ||
                   properties === "all" ||
                   properties === "residentials") && (
-                    <td>{item?.facingDirection}</td>
-                  )}
+                  <td>{item?.facingDirection}</td>
+                )}
 
                 {(properties === "residentials" || properties === "all") && (
                   <td
@@ -289,7 +291,7 @@ function Table({ data, properties, onScrollChange }: TableProps) {
                     data-bs-placement="bottom"
                     title={item?.furnishingType}
                   >
-                    { }
+                    {}
                     <span className="truncate-text">
                       {(() => {
                         const furnishing = item?.furnishingType;
@@ -304,24 +306,10 @@ function Table({ data, properties, onScrollChange }: TableProps) {
                   </td>
                 )}
                 {(properties === "commercials" || properties === "all") && (
-                  <td
-                    className="washroom"
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="bottom"
-                    title="Unfurnished"
-                  >
-                    {item?.washroom}
-                  </td>
+                  <td className="washroom">{item?.washroom}</td>
                 )}
                 {(properties === "plots" || properties === "all") && (
-                  <td
-                    className="plot-type"
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="bottom"
-                    title="Unfurnished"
-                  >
-                    {item?.plotType}
-                  </td>
+                  <td className="plot-type">{item?.plotType}</td>
                 )}
                 <td className="type ">
                   <div className="rental">{item?.propertyType || "-"}</div>
@@ -399,12 +387,19 @@ function Table({ data, properties, onScrollChange }: TableProps) {
             <div className="text-align-center">
               <img src="/src/assets/Dashboard modal img/Confirm.svg" alt="" />
             </div>
-            <Typography id="confirmation-modal-title" variant="h6" component="h2">
+            <Typography
+              id="confirmation-modal-title"
+              variant="h6"
+              component="h2"
+            >
               Confirm {selectedAction}
             </Typography>
-            <Typography id="confirmation-modal-description" sx={{ mt: 2, mb: 3 }}>
-              Are you sure you want to {selectedAction?.toLowerCase()} the listing{" "}
-              <strong>{selectedItem?.location?.address}</strong>?
+            <Typography
+              id="confirmation-modal-description"
+              sx={{ mt: 2, mb: 3 }}
+            >
+              Are you sure you want to {selectedAction?.toLowerCase()} the
+              listing <strong>{selectedItem?.location?.address}</strong>?
             </Typography>
             <Button
               variant="contained"
@@ -419,7 +414,12 @@ function Table({ data, properties, onScrollChange }: TableProps) {
                 };
 
                 const statusCode = statusMap[selectedAction];
-                console.log("✅ Confirm Clicked:", selectedItem._id, "Status Code:", statusCode);
+                console.log(
+                  "✅ Confirm Clicked:",
+                  selectedItem._id,
+                  "Status Code:",
+                  statusCode
+                );
                 handleConfirmAction(selectedItem._id, statusCode);
               }}
               sx={{ mr: 1 }}

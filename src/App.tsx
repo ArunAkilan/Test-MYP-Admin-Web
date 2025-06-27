@@ -38,6 +38,8 @@ function AppRoutes() {
             path="/plots"
             element={<Home properties="plots" onAddNew={openCreateResidential} />}
           />
+          <Route path="/commercial/create" element={<CreateResidential />} />
+          <Route path="/plots/create" element={<CreateResidential />} />
           <Route path="/residential/create" element={<CreateResidential />} />
           <Route path="/plots/view-residential" element={<ViewResidential />} />
           <Route path="/plots/view-residential/:id" element={<ViewResidential />} />

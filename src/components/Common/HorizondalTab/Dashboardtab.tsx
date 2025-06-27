@@ -3,7 +3,14 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import Table from "../DashboradTable/table";
-import { Avatar, Typography, Card, CardContent, CardMedia, Grid, Switch } from "@mui/material";
+import {
+  Avatar,
+  Typography,
+  Card,
+  CardContent,
+  CardMedia,
+  Grid,
+} from "@mui/material";
 import "./Dashboardtab.scss";
 import Popover from "@mui/material/Popover";
 import Button from "@mui/material/Button";
@@ -18,6 +25,8 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import { debounce } from "lodash";
+import ToggleButton from "@mui/material/ToggleButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 
 type Property = {
   status?: string;
@@ -63,7 +72,11 @@ function a11yProps(index: number) {
   };
 }
 
-export default function Dashboardtab({ data, properties, onScrollChangeParent}: DashboardtabProps) {
+export default function Dashboardtab({
+  data,
+  properties,
+  onScrollChangeParent,
+}: DashboardtabProps) {
   const [isFiltered, setIsFiltered] = useState(false);
   const [currentCheckList, setCurrentCheckList] = useState<string[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -71,6 +84,8 @@ export default function Dashboardtab({ data, properties, onScrollChangeParent}: 
   const [value, setValue] = useState(0);
   const [tableValues, setTableValues] = useState<Property[]>([]);
   const [resetCounter, setResetCounter] = useState(0);
+  const [alignment, setAlignment] = React.useState("List View");
+  const [isExpanded, setIsExpanded] = useState(false);
   //const currentStatus = statusByTab[value];
   const filterOptions = {
     all: [
@@ -222,8 +237,6 @@ export default function Dashboardtab({ data, properties, onScrollChangeParent}: 
     setAnchorEl(null);
   };
 
-
-
   const filterOpen = Boolean(anchorEl);
   const id = filterOpen ? "simple-popover" : undefined;
   const allItems = useMemo(
@@ -258,7 +271,6 @@ export default function Dashboardtab({ data, properties, onScrollChangeParent}: 
     });
   };
   console.log("currentCheckList:", currentCheckList);
-
 
   // filter function
 
@@ -331,7 +343,6 @@ export default function Dashboardtab({ data, properties, onScrollChangeParent}: 
     setIsFiltered(true); // Enable filtered mode
     fetchFilteredData(currentCheckList, value); // Uses correct API and query logic
     handleClose(); // Closes the popover
-
   };
 
   useEffect(() => {
@@ -424,46 +435,53 @@ export default function Dashboardtab({ data, properties, onScrollChangeParent}: 
   ]);
   // filter drawer
 
-  const toggleDrawer = (drawerOpen: boolean) => (
-    event: React.KeyboardEvent | React.MouseEvent | {}
-  ) => {
-    if (
-      event &&
-      "type" in event &&
-      event.type === "keydown" &&
-      ((event as React.KeyboardEvent).key === "Tab" ||
-        (event as React.KeyboardEvent).key === "Shift")
-    ) {
-      return;
-    }
+  const toggleDrawer =
+    (drawerOpen: boolean) =>
+    (event: React.KeyboardEvent | React.MouseEvent | {}) => {
+      if (
+        event &&
+        "type" in event &&
+        event.type === "keydown" &&
+        ((event as React.KeyboardEvent).key === "Tab" ||
+          (event as React.KeyboardEvent).key === "Shift")
+      ) {
+        return;
+      }
 
-    setDrawerOpen(drawerOpen); // ✅ updated
-  };
+      setDrawerOpen(drawerOpen); // ✅ updated
+    };
 
-  const [cardView, setCardView] = useState(true);
+// card view 
+  const [cardView, setCardView] = useState(false);
   //const [isFixed, setIsFixed] = useState(false);
   // sticky function
   const [hideHeader, setHideHeader] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
 
-  const handleChangeSwitch = (event: any) => {
-    setCardView(event.target.checked);
-  };
+const handleChangeSwitch = (
+  _event: React.MouseEvent<HTMLElement>,
+  newAlignment: string
+) => {
+  if (!newAlignment) return;
+  setAlignment(newAlignment);
+  setCardView(newAlignment === "Card View");
+};
 
   const handleChildScroll = (scrollTop: number) => {
-      //setIsFixed(scrollTop > 50);
-      const currentScrollY = scrollTop;
+    //setIsFixed(scrollTop > 50);
+    const currentScrollY = scrollTop;
 
-      // Show header when scrolling up
-      if (currentScrollY < lastScrollY || currentScrollY < 20) {
-        setHideHeader(false);
-      } else {
-        setHideHeader(true);
-      }
+    // Show header when scrolling up
+    if (currentScrollY < lastScrollY || currentScrollY < 20) {
+      setHideHeader(false);
+    } else {
+      setHideHeader(true);
+    }
 
-      setLastScrollY(currentScrollY);
-      onScrollChangeParent(scrollTop);
+    setLastScrollY(currentScrollY);
+    onScrollChangeParent(scrollTop);
   };
+const checkListCount = currentCheckList.length;
 
   return (
     <div id="pending-approval-tab">
@@ -483,7 +501,7 @@ export default function Dashboardtab({ data, properties, onScrollChangeParent}: 
           aria-label="basic tabs example"
           sx={{
             paddingBottom: hideHeader ? "0" : "24px",
-            display: hideHeader ? "block" : "true"
+            display: hideHeader ? "block" : "true",
           }}
         >
           <Tab
@@ -554,25 +572,48 @@ export default function Dashboardtab({ data, properties, onScrollChangeParent}: 
           <div className="new-listing-wrap">
             <div className="container">
               <div className="new-listing">
+                
                 <div className="new-listing-wrap-list">
+                  {!isExpanded && (
                   <h3 className="result">
-                    <span className="resultCount">{getResultCount}</span> Results
+                    <span className="resultCount">{getResultCount}</span>{" "}
+                    Results
                   </h3>
+                   )}
                 </div>
+               
                 <div className="list-panel">
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={cardView}
-                        onChange={handleChangeSwitch}
-                        color="primary"
-                      />
-                    }
-                    label={cardView ? 'On' : 'Off'}
-                  /> 
-                  <div className="search">
+                  
+                  <div
+                     onClick={() => setIsExpanded(true)}
+                    className={`search ${isExpanded ? "active" : ""}`}
+                  >
                     <input type="search" placeholder="Search Properties" />
                     <img src="Search-1.svg" alt="search svg" />
+                  </div>
+                  <div className="list-card-toggle">
+                    <ToggleButtonGroup
+                      color="primary"
+                      value={alignment}
+                      exclusive
+                      onChange={handleChangeSwitch}
+                      aria-label="Platform"
+                    >
+                      <ToggleButton value="List View">
+                        <img
+                          src="../src/assets/dashboardtab/solar_list-linear.svg"
+                          alt="list-view"
+                        />
+                        List View
+                      </ToggleButton>
+                      <ToggleButton value="Card View">
+                        <img
+                          src="../src/assets/dashboardtab/system-uicons_card-view.svg"
+                          alt="card-view"
+                        />
+                        Card View
+                      </ToggleButton>
+                    </ToggleButtonGroup>
                   </div>
                   <div className="filter-link color-edit">
                     <Button
@@ -582,18 +623,20 @@ export default function Dashboardtab({ data, properties, onScrollChangeParent}: 
                       onClick={toggleDrawer(true)}
                     >
                       <img src="majesticons_filter-line.svg" alt="filter img" />
-                      Filter
+                      Filter {checkListCount}
                     </Button>
                   </div>
-                  <div className="sort-link color-edit">
-                    <Button className="filter-text" aria-describedby={id}>
-                      <img
-                        src="material-symbols_sort-rounded.svg"
-                        alt="filter img"
-                      />
-                      Sort
-                    </Button>
-                  </div>
+                  {alignment === "Card View" && (
+                    <div className="sort-link color-edit">
+                      <Button className="filter-text" aria-describedby={id}>
+                        <img
+                          src="material-symbols_sort-rounded.svg"
+                          alt="filter img"
+                        />
+                        Sort
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -605,20 +648,12 @@ export default function Dashboardtab({ data, properties, onScrollChangeParent}: 
               <div className="new-listing">
                 <div className="new-listing-wrap-list">
                   <h3 className="result">
-                    <span className="resultCount">{getResultCount}</span> Results
+                    <span className="resultCount">{getResultCount}</span>{" "}
+                    Results
                   </h3>
                 </div>
                 <div className="list-panel">
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={cardView}
-                        onChange={handleChangeSwitch}
-                        color="primary"
-                      />
-                    }
-                    label={cardView ? 'On' : 'Off'}
-                  />
+                 
                   <div className="search">
                     <input type="search" placeholder="Search Properties" />
                     <img src="Search-1.svg" alt="search svg" />
@@ -660,7 +695,10 @@ export default function Dashboardtab({ data, properties, onScrollChangeParent}: 
                               className="refresh-btn"
                               onClick={filterResetFunction}
                             >
-                              <img src="mynaui_refresh.svg" alt="refresh icon" />
+                              <img
+                                src="mynaui_refresh.svg"
+                                alt="refresh icon"
+                              />
                               Reset
                             </button>
                             <GenericButton
@@ -675,10 +713,13 @@ export default function Dashboardtab({ data, properties, onScrollChangeParent}: 
                         <div className="checklist-content row">
                           {(
                             filterOptions[
-                            properties === "all" ? "residentials" : properties
+                              properties === "all" ? "residentials" : properties
                             ] ?? []
                           ).map((section, index) => (
-                            <div className="checklist-list col-md-3" key={index}>
+                            <div
+                              className="checklist-list col-md-3"
+                              key={index}
+                            >
                               <Typography variant="h6">
                                 {section.heading}
                               </Typography>
@@ -689,7 +730,9 @@ export default function Dashboardtab({ data, properties, onScrollChangeParent}: 
                                     control={
                                       <Checkbox
                                         checked={currentCheckList.includes(opt)}
-                                        onChange={() => handleCheckboxChange(opt)}
+                                        onChange={() =>
+                                          handleCheckboxChange(opt)
+                                        }
                                       />
                                     }
                                     label={opt}
@@ -713,20 +756,12 @@ export default function Dashboardtab({ data, properties, onScrollChangeParent}: 
               <div className="new-listing">
                 <div className="new-listing-wrap-list">
                   <h3 className="result">
-                    <span className="resultCount">{getResultCount}</span> Results
+                    <span className="resultCount">{getResultCount}</span>{" "}
+                    Results
                   </h3>
                 </div>
                 <div className="list-panel">
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={cardView}
-                        onChange={handleChangeSwitch}
-                        color="primary"
-                      />
-                    }
-                    label={cardView ? 'On' : 'Off'}
-                  />
+                  
                   <div className="search">
                     <input type="search" placeholder="Search Properties" />
                     <img src="Search-1.svg" alt="search svg" />
@@ -768,7 +803,10 @@ export default function Dashboardtab({ data, properties, onScrollChangeParent}: 
                               className="refresh-btn"
                               onClick={filterResetFunction}
                             >
-                              <img src="mynaui_refresh.svg" alt="refresh icon" />
+                              <img
+                                src="mynaui_refresh.svg"
+                                alt="refresh icon"
+                              />
                               Reset
                             </button>
                             <GenericButton
@@ -783,10 +821,13 @@ export default function Dashboardtab({ data, properties, onScrollChangeParent}: 
                         <div className="checklist-content row">
                           {(
                             filterOptions[
-                            properties === "all" ? "residentials" : properties
+                              properties === "all" ? "residentials" : properties
                             ] ?? []
                           ).map((section, index) => (
-                            <div className="checklist-list col-md-3" key={index}>
+                            <div
+                              className="checklist-list col-md-3"
+                              key={index}
+                            >
                               <Typography variant="h6">
                                 {section.heading}
                               </Typography>
@@ -797,7 +838,9 @@ export default function Dashboardtab({ data, properties, onScrollChangeParent}: 
                                     control={
                                       <Checkbox
                                         checked={currentCheckList.includes(opt)}
-                                        onChange={() => handleCheckboxChange(opt)}
+                                        onChange={() =>
+                                          handleCheckboxChange(opt)
+                                        }
                                       />
                                     }
                                     label={opt}
@@ -821,20 +864,12 @@ export default function Dashboardtab({ data, properties, onScrollChangeParent}: 
               <div className="new-listing">
                 <div className="new-listing-wrap-list">
                   <h3 className="result">
-                    <span className="resultCount">{getResultCount}</span> Results
+                    <span className="resultCount">{getResultCount}</span>{" "}
+                    Results
                   </h3>
                 </div>
                 <div className="list-panel">
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={cardView}
-                        onChange={handleChangeSwitch}
-                        color="primary"
-                      />
-                    }
-                    label={cardView ? 'On' : 'Off'}
-                  />
+                  
                   <div className="search">
                     <input type="search" placeholder="Search Properties" />
                     <img src="Search-1.svg" alt="search svg" />
@@ -876,7 +911,10 @@ export default function Dashboardtab({ data, properties, onScrollChangeParent}: 
                               className="refresh-btn"
                               onClick={filterResetFunction}
                             >
-                              <img src="mynaui_refresh.svg" alt="refresh icon" />
+                              <img
+                                src="mynaui_refresh.svg"
+                                alt="refresh icon"
+                              />
                               Reset
                             </button>
                             <GenericButton
@@ -891,10 +929,13 @@ export default function Dashboardtab({ data, properties, onScrollChangeParent}: 
                         <div className="checklist-content row">
                           {(
                             filterOptions[
-                            properties === "all" ? "residentials" : properties
+                              properties === "all" ? "residentials" : properties
                             ] ?? []
                           ).map((section, index) => (
-                            <div className="checklist-list col-md-3" key={index}>
+                            <div
+                              className="checklist-list col-md-3"
+                              key={index}
+                            >
                               <Typography variant="h6">
                                 {section.heading}
                               </Typography>
@@ -905,7 +946,9 @@ export default function Dashboardtab({ data, properties, onScrollChangeParent}: 
                                     control={
                                       <Checkbox
                                         checked={currentCheckList.includes(opt)}
-                                        onChange={() => handleCheckboxChange(opt)}
+                                        onChange={() =>
+                                          handleCheckboxChange(opt)
+                                        }
                                       />
                                     }
                                     label={opt}
@@ -926,103 +969,130 @@ export default function Dashboardtab({ data, properties, onScrollChangeParent}: 
       </Box>
 
       <CustomTabPanel value={value} index={0}>
-        {!cardView ? <Table data={tableValues} properties={properties} onScrollChange={handleChildScroll} /> :
-          <PropertyCardList properties={tableValues} onScrollChange={handleChildScroll}/>}
+        {!cardView ? (
+          <Table
+            data={tableValues}
+            properties={properties}
+            onScrollChange={handleChildScroll}
+          />
+        ) : (
+          <PropertyCardList
+            properties={tableValues}
+            onScrollChange={handleChildScroll}
+          />
+        )}
       </CustomTabPanel>
 
       <CustomTabPanel value={value} index={1}>
-        {!cardView ? <Table data={tableValues} properties={properties} onScrollChange={handleChildScroll}/> :
-          <PropertyCardList properties={tableValues} onScrollChange={handleChildScroll}/>}
+        {!cardView ? (
+          <Table
+            data={tableValues}
+            properties={properties}
+            onScrollChange={handleChildScroll}
+          />
+        ) : (
+          <PropertyCardList
+            properties={tableValues}
+            onScrollChange={handleChildScroll}
+          />
+        )}
       </CustomTabPanel>
 
       <CustomTabPanel value={value} index={2}>
-        {!cardView ? <Table data={tableValues} properties={properties} onScrollChange={handleChildScroll}/> :
-          <PropertyCardList properties={tableValues} onScrollChange={handleChildScroll}/>}
+        {!cardView ? (
+          <Table
+            data={tableValues}
+            properties={properties}
+            onScrollChange={handleChildScroll}
+          />
+        ) : (
+          <PropertyCardList
+            properties={tableValues}
+            onScrollChange={handleChildScroll}
+          />
+        )}
       </CustomTabPanel>
 
       <CustomTabPanel value={value} index={3}>
-        {!cardView ? <Table data={tableValues} properties={properties} onScrollChange={handleChildScroll}/> :
-          <PropertyCardList properties={tableValues} onScrollChange={handleChildScroll}/>}
+        {!cardView ? (
+          <Table
+            data={tableValues}
+            properties={properties}
+            onScrollChange={handleChildScroll}
+          />
+        ) : (
+          <PropertyCardList
+            properties={tableValues}
+            onScrollChange={handleChildScroll}
+          />
+        )}
       </CustomTabPanel>
 
-      <Drawer
-      anchor="right"
-      open={drawerOpen}
-      onClose={toggleDrawer(false)}
-    >
-      <div className="filter-div-wrapper">
-        <div className="filter-header">
-          <p>Filter By</p>
-        </div>
-        <div className="checklist-content row">
-          {(
-            filterOptions[
-            properties === "all" ? "all" : properties
-            ] ?? []
-          ).map((section: any, index: any) => (
-            <div className="checklist-list col-md-12" key={index}>
-              <Accordion>
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls="panel1-content"
-                  id="panel1-header"
-                >
-                  <Typography variant="h6">
-                    {section.heading}
-                  </Typography>
-                </AccordionSummary>
+      <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
+        <div className="filter-div-wrapper">
+          <div className="filter-header">
+            <p>Filter By</p>
+            <p className="filtercount">{checkListCount}  Filter{checkListCount !== 1 ? 's' : ''}</p>
+          </div>
+          <div className="checklist-content row">
+            {(
+              filterOptions[properties === "all" ? "all" : properties] ?? []
+            ).map((section: any, index: any) => (
+              <div className="checklist-list col-md-12" key={index}>
+                <Accordion>
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="panel1-content"
+                    id="panel1-header"
+                  >
+                    <Typography variant="h6">{section.heading}</Typography>
+                  </AccordionSummary>
 
-                <AccordionDetails key={resetCounter}>
-                  <div className="label-wrapper">
-                    {section.options.map((opt:any, i:any) => (
-                      <FormControlLabel
-                        key={i}
-                        control={
-                          <Checkbox
-                            checked={currentCheckList.includes(
-                              opt
-                            )}
-                            onChange={() =>
-                              handleCheckboxChange(opt)
-
-                            }
-                            inputProps={{ "aria-label": opt }}
-                          />
-
-                        }
-                        label={opt}
-                      />
-                    ))}
-                  </div>
-                </AccordionDetails>
-              </Accordion>
-            </div>
-          ))}
+                  <AccordionDetails key={resetCounter}>
+                    <div className="label-wrapper">
+                      {section.options.map((opt: any, i: any) => (
+                        <FormControlLabel
+                          key={i}
+                          control={
+                            <Checkbox
+                              checked={currentCheckList.includes(opt)}
+                              onChange={() => handleCheckboxChange(opt)}
+                              inputProps={{ "aria-label": opt }}
+                            />
+                          }
+                          label={opt}
+                        />
+                      ))}
+                    </div>
+                  </AccordionDetails>
+                </Accordion>
+              </div>
+            ))}
+          </div>
+          <div className="apply-reset-btn">
+            <button
+              className="refresh-btn"
+              onClick={() => {
+                filterResetFunction;
+                setDrawerOpen(false);
+              }}
+            >
+              <img src="mynaui_refresh.svg" alt="refresh icon" />
+              Reset
+            </button>
+            <GenericButton
+              image={filterTick}
+              iconPosition="left"
+              label={"Apply"}
+              className="genericFilterApplyStyles"
+              onClick={() => {
+                handleApply(); // your filter logic
+                setDrawerOpen(false); // closes the drawer
+              }}
+            />
+          </div>
         </div>
-        <div className="apply-reset-btn">
-          <button
-            className="refresh-btn"
-            onClick={() => {
-              filterResetFunction;
-              setDrawerOpen(false);
-            }}
-          >
-            <img src="mynaui_refresh.svg" alt="refresh icon" />
-            Reset
-          </button>
-          <GenericButton
-            image={filterTick}
-            iconPosition="left"
-            label={"Apply"}
-            className="genericFilterApplyStyles"
-            onClick={() => {
-              handleApply(); // your filter logic
-              setDrawerOpen(false); // closes the drawer
-            }}
-          />
-        </div>
-      </div>
-    </Drawer>
+      </Drawer>
     </div>
   );
 }
@@ -1032,8 +1102,7 @@ interface ProCardProps {
   onScrollChange: (scrollTop: number) => void;
 }
 
-const PropertyCardList = ({properties, onScrollChange }:ProCardProps) => {
-  
+const PropertyCardList = ({ properties, onScrollChange }: ProCardProps) => {
   const [visibleCount, setVisibleCount] = useState<number>(5);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const formatedData = properties;
@@ -1051,72 +1120,71 @@ const PropertyCardList = ({properties, onScrollChange }:ProCardProps) => {
     }
   }, 200);
 
-   useEffect(() => {
+  useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    container.addEventListener('scroll', handleScroll);
+    container.addEventListener("scroll", handleScroll);
     //return () => container.removeEventListener('scroll', handleScroll);
-   }, []);
-   
-    //change height of card container
-    const [hideHeader, setHideHeader] = React.useState(false);
-    const [lastScrollY, setLastScrollY] = React.useState(0);
-    React.useEffect(() => {
-        const container = containerRef.current;
-    
-        const handleScroll = () => {
-          if (container) {
-            onScrollChange(container.scrollTop);
-          }
-          // Show header when scrolling up
-          const currentScrollY = container?.scrollTop || 0;
-         if (currentScrollY < lastScrollY || currentScrollY < 50) {
-          setHideHeader(false);
-        } else {
-          setHideHeader(true);
-        }
-        setLastScrollY(currentScrollY);
-        };
-    
-        container?.addEventListener('scroll', handleScroll);
-        return () => container?.removeEventListener('scroll', handleScroll);
-    }, [onScrollChange]);
+  }, []);
+
+  //change height of card container
+  const [hideHeader, setHideHeader] = React.useState(false);
+  const [lastScrollY, setLastScrollY] = React.useState(0);
+  React.useEffect(() => {
+    const container = containerRef.current;
+
+    const handleScroll = () => {
+      if (container) {
+        onScrollChange(container.scrollTop);
+      }
+      // Show header when scrolling up
+      const currentScrollY = container?.scrollTop || 0;
+      if (currentScrollY < lastScrollY || currentScrollY < 50) {
+        setHideHeader(false);
+      } else {
+        setHideHeader(true);
+      }
+      setLastScrollY(currentScrollY);
+    };
+
+    container?.addEventListener("scroll", handleScroll);
+    return () => container?.removeEventListener("scroll", handleScroll);
+  }, [onScrollChange]);
 
   return (
     <Box sx={{ flexGrow: 1, p: 2 }}>
-      <Grid >
+      <Grid>
         <div
-           ref={containerRef}
-            style={{
-              height: hideHeader ? '450px':'315px',
-              overflowY: 'auto',
-              marginBottom: '50px',
-            }}
-          >
-        {formatedData.slice(0, visibleCount).map((tableValues: any) => (
-          <Grid item xs={12} sm={12} md={12} key={tableValues.id}>
-            <Card>
-              <CardMedia
-                component="img"
-                height="200"
-                image='https://s3.us-east-1.amazonaws.com/sumisa.prh/cf5ac4795c25447.jpeg'
-                alt={tableValues.title}
-              />
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  {tableValues.title}
-                </Typography>
-                <Typography variant="body1" color="text.secondary">
-                  {tableValues.price}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-       </div>
+          ref={containerRef}
+          style={{
+            height: hideHeader ? "450px" : "315px",
+            overflowY: "auto",
+            marginBottom: "50px",
+          }}
+        >
+          {formatedData.slice(0, visibleCount).map((tableValues: any) => (
+            <Grid item xs={12} sm={12} md={12} key={tableValues.id}>
+              <Card>
+                <CardMedia
+                  component="img"
+                  height="200"
+                  image="https://s3.us-east-1.amazonaws.com/sumisa.prh/cf5ac4795c25447.jpeg"
+                  alt={tableValues.title}
+                />
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    {tableValues.title}
+                  </Typography>
+                  <Typography variant="body1" color="text.secondary">
+                    {tableValues.price}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </div>
       </Grid>
     </Box>
   );
 };
-

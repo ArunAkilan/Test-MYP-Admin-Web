@@ -267,15 +267,15 @@
 }
 .color-edit button {
           
-          display: flex;
-          align-items: center;
-          font-size: 16px;
-          font-weight: 400;
-          font-family: 'Open Sans';
-          margin: 0;
-          margin-left: 16px;
-          color: #2E2E2F;
-        }
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 400;
+  font-family: 'Open Sans';
+  margin: 0;
+  margin-left: 16px;
+  color: #2E2E2F;
+}
   img {
     padding-right: 8px;
   }
@@ -292,4 +292,22 @@
   top: -100px; /* Hide it out of view */
   height: 0px;
 }
-        
+
+.property-option {
+  padding-bottom: 16px;
+}
+.genericContinueButton {
+  background: #214999 !important;
+  font-size: 16px;
+  color: #fff;
+  font-weight: 600;
+  font-family: 'Raleway';
+  line-height: 24px;
+  letter-spacing: 0;
+  width: 100%;
+  justify-content: center;
+}
+.genericContinueButton:hover {
+  background: #2C62CC !important;
+  color: #fff;
+}

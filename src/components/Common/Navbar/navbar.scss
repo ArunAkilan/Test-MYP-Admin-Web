@@ -54,10 +54,10 @@
   top: 13px;
 }
 .h-search input {
-  padding: 9px 18px 9px 50px;
+  padding: 9px 8px 9px 50px;
   border: 1px solid #D8DEE5;
   border-radius: 6px;
-  color: #81858C;
+  color: #55565C;
   font-size: 16px;
   line-height: 24px;
   font-weight: 400;
@@ -69,16 +69,13 @@
 .h-search input:hover,.setting-image:hover ,.bell-image button img:hover ,.ad-right:hover  {
    background: #F2F6F7;
 }
-.h-search input:hover {
-  border: 1px solid #81838C;
-}
+
 .h-search input:focus {
   outline: none;
 }
 .ad-right {
   display: flex ;
   padding: 11.5px 16px;
-  border: 0.5px solid #D3DDE7;
   border-radius: 6px;
   align-items: center;
 }
@@ -89,7 +86,7 @@
 }
 .ad-right p {
   margin: 0;
-  color :#81838C;
+  color :#55565C;
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
