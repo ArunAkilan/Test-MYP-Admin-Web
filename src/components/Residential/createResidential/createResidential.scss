@@ -81,6 +81,29 @@ label {
   vertical-align: middle !important;
   color: #55565c !important;
 }
+
+
+.chooseBtn{
+  line-height: 6px;
+  width: 122px;
+  height: 32px;
+  gap: 8px;
+  border-radius: 4px;
+  border-width: 1px;
+  padding: 8px;
+  background-color:  #214999 !important;
+}
+.btnC{
+  font-family: Raleway;
+  font-weight: 600px;
+  font-size: 12px;
+  line-height: 6px;
+  letter-spacing: 0px;
+  vertical-align: middle;
+  white-space: nowrap;
+  
+  
+}
 .image-p {
   font-family: Raleway;
   font-weight: 600;
@@ -89,7 +112,84 @@ label {
   letter-spacing: 0px;
   vertical-align: middle;
   color: #81838c;
+  white-space: nowrap;
 }
+.imageDesc{
+  font-family: Raleway;
+  font-weight: 600px;
+  font-size: 12px;
+  line-height: 6px;
+  letter-spacing: 0px;
+  vertical-align: middle;
+  color: #81838C;
+   white-space: nowrap;
+  
+}
+//uploaded images:
+
+.upload-wrapper {
+  // width: 833px;
+  // height: 142px;
+  overflow: hidden; // Prevents vertical overflow
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ddd; // optional for visual boundary
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.preview-images {
+  
+  // width: 100%;
+  // height: 100%;
+  display: flex;
+  overflow-x: auto;       //  horizontal scroll
+  overflow-y: hidden;     //  no vertical scroll
+  white-space: nowrap;
+  gap: 0.5rem;
+  scroll-behavior: smooth;
+
+  .choosedImages {
+    flex: 0 0 auto;
+    position: relative;
+
+    img.preview-img {
+      height: 100%;
+      width: auto;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+
+    .remove-btn {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      background: white;
+      border: 1px solid #999;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      padding: 0;
+      font-size: 14px;
+      line-height: 18px;
+      cursor: pointer;
+    }
+  }
+
+  // Optional: scrollbar styles
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+  }
+}
+//--------------------------
+
+
+
 .createNP {
   padding: 14px 24px;
   border-radius: 8px;
@@ -154,4 +254,14 @@ label {
   line-height: 22px;
   letter-spacing: 0.1px;
   vertical-align: middle;
+}
+.preview-images{
+  .position-relative{
+    width: 150px;
+    height: 84px;
+    border-radius: 6px !important;
+    border-width: 3px !important;
+    border-color: #2C62CC !important;
+  }
+
 }

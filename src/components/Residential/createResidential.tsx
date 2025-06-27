@@ -14,9 +14,12 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import { AxiosError } from "axios";
-import type { ResidentialProperty, ResidentialFormState, UploadedImage, PlainObject} from "./createResidential/createResidential.model";
-
-
+import type {
+  ResidentialProperty,
+  ResidentialFormState,
+  UploadedImage,
+  PlainObject,
+} from "./createResidential/createResidential.model";
 
 // Utility function to set nested value dynamically
 function setNested(obj: PlainObject, path: string, value: unknown) {
@@ -30,27 +33,32 @@ function setNested(obj: PlainObject, path: string, value: unknown) {
       if (!current[key] || typeof current[key] !== "object") {
         current[key] = {};
       }
-      //@ts-ignore
-      current = current[key];
+
+      current = current[key] as PlainObject;
     }
   });
 }
 
 // Build payload dynamically based on form state
-function buildPayloadDynamic(formState: ResidentialFormState): ResidentialProperty {
-
+function buildPayloadDynamic(
+  formState: ResidentialFormState
+): ResidentialProperty {
   const payload: Partial<ResidentialProperty> = {};
 
-  setNested(payload, "owner.firstName", formState.firstName.trim());
-  setNested(payload, "owner.lastName", formState.lastName.trim());
-  setNested(payload, "owner.contact.phone1", formState.phone1.trim());
-  setNested(payload, "owner.contact.email", formState.email.trim());
+  setNested(payload, "owner.firstName", (formState.firstName ?? "").trim());
+  setNested(payload, "owner.lastName", (formState.lastName ?? "").trim());
+  setNested(payload, "owner.contact.phone1", (formState.phone1 ?? "").trim());
+  setNested(payload, "owner.contact.email", (formState.email ?? "").trim());
   setNested(payload, "owner.contact.getUpdates", false);
 
   setNested(payload, "propertyType", formState.propertyType);
-  setNested(payload, "rent.rentAmount", parseFloat(formState.rent));
+
+  const rentAmount = parseFloat(formState.rent);
+  setNested(payload, "rent.rentAmount", isNaN(rentAmount) ? 0 : rentAmount);
+
   setNested(payload, "rent.negotiable", true);
-  setNested(payload, "rent.advanceAmount", parseFloat(formState.advanceAmount));
+  const advance = parseFloat(formState.advanceAmount);
+  setNested(payload, "rent.advanceAmount", isNaN(advance) ? 0 : advance);
 
   setNested(payload, "location.landmark", "Near Green Park");
   if (formState.latitude)
@@ -77,17 +85,26 @@ function buildPayloadDynamic(formState: ResidentialFormState): ResidentialProper
   setNested(payload, "residentialType", formState.residentialType);
   setNested(payload, "facingDirection", formState.facingDirection);
   setNested(payload, "rooms", formState.rooms);
-  setNested(payload, "totalFloors", formState.totalFloors ? parseInt(formState.totalFloors) : 0);
-  setNested(payload, "propertyFloor", formState.propertyFloor ? parseInt(formState.propertyFloor) : 0);
+  setNested(
+    payload,
+    "totalFloors",
+    formState.totalFloors ? parseInt(formState.totalFloors) : 0
+  );
+  setNested(
+    payload,
+    "propertyFloor",
+    formState.propertyFloor ? parseInt(formState.propertyFloor) : 0
+  );
   setNested(payload, "furnishingType", formState.furnishingType);
   setNested(payload, "description", formState.description);
-  //@ts-ignore
-  return payload;
+  setNested(payload, "legalDocuments", formState.legalDocuments); // if it's string[]
+
+  return payload as ResidentialProperty;
 }
 
 // Define breadcrumb data
 const breadcrumbsData = [
-  { label: "Residential", href: "/residentials" },
+  { label: "Residential", href: "/residential" },
   // For the separator image in your original HTML, MUI Breadcrumbs uses an icon, so it replaces it automatically
   { label: "Create New Property" }, // current page, no href
 ];
@@ -118,7 +135,7 @@ export const CreateResidential = () => {
   const [furnishingType, setFurnishingType] = useState("");
   const [rooms, setRoomCount] = useState("");
   const [description, setPropertyDescription] = useState("");
-  const [legalDocuments, setLegalDocsAvailable] = useState("");
+  const [legalDocuments, setLegalDocuments] = useState("Yes");
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
 
   // Validation errors state
@@ -142,13 +159,13 @@ export const CreateResidential = () => {
       newErrors.lastName = "Last Name is required.";
       isValid = false;
     }
-    if (!email.trim()) {
-      newErrors.email = "Email is required.";
-      isValid = false;
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = "Email address is invalid.";
-      isValid = false;
-    }
+    // if (!email.trim()) {
+    //   newErrors.email = "Email is required.";
+    //   isValid = false;
+    // } else if (!/\S+@\S+\.\S+/.test(email)) {
+    //   newErrors.email = "Email address is invalid.";
+    //   isValid = false;
+    // }
     // if (!ephone.trim()) {
     //   newErrors.phone = "Phone Number is required.";
     //   isValid = false;
@@ -158,56 +175,56 @@ export const CreateResidential = () => {
     // }
 
     // Property Overview Validation
-    if (!propertyType) {
-      newErrors.propertyType = "Property Type is required.";
-      isValid = false;
-    }
+    // if (!propertyType) {
+    //   newErrors.propertyType = "Property Type is required.";
+    //   isValid = false;
+    // }
     if (!title.trim()) {
       newErrors.title = "Property Title is required.";
       isValid = false;
     }
-    if (!rent.trim()) {
-      newErrors.rent = "Monthly Rent is required.";
-      isValid = false;
-    } else if (isNaN(parseFloat(rent)) || parseFloat(rent) <= 0) {
-      newErrors.rent = "Monthly Rent must be a positive number.";
-      isValid = false;
-    }
-    if (!advanceAmount.trim()) {
-      newErrors.advanceDeposit = "Advance Deposit is required.";
-      isValid = false;
-    } else if (
-      isNaN(parseFloat(advanceAmount)) ||
-      parseFloat(advanceAmount) < 0
-    ) {
-      newErrors.advanceAmount =
-        "Advance Deposit must be a non-negative number.";
-      isValid = false;
-    }
-    if (!leaseTenure.trim()) {
-      newErrors.leaseTenure = "Tenure is required.";
-      isValid = false;
-    } else if (isNaN(parseFloat(leaseTenure)) || parseInt(leaseTenure) <= 0) {
-      newErrors.leaseTenure = "Tenure must be a positive number of years.";
-      isValid = false;
-    }
-    if (!residentialType) {
-      newErrors.residentialType = "Property Category is required.";
-      isValid = false;
-    }
+    // if (!rent.trim()) {
+    //   newErrors.rent = "Monthly Rent is required.";
+    //   isValid = false;
+    // } else if (isNaN(parseFloat(rent)) || parseFloat(rent) <= 0) {
+    //   newErrors.rent = "Monthly Rent must be a positive number.";
+    //   isValid = false;
+    // }
+    // if (!advanceAmount.trim()) {
+    //   newErrors.advanceDeposit = "Advance Deposit is required.";
+    //   isValid = false;
+    // } else if (
+    //   isNaN(parseFloat(advanceAmount)) ||
+    //   parseFloat(advanceAmount) < 0
+    // ) {
+    //   newErrors.advanceAmount =
+    //     "Advance Deposit must be a non-negative number.";
+    //   isValid = false;
+    // }
+    // if (!leaseTenure.trim()) {
+    //   newErrors.leaseTenure = "Tenure is required.";
+    //   isValid = false;
+    // } else if (isNaN(parseFloat(leaseTenure)) || parseInt(leaseTenure) <= 0) {
+    //   newErrors.leaseTenure = "Tenure must be a positive number of years.";
+    //   isValid = false;
+    // }
+    // if (!residentialType) {
+    //   newErrors.residentialType = "Property Category is required.";
+    //   isValid = false;
+    // }
 
     // Location & Address Validation
     // For property images, check if a file has been selected (simplified for now)
-    if (!images) {
+    if (!images || images.length === 0) {
       newErrors.propertyImages = "At least one property image is required.";
       isValid = false;
     }
     // You might want to validate address, latitude, and longitude if they are crucial
     // For example:
-    // if (!address.trim()) {
-    //   newErrors.address = "Full Address is required.";
-    //   isValid = false;
-    // }
+    if (!address.trim()) {
+      newErrors.address = "Full Address is required.";
+      isValid = false;
+    }
     // if (!latitude.trim() || isNaN(latitude)) {
     //   newErrors.latitude = "Valid Latitude is required.";
     //   isValid = false;
@@ -326,7 +343,7 @@ export const CreateResidential = () => {
     if (hasFetched.current) return;
     hasFetched.current = true;
 
-    fetch(`${import.meta.env.VITE_FRONTEND}/api/residential`)
+    fetch(`${import.meta.env.VITE_BackEndUrl}/api/residential/create`)
       .then((res) => res.json())
       .then((data) => console.log("Fetched:", data)) // Already fetched? Exit.
       .catch((err) => console.error("Error:", err)); // Mark as fetched.
@@ -381,7 +398,7 @@ export const CreateResidential = () => {
         // TODO: Send data to backend
         // Redirect after a short delay (so toast is visible)
         setTimeout(() => {
-          navigate("/", {
+          navigate("/residential", {
             state: { data: response.data },
           });
         }, 2000);
@@ -403,7 +420,6 @@ export const CreateResidential = () => {
       toast.error("Please correct the highlighted errors before submitting.");
     }
   };
-  //clear All Errors
 
   return (
     <form onSubmit={handleSubmit}>
@@ -459,16 +475,14 @@ export const CreateResidential = () => {
                   <div className="row">
                     <div className="col-12 col-md-6 mb-3">
                       <label className="TextLabel" htmlFor="email">
-                        Email <span className="star">*</span>
+                        Email
                       </label>
                       <InputField
                         type="email"
-                        id="ownerEmail"
+                        id="Email"
                         placeholder="Enter Owner’s Email Address"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        error={!!errors.email}
-                        helperText={errors.email}
                       />
                     </div>
                     <div className="col-12 col-md-6 mb-3">
@@ -499,7 +513,7 @@ export const CreateResidential = () => {
                   <div className="row">
                     <div className="col-12 col-md-6 mb-3">
                       <label className="TextLabel" htmlFor="propertyType">
-                        Property Type <span className="star">*</span>
+                        Property Type
                       </label>
                       <InputField
                         type="dropdown"
@@ -507,8 +521,6 @@ export const CreateResidential = () => {
                         dropdownOptions={["Select", "Rent", "Lease", "Sale"]}
                         value={propertyType || "Select"}
                         onChange={(e) => setPropertyType(e.target.value)}
-                        error={!!errors.propertyType}
-                        helperText={errors.propertyType}
                       />
                     </div>
                     <div className="col-12 col-md-6 mb-3">
@@ -530,7 +542,7 @@ export const CreateResidential = () => {
                   <div className="row">
                     <div className="col-12 col-md-6 mb-3">
                       <label className="TextLabel" htmlFor="monthlyRent">
-                        Monthly Rent (₹) <span className="star">*</span>
+                        Monthly Rent (₹)
                       </label>
                       <InputField
                         type="text"
@@ -538,13 +550,11 @@ export const CreateResidential = () => {
                         placeholder="Enter Amount in Rupees (₹)"
                         value={rent}
                         onChange={(e) => setRent(e.target.value)}
-                        error={!!errors.rent}
-                        helperText={errors.rent}
                       />
                     </div>
                     <div className="col-12 col-md-3 mb-3">
                       <label className="TextLabel" htmlFor="advanceDeposit">
-                        Advance Deposit (₹) <span className="star">*</span>
+                        Advance Deposit (₹)
                       </label>
                       <InputField
                         type="text"
@@ -552,13 +562,13 @@ export const CreateResidential = () => {
                         placeholder="Enter Deposit"
                         value={advanceAmount}
                         onChange={(e) => setAdvanceAmount(e.target.value)}
-                        error={!!errors.advanceDeposit}
-                        helperText={errors.advanceAmount}
+                        // error={!!errors.advanceDeposit}
+                        // helperText={errors.advanceAmount}
                       />
                     </div>
                     <div className="col-12 col-md-3 mb-3">
                       <label className="TextLabel" htmlFor="tenure">
-                        Tenure (Years) <span className="star">*</span>
+                        Tenure (Years)
                       </label>
                       <InputField
                         type="text"
@@ -566,8 +576,6 @@ export const CreateResidential = () => {
                         placeholder="Enter Tenure in Years"
                         value={leaseTenure}
                         onChange={(e) => setLeaseTenure(e.target.value)}
-                        error={!!errors.leaseTenure}
-                        helperText={errors.leaseTenure}
                       />
                     </div>
                   </div>
@@ -575,7 +583,7 @@ export const CreateResidential = () => {
                   <div className="row">
                     <div className="col-12">
                       <label className="TextLabel" htmlFor="propertyCategory">
-                        Property Category <span className="star">*</span>
+                        Property Category
                       </label>
                       <div className="d-flex flex-wrap gap-3">
                         <InputField
@@ -584,8 +592,6 @@ export const CreateResidential = () => {
                           id="propertyCategory"
                           value={residentialType || "House"}
                           onChange={(e) => setResidentialType(e.target.value)}
-                          error={!!errors.propertyCategory}
-                          helperText={errors.propertyCategory}
                         />
                       </div>
                     </div>
@@ -627,62 +633,13 @@ export const CreateResidential = () => {
                         referrerPolicy="no-referrer-when-downgrade"
                       ></iframe>
                     </div>
-                    <div className="ResidentialCategory mt-3">
-                      <p>
-                        Upload Property Images <span className="star">*</span>
-                      </p>
-
-                      <div className="BtnFrame d-flex mt-3 mb-2 align-items-start gap-3">
-                        <p className="image-p">
-                          {/* {propertyImages
-                          ? propertyImages.name : "No image chosen"} */}
-                          {images && images.length > 0
-                            ? `${images.length} image(s) selected`
-                            : "No image chosen"}
-                        </p>
-                        <input
-                          type="file"
-                          id="propertyImageUpload"
-                          style={{ display: "none" }}
-                          onChange={(e) => {
-                            if (e.target.files) {
-                              const files = Array.from(e.target.files);
-                              const uploaded = files.map((file) => ({
-                                file,
-                                url: URL.createObjectURL(file),
-                              }));
-                              setImages(uploaded);
-
-                              // setImages(Array.from(e.target.files)); // Save all selected files as array
-                            }
-                          }}
-                          accept="image/*"
-                          multiple // Enable multi-selection
-
-                          // setPropertyImages(e.target.files[0])}
-                          // accept="image/*"
-                        />
-                        <Button
-                          variant="contained"
-                          startIcon={<FileUploadOutlinedIcon />}
-                          id="Choosebtn"
-                          onClick={() =>
-                            document
-                              .getElementById("propertyImageUpload")
-                              ?.click()
-                          }
-                        >
-                          Choose image
-                        </Button>
-                      </div>
-                    </div>
                   </div>
 
                   <div className="col-12 col-md-6 mb-3">
                     <div className="row">
                       <div className="col-12 mb-3">
                         <label className="TextLabel" htmlFor="address">
-                          Full Address
+                          Full Address <span className="star">*</span>
                         </label>
                         <InputField
                           type="text"
@@ -690,7 +647,8 @@ export const CreateResidential = () => {
                           placeholder="Enter Address"
                           value={address}
                           onChange={(e) => setAddress(e.target.value)}
-                          // Add error handling if address is mandatory
+                          error={!!errors.address}
+                          helperText={errors.address}
                         />
                       </div>
                       <div className="col-6 mb-3">
@@ -790,6 +748,125 @@ export const CreateResidential = () => {
                         </div>
                       </div>
                     </div>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="ResidentialCategory mt-3">
+                    <p>
+                      Upload Property Images <span className="star">*</span>
+                    </p>
+                  </div>
+
+                  <div className="preview-images d-flex gap-2 mt-2 image-scroll-container">
+                    {images.map((img, index) => (
+                      <div
+                        key={index}
+                        className="choosedImages position-relative"
+                      >
+                        <img
+                          src={img.url}
+                          alt={`preview-${index}`}
+                          className="preview-img"
+                        />
+
+                        <div
+                          className="image-name mt-1 text-truncate"
+                          title={img.name}
+                          style={{
+                            fontSize: "12px",
+                            color: "#333",
+                            maxWidth: "100%",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {img.name}
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setImages((prevImages) =>
+                              prevImages.filter((_, i) => i !== index)
+                            )
+                          }
+                          className="remove-btn"
+                        >
+                          ×
+                        </button>
+                        <div
+                          className="image-name mt-1 text-truncate text-center"
+                          title={img.name}
+                          style={{
+                            fontSize: "12px",
+                            color: "#333",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            maxWidth: "100%",
+                          }}
+                        >
+                          {img.name}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="BtnFrame d-flex mt-3 mb-2 align-items-start gap-3">
+                    <p className="image-p">
+                      {/* {propertyImages
+                          ? propertyImages.name : "No image chosen"} */}
+                      {images && images.length > 0
+                        ? `${images.length} image(s) selected`
+                        : "No image chosen"}
+                    </p>
+                    <input
+                      type="file"
+                      id="propertyImageUpload"
+                      style={{ display: "none" }}
+                      onChange={(e) => {
+                        if (e.target.files) {
+                          const newFiles = Array.from(e.target.files).map(
+                            (file) => ({
+                              // const uploaded = files.map((file) => ({
+                              file, // optional, for uploads later
+                              url: URL.createObjectURL(file),
+                              name: file.name, //img.name comes from
+                            })
+                          );
+                          // setImages(uploaded);
+
+                          // Append new files to existing images state
+
+                          setImages((prevImages) => [
+                            ...prevImages,
+                            ...newFiles,
+                          ]);
+
+                          // Reset the input so the same files can be selected again if needed
+                          e.target.value = "";
+                          // setImages(Array.from(e.target.files)); // Save all selected files as array
+                        }
+                      }}
+                      accept="image/*"
+                      multiple // Enable multi-selection
+
+                      // setPropertyImages(e.target.files[0])}
+                      // accept="image/*"
+                    />
+                    <Button
+                      className="chooseBtn"
+                      variant="contained"
+                      startIcon={<FileUploadOutlinedIcon />}
+                      id="Choosebtn"
+                      onClick={() =>
+                        document.getElementById("propertyImageUpload")?.click()
+                      }
+                    >
+                      <span className="btnC">Choose image</span>
+                    </Button>
+                    <p className="imageDesc">Max. 12 Images</p>
                   </div>
                 </div>
               </section>
@@ -1369,15 +1446,15 @@ export const CreateResidential = () => {
 
               <div className="col-12">
                 <label className="TextLabel" htmlFor="legalDocsAvailable">
-                  Are Legal Documents Available? <span className="star">*</span>
+                  Are Legal Documents Available?
                 </label>
                 <div className="d-flex flex-wrap gap-3">
                   <InputField
                     type="radio"
                     radioOptions={["Yes", "No"]} // Corrected "NO" to "No" for consistency
                     id="legalDocsAvailable"
-                    value={legalDocuments || "Yes"}
-                    onChange={(e) => setLegalDocsAvailable(e.target.value)}
+                    value={legalDocuments}
+                    onChange={(e) => setLegalDocuments(e.target.value)}
                     // error={!!errors.legalDocuments}
                     // helperText={errors.legalDocuments}
                   />

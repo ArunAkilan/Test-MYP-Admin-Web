@@ -27,6 +27,7 @@ import { MuiTelInput } from "mui-tel-input";
 import type { Theme } from "@mui/system";
 import Avatar from "@mui/material/Avatar";
 import type { SelectChangeEvent } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 // ---------------- Types -------------------
 type InputType =
@@ -111,7 +112,10 @@ const StyledTextarea = styled(TextareaAutosize)(
 // ---------------- Subcomponent: Breadcrumbs -------------------
 const DynamicBreadcrumbs: React.FC<{ breadcrumbs: BreadcrumbItem[] }> = ({
   breadcrumbs,
-}) => (
+}) => {
+  const navigate = useNavigate();
+
+  return(
   <Stack spacing={2} sx={{ mb: 2 }}>
     <Breadcrumbs
       separator={<NavigateNextIcon fontSize="small" />}
@@ -127,6 +131,7 @@ const DynamicBreadcrumbs: React.FC<{ breadcrumbs: BreadcrumbItem[] }> = ({
             onClick={(e) => {
               e.preventDefault();
               console.info("Breadcrumb clicked:", crumb.label);
+              navigate(crumb.href!); // ← navigate to route
             }}
           >
             {crumb.label}
@@ -140,7 +145,7 @@ const DynamicBreadcrumbs: React.FC<{ breadcrumbs: BreadcrumbItem[] }> = ({
     </Breadcrumbs>
   </Stack>
 );
-
+};
 // ---------------- Component -------------------
 const InputField: React.FC<InputFieldProps> = ({
   id,
