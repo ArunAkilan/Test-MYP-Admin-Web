@@ -76,11 +76,7 @@ function buildPayloadDynamic(
   setNested(payload, "area.width", "30 ft");
 
   // Add other fields similarly
-  setNested(
-    payload,
-    "images",
-    (formState.images as UploadedImage[]).map((file) => file.url)
-  );
+  setNested(payload,"images", (formState.images as UploadedImage[]).map((file) => file.url));
   setNested(payload, "title", formState.title);
   setNested(payload, "residentialType", formState.residentialType);
   setNested(payload, "facingDirection", formState.facingDirection);
@@ -758,7 +754,7 @@ export const CreateResidential = () => {
                     </p>
                   </div>
 
-                  <div className="preview-images d-flex gap-2 mt-2 image-scroll-container">
+                  <div className="preview-images d-flex gap-3 mt-2 image-scroll-container">
                     {images.map((img, index) => (
                       <div
                         key={index}
@@ -796,30 +792,17 @@ export const CreateResidential = () => {
                         >
                           ×
                         </button>
-                        <div
-                          className="image-name mt-1 text-truncate text-center"
-                          title={img.name}
-                          style={{
-                            fontSize: "12px",
-                            color: "#333",
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            maxWidth: "100%",
-                          }}
-                        >
-                          {img.name}
-                        </div>
+                       
                       </div>
                     ))}
                   </div>
-                  <div className="BtnFrame d-flex mt-3 mb-2 align-items-start gap-3">
+                  <div className={`BtnFrame d-flex mt-3 mb-2 align-items-start gap-3 ${images.length > 0 ? 'with-gap' : ''}`}>
                     <p className="image-p">
                       {/* {propertyImages
                           ? propertyImages.name : "No image chosen"} */}
                       {images && images.length > 0
-                        ? `${images.length} image(s) selected`
-                        : "No image chosen"}
+                        ? `${images.length} image choosen`
+                        : "No image choosen"}
                     </p>
                     <input
                       type="file"
@@ -836,13 +819,29 @@ export const CreateResidential = () => {
                             })
                           );
                           // setImages(uploaded);
+                          setImages((prevImages) => {
+                            const remainingSlots = 12 - prevImages.length;
 
+                            if (remainingSlots <= 0) {
+                              // Optional: Show alert or toast
+                              toast.warning("Maximum 12 images allowed.");
+                              return prevImages;
+                            }
+                            const limitedFiles = newFiles.slice(0, remainingSlots);
+
+                            if (newFiles.length > remainingSlots) {
+                              toast.info(
+                                `Only ${remainingSlots} more image${remainingSlots > 1 ? "s" : ""} can be added.`
+                              );
+                            }
+
+                            return [...prevImages, ...limitedFiles];
                           // Append new files to existing images state
 
-                          setImages((prevImages) => [
-                            ...prevImages,
-                            ...newFiles,
-                          ]);
+                          // setImages((prevImages) => [
+                          //   ...prevImages,
+                          //   ...newFiles,]
+                        });
 
                           // Reset the input so the same files can be selected again if needed
                           e.target.value = "";
