@@ -451,21 +451,21 @@ export default function Dashboardtab({
       setDrawerOpen(drawerOpen); // ✅ updated
     };
 
-// card view 
+  // card view
   const [cardView, setCardView] = useState(false);
   //const [isFixed, setIsFixed] = useState(false);
   // sticky function
   const [hideHeader, setHideHeader] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
 
-const handleChangeSwitch = (
-  _event: React.MouseEvent<HTMLElement>,
-  newAlignment: string
-) => {
-  if (!newAlignment) return;
-  setAlignment(newAlignment);
-  setCardView(newAlignment === "Card View");
-};
+  const handleChangeSwitch = (
+    _event: React.MouseEvent<HTMLElement>,
+    newAlignment: string
+  ) => {
+    if (!newAlignment) return;
+    setAlignment(newAlignment);
+    setCardView(newAlignment === "Card View");
+  };
 
   const handleChildScroll = (scrollTop: number) => {
     //setIsFixed(scrollTop > 50);
@@ -481,7 +481,7 @@ const handleChangeSwitch = (
     setLastScrollY(currentScrollY);
     onScrollChangeParent(scrollTop);
   };
-const checkListCount = currentCheckList.length;
+  const checkListCount = currentCheckList.length;
 
   return (
     <div id="pending-approval-tab">
@@ -572,6 +572,222 @@ const checkListCount = currentCheckList.length;
           <div className="new-listing-wrap">
             <div className="container">
               <div className="new-listing">
+                <div className="new-listing-wrap-list">
+                  {!isExpanded && (
+                    <h3 className="result">
+                      <span className="resultCount">{getResultCount}</span>{" "}
+                      Results
+                    </h3>
+                  )}
+                </div>
+
+                <div className="list-panel">
+                  <div
+                    onClick={() => setIsExpanded(true)}
+                    className={`search ${isExpanded ? "active" : ""}`}
+                  >
+                    <input type="search" placeholder="Search Properties" />
+                    <img src="Search-1.svg" alt="search svg" />
+                  </div>
+                  <div className="list-card-toggle">
+                    <ToggleButtonGroup
+                      color="primary"
+                      value={alignment}
+                      exclusive
+                      onChange={handleChangeSwitch}
+                      aria-label="Platform"
+                    >
+                      <ToggleButton value="List View">
+                        <img
+                          src="../src/assets/dashboardtab/solar_list-linear.svg"
+                          alt="list-view"
+                        />
+                        List View
+                      </ToggleButton>
+                      <ToggleButton value="Card View">
+                        <img
+                          src="../src/assets/dashboardtab/system-uicons_card-view.svg"
+                          alt="card-view"
+                        />
+                        Card View
+                      </ToggleButton>
+                    </ToggleButtonGroup>
+                  </div>
+                  <div className="filter-link color-edit">
+                    <Button
+                      className="filter-text"
+                      aria-describedby={id}
+                      // onClick={handleClick}
+                      onClick={toggleDrawer(true)}
+                    >
+                      <img src="majesticons_filter-line.svg" alt="filter img" />
+                      Filter {checkListCount}
+                    </Button>
+                  </div>
+                  {alignment === "Card View" && (
+                    <div className="sort-link color-edit">
+                      <Button className="filter-text" aria-describedby={id}>
+                        <img
+                          src="material-symbols_sort-rounded.svg"
+                          alt="filter img"
+                        />
+                        Sort
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </CustomTabPanel>
+        <CustomTabPanel value={value} index={1}>
+          <div className="new-listing-wrap">
+            <div className="container">
+              <div className="new-listing">
+                <div className="new-listing-wrap-list">
+                  {!isExpanded && (
+                    <h3 className="result">
+                      <span className="resultCount">{getResultCount}</span>{" "}
+                      Results
+                    </h3>
+                  )}
+                </div>
+
+                <div className="list-panel">
+                  <div
+                    onClick={() => setIsExpanded(true)}
+                    className={`search ${isExpanded ? "active" : ""}`}
+                  >
+                    <input type="search" placeholder="Search Properties" />
+                    <img src="Search-1.svg" alt="search svg" />
+                  </div>
+                  <div className="list-card-toggle">
+                    <ToggleButtonGroup
+                      color="primary"
+                      value={alignment}
+                      exclusive
+                      onChange={handleChangeSwitch}
+                      aria-label="Platform"
+                    >
+                      <ToggleButton value="List View">
+                        <img
+                          src="../src/assets/dashboardtab/solar_list-linear.svg"
+                          alt="list-view"
+                        />
+                        List View
+                      </ToggleButton>
+                      <ToggleButton value="Card View">
+                        <img
+                          src="../src/assets/dashboardtab/system-uicons_card-view.svg"
+                          alt="card-view"
+                        />
+                        Card View
+                      </ToggleButton>
+                    </ToggleButtonGroup>
+                  </div>
+                  <div className="filter-link color-edit">
+                    <Button
+                      className="filter-text"
+                      aria-describedby={id}
+                      // onClick={handleClick}
+                      onClick={toggleDrawer(true)}
+                    >
+                      <img src="majesticons_filter-line.svg" alt="filter img" />
+                      Filter {checkListCount}
+                    </Button>
+                  </div>
+                  {alignment === "Card View" && (
+                    <div className="sort-link color-edit">
+                      <Button className="filter-text" aria-describedby={id}>
+                        <img
+                          src="material-symbols_sort-rounded.svg"
+                          alt="filter img"
+                        />
+                        Sort
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </CustomTabPanel>
+        <CustomTabPanel value={value} index={2}>
+          <div className="new-listing-wrap">
+            <div className="container">
+              <div className="new-listing">
+                <div className="new-listing-wrap-list">
+                  {!isExpanded && (
+                    <h3 className="result">
+                      <span className="resultCount">{getResultCount}</span>{" "}
+                      Results
+                    </h3>
+                  )}
+                </div>
+
+                <div className="list-panel">
+                  <div
+                    onClick={() => setIsExpanded(true)}
+                    className={`search ${isExpanded ? "active" : ""}`}
+                  >
+                    <input type="search" placeholder="Search Properties" />
+                    <img src="Search-1.svg" alt="search svg" />
+                  </div>
+                  <div className="list-card-toggle">
+                    <ToggleButtonGroup
+                      color="primary"
+                      value={alignment}
+                      exclusive
+                      onChange={handleChangeSwitch}
+                      aria-label="Platform"
+                    >
+                      <ToggleButton value="List View">
+                        <img
+                          src="../src/assets/dashboardtab/solar_list-linear.svg"
+                          alt="list-view"
+                        />
+                        List View
+                      </ToggleButton>
+                      <ToggleButton value="Card View">
+                        <img
+                          src="../src/assets/dashboardtab/system-uicons_card-view.svg"
+                          alt="card-view"
+                        />
+                        Card View
+                      </ToggleButton>
+                    </ToggleButtonGroup>
+                  </div>
+                  <div className="filter-link color-edit">
+                    <Button
+                      className="filter-text"
+                      aria-describedby={id}
+                      // onClick={handleClick}
+                      onClick={toggleDrawer(true)}
+                    >
+                      <img src="majesticons_filter-line.svg" alt="filter img" />
+                      Filter {checkListCount}
+                    </Button>
+                  </div>
+                  {alignment === "Card View" && (
+                    <div className="sort-link color-edit">
+                      <Button className="filter-text" aria-describedby={id}>
+                        <img
+                          src="material-symbols_sort-rounded.svg"
+                          alt="filter img"
+                        />
+                        Sort
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </CustomTabPanel>
+        <CustomTabPanel value={value} index={3}>
+          <div className="new-listing-wrap">
+            <div className="container">
+              <div className="new-listing">
                 
                 <div className="new-listing-wrap-list">
                   {!isExpanded && (
@@ -637,330 +853,6 @@ const checkListCount = currentCheckList.length;
                       </Button>
                     </div>
                   )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </CustomTabPanel>
-        <CustomTabPanel value={value} index={1}>
-          <div className="new-listing-wrap">
-            <div className="container">
-              <div className="new-listing">
-                <div className="new-listing-wrap-list">
-                  <h3 className="result">
-                    <span className="resultCount">{getResultCount}</span>{" "}
-                    Results
-                  </h3>
-                </div>
-                <div className="list-panel">
-                 
-                  <div className="search">
-                    <input type="search" placeholder="Search Properties" />
-                    <img src="Search-1.svg" alt="search svg" />
-                  </div>
-                  <div className="filter-link color-edit">
-                    <Button
-                      className="filter-text"
-                      aria-describedby={id}
-                      onClick={handleClick}
-                    >
-                      <img src="majesticons_filter-line.svg" alt="filter img" />
-                      Filter
-                    </Button>
-                    <Popover
-                      style={{ margin: "20% 8% 0 8%", position: "absolute" }}
-                      anchorReference="anchorPosition"
-                      anchorPosition={{
-                        top: 144,
-                        left: 260,
-                      }}
-                      anchorOrigin={{
-                        vertical: "top",
-                        horizontal: "left",
-                      }}
-                      transformOrigin={{
-                        vertical: "top",
-                        horizontal: "left",
-                      }}
-                      id={id}
-                      open={filterOpen}
-                      anchorEl={anchorEl}
-                      onClose={handleClose}
-                    >
-                      <div className="filter-div-wrapper">
-                        <div className="filter-header">
-                          <p>Filter By</p>
-                          <div className="apply-reset-btn">
-                            <button
-                              className="refresh-btn"
-                              onClick={filterResetFunction}
-                            >
-                              <img
-                                src="mynaui_refresh.svg"
-                                alt="refresh icon"
-                              />
-                              Reset
-                            </button>
-                            <GenericButton
-                              image={filterTick}
-                              iconPosition="left"
-                              label={"Apply"}
-                              className="genericFilterApplyStyles"
-                              onClick={handleApply}
-                            />
-                          </div>
-                        </div>
-                        <div className="checklist-content row">
-                          {(
-                            filterOptions[
-                              properties === "all" ? "residentials" : properties
-                            ] ?? []
-                          ).map((section, index) => (
-                            <div
-                              className="checklist-list col-md-3"
-                              key={index}
-                            >
-                              <Typography variant="h6">
-                                {section.heading}
-                              </Typography>
-                              <div className="label-wrapper">
-                                {section.options.map((opt, i) => (
-                                  <FormControlLabel
-                                    key={i}
-                                    control={
-                                      <Checkbox
-                                        checked={currentCheckList.includes(opt)}
-                                        onChange={() =>
-                                          handleCheckboxChange(opt)
-                                        }
-                                      />
-                                    }
-                                    label={opt}
-                                  />
-                                ))}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </Popover>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </CustomTabPanel>
-        <CustomTabPanel value={value} index={2}>
-          <div className="new-listing-wrap">
-            <div className="container">
-              <div className="new-listing">
-                <div className="new-listing-wrap-list">
-                  <h3 className="result">
-                    <span className="resultCount">{getResultCount}</span>{" "}
-                    Results
-                  </h3>
-                </div>
-                <div className="list-panel">
-                  
-                  <div className="search">
-                    <input type="search" placeholder="Search Properties" />
-                    <img src="Search-1.svg" alt="search svg" />
-                  </div>
-                  <div className="filter-link color-edit">
-                    <Button
-                      className="filter-text"
-                      aria-describedby={id}
-                      onClick={handleClick}
-                    >
-                      <img src="majesticons_filter-line.svg" alt="filter img" />
-                      Filter
-                    </Button>
-                    <Popover
-                      style={{ margin: "20% 8% 0 8%", position: "absolute" }}
-                      anchorReference="anchorPosition"
-                      anchorPosition={{
-                        top: 144,
-                        left: 260,
-                      }}
-                      anchorOrigin={{
-                        vertical: "top",
-                        horizontal: "left",
-                      }}
-                      transformOrigin={{
-                        vertical: "top",
-                        horizontal: "left",
-                      }}
-                      id={id}
-                      open={filterOpen}
-                      anchorEl={anchorEl}
-                      onClose={handleClose}
-                    >
-                      <div className="filter-div-wrapper">
-                        <div className="filter-header">
-                          <p>Filter By</p>
-                          <div className="apply-reset-btn">
-                            <button
-                              className="refresh-btn"
-                              onClick={filterResetFunction}
-                            >
-                              <img
-                                src="mynaui_refresh.svg"
-                                alt="refresh icon"
-                              />
-                              Reset
-                            </button>
-                            <GenericButton
-                              image={filterTick}
-                              iconPosition="left"
-                              label={"Apply"}
-                              className="genericFilterApplyStyles"
-                              onClick={handleApply}
-                            />
-                          </div>
-                        </div>
-                        <div className="checklist-content row">
-                          {(
-                            filterOptions[
-                              properties === "all" ? "residentials" : properties
-                            ] ?? []
-                          ).map((section, index) => (
-                            <div
-                              className="checklist-list col-md-3"
-                              key={index}
-                            >
-                              <Typography variant="h6">
-                                {section.heading}
-                              </Typography>
-                              <div className="label-wrapper">
-                                {section.options.map((opt, i) => (
-                                  <FormControlLabel
-                                    key={i}
-                                    control={
-                                      <Checkbox
-                                        checked={currentCheckList.includes(opt)}
-                                        onChange={() =>
-                                          handleCheckboxChange(opt)
-                                        }
-                                      />
-                                    }
-                                    label={opt}
-                                  />
-                                ))}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </Popover>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </CustomTabPanel>
-        <CustomTabPanel value={value} index={3}>
-          <div className="new-listing-wrap">
-            <div className="container">
-              <div className="new-listing">
-                <div className="new-listing-wrap-list">
-                  <h3 className="result">
-                    <span className="resultCount">{getResultCount}</span>{" "}
-                    Results
-                  </h3>
-                </div>
-                <div className="list-panel">
-                  
-                  <div className="search">
-                    <input type="search" placeholder="Search Properties" />
-                    <img src="Search-1.svg" alt="search svg" />
-                  </div>
-                  <div className="filter-link color-edit">
-                    <Button
-                      className="filter-text"
-                      aria-describedby={id}
-                      onClick={handleClick}
-                    >
-                      <img src="majesticons_filter-line.svg" alt="filter img" />
-                      Filter
-                    </Button>
-                    <Popover
-                      style={{ margin: "20% 8% 0 8%", position: "absolute" }}
-                      anchorReference="anchorPosition"
-                      anchorPosition={{
-                        top: 144,
-                        left: 260,
-                      }}
-                      anchorOrigin={{
-                        vertical: "top",
-                        horizontal: "left",
-                      }}
-                      transformOrigin={{
-                        vertical: "top",
-                        horizontal: "left",
-                      }}
-                      id={id}
-                      open={filterOpen}
-                      anchorEl={anchorEl}
-                      onClose={handleClose}
-                    >
-                      <div className="filter-div-wrapper">
-                        <div className="filter-header">
-                          <p>Filter By</p>
-                          <div className="apply-reset-btn">
-                            <button
-                              className="refresh-btn"
-                              onClick={filterResetFunction}
-                            >
-                              <img
-                                src="mynaui_refresh.svg"
-                                alt="refresh icon"
-                              />
-                              Reset
-                            </button>
-                            <GenericButton
-                              image={filterTick}
-                              iconPosition="left"
-                              label={"Apply"}
-                              className="genericFilterApplyStyles"
-                              onClick={handleApply}
-                            />
-                          </div>
-                        </div>
-                        <div className="checklist-content row">
-                          {(
-                            filterOptions[
-                              properties === "all" ? "residentials" : properties
-                            ] ?? []
-                          ).map((section, index) => (
-                            <div
-                              className="checklist-list col-md-3"
-                              key={index}
-                            >
-                              <Typography variant="h6">
-                                {section.heading}
-                              </Typography>
-                              <div className="label-wrapper">
-                                {section.options.map((opt, i) => (
-                                  <FormControlLabel
-                                    key={i}
-                                    control={
-                                      <Checkbox
-                                        checked={currentCheckList.includes(opt)}
-                                        onChange={() =>
-                                          handleCheckboxChange(opt)
-                                        }
-                                      />
-                                    }
-                                    label={opt}
-                                  />
-                                ))}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </Popover>
-                  </div>
                 </div>
               </div>
             </div>
@@ -1032,7 +924,9 @@ const checkListCount = currentCheckList.length;
         <div className="filter-div-wrapper">
           <div className="filter-header">
             <p>Filter By</p>
-            <p className="filtercount">{checkListCount}  Filter{checkListCount !== 1 ? 's' : ''}</p>
+            <p className="filtercount">
+              {checkListCount} Filter{checkListCount !== 1 ? "s" : ""}
+            </p>
           </div>
           <div className="checklist-content row">
             {(
