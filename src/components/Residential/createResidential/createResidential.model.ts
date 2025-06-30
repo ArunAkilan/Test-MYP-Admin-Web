@@ -34,6 +34,8 @@ export type Contact = {
     totalFloors?: number;
     rentPropertyFloor?: number;
     furnishingType?: "Furnished" | "Semi Furnished" | "Unfurnished";
+    features?: string[];
+    restrictions?: restrictions;
   };
     export type availability = {
       broadband?: boolean;
@@ -77,6 +79,7 @@ export type Contact = {
 
     };
     export type UploadedImage = {
+      file: File;
       url: string;
       name?: string;
     };
@@ -106,5 +109,6 @@ export type Contact = {
       rooms: string;
       description: string;
       legalDocuments: string;
+      selectedChips: string[];
     };
     export type PlainObject = Record<string, unknown>;

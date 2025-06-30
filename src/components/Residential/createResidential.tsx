@@ -1,15 +1,12 @@
-import { useState } from "react";
-import { useEffect } from "react";
-import { useRef } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { InputField } from "../Common/input"; // Assuming InputField supports error props
+import { InputField, DynamicBreadcrumbs } from "../Common/input"; // Assuming InputField supports error props
 import GenericButton from "../Common/Button/button";
 import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
 import DoneIcon from "@mui/icons-material/Done";
 import CloseIcon from "@mui/icons-material/Close";
-import { Button, Avatar } from "@mui/material";
+import { Button, Avatar, Alert, IconButton } from "@mui/material";
 import "./createResidential/createResidential.scss"; // Your styling
-import { DynamicBreadcrumbs } from "../Common/input";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
@@ -19,7 +16,30 @@ import type {
   ResidentialFormState,
   UploadedImage,
   PlainObject,
+  
+  
 } from "./createResidential/createResidential.model";
+import type { Restrictions } from "../AdminResidencial/AdminResidencial.model";
+import {
+  GoogleMap,
+  Marker,
+  useJsApiLoader,
+} from "@react-google-maps/api";
+
+
+const containerStyle = {
+  width: "100%",
+  height: "360px",
+  borderRadius: "6px",
+  border: "1px solid #D3DDE7",
+};
+const defaultCenter = { lat: 11.2419968, lng: 78.8063549 };
+
+interface LocationPickerProps {
+  setLatitude: (lat: string) => void;
+  setLongitude: (lng: string) => void;
+  setAddress: (address: string) => void;
+}
 
 // Utility function to set nested value dynamically
 function setNested(obj: PlainObject, path: string, value: unknown) {
@@ -38,6 +58,15 @@ function setNested(obj: PlainObject, path: string, value: unknown) {
     }
   });
 }
+// Map chips strings to Restrictions object
+const mapChipsToRestrictions = (chips: string[]): Restrictions => {
+  return {
+    guestAllowed: chips.includes("Guests Not Allowed"),
+    petsAllowed: chips.includes("No Pets Allowed"),
+    bachelorsAllowed: chips.includes("No Bachelors Allowed"),
+  };
+};
+
 
 // Build payload dynamically based on form state
 function buildPayloadDynamic(
@@ -76,7 +105,18 @@ function buildPayloadDynamic(
   setNested(payload, "area.width", "30 ft");
 
   // Add other fields similarly
-  setNested(payload,"images", (formState.images as UploadedImage[]).map((file) => file.url));
+  // setNested(payload, "images", (formState.images as UploadedImage[]).map((file) => file.url));
+  // Updated image URL logic
+  // const imageUrls = ((formState.images as UploadedImage[]) || [])
+  //   .map((file) => file?.url?.trim())
+  //   .filter((url): url is string => typeof url === "string" && url.length > 0);
+  const imageUrls = ((formState.images as UploadedImage[]) || [])
+    .map((file) => file?.name) // Instead of blob URL
+    .filter(
+      (name): name is string => typeof name === "string" && name.length > 0
+    );
+
+  setNested(payload, "images", imageUrls);
   setNested(payload, "title", formState.title);
   setNested(payload, "residentialType", formState.residentialType);
   setNested(payload, "facingDirection", formState.facingDirection);
@@ -94,6 +134,12 @@ function buildPayloadDynamic(
   setNested(payload, "furnishingType", formState.furnishingType);
   setNested(payload, "description", formState.description);
   setNested(payload, "legalDocuments", formState.legalDocuments); // if it's string[]
+  setNested(payload, "rent.leaseTenure", formState.leaseTenure);
+  setNested(payload, "area.builtUpArea", `${formState.builtUpArea} sqft`);
+  setNested(payload, "area.carpetArea", `${formState.carpetArea} sqft`);
+  setNested(payload, "restrictions", formState.selectedChips);
+  setNested(payload, "restrictions", mapChipsToRestrictions(formState.selectedChips));
+
 
   return payload as ResidentialProperty;
 }
@@ -115,6 +161,7 @@ export const CreateResidential = () => {
   const [propertyType, setPropertyType] = useState("");
   const [title, setTitle] = useState("");
   const [rent, setRent] = useState("");
+  const [negotiable, setNegotiable] = useState("");
   const [advanceAmount, setAdvanceAmount] = useState("");
   const [leaseTenure, setLeaseTenure] = useState("");
   const [residentialType, setResidentialType] = useState("");
@@ -122,6 +169,7 @@ export const CreateResidential = () => {
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
   const [images, setImages] = useState<UploadedImage[]>([]); // For file upload
+  console.log(images);
   const [totalArea, setTotalArea] = useState("");
   const [builtUpArea, setBuiltUpArea] = useState("");
   const [carpetArea, setCarpetArea] = useState("");
@@ -133,18 +181,58 @@ export const CreateResidential = () => {
   const [description, setPropertyDescription] = useState("");
   const [legalDocuments, setLegalDocuments] = useState("Yes");
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
-
+  const [showTopAlert, setShowTopAlert] = useState(false);
+  
   // Validation errors state
-  interface Errors {
-    [key: string]: string;
-  }
+  // interface Errors {
+  //   [key: string]: string;
+  // }
 
-  const [errors, setErrors] = useState<Errors>({});
+  // const [errors, setErrors] = useState<Errors>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Google Maps API loader
+  const { isLoaded } = useJsApiLoader({
+    id: "google-map-script",
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "", // put your API key in .env file
+  });
+   // Marker position state
+   const [markerPosition, setMarkerPosition] = useState({
+    lat: latitude ? parseFloat(latitude) : defaultCenter.lat,
+    lng: longitude ? parseFloat(longitude) : defaultCenter.lng,
+  });
+
+  // Update marker & lat/lng/address on map click
+  const onMapClick = useCallback((e: google.maps.MapMouseEvent) => {
+    if (e.latLng) {
+      const lat = e.latLng.lat();
+      const lng = e.latLng.lng();
+      setMarkerPosition({ lat, lng });
+      setLatitude(lat.toFixed(6));
+      setLongitude(lng.toFixed(6));
+
+      // Reverse Geocode to get address
+      const geocoder = new google.maps.Geocoder();
+      geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+        if (status === "OK" && results && results[0]) {
+          setAddress(results[0].formatted_address);
+        } else {
+          setAddress("");
+        }
+      });
+    }
+  }, []);
 
   // Validation function
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
     let isValid = true;
+
+    if (!isValid) {
+      setShowTopAlert(true);
+    } else {
+      setShowTopAlert(false);
+    }
 
     // Owner Information Validation
     if (!firstName.trim()) {
@@ -155,82 +243,26 @@ export const CreateResidential = () => {
       newErrors.lastName = "Last Name is required.";
       isValid = false;
     }
-    // if (!email.trim()) {
-    //   newErrors.email = "Email is required.";
-    //   isValid = false;
-    // } else if (!/\S+@\S+\.\S+/.test(email)) {
-    //   newErrors.email = "Email address is invalid.";
-    //   isValid = false;
-    // }
-    // if (!ephone.trim()) {
-    //   newErrors.phone = "Phone Number is required.";
-    //   isValid = false;
-    // } else if (!/^\d{10}$/.test(phone)) {
-    //   newErrors.phone = "Phone number must be 10 digits.";
-    //   isValid = false;
-    // }
-
-    // Property Overview Validation
-    // if (!propertyType) {
-    //   newErrors.propertyType = "Property Type is required.";
-    //   isValid = false;
-    // }
+    if (!phone1.trim()) {
+      newErrors.phone1 = "Phone Number is required.";
+      isValid = false;
+    }
     if (!title.trim()) {
       newErrors.title = "Property Title is required.";
       isValid = false;
     }
-    // if (!rent.trim()) {
-    //   newErrors.rent = "Monthly Rent is required.";
-    //   isValid = false;
-    // } else if (isNaN(parseFloat(rent)) || parseFloat(rent) <= 0) {
-    //   newErrors.rent = "Monthly Rent must be a positive number.";
-    //   isValid = false;
-    // }
-    // if (!advanceAmount.trim()) {
-    //   newErrors.advanceDeposit = "Advance Deposit is required.";
-    //   isValid = false;
-    // } else if (
-    //   isNaN(parseFloat(advanceAmount)) ||
-    //   parseFloat(advanceAmount) < 0
-    // ) {
-    //   newErrors.advanceAmount =
-    //     "Advance Deposit must be a non-negative number.";
-    //   isValid = false;
-    // }
-    // if (!leaseTenure.trim()) {
-    //   newErrors.leaseTenure = "Tenure is required.";
-    //   isValid = false;
-    // } else if (isNaN(parseFloat(leaseTenure)) || parseInt(leaseTenure) <= 0) {
-    //   newErrors.leaseTenure = "Tenure must be a positive number of years.";
-    //   isValid = false;
-    // }
-    // if (!residentialType) {
-    //   newErrors.residentialType = "Property Category is required.";
-    //   isValid = false;
-    // }
-
-    // Location & Address Validation
-    // For property images, check if a file has been selected (simplified for now)
-    if (!images || images.length === 0) {
-      newErrors.propertyImages = "At least one property image is required.";
-      isValid = false;
-    }
-    // You might want to validate address, latitude, and longitude if they are crucial
-    // For example:
     if (!address.trim()) {
       newErrors.address = "Full Address is required.";
       isValid = false;
     }
-    // if (!latitude.trim() || isNaN(latitude)) {
-    //   newErrors.latitude = "Valid Latitude is required.";
+    // if (!images || images.length === 0) {
+    //   newErrors.propertyImages = "At least one property image is required.";
     //   isValid = false;
     // }
-    // if (!longitude.trim() || isNaN(longitude)) {
-    //   newErrors.longitude = "Valid Longitude is required.";
-    //   isValid = false;
-    // }
-
-    // Property Layout Validation
+    if (!images.length) {
+      newErrors.images = "Upload at least one image";
+      isValid = false;
+    }
     if (!totalArea.trim()) {
       newErrors.totalArea = "Total Area is required.";
       isValid = false;
@@ -241,7 +273,6 @@ export const CreateResidential = () => {
         isValid = false;
       }
     }
-
     if (!builtUpArea.trim()) {
       newErrors.builtUpArea = "Built Up Area is required.";
       isValid = false;
@@ -252,7 +283,6 @@ export const CreateResidential = () => {
         isValid = false;
       }
     }
-
     if (!carpetArea.trim()) {
       newErrors.carpetArea = "Carpet Area is required.";
       isValid = false;
@@ -262,45 +292,6 @@ export const CreateResidential = () => {
         newErrors.carpetArea = "Carpet Area must be a positive number.";
         isValid = false;
       }
-    }
-
-    // Facing can be optional or have specific valid values if it's a text input
-    // if (!facing) {
-    //     newErrors.facing = "Facing direction is required.";
-    //     isValid = false;
-    // }
-    // if (!totalFloors.trim()) {
-    //   newErrors.totalFloors = "Total Floors is required.";
-    //   isValid = false;
-    // } else {
-    //   const totalFloorsNum = parseFloat(totalFloors);
-    //   if (isNaN(totalFloorsNum) || parseInt(totalFloors) < 0) {
-    //     newErrors.totalFloors = "Total Floors must be a non-negative integer.";
-    //     isValid = false;
-    //   }
-    // }
-
-    // if (!propertyFloor.trim()) {
-    //   newErrors.propertyFloor = "Property on Floor is required.";
-    //   isValid = false;
-    // } else {
-    //   const propertyFloorNum = parseFloat(propertyFloor);
-    //   if (isNaN(propertyFloorNum) || parseInt(propertyFloor) < 0) {
-    //     newErrors.propertyFloor =
-    //       "Property on Floor must be a non-negative integer.";
-    //     isValid = false;
-    //   }
-    // }
-
-    // Furnished type could have validation for specific options if it's a dropdown/radio
-    // if (!furnishingType) {
-    //     newErrors.furnishingType = "Furnished Type is required.";
-    //     isValid = false;
-    // }
-
-    if (!phone1.trim()) {
-      newErrors.phone1 = "Phone Number is required.";
-      isValid = false;
     }
 
     if (!rooms.trim()) {
@@ -313,45 +304,45 @@ export const CreateResidential = () => {
         isValid = false;
       }
     }
-
-    // Additional Information Validation (Property Description is optional, but you could add max length)
-    // if (description.length > 500) {
-    //   newErrors.description = "Description cannot exceed 500 characters.";
-    //   isValid = false;
-    // }
-
-    // Legal Documents Validation
-    // if (!legalDocuments) {
-    //   newErrors.legalDocuments =
-    //     "Legal Documents availability is required.";
-    //   isValid = false;
-    // }
+    if (!selectedChips.length) {
+      newErrors.selectedChips = "Select at least one occupancy restriction.";
+      isValid = false;
+    }
 
     setErrors(newErrors);
+    setShowTopAlert(!isValid);
+    
     return isValid;
   };
 
   // Run logic once when the component mounts - useEffect
   // Remember if you've already run the logic - useRef
-  const hasFetched = useRef(false);
+  // const hasFetched = useRef(false);
 
-  useEffect(() => {
-    if (hasFetched.current) return;
-    hasFetched.current = true;
+  //   useEffect(() => {
+  //     if (hasFetched.current) return;
+  //     hasFetched.current = true;
 
-    fetch(`${import.meta.env.VITE_BackEndUrl}/api/residential/create`)
-      .then((res) => res.json())
-      .then((data) => console.log("Fetched:", data)) // Already fetched? Exit.
-      .catch((err) => console.error("Error:", err)); // Mark as fetched.
-  }, []);
+  //     fetch(`${import.meta.env.VITE_BackEndUrl}/api/residential/create`)
+  //       .then((res) => res.json())
+  //       .then((data) => console.log("Fetched:", data)) // Already fetched? Exit.
+  //       .catch((err) => console.error("Error:", err)); // Mark as fetched.
+  //   },
+  //   []
+  // );
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault(); // Prevent default form submission
 
     const isValid = validateForm();
+    
+    if (!isValid) {
+      toast.error("Please correct the highlighted errors before submitting.");
+      return;
+    }
 
-    if (isValid) {
+   
       // Form is valid, proceed with submission
-      const formState = {
+      const formState: ResidentialFormState = {
         firstName,
         lastName,
         email,
@@ -376,6 +367,7 @@ export const CreateResidential = () => {
         rooms,
         description,
         legalDocuments,
+        selectedChips,
       };
 
       const payload = buildPayloadDynamic(formState);
@@ -411,11 +403,12 @@ export const CreateResidential = () => {
 
         toast.error(`Failed to create property: ${errorMessage}`);
       }
-    } else {
-      console.log("Form has validation errors.");
-      toast.error("Please correct the highlighted errors before submitting.");
-    }
-  };
+    };
+  //   else {
+  //     console.log("Form has validation errors.");
+  //     toast.error("Please correct the highlighted errors before submitting.");
+  //   }
+  // };
 
   return (
     <form onSubmit={handleSubmit}>
@@ -427,7 +420,23 @@ export const CreateResidential = () => {
               {/* Breadcrumb */}
               <div className="muiBreadcrumbs">
                 <DynamicBreadcrumbs breadcrumbs={breadcrumbsData} />
+                <ToastContainer />
                 {/* Rest of your page content */}
+
+                {showTopAlert && (
+                  <Alert
+                    severity="error"
+                    variant="outlined"
+                    sx={{ mt: 2 }}
+                    action={
+                      <IconButton onClick={() => setShowTopAlert(false)}>
+                        <CloseIcon />
+                      </IconButton>
+                    }
+                  >
+                    Required Fields - 5 Fields required to submit the form.
+                  </Alert>
+                )}
               </div>
               {/* Owner Information Section */}
               <section className="OwnerDetails mb-4">
@@ -505,8 +514,8 @@ export const CreateResidential = () => {
                   <p>Provide basic details about the property</p>
                 </div>
 
-                <div className="OwnerInputField row mb-3">
-                  <div className="row">
+                <div className="OwnerInputField  row mb-3">
+                  <div className="d-flex flex-d-row">
                     <div className="col-12 col-md-6 mb-3">
                       <label className="TextLabel" htmlFor="propertyType">
                         Property Type
@@ -519,23 +528,26 @@ export const CreateResidential = () => {
                         onChange={(e) => setPropertyType(e.target.value)}
                       />
                     </div>
-                    <div className="col-12 col-md-6 mb-3">
-                      <label className="TextLabel" htmlFor="propertyTitle">
-                        Property Title <span className="star">*</span>
-                      </label>
-                      <InputField
-                        type="text"
-                        id="propertyTitle"
-                        placeholder="Enter Property Title"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        error={!!errors.title}
-                        helperText={errors.title}
-                      />
+                    <div className="row">
+                      <div className="col-12">
+                        <label className="TextLabel" htmlFor="residentialType">
+                          Residential Type
+                        </label>
+                        <div className="d-flex flex-wrap gap-3">
+                          <InputField
+                            type="radio"
+                            className="radioField"
+                            radioOptions={["House", "Apartment", "Villa"]}
+                            id="residentialType"
+                            value={residentialType || "House"}
+                            onChange={(e) => setResidentialType(e.target.value)}
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="row">
+                  <div className=" d-flex flex-d-row">
                     <div className="col-12 col-md-6 mb-3">
                       <label className="TextLabel" htmlFor="monthlyRent">
                         Monthly Rent (₹)
@@ -548,7 +560,26 @@ export const CreateResidential = () => {
                         onChange={(e) => setRent(e.target.value)}
                       />
                     </div>
-                    <div className="col-12 col-md-3 mb-3">
+                    <div className="row">
+                      <div className="col-12">
+                        <label className="TextLabel" htmlFor="negotiable">
+                          Negotiable
+                        </label>
+                        <div className="d-flex flex-wrap gap-3">
+                          <InputField
+                            type="radio"
+                            radioOptions={["Yes", "No"]}
+                            id="negotiable"
+                            value={negotiable || "Yes"}
+                            onChange={(e) => setNegotiable(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="d-flex flex-d-row">
+                    <div className="col-6 mb-3">
                       <label className="TextLabel" htmlFor="advanceDeposit">
                         Advance Deposit (₹)
                       </label>
@@ -562,34 +593,17 @@ export const CreateResidential = () => {
                         // helperText={errors.advanceAmount}
                       />
                     </div>
-                    <div className="col-12 col-md-3 mb-3">
+                    <div className="col-6 mb-3">
                       <label className="TextLabel" htmlFor="tenure">
                         Tenure (Years)
                       </label>
                       <InputField
                         type="text"
                         id="tenure"
-                        placeholder="Enter Tenure in Years"
+                        placeholder="No. of Years"
                         value={leaseTenure}
                         onChange={(e) => setLeaseTenure(e.target.value)}
                       />
-                    </div>
-                  </div>
-
-                  <div className="row">
-                    <div className="col-12">
-                      <label className="TextLabel" htmlFor="propertyCategory">
-                        Property Category
-                      </label>
-                      <div className="d-flex flex-wrap gap-3">
-                        <InputField
-                          type="radio"
-                          radioOptions={["House", "Apartment", "Villa"]}
-                          id="propertyCategory"
-                          value={residentialType || "House"}
-                          onChange={(e) => setResidentialType(e.target.value)}
-                        />
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -683,16 +697,15 @@ export const CreateResidential = () => {
                       <div className="container">
                         <div className="row">
                           <div className="col-6 col-md-6 mb-3">
+                            <span className="transportTitles">BUS STRAND</span>
                             <div className="transportCard d-flex gap-2">
                               <img
                                 src="/src/assets/createProperty/Icon_Bus.svg"
                                 alt="Bus"
+                                className="transportImg"
                               />
                               <div>
-                                <span className="transportInfoText">
-                                  Bus Stand
-                                  <br />- Kms
-                                </span>
+                                <span className="transportInfoText">0 KM</span>
                               </div>
                             </div>
                           </div>
@@ -753,119 +766,145 @@ export const CreateResidential = () => {
                       Upload Property Images <span className="star">*</span>
                     </p>
                   </div>
-
-                  <div className="preview-images d-flex gap-3 mt-2 image-scroll-container">
-                    {images.map((img, index) => (
-                      <div
-                        key={index}
-                        className="choosedImages position-relative"
-                      >
-                        <img
-                          src={img.url}
-                          alt={`preview-${index}`}
-                          className="preview-img"
-                        />
-
+                  {/* Wrap the entire upload section inside a conditional class for error styling */}
+                  <div
+                    className={`image-upload-wrapper ${
+                      errors.images ? "error-border" : ""
+                    }`}
+                  >
+                    <div className="preview-images d-flex gap-3 mt-2 image-scroll-container">
+                      {images.map((img, index) => (
                         <div
-                          className="image-name mt-1 text-truncate"
-                          title={img.name}
-                          style={{
-                            fontSize: "12px",
-                            color: "#333",
-                            maxWidth: "100%",
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                          }}
+                          key={index}
+                          className="choosedImages position-relative"
                         >
-                          {img.name}
+                          <img
+                            src={img.url}
+                            alt={`preview-${index}`}
+                            className="preview-img"
+                          />
+
+                          <div
+                            className="image-name mt-1 text-truncate"
+                            title={img.name}
+                            style={{
+                              fontSize: "12px",
+                              color: "#333",
+                              maxWidth: "100%",
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            }}
+                          >
+                            {img.name}
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setImages((prevImages) =>
+                                prevImages.filter((_, i) => i !== index)
+                              )
+                            }
+                            className="remove-btn"
+                          >
+                            ×
+                          </button>
                         </div>
-
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setImages((prevImages) =>
-                              prevImages.filter((_, i) => i !== index)
-                            )
-                          }
-                          className="remove-btn"
-                        >
-                          ×
-                        </button>
-                       
-                      </div>
-                    ))}
-                  </div>
-                  <div className={`BtnFrame d-flex mt-3 mb-2 align-items-start gap-3 ${images.length > 0 ? 'with-gap' : ''}`}>
-                    <p className="image-p">
-                      {/* {propertyImages
-                          ? propertyImages.name : "No image chosen"} */}
-                      {images && images.length > 0
-                        ? `${images.length} image choosen`
-                        : "No image choosen"}
-                    </p>
-                    <input
-                      type="file"
-                      id="propertyImageUpload"
-                      style={{ display: "none" }}
-                      onChange={(e) => {
-                        if (e.target.files) {
-                          const newFiles = Array.from(e.target.files).map(
-                            (file) => ({
-                              // const uploaded = files.map((file) => ({
-                              file, // optional, for uploads later
-                              url: URL.createObjectURL(file),
-                              name: file.name, //img.name comes from
-                            })
-                          );
-                          // setImages(uploaded);
-                          setImages((prevImages) => {
-                            const remainingSlots = 12 - prevImages.length;
-
-                            if (remainingSlots <= 0) {
-                              // Optional: Show alert or toast
-                              toast.warning("Maximum 12 images allowed.");
-                              return prevImages;
-                            }
-                            const limitedFiles = newFiles.slice(0, remainingSlots);
-
-                            if (newFiles.length > remainingSlots) {
-                              toast.info(
-                                `Only ${remainingSlots} more image${remainingSlots > 1 ? "s" : ""} can be added.`
-                              );
-                            }
-
-                            return [...prevImages, ...limitedFiles];
-                          // Append new files to existing images state
-
-                          // setImages((prevImages) => [
-                          //   ...prevImages,
-                          //   ...newFiles,]
-                        });
-
-                          // Reset the input so the same files can be selected again if needed
-                          e.target.value = "";
-                          // setImages(Array.from(e.target.files)); // Save all selected files as array
-                        }
-                      }}
-                      accept="image/*"
-                      multiple // Enable multi-selection
-
-                      // setPropertyImages(e.target.files[0])}
-                      // accept="image/*"
-                    />
-                    <Button
-                      className="chooseBtn"
-                      variant="contained"
-                      startIcon={<FileUploadOutlinedIcon />}
-                      id="Choosebtn"
-                      onClick={() =>
-                        document.getElementById("propertyImageUpload")?.click()
-                      }
+                      ))}
+                    </div>
+                    <div
+                      className={`BtnFrame d-flex mt-3 mb-2 align-items-start gap-3 ${
+                        images.length > 0 ? "with-gap" : ""
+                      }`}
                     >
-                      <span className="btnC">Choose image</span>
-                    </Button>
-                    <p className="imageDesc">Max. 12 Images</p>
+                      <p className="image-p">
+                        {/* {propertyImages
+                          ? propertyImages.name : "No image chosen"} */}
+                        {images && images.length > 0
+                          ? `${images.length} image choosen`
+                          : "No image choosen"}
+                      </p>
+                      <input
+                        type="file"
+                        id="propertyImageUpload"
+                        style={{ display: "none" }}
+                        onChange={(e) => {
+                          if (e.target.files) {
+                            const newFiles = Array.from(e.target.files).map(
+                              (file) => ({
+                                // const uploaded = files.map((file) => ({
+                                file, // optional, for uploads later
+                                url: URL.createObjectURL(file),
+                                name: file.name, //img.name comes from
+                              })
+                            );
+
+                            // setImages(uploaded);
+                            setImages((prevImages) => {
+                              const remainingSlots = 12 - prevImages.length;
+
+                              if (remainingSlots <= 0) {
+                                // Optional: Show alert or toast
+                                toast.warning("Maximum 12 images allowed.");
+                                return prevImages;
+                              }
+                              const limitedFiles = newFiles.slice(
+                                0,
+                                remainingSlots
+                              );
+
+                              if (newFiles.length > remainingSlots) {
+                                toast.info(
+                                  `Only ${remainingSlots} more image${
+                                    remainingSlots > 1 ? "s" : ""
+                                  } can be added.`
+                                );
+                              }
+
+                              return [...prevImages, ...limitedFiles];
+                              // Append new files to existing images state
+
+                              // setImages((prevImages) => [
+                              //   ...prevImages,
+                              //   ...newFiles,]
+                            });
+
+                            // Reset the input so the same files can be selected again if needed
+                            e.target.value = "";
+                            // setImages(Array.from(e.target.files)); // Save all selected files as array
+                          }
+                        }}
+                        accept="image/*"
+                        multiple // Enable multi-selection
+
+                        // setPropertyImages(e.target.files[0])}
+                        // accept="image/*"
+                      />
+                      <Button
+                        className="chooseBtn"
+                        variant="contained"
+                        startIcon={<FileUploadOutlinedIcon />}
+                        id="Choosebtn"
+                        onClick={() =>
+                          document
+                            .getElementById("propertyImageUpload")
+                            ?.click()
+                        }
+                      >
+                        <span className="btnC">Choose image</span>
+                      </Button>
+                      <p className="imageDesc">Max. 12 Images</p>
+                    </div>
+                    {/* Display validation error below upload block */}
+                    {errors.images && (
+                      <div
+                        className="text-danger mt-1"
+                        style={{ fontSize: "14px" }}
+                      >
+                        {errors.images}
+                      </div>
+                    )}
                   </div>
                 </div>
               </section>
@@ -1197,6 +1236,63 @@ export const CreateResidential = () => {
                 </div>
               </section>
 
+              <section className="AccessibilitySection mb-4">
+                <div className="ownerTitle">
+                  <h6>Connectivity & Security Features</h6>
+                  <p>
+                    Highlight the connectivity options and security services
+                    included with this property{" "}
+                  </p>
+                </div>
+
+                <div className="chipField row">
+                  <div
+                    className="chipcard d-flex gap-4 col-6 col-md-3 mb-3"
+                    style={{ padding: "31px" }}
+                  >
+                    <InputField
+                      type="chip"
+                      label="Broadband Connection"
+                      icon={
+                        <Avatar
+                          alt="Lift Access"
+                          src="/src/assets/createProperty/Group.svg"
+                          className="avatarImg"
+                        />
+                      }
+                      selectedChips={selectedChips}
+                      onChipToggle={(label) => {
+                        setSelectedChips((prev) =>
+                          prev.includes(label)
+                            ? prev.filter((chip) => chip !== label)
+                            : [...prev, label]
+                        );
+                      }}
+                    />
+
+                    <InputField
+                      type="chip"
+                      label="Security"
+                      icon={
+                        <Avatar
+                          alt="Ramp Access"
+                          src="/src/assets/createProperty/mingcute_user-security-line.svg"
+                          className="avatarImg"
+                        />
+                      }
+                      selectedChips={selectedChips}
+                      onChipToggle={(label) => {
+                        setSelectedChips((prev) =>
+                          prev.includes(label)
+                            ? prev.filter((chip) => chip !== label)
+                            : [...prev, label]
+                        );
+                      }}
+                    />
+                  </div>
+                </div>
+              </section>
+
               {/* Utilities Section - No direct validation needed */}
               <section className="UtilitiesSection ">
                 <div className="ownerTitle">
@@ -1343,6 +1439,9 @@ export const CreateResidential = () => {
                   <p>
                     Select any rules about who can stay or live in this property
                   </p>
+                  {errors.selectedChips && (
+                    <p className="text-danger">{errors.selectedChips}</p> // <-- error message here
+                  )}
                 </div>
 
                 <div className="chipField row">
@@ -1419,6 +1518,20 @@ export const CreateResidential = () => {
                 <div className="ownerTitle">
                   <h6>Additional Information</h6>
                   <p>Provide any other relevant details about the property </p>
+                </div>
+                <div className=" ">
+                  <label className="TextLabel" htmlFor="propertyTitle">
+                    Property Title <span className="star">*</span>
+                  </label>
+                  <InputField
+                    type="text"
+                    id="propertyTitle"
+                    placeholder="Enter Property Title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    error={!!errors.title}
+                    helperText={errors.title}
+                  />
                 </div>
                 <label htmlFor="propertyDescription">
                   Property Description
