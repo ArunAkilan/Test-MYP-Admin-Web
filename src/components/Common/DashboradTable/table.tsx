@@ -7,6 +7,10 @@ import "./table.scss";
 import Button from "@mui/material/Button";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
+import { useState, useEffect } from "react";
+import Popover from "@mui/material/Popover";
+import tickIcon from "../../../assets/table/Icon_Tick.svg";
+import denyIcon from "../../../assets/table/Icon_Deny.svg";
 interface TableProps {
   //data: ResidentialProperty[];
   data: any;
@@ -21,11 +25,6 @@ interface TableProps {
     | undefined;
   onScrollChange: (scrollTop: number) => void;
 }
-// const actionMap: Record<string, number> = {
-//   Approve: 0,
-//   Deny: 1,
-//   Delete: 2,
-// };
 
 const modalStyle = {
   position: "absolute" as const,
@@ -40,8 +39,10 @@ const modalStyle = {
 };
 
 function Table({ data, properties, onScrollChange }: TableProps) {
-  console.log("Table received data:", data);
-  console.log("properties", properties);
+  const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const [popoverAnchorEl, setPopoverAnchorEl] = useState<HTMLElement | null>(
+    null
+  );
   const navigate = useNavigate();
 
   const location = useLocation();
@@ -55,30 +56,11 @@ function Table({ data, properties, onScrollChange }: TableProps) {
       case "commercials":
         return "commercial";
       case "plots":
-        return "plot"; // 👈 only if backend supports this
+        return "plot";
       default:
-        return "residential"; // fallback to avoid calling wrong endpoint
+        return "residential";
     }
   };
-
-  // const updateStatus = async (id: string, status: number) => {
-  //   const singularProperty = getSingularProperty();
-
-  //   try {
-  //     const response = await axios.put(
-  //       `${
-  //         import.meta.env.VITE_BackEndUrl
-  //       }/api/adminpermission/${singularProperty}/${id}`,
-  //       {
-  //         status: `${status}`,
-  //       }
-  //     );
-  //     return response.data;
-  //   } catch (error) {
-  //     console.error("API Error:", error);
-  //     throw error;
-  //   }
-  // };
 
   const handleAction = async (id: string, status: number) => {
     const singularProperty = getSingularProperty();
@@ -121,7 +103,7 @@ function Table({ data, properties, onScrollChange }: TableProps) {
   };
 
   const handleView = (id: string | number) => {
-    const selectedItem = data.find((item: any) => item._id === id);
+    const selectedItem = formatedData.find((item: any) => item._id === id);
 
     if (selectedItem) {
       navigate("/plots/view-residential", {
@@ -179,8 +161,7 @@ function Table({ data, properties, onScrollChange }: TableProps) {
         onScrollChange(container.scrollTop);
       }
 
-
-// Show header when scrolling up
+      // Show header when scrolling up
       const currentScrollY = container?.scrollTop || 0;
       if (currentScrollY < lastScrollY || currentScrollY < 50) {
         setHideHeader(false);
@@ -193,7 +174,50 @@ function Table({ data, properties, onScrollChange }: TableProps) {
     container?.addEventListener("scroll", handleScroll);
     return () => container?.removeEventListener("scroll", handleScroll);
   }, [onScrollChange]);
-  
+
+  // popover
+  const handlePopoverClick = (event: React.MouseEvent<HTMLInputElement>) => {
+    if (!selectedRows.includes(event.currentTarget.value)) {
+      // Only open popover if new selection is made
+      setPopoverAnchorEl(event.currentTarget);
+    }
+  };
+
+  const handlePopoverClose = () => {
+    setPopoverAnchorEl(null);
+  };
+
+  const isPopoverOpen = Boolean(popoverAnchorEl);
+  const popoverId = isPopoverOpen ? "simple-popover" : undefined;
+
+  // handleBulkAction on popover
+  const handleBulkAction = async (action: string) => {
+    const statusMap: Record<string, number> = {
+      Approve: 1,
+      Deny: 0,
+      Delete: 2,
+    };
+
+    const statusCode = statusMap[action];
+
+    try {
+      for (const id of selectedRows) {
+        await handleAction(id, statusCode); // Your API call
+      }
+
+      setSelectedRows([]); // Clear selection
+      handlePopoverClose(); // Close popover
+      window.dispatchEvent(new Event("refreshTableData")); // Refresh table
+    } catch (err) {
+      console.error(`Failed to ${action.toLowerCase()} selected properties`);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedRows.length === 0) {
+      handlePopoverClose();
+    }
+  }, [selectedRows]);
 
   return (
     <div
@@ -208,34 +232,170 @@ function Table({ data, properties, onScrollChange }: TableProps) {
         <table>
           <thead>
             <tr>
-              <th className="checkbox-align">
-                <input type="checkbox" />
+              <th className="checkbox-align chechbox-cmn">
+                <input
+                  type="checkbox"
+                  checked={
+                    formatedData.length > 0 &&
+                    selectedRows.length === formatedData.length
+                  }
+                  onClick={handlePopoverClick}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      const allIds = formatedData.map((item) => item._id);
+                      setSelectedRows(allIds);
+                    } else {
+                      setSelectedRows([]);
+                    }
+                  }}
+                />
               </th>
-              <th>Listing Name</th>
-              <th>Area</th>
-              <th>status</th>
-              {properties === "all" && <th>Floors</th>}
-              {properties === "residentials" && <th>Floors</th>}
-              {properties === "commercials" && <th>Floors</th>}
-              {properties === "all" && <th>Facing</th>}
-              {properties === "residentials" && <th>Facing</th>}
-              {properties === "commercials" && <th>Facing</th>}
+              <th>
+                <div className="th-content">
+                  Listing Name
+                  <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                </div>
+              </th>
+              <th>
+                <div className="th-content">
+                  Area
+                  <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                </div>
+              </th>
+              <th>
+                <div className="th-content">
+                  Status
+                  <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                </div>
+              </th>
+              {properties === "all" && (
+                <th>
+                  <div className="th-content">
+                    Floors
+                    <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                  </div>
+                </th>
+              )}
+              {properties === "residentials" && (
+                <th>
+                  <div className="th-content">
+                    Floors
+                    <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                  </div>
+                </th>
+              )}
+              {properties === "commercials" && (
+                <th>
+                  <div className="th-content">
+                    Floors
+                    <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                  </div>
+                </th>
+              )}
+              {properties === "all" && (
+                <th>
+                  <div className="th-content">
+                    Facing
+                    <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                  </div>
+                </th>
+              )}
+              {properties === "residentials" && (
+                <th>
+                  <div className="th-content">
+                    Facing
+                    <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                  </div>
+                </th>
+              )}
+              {properties === "commercials" && (
+                <th>
+                  <div className="th-content">
+                    Facing
+                    <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                  </div>
+                </th>
+              )}
 
-              {properties === "all" && <th>Furnish</th>}
-              {properties === "residentials" && <th>Furnish</th>}
-              {properties === "all" && <th>Washroom</th>}
-              {properties === "commercials" && <th>Washroom</th>}
-              {properties === "all" && <th>Plot Type</th>}
-              {properties === "plots" && <th>Plot Type</th>}
-              <th>Type</th>
-              <th className="link-h">Link</th>
+              {properties === "all" && (
+                <th>
+                  <div className="th-content">
+                    Furnish
+                    <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                  </div>
+                </th>
+              )}
+              {properties === "residentials" && (
+                <th>
+                  <div className="th-content">
+                    Furnish
+                    <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                  </div>
+                </th>
+              )}
+              {properties === "all" && (
+                <th>
+                  <div className="th-content">
+                    Wahroom
+                    <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                  </div>
+                </th>
+              )}
+              {properties === "commercials" && (
+                <th>
+                  <div className="th-content">
+                    Wahroom
+                    <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                  </div>
+                </th>
+              )}
+              {properties === "all" && (
+                <th>
+                  <div className="th-content">
+                    Plot Type
+                    <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                  </div>
+                </th>
+              )}
+              {properties === "plots" && (
+                <th>
+                  <div className="th-content">
+                    Plot Type
+                    <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                  </div>
+                </th>
+              )}
+              <th>
+                <div className="th-content">
+                  Type
+                  <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                </div>
+              </th>
+              <th className="link-h">
+                Link &nbsp;{" "}
+                <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+              </th>
             </tr>
           </thead>
           <tbody>
             {formatedData.map((item, index) => (
               <tr key={index}>
-                <td className="checkbox-align">
-                  <input type="checkbox" />
+                <td className="checkbox-align chechbox-align-inside">
+                  <input
+                    type="checkbox"
+                    aria-describedby={popoverId}
+                    onClick={handlePopoverClick} // this should capture the clicked element
+                    checked={selectedRows.includes(item._id)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedRows((prev) => [...prev, item._id]);
+                      } else {
+                        setSelectedRows((prev) =>
+                          prev.filter((id) => id !== item._id)
+                        );
+                      }
+                    }}
+                  />
                 </td>
                 <td className="company-name">
                   <h3>
@@ -330,24 +490,6 @@ function Table({ data, properties, onScrollChange }: TableProps) {
                       style={{ cursor: "pointer" }}
                     />
 
-                    {/* <img
-                    src="Approve.svg"
-                    alt="Approve svg"
-                    onClick={() => handleOpenModal("Approve", item)}
-                    style={{ cursor: "pointer" }}
-                  />
-                  <img
-                    src="Deny.svg"
-                    alt="Deny svg"
-                    onClick={() => handleOpenModal("Deny", item)}
-                    style={{ cursor: "pointer" }}
-                  />
-                  <img
-                    src="Delete.svg"
-                    alt="Delete img"
-                    onClick={() => handleOpenModal("Delete", item)}
-                    style={{ cursor: "pointer" }}
-                  /> */}
                     <img
                       src="Approve.svg"
                       alt="Approve svg"
@@ -374,6 +516,45 @@ function Table({ data, properties, onScrollChange }: TableProps) {
               </tr>
             ))}
           </tbody>
+          <Popover
+            className="checkbox-popover"
+            id={popoverId}
+            open={Boolean(popoverAnchorEl) && selectedRows.length > 0}
+            onClose={handlePopoverClose}
+            anchorReference="anchorPosition"
+            anchorPosition={{ top: 800, left: window.innerWidth - 725 }} // adjust position here
+            PaperProps={{
+              style: { pointerEvents: "auto", zIndex: 1400 }, // ensure above table
+            }}
+          >
+            <div className="checkbox-popover-content">
+              <p className="property-select">
+                {selectedRows.length} Property selected
+              </p>
+              <div className="pop-content-divider"></div>
+              <p
+                className="property-approve"
+                onClick={() => handleBulkAction("Approve")}
+              >
+                <img src={tickIcon} alt="Icon_Tick" />
+                Approve
+              </p>
+              <div className="pop-content-divider"></div>
+              <p
+                className="property-deny"
+                onClick={() => handleBulkAction("Deny")}
+              >
+                <img src={denyIcon} alt="Icon_Tick" /> Deny
+              </p>
+              <div className="pop-content-divider"></div>
+              <p
+                className="property-delete"
+                onClick={() => handleBulkAction("Delete")}
+              >
+                Delete
+              </p>
+            </div>
+          </Popover>
         </table>
 
         {/* Modal */}

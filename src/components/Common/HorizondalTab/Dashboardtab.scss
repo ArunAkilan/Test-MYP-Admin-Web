@@ -2,11 +2,6 @@
     width: 100%;
 }
 
-#pending-approval-tab button img {
-    width: max-content !important;
-    height: max-content !important;
-}
-
 #pending-approval-tab .MuiTabs-indicator {
   background: #00BFA6 !important; 
   height: 4px !important;
@@ -22,8 +17,10 @@
     font-family: 'Raleway';
     text-transform: capitalize;
     
+    padding: 12px 0 ;
+}
+#pending-approval-tab button:not(:last-child) {
     margin-right: 24px;
-
 }
 #pending-approval-tab  button:hover {
   background: #F2F6F7;
@@ -80,9 +77,7 @@
   padding: 24px 24px 0 24px;
   width: 300px;
 }
-.label-wrapper {
-  margin-bottom: 24px;
-}
+
 .filter-header {
   display: flex;
   justify-content: space-between;
@@ -90,13 +85,15 @@
   align-items: center;
 }
 .filter-header p {
-  color: #81838C ;
+  color: #2E2E2F ;
   font-family: "Raleway";
   font-size: 16px;
   font-weight: 600;
-  line-height: 18px;
+  line-height: 24px;
   letter-spacing: 0px;
   margin: 0;
+  display: flex;
+  align-items: center;
 }
 .apply-reset-btn {
   display: flex;
@@ -109,12 +106,10 @@
   right: 0;
 }
 
-.genericFilterApplyStyles,.refresh-btn {
+.genericFilterApplyStyles,.clear-btn {
   padding: 14px 24px !important;
-  border-radius: 6px !important;
-       
-  font-size: 16px;
-        
+  border-radius: 6px !important;      
+  font-size: 16px;    
   font-weight: 600;
   font-family: 'Raleway';
   line-height: 18px !important;
@@ -133,13 +128,22 @@
 .genericFilterApplyStyles:hover {
       background: #214999;
 }
-.refresh-btn {
+.clear-btn {
   border: none;
   background: none;
   margin-right: 16px;
   color: #214999;
 }
+.new-listing-wrap-list .clear-btn {
+  padding: 0 !important;
+  margin-left: 10px;
+  color: #214999 !important;
+}
 
+.checklist-list .MuiPaper-elevation {
+  box-shadow: none !important;
+  padding-bottom: 16px;
+}
 .checklist-content-1 {
   padding-bottom: 16px;
 }
@@ -150,7 +154,6 @@
     line-height: 18px !important;
   letter-spacing: 0;
   color: #2E2E2F;
-  margin-bottom: 16px;
 }
 
 .label-wrapper label {
@@ -178,10 +181,12 @@
   padding: 6px;
   border-radius: 8px;
 }
-.list-card-toggle button {
+#pending-approval-tab .list-card-toggle button {
   margin-right: 8px !important;
   border-radius: 4px;
   border: none;
+  min-height: max-content !important;
+  padding: 8px 11px !important;
 }
 .list-card-toggle button.Mui-selected {
   background: #214999 !important;

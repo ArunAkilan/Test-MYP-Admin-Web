@@ -5,6 +5,7 @@ import Tab from "@mui/material/Tab";
 import { Avatar } from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
 
+
 const styles = {
   fontSize: 16,
   display: "flex",
@@ -77,7 +78,7 @@ export default function Sidebar() {
         />
         <Tab
           sx={{ ...styles }}
-          icon={<Avatar alt="Residential" src="/hugeicons_house-02.svg" />}
+          icon={<Avatar alt="Residential" src="hugeicons_house-02.svg" />}
           iconPosition="start"
           label="Residential"
           className="tab-outerlayer-div"

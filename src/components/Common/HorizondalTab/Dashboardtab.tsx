@@ -12,7 +12,7 @@ import {
   Grid,
 } from "@mui/material";
 import "./Dashboardtab.scss";
-import Popover from "@mui/material/Popover";
+// import Popover from "@mui/material/Popover";
 import Button from "@mui/material/Button";
 import GenericButton from "../Button/button";
 import filterTick from "../../../../public/Icon_Tick.svg";
@@ -80,12 +80,13 @@ export default function Dashboardtab({
   const [isFiltered, setIsFiltered] = useState(false);
   const [currentCheckList, setCurrentCheckList] = useState<string[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const statusByTab = ["Pending", "Approved", "Rejected", "Deleted"];
+  const statusByTab = ["pending", "approved", "rejected", "deleted"];
   const [value, setValue] = useState(0);
   const [tableValues, setTableValues] = useState<Property[]>([]);
   const [resetCounter, setResetCounter] = useState(0);
   const [alignment, setAlignment] = React.useState("List View");
   const [isExpanded, setIsExpanded] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   //const currentStatus = statusByTab[value];
   const filterOptions = {
     all: [
@@ -229,9 +230,9 @@ export default function Dashboardtab({
 
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
+  // const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+  //   setAnchorEl(event.currentTarget);
+  // };
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -348,12 +349,34 @@ export default function Dashboardtab({
   useEffect(() => {
     if (!isFiltered) {
       const status = statusByTab[value];
-      const filtered = allItems.filter(
-        (item) => item.status?.toLowerCase() === status.toLowerCase()
+      let filtered = allItems.filter(
+        (item: any) =>
+          item.status?.toString().trim().toLowerCase() ===
+          status.trim().toLowerCase()
       );
+      if (searchQuery.trim()) {
+        const search = searchQuery.toLowerCase();
+
+        filtered = filtered.filter((item) => {
+          return (
+            item?.location?.address?.toLowerCase().includes(search) ||
+            item?.location?.landmark?.toLowerCase().includes(search) ||
+            item?.title?.toLowerCase().includes(search) ||
+            item?.type?.toLowerCase().includes(search) ||
+            item?.propertyType?.toLowerCase().includes(search) ||
+            item?.commercialType?.toLowerCase().includes(search) ||
+            item?.plotType?.toLowerCase().includes(search) ||
+            item?.furnishingType?.toLowerCase().includes(search) ||
+            item?.facingDirection?.toLowerCase().includes(search) ||
+            item?.totalFloors?.toString().toLowerCase().includes(search) ||
+            item?.washroom?.toString().toLowerCase().includes(search) ||
+            item?.area?.totalArea?.toString().toLowerCase().includes(search)
+          );
+        });
+      }
       setTableValues(filtered);
     }
-  }, [value, isFiltered, allItems]);
+  }, [searchQuery, value, isFiltered, allItems]);
 
   // filterResetFunction
   const filterResetFunction = () => {
@@ -576,17 +599,37 @@ export default function Dashboardtab({
                   {!isExpanded && (
                     <h3 className="result">
                       <span className="resultCount">{getResultCount}</span>{" "}
-                      Results
+                      Filtered Results
                     </h3>
+                  )}
+                  {checkListCount !== 0 && (
+                    <button
+                      className="clear-btn"
+                      onClick={() => {
+                        filterResetFunction();
+                      }}
+                    >
+                      <img
+                        src="../src/assets/dashboardtab/ic_round-clear-16.svg"
+                        alt="close icon"
+                      />
+                      Clear Filter
+                    </button>
                   )}
                 </div>
 
                 <div className="list-panel">
                   <div
-                    onClick={() => setIsExpanded(true)}
-                    className={`search ${isExpanded ? "active" : ""}`}
+                    
+                    className="search"
                   >
-                    <input type="search" placeholder="Search Properties" />
+                    <input
+                      type="search"
+                      placeholder="Search Properties"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      disabled
+                    />
                     <img src="Search-1.svg" alt="search svg" />
                   </div>
                   <div className="list-card-toggle">
@@ -788,20 +831,18 @@ export default function Dashboardtab({
           <div className="new-listing-wrap">
             <div className="container">
               <div className="new-listing">
-                
                 <div className="new-listing-wrap-list">
                   {!isExpanded && (
-                  <h3 className="result">
-                    <span className="resultCount">{getResultCount}</span>{" "}
-                    Results
-                  </h3>
-                   )}
+                    <h3 className="result">
+                      <span className="resultCount">{getResultCount}</span>{" "}
+                      Results
+                    </h3>
+                  )}
                 </div>
-               
+
                 <div className="list-panel">
-                  
                   <div
-                     onClick={() => setIsExpanded(true)}
+                    onClick={() => setIsExpanded(true)}
                     className={`search ${isExpanded ? "active" : ""}`}
                   >
                     <input type="search" placeholder="Search Properties" />
@@ -923,7 +964,15 @@ export default function Dashboardtab({
       <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
         <div className="filter-div-wrapper">
           <div className="filter-header">
-            <p>Filter By</p>
+            <p>
+              <img
+                src="../src/assets/dashboardtab/icon-park-outline_down.svg"
+                alt="icon park"
+                style={{ cursor: "pointer" }}
+                onClick={() => setDrawerOpen(false)}
+              />
+              &nbsp; Filter By
+            </p>
             <p className="filtercount">
               {checkListCount} Filter{checkListCount !== 1 ? "s" : ""}
             </p>
@@ -965,14 +1014,16 @@ export default function Dashboardtab({
           </div>
           <div className="apply-reset-btn">
             <button
-              className="refresh-btn"
+              className="clear-btn"
               onClick={() => {
-                filterResetFunction;
-                setDrawerOpen(false);
+                filterResetFunction();
               }}
             >
-              <img src="mynaui_refresh.svg" alt="refresh icon" />
-              Reset
+              <img
+                src="../src/assets/dashboardtab/ic_round-clear-24.svg"
+                alt="close icon"
+              />
+              Clear
             </button>
             <GenericButton
               image={filterTick}
