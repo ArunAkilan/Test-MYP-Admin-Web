@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { InputField, DynamicBreadcrumbs } from "../Common/input"; // Assuming InputField supports error props
 import GenericButton from "../Common/Button/button";
@@ -11,21 +11,16 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import { AxiosError } from "axios";
+import { Autocomplete } from "@react-google-maps/api";
 import type {
   ResidentialProperty,
   ResidentialFormState,
   UploadedImage,
   PlainObject,
-  
-  
 } from "./createResidential/createResidential.model";
 import type { Restrictions } from "../AdminResidencial/AdminResidencial.model";
-import {
-  GoogleMap,
-  Marker,
-  useJsApiLoader,
-} from "@react-google-maps/api";
-
+import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import Tooltip from "@mui/material/Tooltip";
 
 const containerStyle = {
   width: "100%",
@@ -35,11 +30,11 @@ const containerStyle = {
 };
 const defaultCenter = { lat: 11.2419968, lng: 78.8063549 };
 
-interface LocationPickerProps {
-  setLatitude: (lat: string) => void;
-  setLongitude: (lng: string) => void;
-  setAddress: (address: string) => void;
-}
+// interface LocationPickerProps {
+//   setLatitude: (lat: string) => void;
+//   setLongitude: (lng: string) => void;
+//   setAddress: (address: string) => void;
+// }
 
 // Utility function to set nested value dynamically
 function setNested(obj: PlainObject, path: string, value: unknown) {
@@ -67,7 +62,6 @@ const mapChipsToRestrictions = (chips: string[]): Restrictions => {
   };
 };
 
-
 // Build payload dynamically based on form state
 function buildPayloadDynamic(
   formState: ResidentialFormState
@@ -88,6 +82,7 @@ function buildPayloadDynamic(
   setNested(payload, "rent.negotiable", true);
   const advance = parseFloat(formState.advanceAmount);
   setNested(payload, "rent.advanceAmount", isNaN(advance) ? 0 : advance);
+  setNested(payload, "rent.leaseTenure", formState.leaseTenure);
 
   setNested(payload, "location.landmark", "Near Green Park");
   if (formState.latitude)
@@ -110,13 +105,17 @@ function buildPayloadDynamic(
   // const imageUrls = ((formState.images as UploadedImage[]) || [])
   //   .map((file) => file?.url?.trim())
   //   .filter((url): url is string => typeof url === "string" && url.length > 0);
-  const imageUrls = ((formState.images as UploadedImage[]) || [])
-    .map((file) => file?.name) // Instead of blob URL
-    .filter(
-      (name): name is string => typeof name === "string" && name.length > 0
-    );
 
+  const imageUrls = formState.images.map((f) => f.name).filter(Boolean);
   setNested(payload, "images", imageUrls);
+
+  // const imageUrls = ((formState.images as UploadedImage[]) || [])
+  //   .map((file) => file?.name) // Instead of blob URL
+  //   .filter(
+  //     (name): name is string => typeof name === "string" && name.length > 0
+  //   );
+  // setNested(payload, "images", imageUrls);
+
   setNested(payload, "title", formState.title);
   setNested(payload, "residentialType", formState.residentialType);
   setNested(payload, "facingDirection", formState.facingDirection);
@@ -134,12 +133,13 @@ function buildPayloadDynamic(
   setNested(payload, "furnishingType", formState.furnishingType);
   setNested(payload, "description", formState.description);
   setNested(payload, "legalDocuments", formState.legalDocuments); // if it's string[]
-  setNested(payload, "rent.leaseTenure", formState.leaseTenure);
   setNested(payload, "area.builtUpArea", `${formState.builtUpArea} sqft`);
   setNested(payload, "area.carpetArea", `${formState.carpetArea} sqft`);
-  setNested(payload, "restrictions", formState.selectedChips);
-  setNested(payload, "restrictions", mapChipsToRestrictions(formState.selectedChips));
-
+  setNested(
+    payload,
+    "restrictions",
+    mapChipsToRestrictions(formState.selectedChips)
+  );
 
   return payload as ResidentialProperty;
 }
@@ -181,58 +181,128 @@ export const CreateResidential = () => {
   const [description, setPropertyDescription] = useState("");
   const [legalDocuments, setLegalDocuments] = useState("Yes");
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
-  const [showTopAlert, setShowTopAlert] = useState(false);
-  
+  const [errors] = useState<Record<string, string>>({});
+  const [showTopInfo, setShowTopInfo] = useState(false);
+  const [markerPosition, setMarkerPosition] = useState(defaultCenter);
+  const [autocomplete, setAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
+
+  const [nearbyTransport, setNearbyTransport] = useState<Record<string, string>>({"BUS STAND": "0 KM",
+    AIRPORT: "0 KM",
+    METRO: "0 KM",
+    RAILWAY: "0 KM",
+  });
   // Validation errors state
   // interface Errors {
   //   [key: string]: string;
   // }
 
   // const [errors, setErrors] = useState<Errors>({});
-  const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Google Maps API loader
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "", // put your API key in .env file
-  });
-   // Marker position state
-   const [markerPosition, setMarkerPosition] = useState({
-    lat: latitude ? parseFloat(latitude) : defaultCenter.lat,
-    lng: longitude ? parseFloat(longitude) : defaultCenter.lng,
+    libraries: ["places", "geometry"],
+    
   });
 
-  // Update marker & lat/lng/address on map click
-  const onMapClick = useCallback((e: google.maps.MapMouseEvent) => {
-    if (e.latLng) {
-      const lat = e.latLng.lat();
-      const lng = e.latLng.lng();
-      setMarkerPosition({ lat, lng });
-      setLatitude(lat.toFixed(6));
-      setLongitude(lng.toFixed(6));
-
-      // Reverse Geocode to get address
-      const geocoder = new google.maps.Geocoder();
-      geocoder.geocode({ location: { lat, lng } }, (results, status) => {
-        if (status === "OK" && results && results[0]) {
-          setAddress(results[0].formatted_address);
-        } else {
-          setAddress("");
-        }
+  const fetchNearbyTransport = async (lat: number, lng: number) => {
+    const types = [
+      { type: "bus_station", label: "BUS STAND" },
+      { type: "airport", label: "AIRPORT" },
+      { type: "subway_station", label: "METRO" },
+      { type: "train_station", label: "RAILWAY" },
+    ];
+    const info: Record<string, string> = {};
+    for (const t of types) {
+      const svc = new google.maps.places.PlacesService(
+        document.createElement("div")
+      );
+      await new Promise<void>((resolve) => {
+        svc.nearbySearch(
+          {
+            location: new google.maps.LatLng(lat, lng),
+            radius: 5000,
+            type: t.type,
+          },
+          (res, status) => {
+            if (
+              status === google.maps.places.PlacesServiceStatus.OK &&
+              res?.[0]?.geometry?.location
+            ) {
+              const dist =
+                google.maps.geometry.spherical.computeDistanceBetween(
+                  new google.maps.LatLng(lat, lng),
+                  res[0].geometry.location
+                );
+              info[t.label] = `${(dist / 1000).toFixed(1)} KM`;
+            } else info[t.label] = "Not Found";
+            resolve();
+          }
+        );
       });
     }
+    setNearbyTransport(info);
+  };
+
+  const onMapClick = useCallback((e: google.maps.MapMouseEvent) => {
+    if (!e.latLng) return;
+    const lat = e.latLng.lat();
+    const lng = e.latLng.lng();
+
+    setMarkerPosition({ lat, lng });
+    setLatitude(lat.toFixed(6));
+    setLongitude(lng.toFixed(6));
+
+    new google.maps.Geocoder().geocode(
+      { location: { lat, lng } },
+      (res, stat) => {
+        setAddress(
+          stat === "OK" && res?.[0]?.formatted_address
+            ? res[0].formatted_address
+            : ""
+        );
+      }
+    );
+    fetchNearbyTransport(lat, lng);
   }, []);
+  // // Marker position state
+  // const [markerPosition, setMarkerPosition] = useState({
+  //   lat: latitude ? parseFloat(latitude) : defaultCenter.lat,
+  //   lng: longitude ? parseFloat(longitude) : defaultCenter.lng,
+  // });
+
+  // // Update marker & lat/lng/address on map click
+  // const onMapClick = useCallback((e: google.maps.MapMouseEvent) => {
+  //   if (e.latLng) {
+  //     const lat = e.latLng.lat();
+  //     const lng = e.latLng.lng();
+  //     setMarkerPosition({ lat, lng });
+  //     setLatitude(lat.toFixed(6));
+  //     setLongitude(lng.toFixed(6));
+
+  //     // Reverse Geocode to get address
+  //     const geocoder = new google.maps.Geocoder();
+  //     geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+  //       if (status === "OK" && results && results[0]) {
+  //         setAddress(results[0].formatted_address);
+  //       } else {
+  //         setAddress("");
+  //       }
+  //     });
+  //   }
+  // }, []);
 
   // Validation function
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
     let isValid = true;
 
-    if (!isValid) {
-      setShowTopAlert(true);
-    } else {
-      setShowTopAlert(false);
-    }
+    // if (!isValid) {
+    //   setShowTopAlert(true);
+    // } else {
+    //   setShowTopAlert(false);
+    // }
 
     // Owner Information Validation
     if (!firstName.trim()) {
@@ -309,9 +379,9 @@ export const CreateResidential = () => {
       isValid = false;
     }
 
-    setErrors(newErrors);
-    setShowTopAlert(!isValid);
-    
+    // setErrors(newErrors);
+    // setShowTopAlert(!isValid);
+
     return isValid;
   };
 
@@ -334,107 +404,141 @@ export const CreateResidential = () => {
     e.preventDefault(); // Prevent default form submission
 
     const isValid = validateForm();
-    
+
     if (!isValid) {
       toast.error("Please correct the highlighted errors before submitting.");
       return;
     }
 
-   
-      // Form is valid, proceed with submission
-      const formState: ResidentialFormState = {
-        firstName,
-        lastName,
-        email,
-        phone1,
-        propertyType,
-        title,
-        rent,
-        advanceAmount,
-        leaseTenure,
-        residentialType,
-        address,
-        latitude,
-        longitude,
-        images,
-        totalArea,
-        builtUpArea,
-        carpetArea,
-        facingDirection,
-        totalFloors,
-        propertyFloor,
-        furnishingType,
-        rooms,
-        description,
-        legalDocuments,
-        selectedChips,
-      };
-
-      const payload = buildPayloadDynamic(formState);
-
-      console.log("Payload being sent to backend:", payload);
-
-      try {
-        // Send POST request
-        const response = await axios.post(
-          `${import.meta.env.VITE_BackEndUrl}/api/residential/create`,
-          payload
-        );
-
-        toast.success("Property created successfully!");
-
-        // TODO: Send data to backend
-        // Redirect after a short delay (so toast is visible)
-        setTimeout(() => {
-          navigate("/residential", {
-            state: { data: response.data },
-          });
-        }, 2000);
-      } catch (err) {
-        const error = err as AxiosError<{ message?: string; error?: string }>;
-
-        console.error("Submission error:", error.response || error);
-
-        const errorMessage =
-          error.response?.data?.message ||
-          error.response?.data?.error ||
-          error.message ||
-          "Something went wrong!";
-
-        toast.error(`Failed to create property: ${errorMessage}`);
-      }
+    // Form is valid, proceed with submission
+    const formState: ResidentialFormState = {
+      firstName,
+      lastName,
+      email,
+      phone1,
+      propertyType,
+      title,
+      rent,
+      advanceAmount,
+      leaseTenure,
+      residentialType,
+      address,
+      latitude,
+      longitude,
+      images,
+      totalArea,
+      builtUpArea,
+      carpetArea,
+      facingDirection,
+      totalFloors,
+      propertyFloor,
+      furnishingType,
+      rooms,
+      description,
+      legalDocuments,
+      selectedChips,
     };
+
+    const payload = buildPayloadDynamic(formState);
+
+    // console.log("Payload being sent to backend:", payload);
+    console.log("Payload:", JSON.stringify(payload, null, 2));
+
+    try {
+      // Send POST request
+      const response = await axios.post(
+        `${import.meta.env.VITE_BackEndUrl}/api/residential/create`,
+        payload
+      );
+
+      toast.success("Property created successfully!");
+
+      // TODO: Send data to backend
+      // Redirect after a short delay (so toast is visible)
+      setTimeout(() => {
+        navigate("/residential", {
+          state: { data: response.data },
+        });
+      }, 2000);
+    } catch (err) {
+      const error = err as AxiosError<{ message?: string; error?: string }>;
+
+      console.error("Submission error:", error.response || error);
+
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Something went wrong!";
+
+      toast.error(`Failed to create property: ${errorMessage}`);
+    }
+  };
   //   else {
   //     console.log("Form has validation errors.");
   //     toast.error("Please correct the highlighted errors before submitting.");
   //   }
   // };
 
+  //TopOfCenter MUIAlertToast
+  useEffect(() => {
+    // Show only once when the page opens
+    setShowTopInfo(true);
+  }, []);
+
+  const isFormReadyToSubmit =
+    firstName.trim() &&
+    lastName.trim() &&
+    phone1.trim() &&
+    title.trim() &&
+    address.trim() &&
+    images.length > 0 &&
+    totalArea.trim() &&
+    builtUpArea.trim() &&
+    carpetArea.trim() &&
+    rooms.trim() &&
+    selectedChips.length > 0;
+
   return (
     <form onSubmit={handleSubmit}>
-      <div className="createProperty container row">
+      <div className="createProperty  row">
         <div className="col-12 col-md-3">{/* Sidebar placeholder */}</div>
         <div className="col-12">
-          <div className="container-fluid px-3 px-md-5">
-            <div className="ContentArea container">
+          <div className=" px-3 px-md-5">
+            <div className="ContentArea ">
               {/* Breadcrumb */}
               <div className="muiBreadcrumbs">
                 <DynamicBreadcrumbs breadcrumbs={breadcrumbsData} />
                 <ToastContainer />
                 {/* Rest of your page content */}
 
-                {showTopAlert && (
+                {showTopInfo && (
                   <Alert
+                    className="topInfoAlert"
                     severity="error"
                     variant="outlined"
+                    icon={false}
                     sx={{ mt: 2 }}
                     action={
-                      <IconButton onClick={() => setShowTopAlert(false)}>
-                        <CloseIcon />
+                      <IconButton
+                        aria-label="close"
+                        color="inherit"
+                        size="small"
+                        onClick={() => setShowTopInfo(false)}
+                      >
+                        <CloseIcon sx={{ color: "black" }} />
                       </IconButton>
                     }
                   >
-                    Required Fields - 5 Fields required to submit the form.
+                    <img
+                      src="/src/assets/createProperty/mdi_required.png"
+                      alt=""
+                    />
+
+                    <p className="topInfoAlertP">
+                      Required Fields – 5 fields must be filled before
+                      submitting the form.
+                    </p>
                   </Alert>
                 )}
               </div>
@@ -445,7 +549,7 @@ export const CreateResidential = () => {
                   <p>Enter the contact details of the property owner</p>
                 </div>
 
-                <div className="ownerInputField container row mb-3 p-0">
+                <div className="ownerInputField row mb-3 p-0">
                   <div className="row">
                     <div className="col-12 col-md-6 mb-3">
                       <label className="textLabel" htmlFor="ownerFirstName">
@@ -618,7 +722,7 @@ export const CreateResidential = () => {
 
                 <div className="row">
                   <div className="col-12 col-md-6 mb-3">
-                    <div
+                    {/* <div
                       className="Map ratio-16x9"
                       style={{
                         width: "100%",
@@ -642,12 +746,46 @@ export const CreateResidential = () => {
                         loading="lazy"
                         referrerPolicy="no-referrer-when-downgrade"
                       ></iframe>
-                    </div>
+                    </div> */}
+
+                    {isLoaded ? (
+                      <GoogleMap
+                        mapContainerStyle={containerStyle}
+                        center={markerPosition}
+                        zoom={14}
+                        onClick={onMapClick}
+                      >
+                        <Marker position={markerPosition} />
+                      </GoogleMap>
+                    ) : (
+                      <p>Loading map...</p>
+                    )}
                   </div>
 
                   <div className="col-12 col-md-6 mb-3">
                     <div className="row">
+                      
                       <div className="col-12 mb-3">
+                      {isLoaded ? (
+                        <Autocomplete
+                          onLoad={(auto) => setAutocomplete(auto)}
+                          onPlaceChanged={() => {
+                            if (autocomplete) {
+                              const place = autocomplete.getPlace();
+                              const lat = place.geometry?.location?.lat();
+                              const lng = place.geometry?.location?.lng();
+
+                              if (place.formatted_address) setAddress(place.formatted_address);
+                              if (lat && lng) {
+                                setLatitude(lat.toFixed(6));
+                                setLongitude(lng.toFixed(6));
+                                setMarkerPosition({ lat, lng });
+                                fetchNearbyTransport(lat, lng); // optional if you use this
+                              }
+                            }
+                          }}
+                        >
+                        <div>
                         <label className="TextLabel" htmlFor="address">
                           Full Address <span className="star">*</span>
                         </label>
@@ -660,7 +798,14 @@ export const CreateResidential = () => {
                           error={!!errors.address}
                           helperText={errors.address}
                         />
+                        </div>
+                        </Autocomplete>
+                        ) : (
+                          <p>Loading autocomplete...</p>
+                        )}
+                        
                       </div>
+                      
                       <div className="col-6 mb-3">
                         <label className="TextLabel" htmlFor="latitude">
                           Latitude
@@ -694,10 +839,10 @@ export const CreateResidential = () => {
                         Nearby Transportation
                       </label>
 
-                      <div className="container">
+                      <div className="">
                         <div className="row">
                           <div className="col-6 col-md-6 mb-3">
-                            <span className="transportTitles">BUS STRAND</span>
+                            <span className="transportTitles">BUS STAND</span>
                             <div className="transportCard d-flex gap-2">
                               <img
                                 src="/src/assets/createProperty/Icon_Bus.svg"
@@ -705,21 +850,25 @@ export const CreateResidential = () => {
                                 className="transportImg"
                               />
                               <div>
-                                <span className="transportInfoText">0 KM</span>
+                                <span className="transportInfoText">
+                                {nearbyTransport["BUS STAND"] || "0 KM"}
+                                  </span>
                               </div>
                             </div>
                           </div>
+
                           <div className="col-6 col-md-6 mb-3">
+                            <span className="transportTitles">AIRPORT</span>
                             <div className="transportCard d-flex gap-2">
                               <img
                                 src="/src/assets/createProperty/ph_airplane-in-flight.svg"
-                                alt="Airport"
+                                alt="Bus"
+                                className="transportImg"
                               />
                               <div>
                                 <span className="transportInfoText">
-                                  Airport
-                                  <br />- Kms
-                                </span>
+                                {nearbyTransport["AIRPORT"] || "0 KM"}
+                                  </span>
                               </div>
                             </div>
                           </div>
@@ -727,30 +876,32 @@ export const CreateResidential = () => {
 
                         <div className="row">
                           <div className="col-6 col-md-6 mb-3">
+                            <span className="transportTitles">METRO</span>
                             <div className="transportCard d-flex gap-2">
                               <img
                                 src="/src/assets/createProperty/hugeicons_metro.svg"
-                                alt="Metro"
+                                alt="Bus"
+                                className="transportImg"
                               />
                               <div>
                                 <span className="transportInfoText">
-                                  Metro
-                                  <br />- Kms
-                                </span>
+                                {nearbyTransport["METRO"] || "0 KM"}
+                                  </span>
                               </div>
                             </div>
                           </div>
                           <div className="col-6 col-md-6 mb-3">
+                            <span className="transportTitles">RAILWAY</span>
                             <div className="transportCard d-flex gap-2">
                               <img
                                 src="/src/assets/createProperty/material-symbols-light_train-outline.svg"
-                                alt="Railway"
+                                alt="Bus"
+                                className="transportImg"
                               />
                               <div>
                                 <span className="transportInfoText">
-                                  Railway
-                                  <br />- Kms
-                                </span>
+                                {nearbyTransport["RAILWAY"] || "0 KM"}
+                                  </span>
                               </div>
                             </div>
                           </div>
@@ -1039,7 +1190,7 @@ export const CreateResidential = () => {
               </section>
 
               {/* Amenities Section - No direct validation needed unless you have min/max selections */}
-              <section className="container AmenitiesSection mb-4">
+              <section className=" AmenitiesSection mb-4">
                 <div className="ownerTitle mb-3">
                   <h6>Nearby Services & Essentials</h6>
                   <p>
@@ -1592,23 +1743,64 @@ export const CreateResidential = () => {
                   icon={<CloseIcon />}
                   className="DiscardC btn-outline-secondary"
                   onClick={() => {
-                    // Implement discard logic here, e.g., reset all states
-                    window.location.reload(); // Simple reload for demonstration
+                    toast.info(
+                      ({ closeToast }) => (
+                        <div>
+                          <p>Are you sure you want to discard changes?</p>
+                          <div className="d-flex justify-content-end gap-2 mt-2">
+                            <button
+                              className="btn btn-danger btn-sm"
+                              onClick={() => {
+                                closeToast?.();
+                                // Implement discard logic here, e.g., reset all states
+                                window.location.reload(); // Simple reload for demonstration
+                              }}
+                            >
+                              Yes
+                            </button>
+                            <button
+                              className="btn btn-secondary btn-sm"
+                              onClick={closeToast}
+                            >
+                              No
+                            </button>
+                          </div>
+                        </div>
+                      ),
+                      {
+                        position: "top-center",
+                        closeOnClick: false,
+                        autoClose: false,
+                        closeButton: false,
+                        draggable: false,
+                      }
+                    );
                   }}
                 />
-                <div>
-                  {/* Your form and other JSX */}
-                  <GenericButton
-                    label="Create New Property"
-                    icon={<DoneIcon />}
-                    className="createNP btn btn-primary"
-                    type="submit"
-                    // onClick={() => navigate("/createResidential", { state: { mode: "create" } })}
-                  />
 
-                  {/* This must be rendered */}
-                  <ToastContainer />
-                </div>
+                <Tooltip
+                  title={
+                    !isFormReadyToSubmit
+                      ? "Please complete all required fields"
+                      : ""
+                  }
+                >
+                  <div>
+                    {/* Your form and other JSX */}
+                    <GenericButton
+                      label="Create New Property"
+                      icon={<DoneIcon />}
+                      className="createNP btn btn-primary"
+                      type="submit"
+                      disabled={!isFormReadyToSubmit}
+
+                      // onClick={() => navigate("/createResidential", { state: { mode: "create" } })}
+                    />
+
+                    {/* This must be rendered */}
+                    <ToastContainer />
+                  </div>
+                </Tooltip>
               </div>
             </div>
           </div>
