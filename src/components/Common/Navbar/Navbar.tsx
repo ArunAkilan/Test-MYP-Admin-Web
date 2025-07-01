@@ -105,19 +105,19 @@ const idSecond = openSecond ? "second-popover" : undefined;
               }`}
             >
               <div className="h-search">
-                <img src="Search.svg" alt="Search img" />
+                <img src="/public/Search.svg" alt="Search img" />
 
                 <input type="search" placeholder="Search Anything..." />
               </div>
               <div className="bell">
                 <img
-                  src="Vector.svg"
+                  src="/public/Vector.svg"
                   alt="setting svg"
                   className="setting-image"
                 />
                 <div className="bell-image">
                   <button aria-describedby={idFirst} onClick={handleFirstClick}>
-                    <img src="BTN_Notification.svg" alt="Notification svg" />
+                    <img src="/public/BTN_Notification.svg" alt="Notification svg" />
                   </button>
                   <Popover
                     anchorReference="anchorPosition"

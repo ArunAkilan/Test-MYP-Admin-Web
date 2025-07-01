@@ -3,12 +3,12 @@ import Sidebar from "./components/Common/Sidebar/Sidebar";
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import navbarLogo from "../src/assets/navbar/PRH Admin-resize.svg"
+import navbarLogo from "../src/assets/navbar/PRH_Admin-resize.svg"
 import Home from "./components/Dashboard/Dashboard";
-import CreateResidential from "./components/Residential/createResidential";
-import ViewResidential from "./components/Residential/viewResidential/viewResidential";
 import "./App.scss";
 import { useEffect } from "react";
+import ViewProperty from "./components/Properties/viewProperties/viewProperty";
+import { CreateProperty } from "./components/Properties/properties";
 
 function AppRoutes() {
   const navigate = useNavigate();
@@ -51,11 +51,11 @@ function AppRoutes() {
             path="/plots"
             element={<Home properties="plots" onAddNew={openCreateResidential} />}
           />
-          <Route path="/commercial/create" element={<CreateResidential />} />
-          <Route path="/plots/create" element={<CreateResidential />} />
-          <Route path="/residential/create" element={<CreateResidential />} />
-          <Route path="/plots/view" element={<ViewResidential />} />
-          <Route path="/plots/view/:id" element={<ViewResidential />} />
+          <Route path="/commercial/create" element={<CreateProperty />} />
+          <Route path="/plots/create" element={<CreateProperty />} />
+          <Route path="/residential/create" element={<CreateProperty />} />
+          <Route path="/plots/view" element={<ViewProperty />} />
+          <Route path="/plots/view/:id" element={<ViewProperty />} />
         </Routes>
       </div>
     </div>
@@ -69,7 +69,7 @@ function App() {
         <Header
           MainLogo={navbarLogo}
           Title="Admin"
-          ProfileLogo="Ellipse 1.svg"
+          ProfileLogo="/public/Ellipse 1.svg"
           Profile={false}
         />
         <div className="container body-content-container">

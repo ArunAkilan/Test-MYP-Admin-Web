@@ -1,20 +1,19 @@
 import { useState } from "react";
-import { useEffect } from "react";
 import { useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { InputField } from "../Common/input"; // Assuming InputField supports error props
 import GenericButton from "../Common/Button/button";
 import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
 import DoneIcon from "@mui/icons-material/Done";
 import CloseIcon from "@mui/icons-material/Close";
 import { Button, Avatar } from "@mui/material";
-import "./createResidential/createResidential.scss"; // Your styling
+import "./createProperties/createProperty.scss";
 import { DynamicBreadcrumbs } from "../Common/input";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import { AxiosError } from "axios";
-import type { ResidentialProperty, ResidentialFormState, UploadedImage, PlainObject} from "./createResidential/createResidential.model";
+import type { ResidentialProperty, ResidentialFormState, UploadedImage, PlainObject} from "./createProperties/createProperty.model";
 
 
 
@@ -85,14 +84,8 @@ function buildPayloadDynamic(formState: ResidentialFormState): ResidentialProper
   return payload;
 }
 
-// Define breadcrumb data
-const breadcrumbsData = [
-  { label: "Residential", href: "/residentials" },
-  // For the separator image in your original HTML, MUI Breadcrumbs uses an icon, so it replaces it automatically
-  { label: "Create New Property" }, // current page, no href
-];
 
-export const CreateResidential = () => {
+export const CreateProperty = () => {
   // State for form data
   const navigate = useNavigate();
   const [firstName, setFirstName] = useState("");
@@ -120,6 +113,9 @@ export const CreateResidential = () => {
   const [description, setPropertyDescription] = useState("");
   const [legalDocuments, setLegalDocsAvailable] = useState("");
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
+
+  const location = useLocation();
+  console.log("propertyData%%%%%%%", location);
 
   // Validation errors state
   interface Errors {
@@ -322,15 +318,16 @@ export const CreateResidential = () => {
   // Remember if you've already run the logic - useRef
   const hasFetched = useRef(false);
 
-  useEffect(() => {
-    if (hasFetched.current) return;
-    hasFetched.current = true;
+  // useEffect(() => {
+  //   if (hasFetched.current) return;
+  //   hasFetched.current = true;
 
-    fetch(`${import.meta.env.VITE_FRONTEND}/api/residential`)
-      .then((res) => res.json())
-      .then((data) => console.log("Fetched:", data)) // Already fetched? Exit.
-      .catch((err) => console.error("Error:", err)); // Mark as fetched.
-  }, []);
+  //   fetch(`${import.meta.env.VITE_FRONTEND}/api/residential`)
+  //     .then((res) => res.json())
+  //     .then((data) => console.log("Fetched:", data)) // Already fetched? Exit.
+  //     .catch((err) => console.error("Error:", err)); // Mark as fetched.
+  // }, []);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault(); // Prevent default form submission
 
@@ -414,7 +411,7 @@ export const CreateResidential = () => {
             <div className="ContentArea container">
               {/* Breadcrumb */}
               <div className="muiBreadcrumbs">
-                <DynamicBreadcrumbs breadcrumbs={breadcrumbsData} />
+                <DynamicBreadcrumbs />
                 {/* Rest of your page content */}
               </div>
               {/* Owner Information Section */}
@@ -1429,4 +1426,4 @@ export const CreateResidential = () => {
   );
 };
 
-export default CreateResidential;
+export default CreateProperty;
