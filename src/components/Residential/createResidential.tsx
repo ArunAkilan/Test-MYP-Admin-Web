@@ -119,28 +119,50 @@ function buildPayloadDynamic(
   setNested(payload, "title", formState.title);
   setNested(payload, "residentialType", formState.residentialType);
   setNested(payload, "facingDirection", formState.facingDirection);
-  setNested(payload, "rooms", formState.rooms);
-  setNested(
-    payload,
-    "totalFloors",
-    formState.totalFloors ? parseInt(formState.totalFloors) : 0
-  );
+  setNested(payload, "rooms", `${formState.rooms} BHK`);
+  setNested( payload, "totalFloors", formState.totalFloors ? parseInt(formState.totalFloors) : 0);
   setNested(
     payload,
     "propertyFloor",
     formState.propertyFloor ? parseInt(formState.propertyFloor) : 0
   );
-  setNested(payload, "furnishingType", formState.furnishingType);
+  setNested(payload, "furnishingType", formState.furnishingType?.replace("-", " "));
   setNested(payload, "description", formState.description);
   setNested(payload, "legalDocuments", formState.legalDocuments); // if it's string[]
   setNested(payload, "area.builtUpArea", `${formState.builtUpArea} sqft`);
   setNested(payload, "area.carpetArea", `${formState.carpetArea} sqft`);
-  setNested(
-    payload,
-    "restrictions",
-    mapChipsToRestrictions(formState.selectedChips)
-  );
-
+  setNested(payload, "restrictions", mapChipsToRestrictions(formState.selectedChips));
+  setNested(payload, "availability", {
+    transport: {
+      nearbyBusStop: false,
+      nearbyAirport: false,
+      nearbyPort: false,
+    },
+    broadband: false,
+    securities: false,
+  });
+  setNested(payload, "facility", {
+    maintenance: false,
+    waterFacility: false,
+    roadFacility: false,
+    drainage: false,
+    parking: false,
+    balcony: false,
+    terrace: false,
+  });
+  setNested(payload, "accessibility", {
+    ramp: false,
+    steps: false,
+    lift: false,
+  });
+  setNested(payload, "amenities", {
+    separateEBConnection: false,
+    nearbyMarket: false,
+    nearbyGym: false,
+    nearbyTurf: false,
+    nearbyArena: false,
+    nearbyMall: false,
+  });
   return payload as ResidentialProperty;
 }
 
