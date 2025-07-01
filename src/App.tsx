@@ -1,13 +1,14 @@
-import "./App.css";
 import Header from "./components/Common/Navbar/Navbar";
 import Sidebar from "./components/Common/Sidebar/Sidebar";
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import navbarLogo from "../src/assets/navbar/PRH Admin-resize.svg"
 import Home from "./components/Dashboard/Dashboard";
 import CreateResidential from "./components/Residential/createResidential";
 import ViewResidential from "./components/Residential/viewResidential/viewResidential";
+import "./App.scss";
+import { useEffect } from "react";
 
 function AppRoutes() {
   const navigate = useNavigate();
@@ -15,6 +16,18 @@ function AppRoutes() {
   const openCreateResidential = () => {
     navigate("/residential/create");
   };
+
+  const location = useLocation();
+  const noScrollRoutes = [
+    "/dashboard", 
+    "/commercial",
+    "/residential",
+    "/plots",
+  ];
+  useEffect(() => {
+    const shouldHideScroll = noScrollRoutes.includes(location.pathname);
+    document.body.style.overflow = shouldHideScroll ? "hidden" : "auto";
+  }, [location.pathname]);
 
   return (
     <div className="app-container row">
@@ -41,8 +54,8 @@ function AppRoutes() {
           <Route path="/commercial/create" element={<CreateResidential />} />
           <Route path="/plots/create" element={<CreateResidential />} />
           <Route path="/residential/create" element={<CreateResidential />} />
-          <Route path="/plots/view-residential" element={<ViewResidential />} />
-          <Route path="/plots/view-residential/:id" element={<ViewResidential />} />
+          <Route path="/plots/view" element={<ViewResidential />} />
+          <Route path="/plots/view/:id" element={<ViewResidential />} />
         </Routes>
       </div>
     </div>

@@ -106,7 +106,7 @@ function Table({ data, properties, onScrollChange }: TableProps) {
     const selectedItem = formatedData.find((item: any) => item._id === id);
 
     if (selectedItem) {
-      navigate("/plots/view-residential", {
+      navigate("/plots/view", {
         state: { data: selectedItem, mode: "view" },
       });
     } else {
