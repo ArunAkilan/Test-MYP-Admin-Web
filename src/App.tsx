@@ -8,7 +8,7 @@ import Home from "./components/Dashboard/Dashboard";
 import "./App.scss";
 import { useEffect } from "react";
 import ViewProperty from "./components/Properties/viewProperties/viewProperty";
-import { CreateProperty } from "./components/Properties/properties";
+import CreateProperty from "./components/Properties/properties";
 
 function AppRoutes() {
   const navigate = useNavigate();

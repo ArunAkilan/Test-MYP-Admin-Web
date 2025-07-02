@@ -18,6 +18,7 @@ import {
   Modal,
   Breadcrumbs,
   Link,
+  Alert,
 } from "@mui/material";
 import TextareaAutosize from "@mui/material/TextareaAutosize";
 import { styled } from "@mui/system";
@@ -69,6 +70,10 @@ interface InputFieldProps {
   breadcrumbs?: BreadcrumbItem[];
   selectedChips?: string[]; // Currently selected chip labels
   onChipToggle?: (label: string) => void; // Toggle handler when chip clicked
+  alertSeverity?: "error" | "warning" | "info" | "success";
+  alertMessage?: string; // text inside the Alert
+  alertAction?: React.ReactNode; // optional action (e.g. an <Undo /> button)
+  onAlertClose?: () => void; // called when the ✕ is clicked
 }
 
 // ---------------- Styles -------------------
@@ -189,6 +194,11 @@ const InputField: React.FC<InputFieldProps> = ({
   breadcrumbs,
   selectedChips,
   onChipToggle,
+  alertSeverity,
+  alertMessage,
+  alertAction,
+  onAlertClose,
+
 }) => {
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -204,6 +214,20 @@ const InputField: React.FC<InputFieldProps> = ({
 
   return (
     <div className="mb-3 d-flex flex-column">
+
+      {/* ---------- Optional Alert ---------- */}
+    {alertMessage && (
+      <Stack sx={{ width: '100%', mb: 1 }} spacing={2}>
+        <Alert
+          severity={alertSeverity || 'info'}
+          {...(onAlertClose ? { onClose: onAlertClose } : {})}
+          action={alertAction}
+        >
+          {alertMessage}
+        </Alert>
+      </Stack>
+    )}
+
       {/* ---------- Breadcrumbs ---------- */}
       {breadcrumbs && breadcrumbs.length > 0 && (
         <DynamicBreadcrumbs />
