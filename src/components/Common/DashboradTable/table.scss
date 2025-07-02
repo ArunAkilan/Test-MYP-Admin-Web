@@ -91,13 +91,64 @@ td  {
   display: flex;
 }
 
-
-
-
 .truncate-text {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 54px; 
   display: inline-block;
+}
+
+.MuiPopover-paper {
+  box-shadow: none !important;
+}
+.checkbox-popover-content {
+  box-shadow: 1px 2px 4px 0 #0000000A,
+  2px 4px 8px 0 #0000000F,
+  4px 8px 12px 0 #00000014,
+  8px 12px 16px 0 #00000029;
+  background: #2E2E2F;
+  border-radius: 6px;
+  display: flex;
+ align-items: center;
+}
+.checkbox-popover-content p {
+  margin-bottom: 0;
+  font-size: 16px;
+  font-family: 'open Sans';
+  font-weight: 500;
+  line-height: 100%;
+  letter-spacing: 2.4%;
+   padding: 14.5px 16px;
+   display: flex;
+   cursor: pointer;
+}
+.pop-content-divider {
+  background: #81838C;
+  width: 1px;  
+  height: 45px;
+}
+.property-select {
+  color: #B8BABF;
+}
+.property-approve , .property-deny {
+  color: #fff;
+}
+.property-delete {
+  color: #E56A5C;
+}
+
+.checkbox-popover {
+  pointer-events: none;
+}
+
+.checkbox-popover  .checkbox-popover-content,.checkbox-popover ~ .checkbox-popover-content {
+  pointer-events: all; /* Only the popover content is clickable */
+}
+
+.th-content {
+  display: flex;
+  align-items: center;
+  gap: 6px; /* Space between text and arrow */
+  white-space: nowrap; /* Prevents wrapping */
 }

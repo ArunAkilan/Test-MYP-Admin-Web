@@ -16,8 +16,8 @@
       .house-topic-content {
         h3 {
           margin: 0;
-          font-size: 28px;
-          line-height: 36px;
+          font-size: 22px;
+          line-height: 27px;
           font-weight: 700;
           font-family: 'Raleway';
           padding-bottom: 8px;
@@ -275,6 +275,9 @@
   margin: 0;
   margin-left: 16px;
   color: #2E2E2F;
+  border: 1px solid #D3DDE7;
+  border-radius: 6px;
+  padding: 12px !important;
 }
   img {
     padding-right: 8px;
@@ -310,4 +313,12 @@
 .genericContinueButton:hover {
   background: #2C62CC !important;
   color: #fff;
+}
+#demo-row-radio-buttons-group-label {
+  color: #2E2E2F;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: 'Raleway';
+  line-height: 24px;
+  letter-spacing: 0;
 }

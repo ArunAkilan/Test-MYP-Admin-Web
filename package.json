@@ -25,6 +25,7 @@
     "react": "^18.3.1",
     "react-carousel-mui": "^1.0.0",
     "react-dom": "^18.3.1",
+    "react-loading-skeleton": "^3.5.0",
     "react-material-ui-carousel": "^3.4.2",
     "react-router-dom": "^7.6.2",
     "react-slick": "^0.30.3",

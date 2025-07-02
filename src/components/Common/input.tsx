@@ -20,7 +20,6 @@ import {
   Link,
   Alert,
 } from "@mui/material";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import TextareaAutosize from "@mui/material/TextareaAutosize";
 import { styled } from "@mui/system";
 
@@ -28,7 +27,7 @@ import { MuiTelInput } from "mui-tel-input";
 import type { Theme } from "@mui/system";
 import Avatar from "@mui/material/Avatar";
 import type { SelectChangeEvent } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 
 // ---------------- Types -------------------
 type InputType =
@@ -115,42 +114,66 @@ const StyledTextarea = styled(TextareaAutosize)(
 );
 
 // ---------------- Subcomponent: Breadcrumbs -------------------
-const DynamicBreadcrumbs: React.FC<{ breadcrumbs: BreadcrumbItem[] }> = ({
-  breadcrumbs,
-}) => {
-  const navigate = useNavigate();
+const DynamicBreadcrumbs = () => {
+  const pathnames = location.pathname.split("/").filter((x) => x);
+  return(
+  <Stack spacing={2} sx={{ mb: 2 }}>
+    {/* <Breadcrumbs
+      separator={<NavigateNextIcon fontSize="small" />}
+      aria-label="breadcrumb"
+    >
+      {breadcrumbs.map((crumb, index) =>
+        crumb.href && index !== breadcrumbs.length - 1 ? (
+          <Link
+            key={index}
+            underline="hover"
+            color="inherit"
+            href={crumb.href}
+            onClick={(e) => {
+              e.preventDefault();
+              console.info(`/${crumb.href}`,"Breadcrumb clicked:", crumb.label);
+            }}
+          >
+            {crumb.label}
+          </Link>
+        ) : (
+          <Typography key={index} color="text.primary">
+            {crumb.label}
+          </Typography>
+        )
+      )}
+    </Breadcrumbs> */}
+    <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
+      {/* <Link underline="hover" color="inherit" component={RouterLink} to="/">
+        Home
+      </Link> */}
+      {pathnames.map((value, index) => {
+        const to = `/${pathnames.slice(0, index + 1).join("/")}`;
+        const isLast = index === pathnames.length - 1;
+        //const label = PATH_LABELS[value] || value;
+        const label = value;
 
-  return (
-    <Stack spacing={2} sx={{ mb: 2 }}>
-      <Breadcrumbs
-        separator={<NavigateNextIcon fontSize="small" />}
-        aria-label="breadcrumb"
-      >
-        {breadcrumbs.map((crumb, index) =>
-          crumb.href && index !== breadcrumbs.length - 1 ? (
-            <Link
-              key={index}
-              underline="hover"
-              color="inherit"
-              href={crumb.href}
-              onClick={(e) => {
-                e.preventDefault();
-                console.info("Breadcrumb clicked:", crumb.label);
-                navigate(crumb.href!); // ← navigate to route
-              }}
-            >
-              {crumb.label}
-            </Link>
-          ) : (
-            <Typography key={index} color="text.primary">
-              {crumb.label}
-            </Typography>
-          )
-        )}
-      </Breadcrumbs>
-    </Stack>
-  );
-};
+        return isLast ? (
+          <Typography color="text.primary" key={to}>
+            {label}
+          </Typography>
+        ) : (
+          <Link
+            underline="hover"
+            color="inherit"
+            component={RouterLink}
+            to={to}
+            key={to}
+            sx={{ textTransform: "capitalize" }}
+          >
+            {label}
+          </Link>
+        );
+      })}
+    </Breadcrumbs>
+  </Stack>
+)};
+
 // ---------------- Component -------------------
 const InputField: React.FC<InputFieldProps> = ({
   id,
@@ -207,7 +230,7 @@ const InputField: React.FC<InputFieldProps> = ({
 
       {/* ---------- Breadcrumbs ---------- */}
       {breadcrumbs && breadcrumbs.length > 0 && (
-        <DynamicBreadcrumbs breadcrumbs={breadcrumbs} />
+        <DynamicBreadcrumbs />
       )}
 
       {label && type !== "radio" && type !== "chip" && (

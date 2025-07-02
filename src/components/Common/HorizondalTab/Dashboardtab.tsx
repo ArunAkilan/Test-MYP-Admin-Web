@@ -229,11 +229,11 @@ export default function Dashboardtab({
   };
  
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
- 
+
   // const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
   //   setAnchorEl(event.currentTarget);
   // };
- 
+
   const handleClose = () => {
     setAnchorEl(null);
   };
@@ -356,7 +356,7 @@ export default function Dashboardtab({
       );
       if (searchQuery.trim()) {
         const search = searchQuery.toLowerCase();
- 
+
         filtered = filtered.filter((item) => {
           return (
             item?.location?.address?.toLowerCase().includes(search) ||
@@ -377,7 +377,7 @@ export default function Dashboardtab({
       setTableValues(filtered);
     }
   }, [searchQuery, value, isFiltered, allItems]);
- 
+
   // filterResetFunction
   const filterResetFunction = () => {
     setCurrentCheckList([]);
@@ -620,7 +620,7 @@ export default function Dashboardtab({
  
                 <div className="list-panel">
                   <div
-                   
+                    
                     className="search"
                   >
                     <input
@@ -839,7 +839,7 @@ export default function Dashboardtab({
                     </h3>
                   )}
                 </div>
- 
+
                 <div className="list-panel">
                   <div
                     onClick={() => setIsExpanded(true)}
