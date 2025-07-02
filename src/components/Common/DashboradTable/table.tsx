@@ -88,7 +88,6 @@ function Table({ data, properties, onScrollChange }: TableProps) {
         ...(data?.plot ?? []),
       ];
 
-  console.log("formatedData", formatedData);
 
   // Modal state
   const [open, setOpen] = React.useState(false);
