@@ -6,9 +6,9 @@ import Table from "../DashboradTable/table";
 import {
   Avatar,
   Typography,
-  Card,
-  CardContent,
-  CardMedia,
+  // Card,
+  // CardContent,
+  // CardMedia,
   Grid,
 } from "@mui/material";
 import "./Dashboardtab.scss";
@@ -33,9 +33,20 @@ type Property = {
   [key: string]: any;
 };
 type PropertyData = {
+  // PropertyData fields
   residential: Property[];
   commercial: Property[];
   plot: Property[];
+
+  // TableProps fields
+  properties?:
+    | "all"
+    | "residential"
+    | "residentials"
+    | "commercial"
+    | "commercials"
+    | "plot"
+    | "plots";
 };
 interface DashboardtabProps {
   data: PropertyData;
@@ -227,6 +238,14 @@ export default function Dashboardtab({
       },
     ],
   };
+
+  const formatedData = Array.isArray(data)
+    ? data
+    : [
+        ...(data?.residential ?? []),
+        ...(data?.commercial ?? []),
+        ...(data?.plot ?? []),
+      ];
 
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
@@ -619,10 +638,7 @@ export default function Dashboardtab({
                 </div>
 
                 <div className="list-panel">
-                  <div
-                    
-                    className="search"
-                  >
+                  <div className="search">
                     <input
                       type="search"
                       placeholder="Search Properties"
@@ -1110,7 +1126,7 @@ const PropertyCardList = ({ properties, onScrollChange }: ProCardProps) => {
         >
           {formatedData.slice(0, visibleCount).map((tableValues: any) => (
             <Grid item xs={12} sm={12} md={12} key={tableValues.id}>
-              <Card>
+              {/* <Card>
                 <CardMedia
                   component="img"
                   height="200"
@@ -1125,7 +1141,24 @@ const PropertyCardList = ({ properties, onScrollChange }: ProCardProps) => {
                     {tableValues.price}
                   </Typography>
                 </CardContent>
-              </Card>
+              </Card> */}
+              {formatedData.map((item, index) => (
+              <div className="card-view-wrapper">
+                <img
+                  src="../src/assets/dashboardtab/card-image.svg"
+                  alt="card-image"
+                />
+                <div className="card-view-content">
+                  
+                    <li key={item._id}>
+                      {item.propertyType} 
+                      {item?.location?.landmark || "No Landmark"}
+                      {item?.location?.address}
+                    </li>
+                 
+                </div>
+              </div>
+               ))}
             </Grid>
           ))}
         </div>
