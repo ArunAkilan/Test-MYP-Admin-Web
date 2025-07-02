@@ -1,4 +1,4 @@
-.createProperty {
+/* .createProperty {
   margin-top: 32px;
 }
 
@@ -141,7 +141,7 @@ label {
   height: auto !important;
   -o-object-fit: contain;
      object-fit: contain; /* maintains aspect ratio */
-  display: inline-flex;
+  /* display: inline-flex;
   align-items: center;
   justify-content: center;
   padding-right: 0% !important;
@@ -165,5 +165,6 @@ label {
   font-size: 14px;
   line-height: 22px;
   letter-spacing: 0.1px;
-  vertical-align: middle;
-}/*# sourceMappingURL=createResidential.css.map */
+  vertical-align: middle; */
+/* }# 
+sourceMappingURL=createResidential.css.map */
