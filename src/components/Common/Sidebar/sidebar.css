@@ -59,12 +59,7 @@
   text-transform: capitalize;
 }
 
-#nav-common-tab button img {
-  width: -moz-max-content !important;
-  width: max-content !important;
-  height: -moz-max-content !important;
-  height: max-content !important;
-}
+
 
 @media only screen and (max-width: 992px) {
   .nav-tabs {

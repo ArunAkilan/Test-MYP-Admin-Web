@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./navbar.scss";
-import GenericButton from "../Button/button";
+// import GenericButton from "../Button/button";
 import Popover from "@mui/material/Popover";
 import Notificationtab from "../../NotificationTab/Notificationtab";
 
@@ -15,29 +15,70 @@ const Header: React.FC<HeaderProps> = ({
   Title,
   ProfileLogo,
   MainLogo,
-  Profile,
+  // Profile,
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
+  const [firstAnchorEl, setFirstAnchorEl] = useState<HTMLElement | null>(null);
+  const [secondAnchorEl, setSecondAnchorEl] = useState<HTMLElement | null>(
     null
   );
   const toggleNavbar = () => {
     setIsCollapsed((prev) => !prev);
   };
 
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
+  const handleFirstClick = (event: React.MouseEvent<HTMLElement>) => {
+    setFirstAnchorEl(event.currentTarget);
+    setSecondAnchorEl(null); // Close second popover if open
   };
 
-  const handleClose = () => {
-    setAnchorEl(null);
+  const handleSecondClick = (event: React.MouseEvent<HTMLElement>) => {
+    setSecondAnchorEl(event.currentTarget);
+    setFirstAnchorEl(null); // Close first popover if open
   };
 
-  const open = Boolean(anchorEl);
-  const id = open ? "simple-popover" : undefined;
+  // const handleClose = () => {
+  //   setFirstAnchorEl(null);
+  //   setSecondAnchorEl(null);
+  // };
+
+  const handleCloseFirst = () => setFirstAnchorEl(null);
+  const handleCloseSecond = () => setSecondAnchorEl(null);
+
+  const openFirst = Boolean(firstAnchorEl);
+  const openSecond = Boolean(secondAnchorEl);
+
+const idFirst = openFirst ? "first-popover" : undefined;
+const idSecond = openSecond ? "second-popover" : undefined;
+
+  // sticky function
+  const [hideHeader, setHideHeader] = useState(false);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      // Show header when scrolling up
+      if (currentScrollY < lastScrollY || currentScrollY < 50) {
+        setHideHeader(false);
+      } else {
+        setHideHeader(true);
+      }
+
+      setLastScrollY(currentScrollY);
+    };
+
+    //window.addEventListener("scroll", handleScroll);
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
 
   return (
-    <div className="header-wrap navbar navbar-expand-lg navbar-light">
+    <div
+      className={`navbar navbar-expand-lg navbar-light header-wrap ${
+        hideHeader ? "hide" : ""
+      }`}
+    >
       <div className="container">
         <header className="header  row">
           <div className="logo navbar-brand col-md-3 col-3">
@@ -58,54 +99,106 @@ const Header: React.FC<HeaderProps> = ({
               <span className="navbar-toggler-icon"></span>
             </button>
 
-                <div className={`admin collapse navbar-collapse ${
-              isCollapsed ? "show" : ""
-            }`}>
-                  <div className="h-search">
-                    <img src="Search.svg" alt="Search img" />
+            <div
+              className={`admin collapse navbar-collapse ${
+                isCollapsed ? "show" : ""
+              }`}
+            >
+              <div className="h-search">
+                <img src="Search.svg" alt="Search img" />
 
-                    <input type="search" placeholder="Search Anything..." />
+                <input type="search" placeholder="Search Anything..." />
+              </div>
+              <div className="bell">
+                <img
+                  src="Vector.svg"
+                  alt="setting svg"
+                  className="setting-image"
+                />
+                <div className="bell-image">
+                  <button aria-describedby={idFirst} onClick={handleFirstClick}>
+                    <img src="BTN_Notification.svg" alt="Notification svg" />
+                  </button>
+                  <Popover
+                    anchorReference="anchorPosition"
+                    anchorPosition={{ top: 60, left: 816 }}
+                    id={idFirst}
+                    open={openFirst}
+                    anchorEl={firstAnchorEl}
+                    onClose={handleCloseFirst}
+                    anchorOrigin={{
+                      vertical: "bottom",
+                      horizontal: "left",
+                    }}
+                  >
+                    <div className="notification-popover">
+                      <div className="notify-header">
+                        <h4>Notifications</h4>
+                        <button>Clear all</button>
+                      </div>
+                      <Notificationtab />
+                    </div>
+                  </Popover>
+                </div>
+
+                <div
+                  className="ad-right"
+                  aria-describedby={idSecond}
+                  onClick={handleSecondClick}
+                >
+                  <img src={ProfileLogo} alt="ellipse image"></img>
+                  <p>{Title}</p>
+                </div>
+                <Popover
+                  anchorReference="anchorPosition"
+                  anchorPosition={{ top: 60, left: 941 }}
+                  id={idSecond}
+                  open={openSecond}
+                  anchorEl={secondAnchorEl}
+                  onClose={handleCloseSecond}
+                  anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "left",
+                  }}
+                >
+                  <div className="admin-btn-popover">
+                    <div className="row admin-btn-popup-top admin-popup-cmn-div">
+                      <img
+                        src="../src/assets/navbar/iconamoon_profile-bold.svg"
+                        alt="profile"
+                        className="col-2"
+                      />
+                      <p className="col-8">Profile</p>
+                      <img
+                        src="../src/assets/navbar/icon-park-outline_down.svg"
+                        alt="side-arrow"
+                        className="col-2"
+                      />
+                    </div>
+                    <div className="row admin-btn-popup-middle admin-popup-cmn-div">
+                      <img
+                        src="../src/assets/navbar/propertiesIcon.svg"
+                        alt="propertiesIcon"
+                        className="col-2"
+                      />
+                      <p className="col-8">Posted Properties</p>
+                      <img
+                        src="../src/assets/navbar/icon-park-outline_down.svg"
+                        alt="side-arrow"
+                        className="col-2"
+                      />
+                    </div>
+                    <div className="row admin-btn-popup-bottom admin-popup-cmn-div">
+                      <img
+                        src="../src/assets/navbar/mynaui_logout.svg"
+                        alt="logout"
+                        className="col-2"
+                      />
+                      <p className="col-8">Signout</p>
+                    </div>
                   </div>
-                  <div className="bell">
-                    <img
-                      src="Vector.svg"
-                      alt="setting svg"
-                      className="setting-image"
-                    />
-                    <div className="bell-image">
-                      <button aria-describedby={id} onClick={handleClick}>
-                        <img
-                          src="BTN_Notification.svg"
-                          alt="Notification svg"
-                        />
-                      </button>
-                      <Popover
-                        anchorReference="anchorPosition"
-                        anchorPosition={{ top: 138, left: 807 }}
-                        id={id}
-                        open={open}
-                        anchorEl={anchorEl}
-                        onClose={handleClose}
-                        anchorOrigin={{
-                          vertical: "bottom",
-                          horizontal: "left",
-                        }}
-                      >
-                        <div className="notification-popover">
-                          <div className="notify-header">
-                            <h4>Notifications</h4>
-                            <button>Clear all</button>
-                          </div>
-                          <Notificationtab />
-                        </div>
-                      </Popover>
-                    </div>
-
-                    <div className="ad-right">
-                      <img src={ProfileLogo} alt="ellipse image"></img>
-                      <p>{Title}</p>
-                    </div>
-                    {Profile === true && (
+                </Popover>
+                {/* {Profile === true && (
                       <GenericButton
                         onClick={() => alert("Data saved!")}
                         variant="primary"
@@ -113,10 +206,9 @@ const Header: React.FC<HeaderProps> = ({
                         label={"Post Your Property"}
                         className="genericPostYourProperty"
                       />
-                    )}
-                  </div>
-                </div>
-
+                    )} */}
+              </div>
+            </div>
           </div>
         </header>
       </div>

@@ -1,5 +1,5 @@
 .home-sec {
-  padding: 32px 0 32px 24px !important;
+  padding: 24px 12px 24px 24px !important;
 
   .container {
     padding: 0;
@@ -48,10 +48,12 @@
         display: flex;
 
         &:hover {
-          background: #214999;
+          background: #2C62CC;
         }
       }
     }
+    top:0;
+    position: relative;
   }
 
   .pending-approve {
@@ -265,16 +267,47 @@
 }
 .color-edit button {
           
-          display: flex;
-          align-items: center;
-          font-size: 16px;
-          font-weight: 400;
-          font-family: 'Open Sans';
-          margin: 0;
-          margin-left: 16px;
-          color: #2E2E2F;
-        }
-          img {
-            padding-right: 8px;
-          }
-        
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 400;
+  font-family: 'Open Sans';
+  margin: 0;
+  margin-left: 16px;
+  color: #2E2E2F;
+}
+  img {
+    padding-right: 8px;
+  }
+
+.header-wrap {
+  box-shadow: 4px 8px 16px 0px rgba(138, 182, 229, 0.06), 2px 4px 8px 0px rgba(178, 178, 178, 0.04), 1px 2px 4px 0px rgba(178, 178, 178, 0.04), 0px 1px 2px 0px rgba(178, 178, 178, 0.04);
+  position:  sticky !important;
+  top: 0;
+  z-index: 9;
+  background: #fff;
+  padding: 0 !important;
+}
+.new-post-wrap.hide {
+  top: -100px; /* Hide it out of view */
+  height: 0px;
+}
+
+.property-option {
+  padding-bottom: 16px;
+}
+.genericContinueButton {
+  background: #214999 !important;
+  font-size: 16px;
+  color: #fff;
+  font-weight: 600;
+  font-family: 'Raleway';
+  line-height: 24px;
+  letter-spacing: 0;
+  width: 100%;
+  justify-content: center;
+}
+.genericContinueButton:hover {
+  background: #2C62CC !important;
+  color: #fff;
+}

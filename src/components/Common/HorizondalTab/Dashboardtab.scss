@@ -11,11 +11,10 @@
   background: #00BFA6 !important; 
   height: 4px !important;
   border-radius: 100px;
-  margin-left: 3px;
 }
 #pending-approval-tab button {
     min-height: 48px !important;
-    color: #81838C;
+    color: #2E2E2F;
     font-size: 16px;
     line-height: 18px;
     font-weight: 600;
@@ -25,6 +24,9 @@
     
     margin-right: 24px;
 
+}
+#pending-approval-tab  button:hover {
+  background: #F2F6F7;
 }
 #pending-approval-tab button.Mui-selected {
   color: #214999;
@@ -38,7 +40,12 @@
 .MuiTab-iconWrapper {
     margin-right: 0 !important;
 }
-
+.css-19kzrtu {
+  padding: 0 !important;
+}
+.css-1x2b9qw-MuiTabs-root {
+  padding-bottom: 16px !important;
+}
 
 // dashboard tab bottom
 .new-listing-wrap-list .result {
@@ -48,15 +55,33 @@
   color: #2E2E2F;
 }
 // search
+.search {
+  width: min-content;
+}
 .search input  {
-  width: 197px;
+  
+  width: 0% !important;
   border-radius: 6px;
+  margin-right: 16px;
+  transition: width 0.3s ease;
+}
+.search.active input {
+  width: 200px !important;
 }
 
-// filter
+.search input:hover,.color-edit button:hover {
+  background: #F2F6F7;
+}
+.search input:hover {
+  border: 1px solid #81838C !important;
+}
 // filter
 .filter-div-wrapper {
-  padding: 24px;
+  padding: 24px 24px 0 24px;
+  width: 300px;
+}
+.label-wrapper {
+  margin-bottom: 24px;
 }
 .filter-header {
   display: flex;
@@ -75,21 +100,28 @@
 }
 .apply-reset-btn {
   display: flex;
+  justify-content: space-between;
+  position: absolute;
+  bottom: 0;
+  background: #fff;
+  padding: 24px 24px;
+  width: 100%;
+  right: 0;
 }
 
 .genericFilterApplyStyles,.refresh-btn {
   padding: 14px 24px !important;
-        border-radius: 6px !important;
+  border-radius: 6px !important;
        
-        font-size: 16px;
+  font-size: 16px;
         
-        font-weight: 600;
-        font-family: 'Raleway';
-        line-height: 18px !important;
-        letter-spacing: 0;
-        height: 48px !important;
-        display: flex !important;
-        align-items: center;
+  font-weight: 600;
+  font-family: 'Raleway';
+  line-height: 18px !important;
+  letter-spacing: 0;
+  height: 48px !important;
+  display: flex !important;
+  align-items: center;
 }
 .genericFilterApplyStyles {
    background: #214999 !important;
@@ -138,4 +170,23 @@
 
 .filter-link button {
   margin-right: 0 !important;
+}
+
+// toggle 
+.list-card-toggle {
+  border: 1px solid #D3DDE7;
+  padding: 6px;
+  border-radius: 8px;
+}
+.list-card-toggle button {
+  margin-right: 8px !important;
+  border-radius: 4px;
+  border: none;
+}
+.list-card-toggle button.Mui-selected {
+  background: #214999 !important;
+  color: #fff !important;  
+}
+.filtercount {
+  color: #214999 !important;
 }

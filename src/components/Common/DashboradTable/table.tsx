@@ -19,6 +19,7 @@ interface TableProps {
     | "plot"
     | "plots"
     | undefined;
+  onScrollChange: (scrollTop: number) => void;
 }
 // const actionMap: Record<string, number> = {
 //   Approve: 0,
@@ -38,16 +39,14 @@ const modalStyle = {
   p: 4,
 };
 
-function Table({ data, properties }: TableProps) {
+function Table({ data, properties, onScrollChange }: TableProps) {
   console.log("Table received data:", data);
   console.log("properties", properties);
   const navigate = useNavigate();
 
-
   const location = useLocation();
-  const propertyData = location.state?.data ;
-  console.log("propertyData", propertyData)
-
+  const propertyData = location.state?.data;
+  console.log("propertyData", propertyData);
 
   const getSingularProperty = () => {
     switch (properties) {
@@ -134,7 +133,7 @@ function Table({ data, properties }: TableProps) {
   };
 
   const handleOpenModal = (action: string, item: ResidentialProperty) => {
-    console.log("🟡 Opening modal with action:", action, "on item:", item._id);
+    console.log(" Opening modal with action:", action, "on item:", item._id);
     setSelectedAction(action);
     setSelectedItem(item);
     setOpen(true);
@@ -147,15 +146,15 @@ function Table({ data, properties }: TableProps) {
   };
 
   const handleConfirmAction = async (id: string, status: number) => {
-  try {
-    await handleAction(id, status); // this will call the API
+    try {
+      await handleAction(id, status); // this will call the API
 
-    handleCloseModal(); // close modal
-    window.dispatchEvent(new Event("refreshTableData")); // refresh
-  } catch (e) {
-    console.error("Error performing action:", e);
-  }
-};
+      handleCloseModal(); // close modal
+      window.dispatchEvent(new Event("refreshTableData")); // refresh
+    } catch (e) {
+      console.error("Error performing action:", e);
+    }
+  };
 
   if (!Array.isArray(data)) {
     const fallback =
@@ -169,148 +168,169 @@ function Table({ data, properties }: TableProps) {
     }
   }
 
+  const containerRef = React.useRef<HTMLDivElement | null>(null);
+  const [hideHeader, setHideHeader] = React.useState(false);
+  const [lastScrollY, setLastScrollY] = React.useState(0);
+  React.useEffect(() => {
+    const container = containerRef.current;
+
+    const handleScroll = () => {
+      if (container) {
+        onScrollChange(container.scrollTop);
+      }
+
+
+// Show header when scrolling up
+      const currentScrollY = container?.scrollTop || 0;
+      if (currentScrollY < lastScrollY || currentScrollY < 50) {
+        setHideHeader(false);
+      } else {
+        setHideHeader(true);
+      }
+      setLastScrollY(currentScrollY);
+    };
+
+    container?.addEventListener("scroll", handleScroll);
+    return () => container?.removeEventListener("scroll", handleScroll);
+  }, [onScrollChange]);
+  
+
   return (
-    <div className="container table-responsive">
-      <table>
-        <thead>
-          <tr>
-            <th className="checkbox-align">
-              <input type="checkbox" />
-            </th>
-            <th>Listing Name</th>
-            <th>Area</th>
-            <th>status</th>
-            {properties === "all" && <th>Floors</th>}
-            {properties === "residentials" && <th>Floors</th>}
-            {properties === "commercials" && <th>Floors</th>}
-            {properties === "all" && <th>Facing</th>}
-            {properties === "residentials" && <th>Facing</th>}
-            {properties === "commercials" && <th>Facing</th>}
-
-            {properties === "all" && <th>Furnish</th>}
-            {properties === "residentials" && <th>Furnish</th>}
-            {properties === "all" && <th>Washroom</th>}
-            {properties === "commercials" && <th>Washroom</th>}
-            {properties === "all" && <th>Plot Type</th>}
-            {properties === "plots" && <th>Plot Type</th>}
-            <th>Type</th>
-            <th className="link-h">Link</th>
-          </tr>
-        </thead>
-        <tbody>
-
-          
-          {formatedData.map((item, index) => (
-            <tr key={index}>
-              <td className="checkbox-align">
+    <div
+      ref={containerRef}
+      style={{
+        height: hideHeader ? "450px" : "315px",
+        overflowY: "auto",
+        marginBottom: "50px",
+      }}
+    >
+      <div className="container table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th className="checkbox-align">
                 <input type="checkbox" />
-              </td>
-              <td className="company-name">
-                <h3>
-                  <span className="truncate-text">
-                    {(() => {
-                      const landmark = item?.location?.landmark;
-                      if (!landmark) return null;
+              </th>
+              <th>Listing Name</th>
+              <th>Area</th>
+              <th>status</th>
+              {properties === "all" && <th>Floors</th>}
+              {properties === "residentials" && <th>Floors</th>}
+              {properties === "commercials" && <th>Floors</th>}
+              {properties === "all" && <th>Facing</th>}
+              {properties === "residentials" && <th>Facing</th>}
+              {properties === "commercials" && <th>Facing</th>}
 
-                      const words = landmark.trim().split(/\s+/);
-                      return words.length > 12
-                        ? words.slice(0, 12).join(" ") + "..."
-                        : landmark;
-                    })()}
-                  </span>
-                </h3>
-                <p
-                  data-bs-toggle="tooltip"
-                  data-bs-placement="bottom"
-                  title={item?.location?.address}
-                >
-                  <img src="ICON_Location.svg" alt="location png" />
-
-                  <span className="truncate-text">
-                    {(() => {
-                      const address = item?.location?.address;
-                      if (!address) return null;
-
-                      const words = address.trim().split(/\s+/);
-                      return words.length > 9
-                        ? words.slice(0, 9).join(" ") + "..."
-                        : address;
-                    })()}
-                  </span>
-                </p>
-              </td>
-              <td>{item?.area?.totalArea}</td>
-              <td>{item.status}</td>
-              {(properties === "commercials" ||
-                properties === "all" ||
-                properties === "residentials") && <td>{item?.totalFloors}</td>}
-              {(properties === "commercials" ||
-                properties === "all" ||
-                properties === "residentials") && (
-                <td>{item?.facingDirection}</td>
-              )}
-
-              {(properties === "residentials" || properties === "all") && (
-                <td
-                  className="furnish"
-                  data-bs-toggle="tooltip"
-                  data-bs-placement="bottom"
-                  title={item?.furnishingType}
-                >
-                  {}
-                  <span className="truncate-text">
-                    {(() => {
-                      const furnishing = item?.furnishingType;
-                      if (!furnishing) return null;
-
-                      const words = furnishing.trim().split(/\s+/);
-                      return words.length > 12
-                        ? words.slice(0, 12).join(" ") + "..."
-                        : furnishing;
-                    })()}
-                  </span>
+              {properties === "all" && <th>Furnish</th>}
+              {properties === "residentials" && <th>Furnish</th>}
+              {properties === "all" && <th>Washroom</th>}
+              {properties === "commercials" && <th>Washroom</th>}
+              {properties === "all" && <th>Plot Type</th>}
+              {properties === "plots" && <th>Plot Type</th>}
+              <th>Type</th>
+              <th className="link-h">Link</th>
+            </tr>
+          </thead>
+          <tbody>
+            {formatedData.map((item, index) => (
+              <tr key={index}>
+                <td className="checkbox-align">
+                  <input type="checkbox" />
                 </td>
-              )}
-              {(properties === "commercials" || properties === "all") && (
-                <td
-                  className="furnish"
-                  data-bs-toggle="tooltip"
-                  data-bs-placement="bottom"
-                  title="Unfurnished"
-                >
-                  {item?.washroom}
-                </td>
-              )}
-              {(properties === "plots" || properties === "all") && (
-                <td
-                  className="furnish"
-                  data-bs-toggle="tooltip"
-                  data-bs-placement="bottom"
-                  title="Unfurnished"
-                >
-                  {item?.plotType}
-                </td>
-              )}
-              <td className="type ">
-                <div className="rental">{item?.propertyType || "-"}</div>
-              </td>
-              <td className="Links">
-                <div className="link-wrap">
-                  <img
-                    src="/src/assets/tabelimg/Eye view.svg"
-                    alt="view"
-                    onClick={() => item._id && handleView(item._id)}
-                    style={{ cursor: "pointer" }}
-                  />
+                <td className="company-name">
+                  <h3>
+                    <span className="truncate-text">
+                      {(() => {
+                        const landmark = item?.location?.landmark;
+                        if (!landmark) return null;
 
-                  <img
-                    src="Edit.svg"
-                    alt="edit"
-                    onClick={() => handleEdit(item)}
-                    style={{ cursor: "pointer" }}
-                  />
+                        const words = landmark.trim().split(/\s+/);
+                        return words.length > 12
+                          ? words.slice(0, 12).join(" ") + "..."
+                          : landmark;
+                      })()}
+                    </span>
+                  </h3>
+                  <p
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="bottom"
+                    title={item?.location?.address}
+                  >
+                    <img src="ICON_Location.svg" alt="location png" />
 
-                  {/* <img
+                    <span className="truncate-text">
+                      {(() => {
+                        const address = item?.location?.address;
+                        if (!address) return null;
+
+                        const words = address.trim().split(/\s+/);
+                        return words.length > 9
+                          ? words.slice(0, 9).join(" ") + "..."
+                          : address;
+                      })()}
+                    </span>
+                  </p>
+                </td>
+                <td>{item?.area?.totalArea}</td>
+                <td>{item.status}</td>
+                {(properties === "commercials" ||
+                  properties === "all" ||
+                  properties === "residentials") && (
+                  <td>{item?.totalFloors}</td>
+                )}
+                {(properties === "commercials" ||
+                  properties === "all" ||
+                  properties === "residentials") && (
+                  <td>{item?.facingDirection}</td>
+                )}
+
+                {(properties === "residentials" || properties === "all") && (
+                  <td
+                    className="furnish"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="bottom"
+                    title={item?.furnishingType}
+                  >
+                    {}
+                    <span className="truncate-text">
+                      {(() => {
+                        const furnishing = item?.furnishingType;
+                        if (!furnishing) return null;
+
+                        const words = furnishing.trim().split(/\s+/);
+                        return words.length > 12
+                          ? words.slice(0, 12).join(" ") + "..."
+                          : furnishing;
+                      })()}
+                    </span>
+                  </td>
+                )}
+                {(properties === "commercials" || properties === "all") && (
+                  <td className="washroom">{item?.washroom}</td>
+                )}
+                {(properties === "plots" || properties === "all") && (
+                  <td className="plot-type">{item?.plotType}</td>
+                )}
+                <td className="type ">
+                  <div className="rental">{item?.propertyType || "-"}</div>
+                </td>
+                <td className="Links">
+                  <div className="link-wrap">
+                    <img
+                      src="/src/assets/tabelimg/Eye view.svg"
+                      alt="view"
+                      onClick={() => item._id && handleView(item._id)}
+                      style={{ cursor: "pointer" }}
+                    />
+
+                    <img
+                      src="Edit.svg"
+                      alt="edit"
+                      onClick={() => handleEdit(item)}
+                      style={{ cursor: "pointer" }}
+                    />
+
+                    {/* <img
                     src="Approve.svg"
                     alt="Approve svg"
                     onClick={() => handleOpenModal("Approve", item)}
@@ -328,77 +348,90 @@ function Table({ data, properties }: TableProps) {
                     onClick={() => handleOpenModal("Delete", item)}
                     style={{ cursor: "pointer" }}
                   /> */}
-                  <img
-                    src="Approve.svg"
-                    alt="Approve svg"
-                    // onClick={() => item._id && handleAction(item._id,0)}
-                    onClick={() => handleOpenModal("Approve", item)}
-                    style={{ cursor: "pointer" }}
-                  />
-                  <img
-                    src="Deny.svg"
-                    alt="Deny svg"
-                    // onClick={() => item._id && handleAction(item._id, 1)}
-                    onClick={() => handleOpenModal("Deny", item)}
-                    style={{ cursor: "pointer" }}
-                  />
-                  <img
-                    src="Delete.svg"
-                    alt="Delete img"
-                    // onClick={() => item._id && handleAction(item._id, 2)}
-                    onClick={() => handleOpenModal("Delete", item)}
-                    style={{ cursor: "pointer" }}
-                  />
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                    <img
+                      src="Approve.svg"
+                      alt="Approve svg"
+                      // onClick={() => item._id && handleAction(item._id,0)}
+                      onClick={() => handleOpenModal("Approve", item)}
+                      style={{ cursor: "pointer" }}
+                    />
+                    <img
+                      src="Deny.svg"
+                      alt="Deny svg"
+                      // onClick={() => item._id && handleAction(item._id, 1)}
+                      onClick={() => handleOpenModal("Deny", item)}
+                      style={{ cursor: "pointer" }}
+                    />
+                    <img
+                      src="Delete.svg"
+                      alt="Delete img"
+                      // onClick={() => item._id && handleAction(item._id, 2)}
+                      onClick={() => handleOpenModal("Delete", item)}
+                      style={{ cursor: "pointer" }}
+                    />
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
-      {/* Modal */}
-      <Modal
-        open={open}
-        onClose={handleCloseModal}
-        aria-labelledby="confirmation-modal-title"
-        aria-describedby="confirmation-modal-description"
-      >
-        <Box sx={modalStyle}>
-          <div className="text-align-center">
-            <img src="/src/assets/Dashboard modal img/Confirm.svg" alt="" />
-          </div>
-          <Typography id="confirmation-modal-title" variant="h6" component="h2">
-            Confirm {selectedAction}
-          </Typography>
-          <Typography id="confirmation-modal-description" sx={{ mt: 2, mb: 3 }}>
-            Are you sure you want to {selectedAction?.toLowerCase()} the listing{" "}
-            <strong>{selectedItem?.location?.address}</strong>?
-          </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => {
-              if (!selectedItem?._id || !selectedAction) return;
+        {/* Modal */}
+        <Modal
+          open={open}
+          onClose={handleCloseModal}
+          aria-labelledby="confirmation-modal-title"
+          aria-describedby="confirmation-modal-description"
+        >
+          <Box sx={modalStyle}>
+            <div className="text-align-center">
+              <img src="/src/assets/Dashboard modal img/Confirm.svg" alt="" />
+            </div>
+            <Typography
+              id="confirmation-modal-title"
+              variant="h6"
+              component="h2"
+            >
+              Confirm {selectedAction}
+            </Typography>
+            <Typography
+              id="confirmation-modal-description"
+              sx={{ mt: 2, mb: 3 }}
+            >
+              Are you sure you want to {selectedAction?.toLowerCase()} the
+              listing <strong>{selectedItem?.location?.address}</strong>?
+            </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => {
+                if (!selectedItem?._id || !selectedAction) return;
 
-              const statusMap: Record<string, number> = {
-                Approve: 0,
-                Deny: 1,
-                Delete: 2,
-              };
+                const statusMap: Record<string, number> = {
+                  Approve: 1,
+                  Deny: 0,
+                  Delete: 2,
+                };
 
-              const statusCode = statusMap[selectedAction];
-              console.log("✅ Confirm Clicked:", selectedAction, "Status Code:", statusCode);
-              handleConfirmAction(selectedItem._id, statusCode);
-            }}
-            sx={{ mr: 1 }}
-          >
-            Confirm
-          </Button>
-          <Button variant="outlined" onClick={handleCloseModal}>
-            Cancel
-          </Button>
-        </Box>
-      </Modal>
+                const statusCode = statusMap[selectedAction];
+                console.log(
+                  "✅ Confirm Clicked:",
+                  selectedItem._id,
+                  "Status Code:",
+                  statusCode
+                );
+                handleConfirmAction(selectedItem._id, statusCode);
+              }}
+              sx={{ mr: 1 }}
+            >
+              Confirm
+            </Button>
+            <Button variant="outlined" onClick={handleCloseModal}>
+              Cancel
+            </Button>
+          </Box>
+        </Modal>
+      </div>
     </div>
   );
 }
