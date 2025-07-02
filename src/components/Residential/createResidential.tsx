@@ -53,6 +53,8 @@ function setNested(obj: PlainObject, path: string, value: unknown) {
     }
   });
 }
+
+
 // Map chips strings to Restrictions object
 const mapChipsToRestrictions = (chips: string[]): Restrictions => {
   return {
@@ -73,17 +75,13 @@ function buildPayloadDynamic(
   setNested(payload, "owner.contact.phone1", (formState.phone1 ?? "").trim());
   setNested(payload, "owner.contact.email", (formState.email ?? "").trim());
   setNested(payload, "owner.contact.getUpdates", false);
-
   setNested(payload, "propertyType", formState.propertyType);
-
   const rentAmount = parseFloat(formState.rent);
   setNested(payload, "rent.rentAmount", isNaN(rentAmount) ? 0 : rentAmount);
-
   setNested(payload, "rent.negotiable", true);
   const advance = parseFloat(formState.advanceAmount);
   setNested(payload, "rent.advanceAmount", isNaN(advance) ? 0 : advance);
   setNested(payload, "rent.leaseTenure", formState.leaseTenure);
-
   setNested(payload, "location.landmark", "Near Green Park");
   if (formState.latitude)
     setNested(payload, "location.map.latitude", parseFloat(formState.latitude));
@@ -94,7 +92,6 @@ function buildPayloadDynamic(
       parseFloat(formState.longitude)
     );
   setNested(payload, "location.address", formState.address);
-
   setNested(payload, "area.totalArea", `${formState.totalArea} sqft`);
   setNested(payload, "area.length", "50 ft");
   setNested(payload, "area.width", "30 ft");
@@ -114,24 +111,36 @@ function buildPayloadDynamic(
   //   .filter(
   //     (name): name is string => typeof name === "string" && name.length > 0
   //   );
-  // setNested(payload, "images", imageUrls);
+  setNested(payload, "images", imageUrls);
 
   setNested(payload, "title", formState.title);
   setNested(payload, "residentialType", formState.residentialType);
   setNested(payload, "facingDirection", formState.facingDirection);
   setNested(payload, "rooms", `${formState.rooms} BHK`);
-  setNested( payload, "totalFloors", formState.totalFloors ? parseInt(formState.totalFloors) : 0);
+  setNested(
+    payload,
+    "totalFloors",
+    formState.totalFloors ? parseInt(formState.totalFloors) : 0
+  );
   setNested(
     payload,
     "propertyFloor",
     formState.propertyFloor ? parseInt(formState.propertyFloor) : 0
   );
-  setNested(payload, "furnishingType", formState.furnishingType?.replace("-", " "));
+  setNested(
+    payload,
+    "furnishingType",
+    formState.furnishingType?.replace("-", " ")
+  );
   setNested(payload, "description", formState.description);
   setNested(payload, "legalDocuments", formState.legalDocuments); // if it's string[]
   setNested(payload, "area.builtUpArea", `${formState.builtUpArea} sqft`);
   setNested(payload, "area.carpetArea", `${formState.carpetArea} sqft`);
-  setNested(payload, "restrictions", mapChipsToRestrictions(formState.selectedChips));
+  setNested(
+    payload,
+    "restrictions",
+    mapChipsToRestrictions(formState.selectedChips)
+  );
   setNested(payload, "availability", {
     transport: {
       nearbyBusStop: false,
@@ -191,7 +200,8 @@ export const CreateResidential = () => {
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
   const [images, setImages] = useState<UploadedImage[]>([]); // For file upload
-  console.log(images);
+
+  console.log("img", images);
   const [totalArea, setTotalArea] = useState("");
   const [builtUpArea, setBuiltUpArea] = useState("");
   const [carpetArea, setCarpetArea] = useState("");
@@ -203,16 +213,15 @@ export const CreateResidential = () => {
   const [description, setPropertyDescription] = useState("");
   const [legalDocuments, setLegalDocuments] = useState("Yes");
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
-  const [errors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [showTopInfo, setShowTopInfo] = useState(false);
   const [markerPosition, setMarkerPosition] = useState(defaultCenter);
-  const [autocomplete, setAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
+  const [autocomplete, setAutocomplete] =
+    useState<google.maps.places.Autocomplete | null>(null);
 
-  const [nearbyTransport, setNearbyTransport] = useState<Record<string, string>>({"BUS STAND": "0 KM",
-    AIRPORT: "0 KM",
-    METRO: "0 KM",
-    RAILWAY: "0 KM",
-  });
+  const [nearbyTransport, setNearbyTransport] = useState<
+    Record<string, string>
+  >({ "BUS STAND": "0 KM", AIRPORT: "0 KM", METRO: "0 KM", RAILWAY: "0 KM" });
   // Validation errors state
   // interface Errors {
   //   [key: string]: string;
@@ -225,7 +234,6 @@ export const CreateResidential = () => {
     id: "google-map-script",
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "", // put your API key in .env file
     libraries: ["places", "geometry"],
-    
   });
 
   const fetchNearbyTransport = async (lat: number, lng: number) => {
@@ -400,8 +408,8 @@ export const CreateResidential = () => {
       newErrors.selectedChips = "Select at least one occupancy restriction.";
       isValid = false;
     }
-
-    // setErrors(newErrors);
+    
+    setErrors(newErrors);
     // setShowTopAlert(!isValid);
 
     return isValid;
@@ -461,7 +469,40 @@ export const CreateResidential = () => {
       selectedChips,
     };
 
+   
+
+    // Convert payload to object
     const payload = buildPayloadDynamic(formState);
+     // Build FormData (for multipart/form-data)
+     const formData = new FormData();
+    
+     // Append payload
+  Object.entries(payload).forEach(([key, value]) => {
+    if (typeof value === "object") {
+      formData.append(key, JSON.stringify(value));
+    } else {
+      formData.append(key, value != null ? String(value) : "");
+    }
+  });
+
+    //Append images with MIME type handling & debug logging
+    images.forEach((img, index) => {
+      if (img.file instanceof File) {
+        const mimeType = img.file.type || "";
+        const [type, subtype] = mimeType.split("/");
+
+        if (type && subtype) {
+          console.debug(`Uploading [${img.file.name}]`);
+          console.log(`MIME type: ${mimeType}`);
+          formData.append("images", img.file);
+        } else {
+          console.warn(`Invalid MIME type for file: ${img.file.name}`);
+        }
+      } else {
+        console.warn("Skipping non-File image object at index", index);
+      }
+
+    });
 
     // console.log("Payload being sent to backend:", payload);
     console.log("Payload:", JSON.stringify(payload, null, 2));
@@ -470,7 +511,12 @@ export const CreateResidential = () => {
       // Send POST request
       const response = await axios.post(
         `${import.meta.env.VITE_BackEndUrl}/api/residential/create`,
-        payload
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
 
       toast.success("Property created successfully!");
@@ -492,7 +538,8 @@ export const CreateResidential = () => {
         error.response?.data?.error ||
         error.message ||
         "Something went wrong!";
-
+        console.error("Submission Error:", error);
+        
       toast.error(`Failed to create property: ${errorMessage}`);
     }
   };
@@ -786,48 +833,47 @@ export const CreateResidential = () => {
 
                   <div className="col-12 col-md-6 mb-3">
                     <div className="row">
-                      
                       <div className="col-12 mb-3">
-                      {isLoaded ? (
-                        <Autocomplete
-                          onLoad={(auto) => setAutocomplete(auto)}
-                          onPlaceChanged={() => {
-                            if (autocomplete) {
-                              const place = autocomplete.getPlace();
-                              const lat = place.geometry?.location?.lat();
-                              const lng = place.geometry?.location?.lng();
+                        {isLoaded ? (
+                          <Autocomplete
+                            onLoad={(auto) => setAutocomplete(auto)}
+                            onPlaceChanged={() => {
+                              if (autocomplete) {
+                                const place = autocomplete.getPlace();
+                                const lat = place.geometry?.location?.lat();
+                                const lng = place.geometry?.location?.lng();
 
-                              if (place.formatted_address) setAddress(place.formatted_address);
-                              if (lat && lng) {
-                                setLatitude(lat.toFixed(6));
-                                setLongitude(lng.toFixed(6));
-                                setMarkerPosition({ lat, lng });
-                                fetchNearbyTransport(lat, lng); // optional if you use this
+                                if (place.formatted_address)
+                                  setAddress(place.formatted_address);
+                                if (lat && lng) {
+                                  setLatitude(lat.toFixed(6));
+                                  setLongitude(lng.toFixed(6));
+                                  setMarkerPosition({ lat, lng });
+                                  fetchNearbyTransport(lat, lng); // optional if you use this
+                                }
                               }
-                            }
-                          }}
-                        >
-                        <div>
-                        <label className="TextLabel" htmlFor="address">
-                          Full Address <span className="star">*</span>
-                        </label>
-                        <InputField
-                          type="text"
-                          id="address"
-                          placeholder="Enter Address"
-                          value={address}
-                          onChange={(e) => setAddress(e.target.value)}
-                          error={!!errors.address}
-                          helperText={errors.address}
-                        />
-                        </div>
-                        </Autocomplete>
+                            }}
+                          >
+                            <div>
+                              <label className="TextLabel" htmlFor="address">
+                                Full Address <span className="star">*</span>
+                              </label>
+                              <InputField
+                                type="text"
+                                id="address"
+                                placeholder="Enter Address"
+                                value={address}
+                                onChange={(e) => setAddress(e.target.value)}
+                                error={!!errors.address}
+                                helperText={errors.address}
+                              />
+                            </div>
+                          </Autocomplete>
                         ) : (
                           <p>Loading autocomplete...</p>
                         )}
-                        
                       </div>
-                      
+
                       <div className="col-6 mb-3">
                         <label className="TextLabel" htmlFor="latitude">
                           Latitude
@@ -873,8 +919,8 @@ export const CreateResidential = () => {
                               />
                               <div>
                                 <span className="transportInfoText">
-                                {nearbyTransport["BUS STAND"] || "0 KM"}
-                                  </span>
+                                  {nearbyTransport["BUS STAND"] || "0 KM"}
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -889,8 +935,8 @@ export const CreateResidential = () => {
                               />
                               <div>
                                 <span className="transportInfoText">
-                                {nearbyTransport["AIRPORT"] || "0 KM"}
-                                  </span>
+                                  {nearbyTransport["AIRPORT"] || "0 KM"}
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -907,8 +953,8 @@ export const CreateResidential = () => {
                               />
                               <div>
                                 <span className="transportInfoText">
-                                {nearbyTransport["METRO"] || "0 KM"}
-                                  </span>
+                                  {nearbyTransport["METRO"] || "0 KM"}
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -922,8 +968,8 @@ export const CreateResidential = () => {
                               />
                               <div>
                                 <span className="transportInfoText">
-                                {nearbyTransport["RAILWAY"] || "0 KM"}
-                                  </span>
+                                  {nearbyTransport["RAILWAY"] || "0 KM"}
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -981,11 +1027,16 @@ export const CreateResidential = () => {
                             }
                             className="remove-btn"
                           >
-                            ×
+                            <img
+                              src="/src/assets/createProperty/material-symbols_close-rounded.svg"
+                              alt=""
+                            />
                           </button>
                         </div>
                       ))}
                     </div>
+
+                    {/* Upload Button and Text */}
                     <div
                       className={`BtnFrame d-flex mt-3 mb-2 align-items-start gap-3 ${
                         images.length > 0 ? "with-gap" : ""
@@ -995,65 +1046,50 @@ export const CreateResidential = () => {
                         {/* {propertyImages
                           ? propertyImages.name : "No image chosen"} */}
                         {images && images.length > 0
-                          ? `${images.length} image choosen`
+                          ? `${images.length} image${
+                              images.length > 1 ? "s" : ""
+                            } choosen`
                           : "No image choosen"}
                       </p>
                       <input
                         type="file"
                         id="propertyImageUpload"
                         style={{ display: "none" }}
-                        onChange={(e) => {
-                          if (e.target.files) {
-                            const newFiles = Array.from(e.target.files).map(
-                              (file) => ({
-                                // const uploaded = files.map((file) => ({
-                                file, // optional, for uploads later
-                                url: URL.createObjectURL(file),
-                                name: file.name, //img.name comes from
-                              })
-                            );
-
-                            // setImages(uploaded);
-                            setImages((prevImages) => {
-                              const remainingSlots = 12 - prevImages.length;
-
-                              if (remainingSlots <= 0) {
-                                // Optional: Show alert or toast
-                                toast.warning("Maximum 12 images allowed.");
-                                return prevImages;
-                              }
-                              const limitedFiles = newFiles.slice(
-                                0,
-                                remainingSlots
-                              );
-
-                              if (newFiles.length > remainingSlots) {
-                                toast.info(
-                                  `Only ${remainingSlots} more image${
-                                    remainingSlots > 1 ? "s" : ""
-                                  } can be added.`
-                                );
-                              }
-
-                              return [...prevImages, ...limitedFiles];
-                              // Append new files to existing images state
-
-                              // setImages((prevImages) => [
-                              //   ...prevImages,
-                              //   ...newFiles,]
-                            });
-
-                            // Reset the input so the same files can be selected again if needed
-                            e.target.value = "";
-                            // setImages(Array.from(e.target.files)); // Save all selected files as array
-                          }
-                        }}
                         accept="image/*"
-                        multiple // Enable multi-selection
+                        multiple
+                        onChange={(e) => {
+                          if (!e.target.files) return;
 
-                        // setPropertyImages(e.target.files[0])}
-                        // accept="image/*"
-                      />
+                          const newFiles = Array.from(e.target.files);
+                          const remainingSlots = 12 - images.length;
+
+                          const validImages: UploadedImage[] = newFiles
+                          .filter((file) => {
+                            const isValid = file.type.startsWith("image/");
+                            if (!isValid) {
+                              toast.error(`Invalid file type: ${file.name}`);
+                            }
+                            return isValid;
+                          })
+                          .slice(0, remainingSlots)
+                          .map((file) => ({
+                            file: file as File,
+                            // url: URL.createObjectURL(file),
+                            name: file.name,
+                          }));
+
+                          if (validImages.length === 0) return;
+
+
+                          if (newFiles.length > remainingSlots) {
+                            toast.info(`Only ${remainingSlots} more image${remainingSlots > 1 ? "s" : ""} can be added.`);
+                          }
+
+                            setImages((prev) =>[...prev, ...validImages]);
+                            e.target.value = ""; // allow re-selection of same file
+                        }}
+                        />
+        
                       <Button
                         className="chooseBtn"
                         variant="contained"
