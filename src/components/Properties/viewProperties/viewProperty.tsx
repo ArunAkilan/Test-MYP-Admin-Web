@@ -1,5 +1,6 @@
 import type { ResidentialProperty } from "../../AdminResidencial/AdminResidencial.model";
 import { useLocation } from "react-router-dom";
+import { DynamicBreadcrumbs } from "../../Common/input";
 
 const ViewProperty = () => {
   const location = useLocation();
@@ -13,7 +14,7 @@ const ViewProperty = () => {
 
   return (
     <section className="container py-4">
-      <section className="breadcrumb d-flex flex-row align-items-center gap-2 mb-3">
+      {/* <section className="breadcrumb d-flex flex-row align-items-center gap-2 mb-3">
         <div className="d-flex align-items-center gap-1">
           <p className="mb-0">Residential</p>
           <img
@@ -31,7 +32,8 @@ const ViewProperty = () => {
         <div>
           <p className="mb-0 fw-bold">{propertyData?.title}</p>
         </div>
-      </section>
+      </section> */}
+      <DynamicBreadcrumbs />
 
       <section className="mb-6">
         <div className="d-flex align-items-center gap-3 mb-3">
