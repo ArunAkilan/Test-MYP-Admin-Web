@@ -66,7 +66,6 @@ function flattenObject(
       result[fullKey] = String(value);
     }
   }
-  console.log("result", result);
   return result;
 }
 
@@ -196,7 +195,6 @@ export const CreateProperty = () => {
   const [longitude, setLongitude] = useState("");
   const [images, setImages] = useState<UploadedImage[]>([]); // For file upload
 
-  console.log("img", images);
   const [totalArea, setTotalArea] = useState("");
   const [builtUpArea, setBuiltUpArea] = useState("");
   const [carpetArea, setCarpetArea] = useState("");
@@ -403,15 +401,13 @@ export const CreateProperty = () => {
     // Build FormData (for multipart/form-data)
     const formData = new FormData();
 
-    console.log("payload+++++", payload);
     const flatPayload = flattenObject(payload);
 
     Object.entries(flatPayload).forEach(([key, value]) => {
       formData.append(key, value);
     });
 
-    console.log("formData0000000", formData);
-
+    
     //Append images with MIME type handling & debug logging
     images.forEach(
       (
@@ -424,9 +420,6 @@ export const CreateProperty = () => {
       }
     );
 
-    // console.log("Payload being sent to backend:", payload);
-    console.log("Payload:", JSON.stringify(payload, null, 2));
-    console.log("formData1111", formData);
     try {
       // Send POST request
       const response = await axios.post(

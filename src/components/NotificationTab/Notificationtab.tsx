@@ -1,15 +1,25 @@
-import * as React from "react";
+import React, { useState, useEffect } from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import { Avatar } from "@mui/material";
 import "./Notificationtab.scss";
+import { io } from 'socket.io-client';
+import axios from 'axios';
 
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
   value: number;
 }
+
+interface Notification {
+  _id: string;
+  message: string;
+  date: string;
+}
+
+const ENDPOINT = import.meta.env.VITE_BackEndUrl;
 
 function CustomTabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
@@ -40,7 +50,22 @@ export default function Notificationtab() {
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
+  //Socket IO
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  //@ts-ignore
+  useEffect(() => {
+    axios.get<Notification[]>(`${ENDPOINT}/notifications`)
+      .then(res => setNotifications(res.data));
 
+    const sock = io(ENDPOINT);
+    
+    sock.on('notification', (data: Notification) => {
+      setNotifications(prev => [data, ...prev]);
+    });
+
+    return () => sock.disconnect();
+  }, []);
+  //Socket IO
   return (
     <div id="notification-tab">
       <Box>
@@ -70,10 +95,12 @@ export default function Notificationtab() {
         </Tabs>
       </Box>
       <CustomTabPanel value={value} index={0}>
-        <div className=" mt-5">
-          <div className="tab-panel-wrapper  mt-5">
+        <div className="">
+          <div className="tab-panel-wrapper  mt-1">
             <div className="tab-panel">
-              <img
+             
+              { (notifications?.length == 0) ? 
+              ( <><img
                 src="charm_tick.svg"
                 alt="charm_tick image"
                 className="notify-img"
@@ -82,9 +109,17 @@ export default function Notificationtab() {
                 <h6>You're All Set!</h6>
                 <p>
                   No alerts right now. If something important comes up like a
-                  listing issue we’ll let you know here
+                  listing issue we'll let you know here
                 </p>
-              </div>
+              </div></>) :
+              <ul className="notifyList">
+                  {notifications.map(n => (
+                    <li key={n._id}>
+                      {n.message} • {new Date(n.date).toLocaleString()}
+                    </li>
+                  ))}
+              </ul>
+              }
             </div>
           </div>
         </div>
@@ -101,7 +136,7 @@ export default function Notificationtab() {
               <div className="panel-notify-content">
                 <h6>No Updates Yet</h6>
                 <p>
-                  Looks like there’s nothing new at the moment. Check back later
+                  Looks like there's nothing new at the moment. Check back later
                   for messages or activity
                 </p>
               </div>

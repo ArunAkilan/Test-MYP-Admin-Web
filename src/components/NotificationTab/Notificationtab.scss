@@ -36,7 +36,7 @@
     justify-content: center;
 }
 .tab-panel {
-    padding: 8px 24px;
+    // padding: 8px 24px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -67,4 +67,24 @@
     color: #81838C;
     letter-spacing: 0;
     margin-bottom: 0;
+}
+.notifyList{
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-y: auto;
+    height: 300px;
+    li{
+        text-align: left;
+        font-size: 12px;
+        border-bottom: 1px solid #ddd;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        word-wrap: break-word;
+        word-break: break-word;
+        width: 325px;
+        padding: 5px;
+        list-style: none;
+    }
 }

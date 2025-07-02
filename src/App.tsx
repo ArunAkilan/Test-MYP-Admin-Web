@@ -26,7 +26,9 @@ function AppRoutes() {
   ];
   useEffect(() => {
     const shouldHideScroll = noScrollRoutes.includes(location.pathname);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     document.body.style.overflow = shouldHideScroll ? "hidden" : "auto";
+    localStorage.debug = '*'
   }, [location.pathname]);
 
   return (

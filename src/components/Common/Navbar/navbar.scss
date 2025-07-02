@@ -22,6 +22,9 @@
   padding: 0 60px !important;
   margin: 0 !important;
 }
+.notifyRound{
+  background-color: #00BFA6 !important
+}
 
 .admin-wrap {
   padding: 0px 12px 0px 24px;
@@ -95,6 +98,21 @@
 }
 .bell-image {
   margin-right: 32px;
+  position: relative;
+  cursor: pointer;
+  .notifyround {
+    position: absolute;
+    top: 56%;
+    left: 56%;
+    background-color: #00BFA6 !important;
+    padding: 0 5px;
+    border-radius: 25px;
+    font-size: 9px;
+    height: 15px;
+    width: 15px;
+    text-align: center;
+    color: #fff;
+  }
 }
 .bell-image button {
   background: none;
@@ -129,6 +147,7 @@
 .notification-popover {
   padding: 16px;
   height: calc(100vh - 128px);
+      border: 1px solid #ddd;
 }
 .notify-header {
   display: flex;
@@ -234,3 +253,4 @@
     position: relative;
   }
 }
+

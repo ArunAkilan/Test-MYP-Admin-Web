@@ -3,6 +3,8 @@ import "./navbar.scss";
 // import GenericButton from "../Button/button";
 import Popover from "@mui/material/Popover";
 import Notificationtab from "../../NotificationTab/Notificationtab";
+import { io } from 'socket.io-client';
+import axios from 'axios';
 
 interface HeaderProps {
   Title: string;
@@ -10,6 +12,14 @@ interface HeaderProps {
   MainLogo: string;
   Profile: boolean;
 }
+
+interface Notification {
+  _id: string;
+  message: string;
+  date: string;
+}
+
+const ENDPOINT = import.meta.env.VITE_BackEndUrl;
 
 const Header: React.FC<HeaderProps> = ({
   Title,
@@ -47,8 +57,8 @@ const Header: React.FC<HeaderProps> = ({
   const openFirst = Boolean(firstAnchorEl);
   const openSecond = Boolean(secondAnchorEl);
 
-const idFirst = openFirst ? "first-popover" : undefined;
-const idSecond = openSecond ? "second-popover" : undefined;
+  const idFirst = openFirst ? "first-popover" : undefined;
+  const idSecond = openSecond ? "second-popover" : undefined;
 
   // sticky function
   const [hideHeader, setHideHeader] = useState(false);
@@ -73,11 +83,28 @@ const idSecond = openSecond ? "second-popover" : undefined;
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
 
+
+  //Socket IO
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  //@ts-ignore
+  useEffect(() => {
+    axios.get<Notification[]>(`${ENDPOINT}/notifications`)
+      .then(res => setNotifications(res.data));
+
+    const sock = io(ENDPOINT);
+    
+    sock.on('notification', (data: Notification) => {
+      setNotifications(prev => [data, ...prev]);
+    });
+
+    return () => sock.disconnect();
+  }, []);
+  //Socket IO
+
   return (
     <div
-      className={`navbar navbar-expand-lg navbar-light header-wrap ${
-        hideHeader ? "hide" : ""
-      }`}
+      className={`navbar navbar-expand-lg navbar-light header-wrap ${hideHeader ? "hide" : ""
+        }`}
     >
       <div className="container">
         <header className="header  row">
@@ -100,9 +127,8 @@ const idSecond = openSecond ? "second-popover" : undefined;
             </button>
 
             <div
-              className={`admin collapse navbar-collapse ${
-                isCollapsed ? "show" : ""
-              }`}
+              className={`admin collapse navbar-collapse ${isCollapsed ? "show" : ""
+                }`}
             >
               <div className="h-search">
                 <img src="/public/Search.svg" alt="Search img" />
@@ -118,7 +144,9 @@ const idSecond = openSecond ? "second-popover" : undefined;
                 <div className="bell-image">
                   <button aria-describedby={idFirst} onClick={handleFirstClick}>
                     <img src="/public/BTN_Notification.svg" alt="Notification svg" />
-                  </button>
+                  </button> 
+                  <div className="notifyround">{notifications.length}</div>
+                  {/* <BellIcon count={notifications.length} /> */}
                   <Popover
                     anchorReference="anchorPosition"
                     anchorPosition={{ top: 60, left: 816 }}
