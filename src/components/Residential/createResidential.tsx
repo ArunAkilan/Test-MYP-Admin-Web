@@ -30,12 +30,6 @@ const containerStyle = {
 };
 const defaultCenter = { lat: 11.2419968, lng: 78.8063549 };
 
-// interface LocationPickerProps {
-//   setLatitude: (lat: string) => void;
-//   setLongitude: (lng: string) => void;
-//   setAddress: (address: string) => void;
-// }
-
 // Utility function to set nested value dynamically
 function setNested(obj: PlainObject, path: string, value: unknown) {
   const keys = path.split(".");
@@ -54,6 +48,27 @@ function setNested(obj: PlainObject, path: string, value: unknown) {
   });
 }
 
+// Flatten nested objects to key-value pairs with dot notation keys
+function flattenObject(
+  obj: PlainObject,
+  parentKey = "",
+  result: Record<string, string> = {}
+): Record<string, string> {
+  for (const [key, value] of Object.entries(obj)) {
+    const fullKey = parentKey ? `${parentKey}.${key}` : key;
+    if (
+      value !== null &&
+      typeof value === "object" &&
+      !(value instanceof File)
+    ) {
+      flattenObject(value as PlainObject, fullKey, result);
+    } else {
+      result[fullKey] = String(value);
+    }
+  }
+  console.log("result", result);
+  return result;
+}
 
 // Map chips strings to Restrictions object
 const mapChipsToRestrictions = (chips: string[]): Restrictions => {
@@ -96,21 +111,8 @@ function buildPayloadDynamic(
   setNested(payload, "area.length", "50 ft");
   setNested(payload, "area.width", "30 ft");
 
-  // Add other fields similarly
-  // setNested(payload, "images", (formState.images as UploadedImage[]).map((file) => file.url));
-  // Updated image URL logic
-  // const imageUrls = ((formState.images as UploadedImage[]) || [])
-  //   .map((file) => file?.url?.trim())
-  //   .filter((url): url is string => typeof url === "string" && url.length > 0);
-
   const imageUrls = formState.images.map((f) => f.name).filter(Boolean);
-  setNested(payload, "images", imageUrls);
 
-  // const imageUrls = ((formState.images as UploadedImage[]) || [])
-  //   .map((file) => file?.name) // Instead of blob URL
-  //   .filter(
-  //     (name): name is string => typeof name === "string" && name.length > 0
-  //   );
   setNested(payload, "images", imageUrls);
 
   setNested(payload, "title", formState.title);
@@ -192,7 +194,7 @@ export const CreateResidential = () => {
   const [propertyType, setPropertyType] = useState("");
   const [title, setTitle] = useState("");
   const [rent, setRent] = useState("");
-  const [negotiable, setNegotiable] = useState("");
+  const [negotiable, setNegotiable] = useState<boolean>(true);
   const [advanceAmount, setAdvanceAmount] = useState("");
   const [leaseTenure, setLeaseTenure] = useState("");
   const [residentialType, setResidentialType] = useState("");
@@ -209,7 +211,7 @@ export const CreateResidential = () => {
   const [totalFloors, setTotalFloors] = useState("");
   const [propertyFloor, setPropertyFloor] = useState("");
   const [furnishingType, setFurnishingType] = useState("");
-  const [rooms, setRoomCount] = useState("");
+  const [rooms, setRoomCount] = useState("1");
   const [description, setPropertyDescription] = useState("");
   const [legalDocuments, setLegalDocuments] = useState("Yes");
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
@@ -222,12 +224,6 @@ export const CreateResidential = () => {
   const [nearbyTransport, setNearbyTransport] = useState<
     Record<string, string>
   >({ "BUS STAND": "0 KM", AIRPORT: "0 KM", METRO: "0 KM", RAILWAY: "0 KM" });
-  // Validation errors state
-  // interface Errors {
-  //   [key: string]: string;
-  // }
-
-  // const [errors, setErrors] = useState<Errors>({});
 
   // Google Maps API loader
   const { isLoaded } = useJsApiLoader({
@@ -245,198 +241,137 @@ export const CreateResidential = () => {
     ];
     const info: Record<string, string> = {};
     for (const t of types) {
-      const svc = new google.maps.places.PlacesService(
-        document.createElement("div")
-      );
-      await new Promise<void>((resolve) => {
-        svc.nearbySearch(
-          {
-            location: new google.maps.LatLng(lat, lng),
-            radius: 5000,
-            type: t.type,
-          },
-          (res, status) => {
-            if (
-              status === google.maps.places.PlacesServiceStatus.OK &&
-              res?.[0]?.geometry?.location
-            ) {
-              const dist =
-                google.maps.geometry.spherical.computeDistanceBetween(
-                  new google.maps.LatLng(lat, lng),
-                  res[0].geometry.location
-                );
-              info[t.label] = `${(dist / 1000).toFixed(1)} KM`;
-            } else info[t.label] = "Not Found";
-            resolve();
-          }
-        );
-      });
+      try {
+        const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=10000&type=${
+          t.type
+        }&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.results && data.results.length > 0) {
+          const dist =
+            window.google.maps.geometry.spherical.computeDistanceBetween(
+              new window.google.maps.LatLng(lat, lng),
+              new window.google.maps.LatLng(
+                data.results[0].geometry.location.lat,
+                data.results[0].geometry.location.lng
+              )
+            );
+          info[t.label] = `${(dist / 1000).toFixed(2)} KM`;
+        } else {
+          info[t.label] = "N/A";
+        }
+      } catch (error) {
+        console.error(`Failed to fetch ${t.label}:`, error);
+
+        info[t.label] = "N/A";
+      }
     }
     setNearbyTransport(info);
   };
 
+  // Handle map click to place marker and update lat/lng inputs
   const onMapClick = useCallback((e: google.maps.MapMouseEvent) => {
-    if (!e.latLng) return;
-    const lat = e.latLng.lat();
-    const lng = e.latLng.lng();
-
-    setMarkerPosition({ lat, lng });
-    setLatitude(lat.toFixed(6));
-    setLongitude(lng.toFixed(6));
-
-    new google.maps.Geocoder().geocode(
-      { location: { lat, lng } },
-      (res, stat) => {
-        setAddress(
-          stat === "OK" && res?.[0]?.formatted_address
-            ? res[0].formatted_address
-            : ""
-        );
-      }
-    );
-    fetchNearbyTransport(lat, lng);
+    if (e.latLng) {
+      setMarkerPosition({ lat: e.latLng.lat(), lng: e.latLng.lng() });
+      setLatitude(e.latLng.lat().toString());
+      setLongitude(e.latLng.lng().toString());
+      fetchNearbyTransport(e.latLng.lat(), e.latLng.lng());
+    }
   }, []);
-  // // Marker position state
-  // const [markerPosition, setMarkerPosition] = useState({
-  //   lat: latitude ? parseFloat(latitude) : defaultCenter.lat,
-  //   lng: longitude ? parseFloat(longitude) : defaultCenter.lng,
-  // });
 
-  // // Update marker & lat/lng/address on map click
-  // const onMapClick = useCallback((e: google.maps.MapMouseEvent) => {
-  //   if (e.latLng) {
-  //     const lat = e.latLng.lat();
-  //     const lng = e.latLng.lng();
-  //     setMarkerPosition({ lat, lng });
-  //     setLatitude(lat.toFixed(6));
-  //     setLongitude(lng.toFixed(6));
-
-  //     // Reverse Geocode to get address
-  //     const geocoder = new google.maps.Geocoder();
-  //     geocoder.geocode({ location: { lat, lng } }, (results, status) => {
-  //       if (status === "OK" && results && results[0]) {
-  //         setAddress(results[0].formatted_address);
-  //       } else {
-  //         setAddress("");
+  // When user selects place from autocomplete input
+  // const onPlaceChanged = () => {
+  //   if (autocomplete) {
+  //     const place = autocomplete.getPlace();
+  //     if (place.geometry) {
+  //       const lat = place.geometry.location?.lat();
+  //       const lng = place.geometry.location?.lng();
+  //       if (lat && lng) {
+  //         setMarkerPosition({ lat, lng });
+  //         setLatitude(lat.toString());
+  //         setLongitude(lng.toString());
+  //         fetchNearbyTransport(lat, lng);
   //       }
-  //     });
+  //     }
   //   }
-  // }, []);
+  // };
+
+  // Autocomplete setup
+  // const onLoadAutocomplete = (autoC: google.maps.places.Autocomplete) => {
+  //   setAutocomplete(autoC);
+  // };
+
+  // Handle image selection from file input
+  // const onImageSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (!e.target.files) return;
+
+  //   const selectedFiles = Array.from(e.target.files);
+  //   const newImages = selectedFiles.map((file) => ({
+  //     file,
+  //     name: file.name,
+  //     previewUrl: URL.createObjectURL(file),
+  //   }));
+  //   setImages((prev) => [...prev, ...newImages]);
+  // };
+
+
+  // Remove image preview by index
+  // const removeImage = (index: number) => {
+  //   setImages((prev) => {
+  //     // Revoke URL to avoid memory leaks
+  //     if (prev[index]?.url) {
+  //       URL.revokeObjectURL(prev[index].url);
+  //     }
+  //     const newArr = [...prev];
+  //     newArr.splice(index, 1);
+  //     return newArr;
+  //   });
+  // };
 
   // Validation function
-  const validateForm = () => {
-    const newErrors: { [key: string]: string } = {};
-    let isValid = true;
-
-    // if (!isValid) {
-    //   setShowTopAlert(true);
-    // } else {
-    //   setShowTopAlert(false);
-    // }
+  const validate = (): Record<string, string> => {
+    const newErrors: Record<string, string> = {};
 
     // Owner Information Validation
-    if (!firstName.trim()) {
-      newErrors.firstName = "First Name is required.";
-      isValid = false;
-    }
-    if (!lastName.trim()) {
-      newErrors.lastName = "Last Name is required.";
-      isValid = false;
-    }
-    if (!phone1.trim()) {
-      newErrors.phone1 = "Phone Number is required.";
-      isValid = false;
-    }
-    if (!title.trim()) {
-      newErrors.title = "Property Title is required.";
-      isValid = false;
-    }
-    if (!address.trim()) {
-      newErrors.address = "Full Address is required.";
-      isValid = false;
-    }
-    // if (!images || images.length === 0) {
-    //   newErrors.propertyImages = "At least one property image is required.";
-    //   isValid = false;
-    // }
+    if (!firstName.trim()) newErrors.firstName = "First name is required";
+    if (!lastName.trim()) newErrors.lastName = "Last name is required";
+    if (!phone1.trim()) newErrors.phone1 = "Phone number is required";
+    if (!propertyType.trim())
+      newErrors.propertyType = "Property type is required";
+    if (!address.trim()) newErrors.address = "Address is required";
+
     if (!images.length) {
       newErrors.images = "Upload at least one image";
-      isValid = false;
     }
-    if (!totalArea.trim()) {
-      newErrors.totalArea = "Total Area is required.";
-      isValid = false;
-    } else {
-      const totalAreaNum = parseFloat(totalArea);
-      if (isNaN(totalAreaNum) || totalAreaNum <= 0) {
-        newErrors.totalArea = "Total Area must be a positive number.";
-        isValid = false;
-      }
-    }
-    if (!builtUpArea.trim()) {
-      newErrors.builtUpArea = "Built Up Area is required.";
-      isValid = false;
-    } else {
-      const builtUpAreaNum = parseFloat(builtUpArea);
-      if (isNaN(builtUpAreaNum) || parseFloat(builtUpArea) <= 0) {
-        newErrors.builtUpArea = "Built Up Area must be a positive number.";
-        isValid = false;
-      }
-    }
-    if (!carpetArea.trim()) {
-      newErrors.carpetArea = "Carpet Area is required.";
-      isValid = false;
-    } else {
-      const carpetAreaNum = parseFloat(carpetArea);
-      if (isNaN(carpetAreaNum) || parseFloat(carpetArea) <= 0) {
-        newErrors.carpetArea = "Carpet Area must be a positive number.";
-        isValid = false;
-      }
-    }
+    if (!totalArea.trim() || isNaN(parseFloat(totalArea)))
+      newErrors.totalArea = "Valid total area is required";
 
-    if (!rooms.trim()) {
-      newErrors.rooms = "Carpet Area is required.";
-      isValid = false;
-    } else {
-      const roomsNum = parseFloat(rooms);
-      if (isNaN(roomsNum) || parseFloat(rooms) <= 0) {
-        newErrors.rooms = "Room Count must be a positive integer.";
-        isValid = false;
-      }
-    }
+    if (!builtUpArea.trim() || isNaN(parseFloat(builtUpArea)))
+      newErrors.builtUpArea = "Valid built up area is required";
+
+    if (!carpetArea.trim() || isNaN(parseFloat(carpetArea)))
+      newErrors.carpetArea = "Valid carpet area is required";
+
+    if (!rooms.trim() || isNaN(parseInt(rooms)))
+      newErrors.rooms = "Valid rooms number is required";
+
     if (!selectedChips.length) {
       newErrors.selectedChips = "Select at least one occupancy restriction.";
-      isValid = false;
     }
-    
+
     setErrors(newErrors);
     // setShowTopAlert(!isValid);
 
-    return isValid;
+    return newErrors;
   };
 
-  // Run logic once when the component mounts - useEffect
-  // Remember if you've already run the logic - useRef
-  // const hasFetched = useRef(false);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  //   useEffect(() => {
-  //     if (hasFetched.current) return;
-  //     hasFetched.current = true;
-
-  //     fetch(`${import.meta.env.VITE_BackEndUrl}/api/residential/create`)
-  //       .then((res) => res.json())
-  //       .then((data) => console.log("Fetched:", data)) // Already fetched? Exit.
-  //       .catch((err) => console.error("Error:", err)); // Mark as fetched.
-  //   },
-  //   []
-  // );
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // Prevent default form submission
-
-    const isValid = validateForm();
-
-    if (!isValid) {
-      toast.error("Please correct the highlighted errors before submitting.");
+    const validationErrors = validate();
+    setErrors(validationErrors);
+    if (Object.keys(validationErrors).length > 0) {
+      toast.error("Please fix the errors in the form.");
       return;
     }
 
@@ -449,6 +384,7 @@ export const CreateResidential = () => {
       propertyType,
       title,
       rent,
+      negotiable,
       advanceAmount,
       leaseTenure,
       residentialType,
@@ -469,44 +405,36 @@ export const CreateResidential = () => {
       selectedChips,
     };
 
-   
-
     // Convert payload to object
     const payload = buildPayloadDynamic(formState);
-     // Build FormData (for multipart/form-data)
-     const formData = new FormData();
-    
-     // Append payload
-  Object.entries(payload).forEach(([key, value]) => {
-    if (typeof value === "object") {
-      formData.append(key, JSON.stringify(value));
-    } else {
-      formData.append(key, value != null ? String(value) : "");
-    }
-  });
+
+    // Build FormData (for multipart/form-data)
+    const formData = new FormData();
+
+    console.log("payload+++++", payload);
+    const flatPayload = flattenObject(payload);
+
+    Object.entries(flatPayload).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+
+    console.log("formData0000000", formData);
 
     //Append images with MIME type handling & debug logging
-    images.forEach((img, index) => {
-      if (img.file instanceof File) {
-        const mimeType = img.file.type || "";
-        const [type, subtype] = mimeType.split("/");
-
-        if (type && subtype) {
-          console.debug(`Uploading [${img.file.name}]`);
-          console.log(`MIME type: ${mimeType}`);
+    images.forEach(
+      (
+        img
+        // index
+      ) => {
+        if (img.file instanceof File) {
           formData.append("images", img.file);
-        } else {
-          console.warn(`Invalid MIME type for file: ${img.file.name}`);
         }
-      } else {
-        console.warn("Skipping non-File image object at index", index);
       }
-
-    });
+    );
 
     // console.log("Payload being sent to backend:", payload);
     console.log("Payload:", JSON.stringify(payload, null, 2));
-
+    console.log("formData1111", formData);
     try {
       // Send POST request
       const response = await axios.post(
@@ -538,16 +466,11 @@ export const CreateResidential = () => {
         error.response?.data?.error ||
         error.message ||
         "Something went wrong!";
-        console.error("Submission Error:", error);
-        
+      console.error("Submission Error:", error);
+
       toast.error(`Failed to create property: ${errorMessage}`);
     }
   };
-  //   else {
-  //     console.log("Form has validation errors.");
-  //     toast.error("Please correct the highlighted errors before submitting.");
-  //   }
-  // };
 
   //TopOfCenter MUIAlertToast
   useEffect(() => {
@@ -743,15 +666,15 @@ export const CreateResidential = () => {
                             type="radio"
                             radioOptions={["Yes", "No"]}
                             id="negotiable"
-                            value={negotiable || "Yes"}
-                            onChange={(e) => setNegotiable(e.target.value)}
+                            value={negotiable ? "Yes" : "No"}
+                            onChange={(e) => setNegotiable(e.target.value === "Yes")}
                           />
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="d-flex flex-d-row">
+                  <div className="d-flex flex-d-row gap-3">
                     <div className="col-6 mb-3">
                       <label className="TextLabel" htmlFor="advanceDeposit">
                         Advance Deposit (₹)
@@ -791,32 +714,6 @@ export const CreateResidential = () => {
 
                 <div className="row">
                   <div className="col-12 col-md-6 mb-3">
-                    {/* <div
-                      className="Map ratio-16x9"
-                      style={{
-                        width: "100%",
-                        height: "360px",
-                        gap: "16px",
-                        borderRadius: "6px",
-                        borderWidth: "1px",
-                        padding: "8px",
-                        borderStyle: "solid",
-                        borderColor: "#D3DDE7",
-                      }}
-                    >
-                      <iframe
-                        title="property-location-map"
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31108.98652428826!2d78.80635493583208!3d11.241996832614563!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3babf6bc93dc3bc9%3A0xe3637b7e3eabedb2!2sSumisa%20Technologies!5e0!3m2!1sen!2sin!4v1686162920212!5m2!1sen!2sin"
-                        width="100%"
-                        height="100%"
-                        frameBorder="0"
-                        style={{ border: 0 }}
-                        allowFullScreen
-                        loading="lazy"
-                        referrerPolicy="no-referrer-when-downgrade"
-                      ></iframe>
-                    </div> */}
-
                     {isLoaded ? (
                       <GoogleMap
                         mapContainerStyle={containerStyle}
@@ -836,7 +733,7 @@ export const CreateResidential = () => {
                       <div className="col-12 mb-3">
                         {isLoaded ? (
                           <Autocomplete
-                            onLoad={(auto) => setAutocomplete(auto)}
+                            onLoad={(autoC) => setAutocomplete(autoC)}
                             onPlaceChanged={() => {
                               if (autocomplete) {
                                 const place = autocomplete.getPlace();
@@ -1064,32 +961,36 @@ export const CreateResidential = () => {
                           const remainingSlots = 12 - images.length;
 
                           const validImages: UploadedImage[] = newFiles
-                          .filter((file) => {
-                            const isValid = file.type.startsWith("image/");
-                            if (!isValid) {
-                              toast.error(`Invalid file type: ${file.name}`);
-                            }
-                            return isValid;
-                          })
-                          .slice(0, remainingSlots)
-                          .map((file) => ({
-                            file: file as File,
-                            // url: URL.createObjectURL(file),
-                            name: file.name,
-                          }));
+                            .filter((file) => {
+                              const isValid = file.type.startsWith("image/");
+                              if (!isValid) {
+                                toast.error(`Invalid file type: ${file.name}`);
+                              }
+                              return isValid;
+                            })
+                            .slice(0, remainingSlots)
+                            .map((file) => ({
+                              // file: file as File,
+                              file,
+                              url: URL.createObjectURL(file),
+                              name: file.name,
+                            }));
 
                           if (validImages.length === 0) return;
 
-
                           if (newFiles.length > remainingSlots) {
-                            toast.info(`Only ${remainingSlots} more image${remainingSlots > 1 ? "s" : ""} can be added.`);
+                            toast.info(
+                              `Only ${remainingSlots} more image${
+                                remainingSlots > 1 ? "s" : ""
+                              } can be added.`
+                            );
                           }
 
-                            setImages((prev) =>[...prev, ...validImages]);
-                            e.target.value = ""; // allow re-selection of same file
+                          setImages((prev) => [...prev, ...validImages]);
+                          e.target.value = ""; // allow re-selection of same file
                         }}
-                        />
-        
+                      />
+
                       <Button
                         className="chooseBtn"
                         variant="contained"
@@ -1223,22 +1124,27 @@ export const CreateResidential = () => {
                       Furnished Type
                     </label>
                     <InputField
-                      type="text" // Assuming this will become a dropdown or radio
+                      type="dropdown"
                       id="furnishedType"
-                      placeholder="Select Furnished Type"
-                      value={furnishingType}
+                      dropdownOptions={[
+                        "Fully Furnished",
+                        "Semi Furnished",
+                        "Unfurnished",
+                      ]}
+                      value={furnishingType || "Unfurnished"}
                       onChange={(e) => setFurnishingType(e.target.value)}
                     />
                   </div>
+
                   <div className="col-12 col-md-6 mb-3">
                     <label className="TextLabel" htmlFor="roomCount">
                       Rooms <span className="star">*</span>
                     </label>
                     <InputField
-                      type="text"
+                      type="dropdown"
                       id="roomCount"
-                      placeholder="Number of Rooms"
-                      value={rooms}
+                      dropdownOptions={["1", "2", "3", "4", "5+"]}
+                      value={rooms || "1"}
                       onChange={(e) => setRoomCount(e.target.value)}
                       error={!!errors.rooms}
                       helperText={errors.rooms}

@@ -78,6 +78,7 @@ export type description = {
 };
 export type UploadedImage = {
   name: string;
+  previewUrl?: string;
   url?: string; // for preview
   file: File; // actual file for upload
 };
@@ -108,5 +109,6 @@ export type ResidentialFormState = {
   description: string;
   legalDocuments: string;
   selectedChips: string[];
+  negotiable?: boolean;
 };
 export type PlainObject = Record<string, unknown>;
