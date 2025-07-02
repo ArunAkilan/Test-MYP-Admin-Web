@@ -1,0 +1,79 @@
+.tab-row {
+  flex-grow: 1;
+  display: 'flex';
+  height: '100%';
+  width: 100%;
+}
+#nav-common-tab {
+  border: none;
+}
+#nav-common-tab .MuiTabs-indicator {
+  left: 0;
+  background: #00BFA6 !important;
+  width: 8px !important;
+  height: 22px !important;
+  border-radius: 100px;
+  margin-top: 14px;
+}
+ .nav-tabs {
+   padding: 32px 32PX 32PX 44PX !important;
+   border: none;
+ }
+
+.tab-outerlayer-div  {
+  display: flex ;
+  flex-direction: row !important;
+  justify-content: start !important;
+  padding-left: 24px !important;
+  margin-bottom: 16px !important;
+}
+
+.tab-outerlayer-div  svg {
+  margin-bottom: 2px !important;
+  padding-right: 6px;
+}
+#nav-common-tab button.Mui-selected {
+  color: #214999;
+}
+.tab-content {
+  padding: 0;
+}
+#nav-common-tab .css-19kzrtu {
+  padding: 0 !important;
+}
+#nav-common-tab button {
+  min-height: 48px !important;
+  color: #55565C;
+  font-size: 16px;
+  line-height: 18px;
+  font-weight: 600;
+  letter-spacing: 0px;
+  font-family: 'Open Sans';
+  text-transform: capitalize;
+  display: flex;
+  align-items: center;
+}
+#nav-common-tab button:hover {
+  background: #F2F6F7;
+}
+#nav-common-tab button img {
+  width: -moz-max-content !important;
+  width: max-content !important;
+  height: -moz-max-content !important;
+  height: max-content !important;
+}
+
+@media only screen and (max-width:992px) {
+  .nav-tabs {
+    padding: 32px 12px !important;
+  }
+  .tab-outerlayer-div {
+    padding-left: 14px !important;
+  }
+}
+
+.fixed-col {
+  position: fixed;
+  z-index: 1030;
+  overflow-y: auto;
+}
