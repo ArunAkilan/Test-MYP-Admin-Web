@@ -12,7 +12,7 @@ import {
   Grid,
 } from "@mui/material";
 import "./Dashboardtab.scss";
-import Popover from "@mui/material/Popover";
+// import Popover from "@mui/material/Popover";
 import Button from "@mui/material/Button";
 import GenericButton from "../Button/button";
 import filterTick from "../../../../public/Icon_Tick.svg";
@@ -27,7 +27,7 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import { debounce } from "lodash";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
-
+ 
 type Property = {
   status?: string;
   [key: string]: any;
@@ -42,16 +42,16 @@ interface DashboardtabProps {
   properties: "all" | "residentials" | "commercials" | "plots";
   onScrollChangeParent: (scrollTop: number) => void;
 }
-
+ 
 interface TabPanelProps {
   children?: React.ReactNode;
   value: number;
   index: number;
 }
-
+ 
 function CustomTabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
-
+ 
   return (
     <div
       role="tabpanel"
@@ -64,14 +64,14 @@ function CustomTabPanel(props: TabPanelProps) {
     </div>
   );
 }
-
+ 
 function a11yProps(index: number) {
   return {
     id: `simple-tab-${index}`,
     "aria-controls": `simple-tabpanel-${index}`,
   };
 }
-
+ 
 export default function Dashboardtab({
   data,
   properties,
@@ -80,12 +80,13 @@ export default function Dashboardtab({
   const [isFiltered, setIsFiltered] = useState(false);
   const [currentCheckList, setCurrentCheckList] = useState<string[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const statusByTab = ["Pending", "Approved", "Rejected", "Deleted"];
+  const statusByTab = ["pending", "approved", "rejected", "deleted"];
   const [value, setValue] = useState(0);
   const [tableValues, setTableValues] = useState<Property[]>([]);
   const [resetCounter, setResetCounter] = useState(0);
   const [alignment, setAlignment] = React.useState("List View");
   const [isExpanded, setIsExpanded] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   //const currentStatus = statusByTab[value];
   const filterOptions = {
     all: [
@@ -226,17 +227,17 @@ export default function Dashboardtab({
       },
     ],
   };
-
+ 
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
+ 
+  // const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+  //   setAnchorEl(event.currentTarget);
+  // };
+ 
   const handleClose = () => {
     setAnchorEl(null);
   };
-
+ 
   const filterOpen = Boolean(anchorEl);
   const id = filterOpen ? "simple-popover" : undefined;
   const allItems = useMemo(
@@ -247,20 +248,20 @@ export default function Dashboardtab({
     ],
     [data]
   );
-
+ 
   // Handle tab change
   const handleChange = (_: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
     setIsFiltered(false);
     setCurrentCheckList([]);
-
+ 
     const newStatus = statusByTab[newValue];
     const filtered = allItems.filter(
       (item) => item.status?.toLowerCase() === newStatus.toLowerCase()
     );
     setTableValues(filtered);
   };
-
+ 
   // handleCheckbox
   const handleCheckboxChange = (option: string) => {
     setCurrentCheckList((prev) => {
@@ -271,15 +272,15 @@ export default function Dashboardtab({
     });
   };
   console.log("currentCheckList:", currentCheckList);
-
+ 
   // filter function
-
+ 
   const fetchFilteredData = async (filters: string[], tabIndex: number) => {
     try {
       const status = statusByTab[tabIndex];
       // Create the dynamic query string
       const queryParts: string[] = [];
-
+ 
       // Mapping UI headings to API keys
       const headingToKey: Record<string, string> = {
         "Property Type": "propertyType",
@@ -289,7 +290,7 @@ export default function Dashboardtab({
         "Plot Type": "plotType",
         Facing: "facing",
       };
-
+ 
       const filterSection =
         filterOptions[properties === "all" ? "all" : properties] || [];
       filterSection.forEach((section) => {
@@ -301,23 +302,23 @@ export default function Dashboardtab({
           queryParts.push(`${key}=${selectedOptions.join(",")}`);
         }
       });
-
+ 
       if (status) {
         queryParts.push(`status=${status}`);
       }
-
+ 
       const baseUrl = `${import.meta.env.VITE_BackEndUrl}/api/${properties}`;
       const queryString =
         queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
       const fullUrl = `${baseUrl}${queryString}`;
-
+ 
       console.log("Final API URL:", fullUrl);
-
+ 
       const response = await axios.get(fullUrl);
-
+ 
       const dataObj = response.data.data;
       let result: Property[] = [];
-
+ 
       if (properties === "residentials") result = dataObj ?? [];
       else if (properties === "commercials") result = dataObj ?? [];
       else if (properties === "plots") result = dataObj ?? [];
@@ -331,30 +332,52 @@ export default function Dashboardtab({
       const filteredByStatus = result.filter(
         (item) => item.status?.toLowerCase() === status.toLowerCase()
       );
-
+ 
       setTableValues(filteredByStatus);
     } catch (error) {
       console.error("Fetch error:", error);
       setTableValues([]);
     }
   };
-
+ 
   const handleApply = () => {
     setIsFiltered(true); // Enable filtered mode
     fetchFilteredData(currentCheckList, value); // Uses correct API and query logic
     handleClose(); // Closes the popover
   };
-
+ 
   useEffect(() => {
     if (!isFiltered) {
       const status = statusByTab[value];
-      const filtered = allItems.filter(
-        (item) => item.status?.toLowerCase() === status.toLowerCase()
+      let filtered = allItems.filter(
+        (item: any) =>
+          item.status?.toString().trim().toLowerCase() ===
+          status.trim().toLowerCase()
       );
+      if (searchQuery.trim()) {
+        const search = searchQuery.toLowerCase();
+ 
+        filtered = filtered.filter((item) => {
+          return (
+            item?.location?.address?.toLowerCase().includes(search) ||
+            item?.location?.landmark?.toLowerCase().includes(search) ||
+            item?.title?.toLowerCase().includes(search) ||
+            item?.type?.toLowerCase().includes(search) ||
+            item?.propertyType?.toLowerCase().includes(search) ||
+            item?.commercialType?.toLowerCase().includes(search) ||
+            item?.plotType?.toLowerCase().includes(search) ||
+            item?.furnishingType?.toLowerCase().includes(search) ||
+            item?.facingDirection?.toLowerCase().includes(search) ||
+            item?.totalFloors?.toString().toLowerCase().includes(search) ||
+            item?.washroom?.toString().toLowerCase().includes(search) ||
+            item?.area?.totalArea?.toString().toLowerCase().includes(search)
+          );
+        });
+      }
       setTableValues(filtered);
     }
-  }, [value, isFiltered, allItems]);
-
+  }, [searchQuery, value, isFiltered, allItems]);
+ 
   // filterResetFunction
   const filterResetFunction = () => {
     setCurrentCheckList([]);
@@ -363,7 +386,7 @@ export default function Dashboardtab({
     setDrawerOpen(false);
     setResetCounter((prev) => prev + 1);
   };
-
+ 
   // count function
   const handlePendingCount = useMemo((): number => {
     const allItems = [
@@ -374,7 +397,7 @@ export default function Dashboardtab({
     return allItems.filter((item) => item.status?.toLowerCase() === "pending")
       .length;
   }, [data]);
-
+ 
   const handleApprovedCount = useMemo((): number => {
     const allItems = [
       ...(data.residential || []),
@@ -384,7 +407,7 @@ export default function Dashboardtab({
     return allItems.filter((item) => item.status?.toLowerCase() === "approved")
       .length;
   }, [data]);
-
+ 
   const handleRejectedCount = useMemo((): number => {
     const allItems = [
       ...(data.residential || []),
@@ -394,7 +417,7 @@ export default function Dashboardtab({
     return allItems.filter((item) => item.status?.toLowerCase() === "rejected")
       .length;
   }, [data]);
-
+ 
   const handleDeletedCount = useMemo((): number => {
     const allItems = [
       ...(data.residential || []),
@@ -404,12 +427,12 @@ export default function Dashboardtab({
     return allItems.filter((item) => item.status?.toLowerCase() === "deleted")
       .length;
   }, [data]);
-
+ 
   //resultcount
   const handleFilteredCount = useMemo(() => {
     return tableValues.length;
   }, [tableValues]);
-
+ 
   const getResultCount = useMemo(() => {
     if (isFiltered) return handleFilteredCount;
     switch (value) {
@@ -434,7 +457,7 @@ export default function Dashboardtab({
     handleDeletedCount,
   ]);
   // filter drawer
-
+ 
   const toggleDrawer =
     (drawerOpen: boolean) =>
     (event: React.KeyboardEvent | React.MouseEvent | {}) => {
@@ -447,17 +470,17 @@ export default function Dashboardtab({
       ) {
         return;
       }
-
+ 
       setDrawerOpen(drawerOpen); // ✅ updated
     };
-
+ 
   // card view
   const [cardView, setCardView] = useState(false);
   //const [isFixed, setIsFixed] = useState(false);
   // sticky function
   const [hideHeader, setHideHeader] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
-
+ 
   const handleChangeSwitch = (
     _event: React.MouseEvent<HTMLElement>,
     newAlignment: string
@@ -466,23 +489,23 @@ export default function Dashboardtab({
     setAlignment(newAlignment);
     setCardView(newAlignment === "Card View");
   };
-
+ 
   const handleChildScroll = (scrollTop: number) => {
     //setIsFixed(scrollTop > 50);
     const currentScrollY = scrollTop;
-
+ 
     // Show header when scrolling up
     if (currentScrollY < lastScrollY || currentScrollY < 20) {
       setHideHeader(false);
     } else {
       setHideHeader(true);
     }
-
+ 
     setLastScrollY(currentScrollY);
     onScrollChangeParent(scrollTop);
   };
   const checkListCount = currentCheckList.length;
-
+ 
   return (
     <div id="pending-approval-tab">
       <Box
@@ -519,7 +542,7 @@ export default function Dashboardtab({
             icon={<Avatar alt="test avatar" src="/pending-action.svg" />}
             iconPosition="start"
           />
-
+ 
           <Tab
             label={
               <React.Fragment>
@@ -535,7 +558,7 @@ export default function Dashboardtab({
             icon={<Avatar alt="test avatar" src="/pending-approval.svg" />}
             iconPosition="start"
           />
-
+ 
           <Tab
             label={
               <React.Fragment>
@@ -551,7 +574,7 @@ export default function Dashboardtab({
             icon={<Avatar alt="test avatar" src="/pending-reject.svg" />}
             iconPosition="start"
           />
-
+ 
           <Tab
             label={
               <React.Fragment>
@@ -576,17 +599,37 @@ export default function Dashboardtab({
                   {!isExpanded && (
                     <h3 className="result">
                       <span className="resultCount">{getResultCount}</span>{" "}
-                      Results
+                      Filtered Results
                     </h3>
                   )}
+                  {checkListCount !== 0 && (
+                    <button
+                      className="clear-btn"
+                      onClick={() => {
+                        filterResetFunction();
+                      }}
+                    >
+                      <img
+                        src="../src/assets/dashboardtab/ic_round-clear-16.svg"
+                        alt="close icon"
+                      />
+                      Clear Filter
+                    </button>
+                  )}
                 </div>
-
+ 
                 <div className="list-panel">
                   <div
-                    onClick={() => setIsExpanded(true)}
-                    className={`search ${isExpanded ? "active" : ""}`}
+                   
+                    className="search"
                   >
-                    <input type="search" placeholder="Search Properties" />
+                    <input
+                      type="search"
+                      placeholder="Search Properties"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      disabled
+                    />
                     <img src="Search-1.svg" alt="search svg" />
                   </div>
                   <div className="list-card-toggle">
@@ -652,7 +695,7 @@ export default function Dashboardtab({
                     </h3>
                   )}
                 </div>
-
+ 
                 <div className="list-panel">
                   <div
                     onClick={() => setIsExpanded(true)}
@@ -724,7 +767,7 @@ export default function Dashboardtab({
                     </h3>
                   )}
                 </div>
-
+ 
                 <div className="list-panel">
                   <div
                     onClick={() => setIsExpanded(true)}
@@ -788,20 +831,18 @@ export default function Dashboardtab({
           <div className="new-listing-wrap">
             <div className="container">
               <div className="new-listing">
-                
                 <div className="new-listing-wrap-list">
                   {!isExpanded && (
-                  <h3 className="result">
-                    <span className="resultCount">{getResultCount}</span>{" "}
-                    Results
-                  </h3>
-                   )}
+                    <h3 className="result">
+                      <span className="resultCount">{getResultCount}</span>{" "}
+                      Results
+                    </h3>
+                  )}
                 </div>
-               
+ 
                 <div className="list-panel">
-                  
                   <div
-                     onClick={() => setIsExpanded(true)}
+                    onClick={() => setIsExpanded(true)}
                     className={`search ${isExpanded ? "active" : ""}`}
                   >
                     <input type="search" placeholder="Search Properties" />
@@ -859,7 +900,7 @@ export default function Dashboardtab({
           </div>
         </CustomTabPanel>
       </Box>
-
+ 
       <CustomTabPanel value={value} index={0}>
         {!cardView ? (
           <Table
@@ -874,7 +915,7 @@ export default function Dashboardtab({
           />
         )}
       </CustomTabPanel>
-
+ 
       <CustomTabPanel value={value} index={1}>
         {!cardView ? (
           <Table
@@ -889,7 +930,7 @@ export default function Dashboardtab({
           />
         )}
       </CustomTabPanel>
-
+ 
       <CustomTabPanel value={value} index={2}>
         {!cardView ? (
           <Table
@@ -904,7 +945,7 @@ export default function Dashboardtab({
           />
         )}
       </CustomTabPanel>
-
+ 
       <CustomTabPanel value={value} index={3}>
         {!cardView ? (
           <Table
@@ -919,11 +960,19 @@ export default function Dashboardtab({
           />
         )}
       </CustomTabPanel>
-
+ 
       <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
         <div className="filter-div-wrapper">
           <div className="filter-header">
-            <p>Filter By</p>
+            <p>
+              <img
+                src="../src/assets/dashboardtab/icon-park-outline_down.svg"
+                alt="icon park"
+                style={{ cursor: "pointer" }}
+                onClick={() => setDrawerOpen(false)}
+              />
+              &nbsp; Filter By
+            </p>
             <p className="filtercount">
               {checkListCount} Filter{checkListCount !== 1 ? "s" : ""}
             </p>
@@ -941,7 +990,7 @@ export default function Dashboardtab({
                   >
                     <Typography variant="h6">{section.heading}</Typography>
                   </AccordionSummary>
-
+ 
                   <AccordionDetails key={resetCounter}>
                     <div className="label-wrapper">
                       {section.options.map((opt: any, i: any) => (
@@ -965,14 +1014,16 @@ export default function Dashboardtab({
           </div>
           <div className="apply-reset-btn">
             <button
-              className="refresh-btn"
+              className="clear-btn"
               onClick={() => {
-                filterResetFunction;
-                setDrawerOpen(false);
+                filterResetFunction();
               }}
             >
-              <img src="mynaui_refresh.svg" alt="refresh icon" />
-              Reset
+              <img
+                src="../src/assets/dashboardtab/ic_round-clear-24.svg"
+                alt="close icon"
+              />
+              Clear
             </button>
             <GenericButton
               image={filterTick}
@@ -990,44 +1041,44 @@ export default function Dashboardtab({
     </div>
   );
 }
-
+ 
 interface ProCardProps {
   properties: any;
   onScrollChange: (scrollTop: number) => void;
 }
-
+ 
 const PropertyCardList = ({ properties, onScrollChange }: ProCardProps) => {
   const [visibleCount, setVisibleCount] = useState<number>(5);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const formatedData = properties;
   console.log("333", formatedData);
-
+ 
   // Debounced scroll handler
   const handleScroll = debounce(() => {
     const container = containerRef.current;
     if (!container) return;
-
+ 
     const { scrollTop, scrollHeight, clientHeight } = container;
-
+ 
     if (scrollTop + clientHeight >= scrollHeight - 50) {
       setVisibleCount((prev) => Math.min(prev + 5, formatedData.length));
     }
   }, 200);
-
+ 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-
+ 
     container.addEventListener("scroll", handleScroll);
     //return () => container.removeEventListener('scroll', handleScroll);
   }, []);
-
+ 
   //change height of card container
   const [hideHeader, setHideHeader] = React.useState(false);
   const [lastScrollY, setLastScrollY] = React.useState(0);
   React.useEffect(() => {
     const container = containerRef.current;
-
+ 
     const handleScroll = () => {
       if (container) {
         onScrollChange(container.scrollTop);
@@ -1041,11 +1092,11 @@ const PropertyCardList = ({ properties, onScrollChange }: ProCardProps) => {
       }
       setLastScrollY(currentScrollY);
     };
-
+ 
     container?.addEventListener("scroll", handleScroll);
     return () => container?.removeEventListener("scroll", handleScroll);
   }, [onScrollChange]);
-
+ 
   return (
     <Box sx={{ flexGrow: 1, p: 2 }}>
       <Grid>
@@ -1082,3 +1133,5 @@ const PropertyCardList = ({ properties, onScrollChange }: ProCardProps) => {
     </Box>
   );
 };
+ 
+ 
