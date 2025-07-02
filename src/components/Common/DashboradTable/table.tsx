@@ -88,7 +88,6 @@ function Table({ data, properties, onScrollChange }: TableProps) {
         ...(data?.plot ?? []),
       ];
 
-  console.log("formatedData", formatedData);
 
   // Modal state
   const [open, setOpen] = React.useState(false);
@@ -472,7 +471,7 @@ function Table({ data, properties, onScrollChange }: TableProps) {
                   <td className="plot-type">{item?.plotType}</td>
                 )}
                 <td className="type ">
-                  <div className="rental">{item?.propertyType || "-"}</div>
+                  <div className="rental">{item?.propertyType }</div>
                 </td>
                 <td className="Links">
                   <div className="link-wrap">

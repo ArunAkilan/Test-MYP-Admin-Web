@@ -6,11 +6,11 @@ import Table from "../DashboradTable/table";
 import {
   Avatar,
   Typography,
-  Card,
-  CardContent,
-  CardMedia,
-  Grid,
+  // Card,
+  // CardContent,
+  // CardMedia,
 } from "@mui/material";
+import Grid from "@mui/material/Grid";
 import "./Dashboardtab.scss";
 // import Popover from "@mui/material/Popover";
 import Button from "@mui/material/Button";
@@ -27,15 +27,29 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import { debounce } from "lodash";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
- 
+ import Skeleton from "@mui/material/Skeleton";
+
 type Property = {
-  status?: string;
+  _id?: string;
+  propertyType?: string;
+  location?: {
+    landmark?: string;
+    address?: string;
+  };
   [key: string]: any;
 };
 type PropertyData = {
   residential: Property[];
   commercial: Property[];
   plot: Property[];
+  properties?:
+    | "all"
+    | "residential"
+    | "residentials"
+    | "commercial"
+    | "commercials"
+    | "plot"
+    | "plots";
 };
 interface DashboardtabProps {
   data: PropertyData;
@@ -43,6 +57,18 @@ interface DashboardtabProps {
   onScrollChangeParent: (scrollTop: number) => void;
 }
  
+
+type PropertyItem = {
+  _id: string;
+  propertyType: string;
+  location?: {
+    landmark?: string;
+    address?: string;
+  };
+  rent?: {
+    rentAmount?: string;
+  };
+};
 interface TabPanelProps {
   children?: React.ReactNode;
   value: number;
@@ -87,6 +113,7 @@ export default function Dashboardtab({
   const [alignment, setAlignment] = React.useState("List View");
   const [isExpanded, setIsExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
   //const currentStatus = statusByTab[value];
   const filterOptions = {
     all: [
@@ -506,8 +533,61 @@ export default function Dashboardtab({
   };
   const checkListCount = currentCheckList.length;
  
+
+  //format data
+  const formatData: PropertyItem[] = Array.isArray(data)
+    ? data.map((item) => ({
+        _id: item._id ?? "",
+        propertyType: item.propertyType ?? "",
+        location: {
+          landmark: item.location?.landmark ?? "",
+          address: item.location?.address ?? "",
+        },
+        rent: item.rent ?? {},
+      }))
+    : [
+        ...(data?.residential ?? []),
+        ...(data?.commercial ?? []),
+        ...(data?.plot ?? []),
+      ].map((item) => ({
+        _id: item._id ?? "",
+        propertyType: item.propertyType ?? "",
+        location: {
+          landmark: item.location?.landmark ?? "",
+          address: item.location?.address ?? "",
+        },
+        rent: item.rent ?? {},
+      }));
+
+      useEffect(() => {
+  // Simulate API delay
+  const timeout = setTimeout(() => {
+    // Here you should fetch actual data and set it
+    setIsLoading(false);
+  }, 2000);
+
+  return () => clearTimeout(timeout);
+}, []);
+
   return (
+    
     <div id="pending-approval-tab">
+      {isLoading ? (
+      // Entire component skeleton
+      <div style={{ padding: "20px" }}>
+        <Skeleton variant="rectangular" height={50} width="100%" />
+        <Skeleton variant="text" height={30} width="80%" style={{ marginTop: 16 }} />
+        <Skeleton variant="rectangular" height={300} width="100%" style={{ marginTop: 24 }} />
+        {[...Array(3)].map((_, i) => (
+          <div key={i} style={{ marginTop: 20 }}>
+            <Skeleton variant="rectangular" width="100%" height={120} />
+            <Skeleton variant="text" width="80%" />
+            <Skeleton variant="text" width="60%" />
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div>
       <Box
         sx={{
           //display: hideHeader ? "block" : "none",
@@ -619,10 +699,7 @@ export default function Dashboardtab({
                 </div>
  
                 <div className="list-panel">
-                  <div
-                    
-                    className="search"
-                  >
+                  <div className="search">
                     <input
                       type="search"
                       placeholder="Search Properties"
@@ -910,6 +987,7 @@ export default function Dashboardtab({
           />
         ) : (
           <PropertyCardList
+            formatData={formatData}
             properties={tableValues}
             onScrollChange={handleChildScroll}
           />
@@ -927,6 +1005,7 @@ export default function Dashboardtab({
           <PropertyCardList
             properties={tableValues}
             onScrollChange={handleChildScroll}
+            formatData={formatData}
           />
         )}
       </CustomTabPanel>
@@ -942,6 +1021,7 @@ export default function Dashboardtab({
           <PropertyCardList
             properties={tableValues}
             onScrollChange={handleChildScroll}
+            formatData={formatData}
           />
         )}
       </CustomTabPanel>
@@ -957,6 +1037,7 @@ export default function Dashboardtab({
           <PropertyCardList
             properties={tableValues}
             onScrollChange={handleChildScroll}
+            formatData={formatData}
           />
         )}
       </CustomTabPanel>
@@ -1039,15 +1120,22 @@ export default function Dashboardtab({
         </div>
       </Drawer>
     </div>
+    )}
+    </div>
   );
 }
  
 interface ProCardProps {
   properties: any;
   onScrollChange: (scrollTop: number) => void;
+  formatData: any;
 }
- 
-const PropertyCardList = ({ properties, onScrollChange }: ProCardProps) => {
+
+const PropertyCardList = ({
+  properties,
+  onScrollChange,
+  formatData,
+}: ProCardProps) => {
   const [visibleCount, setVisibleCount] = useState<number>(5);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const formatedData = properties;
@@ -1099,18 +1187,18 @@ const PropertyCardList = ({ properties, onScrollChange }: ProCardProps) => {
  
   return (
     <Box sx={{ flexGrow: 1, p: 2 }}>
-      <Grid>
-        <div
+      <Grid container spacing={2}>
+        <Box
           ref={containerRef}
-          style={{
+          sx={{
             height: hideHeader ? "450px" : "315px",
             overflowY: "auto",
             marginBottom: "50px",
           }}
         >
-          {formatedData.slice(0, visibleCount).map((tableValues: any) => (
-            <Grid item xs={12} sm={12} md={12} key={tableValues.id}>
-              <Card>
+          {formatedData.slice(0, visibleCount).map((item: PropertyItem) => (
+            <Grid  item xs={12} sm={12} md={12} key={item._id}>
+              {/* <Card>
                 <CardMedia
                   component="img"
                   height="200"
@@ -1125,10 +1213,71 @@ const PropertyCardList = ({ properties, onScrollChange }: ProCardProps) => {
                     {tableValues.price}
                   </Typography>
                 </CardContent>
-              </Card>
+              </Card> */}
+              {formatData.map((item: PropertyItem) => (
+                <div className="card-view-wrapper row" key={item._id}>
+                  <div className="card-view-img col-md-6">
+                    <img
+                      src="../src/assets/dashboardtab/card-image.svg"
+                      alt="card-image"
+                    />
+                  </div>
+
+                  <div className="card-view-content col-md-6">
+                    <div className="card-view-address-bar">
+                      <div className="cardview-address-detail">
+                        <h6>{item?.location?.landmark || "No Landmark"}</h6>
+                        <p>{item?.location?.address}</p>
+                      </div>
+                      <div className="cardview-rent">
+                        <span>{item.propertyType}</span>
+                      </div>
+                    </div>
+                    <div className="cardview-rent-amount">
+                      <span className="rent-amount">
+                        ₹{item?.rent?.rentAmount}
+                      </span>{" "}
+                      <br />
+                      <span className="month">/Month</span>
+                    </div>
+
+                    <div className="cardview-posted-detail">
+                      <span className="posted-span">
+                        Posted by TestUser | 6 hours ago
+                      </span>
+                    </div>
+                    <div className="card-view-icon-wrapper">
+                      <div className="card-icon-edit">
+                        <img
+                          src="../src/assets/dashboardtab/Icon_Edit.svg"
+                          alt="icon-edit"
+                        />
+                      </div>
+                      <div className="card-icon-approve">
+                        <img
+                          src="../src/assets/dashboardtab/Icon_Tick.svg"
+                          alt="icon-approve"
+                        />
+                      </div>
+                      <div className="card-icon-deny">
+                        <img
+                          src="../src/assets/dashboardtab/Icon_Deny.svg"
+                          alt="icon-deny"
+                        />
+                      </div>
+                      <div className="card-icon-delete">
+                        <img
+                          src="../src/assets/dashboardtab/Icon_Delete.svg"
+                          alt="icon-delete"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </Grid>
           ))}
-        </div>
+        </Box>
       </Grid>
     </Box>
   );
