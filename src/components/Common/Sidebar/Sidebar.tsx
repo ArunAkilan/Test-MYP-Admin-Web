@@ -78,7 +78,7 @@ export default function Sidebar() {
         />
         <Tab
           sx={{ ...styles }}
-          icon={<Avatar alt="Residential" src="hugeicons_house-02.svg" />}
+          icon={<Avatar alt="Residential" src="/hugeicons_house-02.svg" />}
           iconPosition="start"
           label="Residential"
           className="tab-outerlayer-div"

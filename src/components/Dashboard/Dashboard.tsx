@@ -70,7 +70,29 @@ function Home({ properties }: HomeProps) {
   const [hideHeader, setHideHeader] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
+  const location = useLocation();
+  console.log("propertyDataddd", location);
+  const handleOpen = () => {
+    if(location?.pathname==="/dashboard"){
+      setOpen(true);
+    }
+    else if(location?.pathname==="/commercial"){
+      navigate("/commercial/create", {
+        state: { mode: "create" },
+      });
+    }
+    else if(location?.pathname==="/residential"){
+      navigate("/residential/create", {
+        state: { mode: "create" },
+      });
+    }
+    else if(location?.pathname==="/plots"){
+       navigate("/plots/create", {
+        state: { mode: "create" },
+      });
+    }
+    
+  }
   const handleClose = () => setOpen(false);
   const [selectedPropertyType, setSelectedPropertyType] = useState("");
   const navigate = useNavigate();
@@ -95,7 +117,6 @@ function Home({ properties }: HomeProps) {
     all: "residential", // not used directly
   };
 
-  const location = useLocation();
   const propertyData = location.state?.data;
   console.log("propertyData", propertyData);
 

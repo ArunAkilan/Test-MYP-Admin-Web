@@ -1,7 +1,7 @@
 import type { ResidentialProperty } from "../../AdminResidencial/AdminResidencial.model";
 import { useLocation } from "react-router-dom";
 
-const ViewResidential = () => {
+const ViewProperty = () => {
   const location = useLocation();
   const propertyData = location.state?.data as ResidentialProperty;
 
@@ -160,4 +160,4 @@ const ViewResidential = () => {
   );
 };
 
-export default ViewResidential;
+export default ViewProperty;
