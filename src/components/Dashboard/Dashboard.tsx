@@ -173,6 +173,7 @@ function Home({ properties }: HomeProps) {
   }
 
   return (
+    
     <div className="home-sec">
       <div className={`new-post-wrap ${hideHeader ? "hide" : ""}`}>
         <div className="container">

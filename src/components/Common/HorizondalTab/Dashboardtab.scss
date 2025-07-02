@@ -195,3 +195,110 @@
 .filtercount {
   color: #214999 !important;
 }
+
+// cardview 
+.card-view-wrapper {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px; 
+  border: 1px solid #D3DDE7;
+  box-shadow: 0px 0px 2px 0px #B2B2B21A,
+  1px 3px 4px 0px #B2B2B217,
+  2px 3px 5px 0px #B2B2B214,
+  3px 4px 7px 0px #8AB6E51F;
+}
+.card-view-wrapper .col-md-6 {
+  padding: 0;
+}
+.card-view-content.col-md-6 {
+  padding: 16px;
+}
+.card-view-img img {
+  width: 100%;
+  height: 100%;
+}
+.card-view-address-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 16px;
+}
+.cardview-address-detail h6 {
+   font-size: 16px;      
+  font-weight: 600;
+  font-family: 'Raleway';
+  line-height: 24px;
+  letter-spacing: 0px;
+  color: #2E2E2F;
+  margin-bottom: 0;
+}
+.cardview-address-detail p {
+   font-size: 14px;      
+  font-weight: 400;
+  font-family: 'Open Sans';
+  line-height: 22px;
+  letter-spacing: 0.1px;
+  color: #81838C;
+  margin-bottom: 0;
+}
+.cardview-rent {
+  background: #E9F5E4;
+  color: #40831F;
+  padding: 3px 8px;
+  font-size: 12px;      
+  font-weight: 400;
+  font-family: 'Open Sans';
+  line-height: 18px;
+  letter-spacing: 0px;
+  border-radius: 100px;
+}
+.cardview-rent-amount {
+  padding-bottom: 16px;
+}
+.rent-amount {
+  color: #2E2E2F;
+  font-size: 22px;      
+  font-weight: 700;
+  font-family: 'Raleway';
+  line-height: 27px;
+  letter-spacing: 0px;
+}
+.month,.cardview-posted-detail span { 
+  font-size: 12px;      
+  font-weight: 400;
+  font-family: 'Open Sans';
+  line-height: 18px;
+  letter-spacing: 0px;
+}
+.month {
+   color: #2E2E2F;
+}
+.cardview-posted-detail {
+  padding-bottom: 16px;
+}
+.cardview-posted-detail span {
+  color: #81838C;
+}
+.card-view-icon-wrapper {
+  display: flex;
+  gap: 24px;
+  padding-bottom: 16px;
+}
+.card-view-icon-wrapper div img {
+  padding: 5px 15px;
+  border-radius: 6px ;
+}
+
+.card-icon-edit img {
+  border: 1px solid #81838C;
+}
+.card-icon-approve img {
+  background: #214999;
+  border: 1px solid #214999;
+}
+.card-icon-deny img {
+  border: 1px solid #214999;;
+}
+.card-icon-delete img {
+  border: 1px solid #FE3D3C;
+}
