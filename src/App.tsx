@@ -10,6 +10,7 @@ import { useEffect } from "react";
 import ViewProperty from "./components/Properties/viewProperties/viewProperty";
 import CreateProperty from "./components/Properties/properties";
 
+
 function AppRoutes() {
   const navigate = useNavigate();
 
