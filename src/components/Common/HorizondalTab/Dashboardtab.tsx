@@ -24,7 +24,7 @@ import Accordion from "@mui/material/Accordion";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
-import { debounce } from "lodash";
+// import { debounce } from "lodash";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Skeleton from "@mui/material/Skeleton";
@@ -590,11 +590,11 @@ export default function Dashboardtab({
     setSelectedItem(item);
     setOpenModal(true);
   };
-  const statusMap: Record<"Approve" | "Deny" | "Delete", number> = {
-    Approve: 1,
-    Deny: 0,
-    Delete: 2,
-  };
+  // const statusMap: Record<"Approve" | "Deny" | "Delete", number> = {
+  //   Approve: 1,
+  //   Deny: 0,
+  //   Delete: 2,
+  // };
 
   const imageMap: Record<"Approve" | "Deny" | "Delete", string> = {
     Approve: ApproveIcon,
