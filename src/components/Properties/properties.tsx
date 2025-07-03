@@ -89,10 +89,10 @@ function buildPayloadDynamic(
   setNested(payload, "owner.contact.phone1", (formState.phone1 ?? "").trim());
   setNested(payload, "owner.contact.email", (formState.email ?? "").trim());
   setNested(payload, "owner.contact.getUpdates", false);
-  setNested(payload, "propertyType", formState.propertyType);
+  setNested(payload, "propertyType", formState.propertyType || "Semi Furnished");
   const rentAmount = parseFloat(formState.rent);
   setNested(payload, "rent.rentAmount", isNaN(rentAmount) ? 0 : rentAmount);
-  setNested(payload, "rent.negotiable", true);
+  setNested(payload, "rent.negotiable", formState.negotiable === false);
   const advance = parseFloat(formState.advanceAmount);
   setNested(payload, "rent.advanceAmount", isNaN(advance) ? 0 : advance);
   setNested(payload, "rent.leaseTenure", formState.leaseTenure);
@@ -115,9 +115,9 @@ function buildPayloadDynamic(
   setNested(payload, "images", imageUrls);
 
   setNested(payload, "title", formState.title);
-  setNested(payload, "residentialType", formState.residentialType);
-  setNested(payload, "facingDirection", formState.facingDirection);
-  setNested(payload, "rooms", `${formState.rooms} BHK`);
+  setNested(payload, "residentialType", formState.residentialType || "Apartment");
+  setNested(payload, "facingDirection", formState.facingDirection || "East");
+  setNested(payload, "rooms", `${formState.rooms || "1"} BHK`);
   setNested(
     payload,
     "totalFloors",
@@ -128,13 +128,8 @@ function buildPayloadDynamic(
     "propertyFloor",
     formState.propertyFloor ? parseInt(formState.propertyFloor) : 0
   );
-  setNested(
-    payload,
-    "furnishingType",
-    formState.furnishingType?.replace("-", " ")
-  );
+  setNested(payload, "furnishingType", formState.furnishingType?.replace("-", " "));
   setNested(payload, "description", formState.description);
-  setNested(payload, "legalDocuments", formState.legalDocuments); // if it's string[]
   setNested(payload, "area.builtUpArea", `${formState.builtUpArea} sqft`);
   setNested(payload, "area.carpetArea", `${formState.carpetArea} sqft`);
   setNested(
@@ -183,13 +178,13 @@ export const CreateProperty = () => {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phone1, setPhone1] = useState("");
-  const [propertyType, setPropertyType] = useState("");
+  const [propertyType, setPropertyType] = useState("Rent");
   const [title, setTitle] = useState("");
   const [rent, setRent] = useState("");
-  const [negotiable, setNegotiable] = useState<boolean>(true);
+  const [negotiable, setNegotiable] = useState<boolean>(false);
   const [advanceAmount, setAdvanceAmount] = useState("");
   const [leaseTenure, setLeaseTenure] = useState("");
-  const [residentialType, setResidentialType] = useState("");
+  const [residentialType, setResidentialType] = useState("House");
   const [address, setAddress] = useState("");
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
@@ -198,13 +193,12 @@ export const CreateProperty = () => {
   const [totalArea, setTotalArea] = useState("");
   const [builtUpArea, setBuiltUpArea] = useState("");
   const [carpetArea, setCarpetArea] = useState("");
-  const [facingDirection, setfacingDirection] = useState("");
+  const [facingDirection, setfacingDirection] = useState("East");
   const [totalFloors, setTotalFloors] = useState("");
   const [propertyFloor, setPropertyFloor] = useState("");
-  const [furnishingType, setFurnishingType] = useState("");
+  const [furnishingType, setFurnishingType] = useState("Unfurnished");
   const [rooms, setRoomCount] = useState("1");
   const [description, setPropertyDescription] = useState("");
-  const [legalDocuments, setLegalDocuments] = useState("Yes");
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showTopInfo, setShowTopInfo] = useState(false);
@@ -391,7 +385,6 @@ export const CreateProperty = () => {
       furnishingType,
       rooms,
       description,
-      legalDocuments,
       selectedChips,
     };
 
@@ -609,8 +602,8 @@ export const CreateProperty = () => {
                       <InputField
                         type="dropdown"
                         id="propertyType"
-                        dropdownOptions={["Select", "Rent", "Lease", "Sale"]}
-                        value={propertyType || "Select"}
+                        dropdownOptions={["Rent", "Lease", "Sale"]}
+                        value={propertyType}
                         onChange={(e) => setPropertyType(e.target.value)}
                       />
                     </div>
@@ -625,7 +618,7 @@ export const CreateProperty = () => {
                             className="radioField"
                             radioOptions={["House", "Apartment", "Villa"]}
                             id="residentialType"
-                            value={residentialType || "House"}
+                            value={residentialType}
                             onChange={(e) => setResidentialType(e.target.value)}
                           />
                         </div>
@@ -1072,12 +1065,16 @@ export const CreateProperty = () => {
                       placeholder="Select Direction Facing"
                       dropdownOptions={[
                         "North",
-                        "South",
                         "East",
                         "West",
-                        "Select Direction Facing",
+                        "South",
+                        "North East",
+                        "North West",
+                        "South East",
+                        "South West"
+                        
                       ]}
-                      value={facingDirection || "Select Direction Facing"}
+                      value={facingDirection || "East"}
                       onChange={(e) => setfacingDirection(e.target.value)}
                     />
                   </div>
@@ -1653,32 +1650,7 @@ export const CreateProperty = () => {
                 ></textarea>
               </section>
 
-              {/* Legal Documents Section */}
-              <section className="LegalDocsSection mb-4">
-                <div className="ownerTitle">
-                  <h6>Legal Documentation</h6>
-                  <p>
-                    Specify whether the property has legal paperwork available
-                  </p>
-                </div>
-              </section>
-
-              <div className="col-12">
-                <label className="TextLabel" htmlFor="legalDocsAvailable">
-                  Are Legal Documents Available?
-                </label>
-                <div className="d-flex flex-wrap gap-3">
-                  <InputField
-                    type="radio"
-                    radioOptions={["Yes", "No"]} // Corrected "NO" to "No" for consistency
-                    id="legalDocsAvailable"
-                    value={legalDocuments}
-                    onChange={(e) => setLegalDocuments(e.target.value)}
-                    // error={!!errors.legalDocuments}
-                    // helperText={errors.legalDocuments}
-                  />
-                </div>
-              </div>
+              
 
               <ToastContainer
                 position="top-right"
