@@ -107,7 +107,6 @@ export type ResidentialFormState = {
   furnishingType: string;
   rooms: string;
   description: string;
-  legalDocuments: string;
   selectedChips: string[];
   negotiable?: boolean;
 };
