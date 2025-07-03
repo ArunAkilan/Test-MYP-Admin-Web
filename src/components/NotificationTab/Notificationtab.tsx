@@ -105,7 +105,7 @@ export default function Notificationtab() {
              
               { (notifications?.length == 0) ? 
               ( <><img
-                src="charm_tick.svg"
+                src="/public/charm_tick.svg"
                 alt="charm_tick image"
                 className="notify-img"
               />

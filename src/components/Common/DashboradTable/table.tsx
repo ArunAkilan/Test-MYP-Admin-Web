@@ -24,6 +24,7 @@ interface TableProps {
     | "plots"
     | undefined;
   onScrollChange: (scrollTop: number) => void;
+  handleOpenModal: (action: "Approve" | "Deny" | "Delete", item: any) => void;
 }
 
 const modalStyle = {
@@ -383,7 +384,7 @@ function Table({ data, properties, onScrollChange }: TableProps) {
                   <input
                     type="checkbox"
                     aria-describedby={popoverId}
-                    onClick={handlePopoverClick} // this should capture the clicked element
+                    onClick={handlePopoverClick} 
                     checked={selectedRows.includes(item._id)}
                     onChange={(e) => {
                       if (e.target.checked) {
