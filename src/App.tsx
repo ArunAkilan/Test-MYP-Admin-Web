@@ -56,7 +56,7 @@ function AppRoutes() {
           <Route path="/commercial/create" element={<CreateProperty />} />
           <Route path="/plots/create" element={<CreateProperty />} />
           <Route path="/residential/create" element={<CreateProperty />} />
-          <Route path="/plots/view" element={<ViewProperty />} />
+          {/* <Route path="/plots/view" element={<ViewProperty />} /> */}
           <Route path="/plots/view/:id" element={<ViewProperty />} />
         </Routes>
       </div>

@@ -1,8 +1,8 @@
 import { useRef, useState, useEffect } from "react";
 import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
+// import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
-import Typography from "@mui/material/Typography";
+// import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -12,65 +12,65 @@ import "./carousel.scss";
 export const Carousel = () => {
   const sampleCarouselItems = [
     {
-      img: "card-image.jpg",
+      img: "../src/assets/dashboardtab/card-image.svg",
       title: "₹24,000/Month | 1800 sqft",
       subtitle: "Vadakku mathavi street",
       description: "Old Bus Stand, Perambalur",
     },
     {
-      img: "card-image.jpg",
+      img: "../src/assets/dashboardtab/card-image.svg",
       title: "₹24,000/Month | 1800 sqft",
       subtitle: "TVadakku mathavi street",
       description: "Old Bus Stand, Perambalur",
     },
     {
-      img: "card-image.jpg",
+      img: "../src/assets/dashboardtab/card-image.svg",
       title: "₹24,000/Month | 1800 sqft",
       subtitle: "Vadakku mathavi street",
       description: "Old Bus Stand, Perambalur",
     },
     {
-      img: "card-image.jpg",
+      img: "../src/assets/dashboardtab/card-image.svg",
       title: "₹24,000/Month | 1800 sqft",
       subtitle: "TVadakku mathavi street",
       description: "Old Bus Stand, Perambalur",
     },
-    {
-      img: "card-image.jpg",
-      title: "₹24,000/Month | 1800 sqft",
-      subtitle: "Vadakku mathavi street",
-      description: "Old Bus Stand, Perambalur",
-    },
-    {
-      img: "card-image.jpg",
-      title: "₹24,000/Month | 1800 sqft",
-      subtitle: "Vadakku mathavi street",
-      description: "Old Bus Stand, Perambalur",
-    },
-    {
-      img: "card-image.jpg",
-      title: "₹30,000/Month | 2000 sqft",
-      subtitle: "East Main Street",
-      description: "Near Market Road",
-    },
-    {
-      img: "card-image.jpg",
-      title: "₹15,000/Month | 1200 sqft",
-      subtitle: "West Road",
-      description: "Opposite Bus Stand",
-    },
-    {
-      img: "card-image.jpg",
-      title: "₹18,500/Month | 1400 sqft",
-      subtitle: "North Cross Street",
-      description: "Beside Petrol Bunk",
-    },
-    {
-      img: "card-image.jpg",
-      title: "₹22,000/Month | 1600 sqft",
-      subtitle: "Central Avenue",
-      description: "Near Hospital",
-    },
+    // {
+    //   img: "card-image.jpg",
+    //   title: "₹24,000/Month | 1800 sqft",
+    //   subtitle: "Vadakku mathavi street",
+    //   description: "Old Bus Stand, Perambalur",
+    // },
+    // {
+    //   img: "card-image.jpg",
+    //   title: "₹24,000/Month | 1800 sqft",
+    //   subtitle: "Vadakku mathavi street",
+    //   description: "Old Bus Stand, Perambalur",
+    // },
+    // {
+    //   img: "card-image.jpg",
+    //   title: "₹30,000/Month | 2000 sqft",
+    //   subtitle: "East Main Street",
+    //   description: "Near Market Road",
+    // },
+    // {
+    //   img: "card-image.jpg",
+    //   title: "₹15,000/Month | 1200 sqft",
+    //   subtitle: "West Road",
+    //   description: "Opposite Bus Stand",
+    // },
+    // {
+    //   img: "card-image.jpg",
+    //   title: "₹18,500/Month | 1400 sqft",
+    //   subtitle: "North Cross Street",
+    //   description: "Beside Petrol Bunk",
+    // },
+    // {
+    //   img: "card-image.jpg",
+    //   title: "₹22,000/Month | 1600 sqft",
+    //   subtitle: "Central Avenue",
+    //   description: "Near Hospital",
+    // },
   ];
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -185,15 +185,15 @@ export const Carousel = () => {
             sx={{
               width: {
                 xs: "107%",
-                sm: "51%",
-                md: "33%",
-                lg: "24%",
+                sm: "107%",
+                md: "107%",
+                lg: "108%",
               },
               minWidth: {
-                xs: "100%",
-                sm: "51%",
-                md: "33%",
-                lg: "24%",
+                xs: "107%",
+                sm: "107%",
+                md: "107%",
+                lg: "108%",
               },
               scrollSnapAlign: "start",
               flex: "0 0 auto",
@@ -213,9 +213,9 @@ export const Carousel = () => {
                 borderTopRightRadius: 8,
               }}
               image={item.img}
-              title={item.title}
+              // title={item.title}
             />
-            <CardContent sx={{ padding: { xs: 2, sm: 3 } }}>
+            {/* <CardContent sx={{ padding: { xs: 2, sm: 3 } }}>
               <Typography 
                 gutterBottom 
                 component="div" 
@@ -247,7 +247,7 @@ export const Carousel = () => {
               >
                 {item.description}
               </Typography>
-            </CardContent>
+            </CardContent> */}
           </Card>
         ))}
       </Box>
