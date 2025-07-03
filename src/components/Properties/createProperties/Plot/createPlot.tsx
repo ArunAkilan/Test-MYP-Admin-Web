@@ -1,12 +1,11 @@
 import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { InputField, DynamicBreadcrumbs } from "../Common/input"; // Assuming InputField supports error props
-import GenericButton from "../Common/Button/button";
+import { InputField, DynamicBreadcrumbs } from "../../../Common/input"; // Assuming InputField supports error props
+import GenericButton from "../../../Common/Button/button";
 import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
 import DoneIcon from "@mui/icons-material/Done";
 import CloseIcon from "@mui/icons-material/Close";
 import { Button, Avatar, Alert, IconButton } from "@mui/material";
-import "./createProperties/createProperty.scss"; // Your styling
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
@@ -16,10 +15,13 @@ import type {
   ResidentialFormState,
   UploadedImage,
   PlainObject,
-} from "./createProperties/createProperty.model";
-import type { Restrictions } from "../AdminResidencial/AdminResidencial.model";
+} from "../createProperty.model";
+import type { Restrictions } from "../../../AdminResidencial/AdminResidencial.model";
 import { GoogleMap, Marker, Autocomplete, useJsApiLoader } from "@react-google-maps/api";
 import Tooltip from "@mui/material/Tooltip";
+import "../Plot/createPlot.scss"
+import "../createProperty.scss"; 
+
 
 const containerStyle = {
   width: "100%",

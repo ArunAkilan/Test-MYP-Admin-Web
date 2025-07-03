@@ -1,25 +1,26 @@
 import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { InputField, DynamicBreadcrumbs } from "../Common/input"; // Assuming InputField supports error props
-import GenericButton from "../Common/Button/button";
+import { InputField, DynamicBreadcrumbs } from "../../../Common/input";
+import GenericButton from "../../../Common/Button/button";
 import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
 import DoneIcon from "@mui/icons-material/Done";
 import CloseIcon from "@mui/icons-material/Close";
 import { Button, Avatar, Alert, IconButton } from "@mui/material";
-import "./createProperties/createProperty.scss"; // Your styling
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import axios from "axios";
-import { AxiosError } from "axios";
+import "../createProperty.scss"; // ✅ Corrected path
+import "./createCommercial.scss"; // ✅ This is already correct
+import axios, { AxiosError } from "axios";
 import type {
   ResidentialProperty,
   ResidentialFormState,
   UploadedImage,
   PlainObject,
-} from "./createProperties/createProperty.model";
-import type { Restrictions } from "../AdminResidencial/AdminResidencial.model";
+} from "../createProperty.model";
+import type { Restrictions } from "../../../AdminResidencial/AdminResidencial.model";
 import { GoogleMap, Marker, Autocomplete, useJsApiLoader } from "@react-google-maps/api";
 import Tooltip from "@mui/material/Tooltip";
+
 
 const containerStyle = {
   width: "100%",
@@ -174,7 +175,7 @@ function buildPayloadDynamic(
   return payload as ResidentialProperty;
 }
 
-export const CreateProperty = () => {
+export const CreateCommercialProperty = () => {
   // State for form data
   const navigate = useNavigate();
   const [firstName, setFirstName] = useState("");
@@ -352,7 +353,7 @@ export const CreateProperty = () => {
     return newErrors;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const validationErrors = validate();
@@ -1742,4 +1743,4 @@ export const CreateProperty = () => {
   );
 };
 
-export default CreateProperty;
+export default CreateCommercialProperty;
