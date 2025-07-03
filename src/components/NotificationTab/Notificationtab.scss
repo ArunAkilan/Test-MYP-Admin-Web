@@ -86,5 +86,11 @@
         width: 325px;
         padding: 5px;
         list-style: none;
+        &:hover{
+            background-color: #00BFA6 !important;
+            cursor: pointer;
+            color: #fff;
+        }
     }
+
 }
