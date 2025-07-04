@@ -8,7 +8,7 @@ export default defineConfig({
     host: true,      // needed for Docker (binds to 0.0.0.0)
      port: 80,         // desired internal port (changed Port:80 to 3001)
      strictPort: true,
-     allowedHosts: ['myperambalurproperty.com']
+     allowedHosts: ['dev.myperambalurproperty.com']
   
   }
   
