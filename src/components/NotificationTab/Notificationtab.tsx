@@ -57,7 +57,7 @@ export default function Notificationtab() {
   //Socket IO
   const [notifications, setNotifications] = useState<Notification[]>([]);
   //@ts-ignore
-  useEffect(() => {
+ /// useEffect(() => {
     axios.get<Notification[]>(`${ENDPOINT}/api/notification`)
       .then(res => setNotifications(res.data));
 
@@ -67,8 +67,8 @@ export default function Notificationtab() {
       setNotifications(prev => [data, ...prev]);
     });
 
-    return () => sock.disconnect();
-  }, []);
+    
+ // }, []);
   //Socket IO
   return (
     <div id="notification-tab">
