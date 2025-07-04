@@ -7,7 +7,6 @@ export default defineConfig({
    server: {
      host: true,      // needed for Docker (binds to 0.0.0.0)
      port: 443,         // desired internal port (changed Port:80 to 3001)
-     https: true,
      allowedHosts: ['dev.myperambalurproperty.com'],
      hmr: {
         host: 'dev.myperambalurproperty.com', // The domain clients use to access the app
