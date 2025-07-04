@@ -11,7 +11,7 @@ export default defineConfig({
      allowedHosts: ['dev.myperambalurproperty.com'],
      hmr: {
         host: 'dev.myperambalurproperty.com', // The domain clients use to access the app
-        protocol: 'ws', // Use 'wss' if using HTTPS
+        protocol: 'wss', // Use 'wss' if using HTTPS
         port: 80 // Optional, default is server port
     }
   
