@@ -19,6 +19,8 @@ import {
   Breadcrumbs,
   Link,
   Alert,
+  Backdrop,
+  CircularProgress,
 } from "@mui/material";
 import TextareaAutosize from "@mui/material/TextareaAutosize";
 import { styled } from "@mui/system";
@@ -73,6 +75,8 @@ interface InputFieldProps {
   alertMessage?: string; // text inside the Alert
   alertAction?: React.ReactNode; // optional action (e.g. an <Undo /> button)
   onAlertClose?: () => void; // called when the ✕ is clicked
+  showBackdrop?: boolean;
+  onBackdropClose?: () => void;
 }
 
 // ---------------- Styles -------------------
@@ -115,9 +119,9 @@ const StyledTextarea = styled(TextareaAutosize)(
 // ---------------- Subcomponent: Breadcrumbs -------------------
 const DynamicBreadcrumbs = () => {
   const pathnames = location.pathname.split("/").filter((x) => x);
-  return(
-  <Stack spacing={2} sx={{ mb: 2 }}>
-    {/* <Breadcrumbs
+  return (
+    <Stack spacing={2} sx={{ mb: 2 }}>
+      {/* <Breadcrumbs
       separator={<NavigateNextIcon fontSize="small" />}
       aria-label="breadcrumb"
     >
@@ -142,36 +146,37 @@ const DynamicBreadcrumbs = () => {
         )
       )}
     </Breadcrumbs> */}
-    <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
-      {/* <Link underline="hover" color="inherit" component={RouterLink} to="/">
+      <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
+        {/* <Link underline="hover" color="inherit" component={RouterLink} to="/">
         Home
       </Link> */}
-      {pathnames.map((value, index) => {
-        const to = `/${pathnames.slice(0, index + 1).join("/")}`;
-        const isLast = index === pathnames.length - 1;
-        //const label = PATH_LABELS[value] || value;
-        const label = value;
+        {pathnames.map((value, index) => {
+          const to = `/${pathnames.slice(0, index + 1).join("/")}`;
+          const isLast = index === pathnames.length - 1;
+          //const label = PATH_LABELS[value] || value;
+          const label = value;
 
-        return isLast ? (
-          <Typography color="text.primary" key={to}>
-            {label}
-          </Typography>
-        ) : (
-          <Link
-            underline="hover"
-            color="inherit"
-            component={RouterLink}
-            to={to}
-            key={to}
-            sx={{ textTransform: "capitalize" }}
-          >
-            {label}
-          </Link>
-        );
-      })}
-    </Breadcrumbs>
-  </Stack>
-)};
+          return isLast ? (
+            <Typography color="text.primary" key={to}>
+              {label}
+            </Typography>
+          ) : (
+            <Link
+              underline="hover"
+              color="inherit"
+              component={RouterLink}
+              to={to}
+              key={to}
+              sx={{ textTransform: "capitalize" }}
+            >
+              {label}
+            </Link>
+          );
+        })}
+      </Breadcrumbs>
+    </Stack>
+  );
+};
 
 // ---------------- Component -------------------
 const InputField: React.FC<InputFieldProps> = ({
@@ -197,8 +202,16 @@ const InputField: React.FC<InputFieldProps> = ({
   alertMessage,
   alertAction,
   onAlertClose,
-
+  showBackdrop,
+  onBackdropClose,
 }) => {
+  const [backdropOpen, setBackdropOpen] = React.useState(false);
+  React.useEffect(() => {
+    if (showBackdrop !== undefined) {
+      setBackdropOpen(showBackdrop);
+    }
+  }, [showBackdrop]);
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -213,24 +226,21 @@ const InputField: React.FC<InputFieldProps> = ({
 
   return (
     <div className="mb-3 d-flex flex-column">
-
       {/* ---------- Optional Alert ---------- */}
-    {alertMessage && (
-      <Stack sx={{ width: '100%', mb: 1 }} spacing={2}>
-        <Alert
-          severity={alertSeverity || 'info'}
-          {...(onAlertClose ? { onClose: onAlertClose } : {})}
-          action={alertAction}
-        >
-          {alertMessage}
-        </Alert>
-      </Stack>
-    )}
+      {alertMessage && (
+        <Stack sx={{ width: "100%", mb: 1 }} spacing={2}>
+          <Alert
+            severity={alertSeverity || "info"}
+            {...(onAlertClose ? { onClose: onAlertClose } : {})}
+            action={alertAction}
+          >
+            {alertMessage}
+          </Alert>
+        </Stack>
+      )}
 
       {/* ---------- Breadcrumbs ---------- */}
-      {breadcrumbs && breadcrumbs.length > 0 && (
-        <DynamicBreadcrumbs />
-      )}
+      {breadcrumbs && breadcrumbs.length > 0 && <DynamicBreadcrumbs />}
 
       {label && type !== "radio" && type !== "chip" && (
         <label className="form-label" htmlFor={id}>
@@ -406,6 +416,19 @@ const InputField: React.FC<InputFieldProps> = ({
           })()}
         </Stack>
       )}
+
+      {/* ---------- Backdrop ---------- */}
+      <Backdrop
+        sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
+        open={backdropOpen}
+        onClick={() => {
+          setBackdropOpen(false);
+          if (onBackdropClose) onBackdropClose();
+        }}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+      
     </div>
   );
 };
