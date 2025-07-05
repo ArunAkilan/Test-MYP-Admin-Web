@@ -14,7 +14,7 @@ FROM nginx:alpine
 RUN rm -rf /usr/share/nginx/html/* /etc/nginx/conf.d/default.conf
 
 # Copy built app from builder stage
-COPY --from=builder /app/build /usr/share/nginx/html
+COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Copy SSL certificates (use volumes in production)
 COPY ./certs/fullchain.pem /etc/ssl/certs/fullchain.pem
