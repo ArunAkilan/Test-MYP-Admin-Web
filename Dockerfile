@@ -19,8 +19,8 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 # Copy SSL certificates (use volumes in production)
 #COPY ./certs/fullchain.pem /etc/ssl/certs/fullchain.pem
 #COPY ./certs/privkey.pem /etc/ssl/private/privkey.pem
-COPY certs/fullchain.pem /etc/ssl/certs/fullchain.pem
-COPY certs/privkey.pem /etc/ssl/private/privkey.pem
+# COPY certs/fullchain.pem /etc/ssl/certs/fullchain.pem
+# COPY certs/privkey.pem /etc/ssl/private/privkey.pem
 
 
 # Copy custom Nginx config
