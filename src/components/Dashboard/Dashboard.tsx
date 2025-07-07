@@ -14,7 +14,8 @@ import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import { CircularProgress, Typography, Alert } from "@mui/material";
 
 type PropertyType = "all" | "residentials" | "commercials" | "plots";
 
@@ -73,26 +74,22 @@ function Home({ properties }: HomeProps) {
   const location = useLocation();
   console.log("propertyDataddd", location);
   const handleOpen = () => {
-    if(location?.pathname==="/dashboard"){
+    if (location?.pathname === "/dashboard") {
       setOpen(true);
-    }
-    else if(location?.pathname==="/commercial"){
+    } else if (location?.pathname === "/commercial") {
       navigate("/commercial/create", {
         state: { mode: "create" },
       });
-    }
-    else if(location?.pathname==="/residential"){
+    } else if (location?.pathname === "/residential") {
       navigate("/residential/create", {
         state: { mode: "create" },
       });
-    }
-    else if(location?.pathname==="/plots"){
-       navigate("/plots/create", {
+    } else if (location?.pathname === "/plots") {
+      navigate("/plots/create", {
         state: { mode: "create" },
       });
     }
-    
-  }
+  };
   const handleClose = () => setOpen(false);
   const [selectedPropertyType, setSelectedPropertyType] = useState("");
   const navigate = useNavigate();
@@ -158,9 +155,26 @@ function Home({ properties }: HomeProps) {
     return () => window.removeEventListener("refreshTableData", handleRefresh);
   }, [properties]);
 
-  if (loading)
-    return <p style={{ padding: "1rem" }}>Loading data for {properties}...</p>;
-  if (error) return <p style={{ color: "red" }}>Error: {error}</p>;
+  if (loading) {
+    return (
+      <Box display="flex" alignItems="center" justifyContent="center" p={3}>
+        <CircularProgress size={24} />
+        <Typography variant="body1" ml={2}>
+          Loading data for <strong>{properties}</strong>...
+        </Typography>
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box p={3}>
+        <Alert severity="error">
+          <strong>Error:</strong> {error}
+        </Alert>
+      </Box>
+    );
+  }
 
   console.log("dashboardData msg", dashboardData);
   const hasData =
@@ -173,7 +187,6 @@ function Home({ properties }: HomeProps) {
   }
 
   return (
-    
     <div className="home-sec">
       <div className={`new-post-wrap ${hideHeader ? "hide" : ""}`}>
         <div className="container">
@@ -250,7 +263,9 @@ function Home({ properties }: HomeProps) {
                           state: { mode: "create" },
                         });
                       } else if (selectedPropertyType === "other") {
-                        navigate("/plots/create", { state: { mode: "create" } });
+                        navigate("/plots/create", {
+                          state: { mode: "create" },
+                        });
                       } else {
                         alert("Please select a property type.");
                       }

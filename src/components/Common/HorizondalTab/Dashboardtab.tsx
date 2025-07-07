@@ -24,11 +24,11 @@ import Accordion from "@mui/material/Accordion";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
-import { debounce } from "lodash";
+// import { debounce } from "lodash";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Skeleton from "@mui/material/Skeleton";
-import { Carousel } from "../Carousel/carousel";
+import Carousel from "../Carousel/carousel";
 import Popover from "@mui/material/Popover";
 import tickIcon from "../../../assets/table/Icon_Tick.svg";
 import denyIcon from "../../../assets/table/Icon_Deny.svg";
@@ -36,7 +36,10 @@ import { Modal } from "@mui/material";
 import ApproveIcon from "../../../assets/Dashboard modal img/Confirm.svg";
 import DenyIcon from "../../../assets/Dashboard modal img/reject.svg";
 import DeleteIcon from "../../../assets/Dashboard modal img/dlt.svg";
-
+import img1 from "../../../assets/dashboardtab/card-image.svg";
+import img2 from "../../../assets/Container_ImageHolder (2).png";
+import img3 from "../../../assets/Container_ImageHolder (1).png";
+import img4 from "../../../assets/Container_ImageHolder (3).png";
 type Property = {
   _id?: string;
   propertyType?: string;
@@ -46,6 +49,12 @@ type Property = {
   };
   [key: string]: any;
 };
+const images = [
+  img1,
+  img2,
+  img3,
+  img4
+];
 type PropertyData = {
   residential: Property[];
   commercial: Property[];
@@ -121,7 +130,7 @@ export default function Dashboardtab({
   const [isExpanded, setIsExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [openModal, setOpenModal] = useState(false);
+  const [open, setOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<
     "Approve" | "Deny" | "Delete" | null
   >(null);
@@ -588,19 +597,65 @@ export default function Dashboardtab({
   ) => {
     setSelectedAction(action);
     setSelectedItem(item);
-    setOpenModal(true);
+    setOpen(true);
   };
-  const statusMap: Record<"Approve" | "Deny" | "Delete", number> = {
-    Approve: 1,
-    Deny: 0,
-    Delete: 2,
-  };
+
+  // const statusMap: Record<"Approve" | "Deny" | "Delete", number> = {
+  //   Approve: 1,
+  //   Deny: 0,
+  //   Delete: 2,
+  // };
 
   const imageMap: Record<"Approve" | "Deny" | "Delete", string> = {
     Approve: ApproveIcon,
     Deny: DenyIcon,
     Delete: DeleteIcon,
   };
+
+  const getSingularProperty = () => {
+    switch (properties) {
+      case "residentials":
+        return "residential";
+      case "commercials":
+        return "commercial";
+      case "plots":
+        return "plot";
+      default:
+        return "residential";
+    }
+  };
+
+  const handleAction = async (id: string, status: number) => {
+    const singularProperty = getSingularProperty();
+    try {
+      const response = await axios.put(
+        `${
+          import.meta.env.VITE_BackEndUrl
+        }/api/adminpermission/${singularProperty}/${id}`,
+        { status: `${status}` }
+      );
+      console.log("Status updated:", response.data);
+    } catch (err) {
+      console.error("Failed to update status");
+    }
+  };
+
+  const handleCloseModal = () => {
+    setOpen(false);
+    setSelectedAction(null);
+    setSelectedItem(null);
+  };
+
+  const handleConfirmAction = async (id: string, status: number) => {
+    try {
+      await handleAction(id, status);
+      handleCloseModal();
+      window.dispatchEvent(new Event("refreshTableData"));
+    } catch (e) {
+      console.error("Error performing action:", e);
+    }
+  };
+
   return (
     <div id="pending-approval-tab">
       {isLoading ? (
@@ -647,6 +702,7 @@ export default function Dashboardtab({
                 paddingBottom: hideHeader ? "0" : "24px",
                 display: hideHeader ? "block" : "true",
               }}
+              id="pending-approval-tabs-wrap"
             >
               <Tab
                 label={
@@ -1029,10 +1085,11 @@ export default function Dashboardtab({
                 </div>
               </div>
             </CustomTabPanel>
-            {openModal && selectedItem && selectedAction && (
+            
+            {open && selectedItem && selectedAction && (
               <Modal
-                open={openModal}
-                onClose={() => setOpenModal(false)}
+                open={open}
+                onClose={() => setOpen(false)}
                 aria-labelledby="modal-modal-title"
                 aria-describedby="modal-modal-description"
               >
@@ -1043,31 +1100,35 @@ export default function Dashboardtab({
                     variant="h6"
                     component="h2"
                   >
-                    {selectedAction} Confirmation
+                    Confirm {selectedAction}
                   </Typography>
                   <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                    Are you sure you want to {selectedAction.toLowerCase()} this
-                    property?
+                    Are you sure you want to {selectedAction.toLowerCase()} the
+                    listing <strong>{selectedItem?.location?.address}</strong>?
                   </Typography>
 
                   <Button
+                    variant="contained"
+                    color="primary"
                     onClick={() => {
-                      console.log(
-                        "Confirmed:",
-                        selectedItem._id,
+                      if (!selectedItem?._id || !selectedAction) return;
+                      const statusCode = { Approve: 1, Deny: 0, Delete: 2 }[
                         selectedAction
-                      );
-                      // Call handleAction here if needed
-                      setOpenModal(false);
+                      ];
+                      handleConfirmAction(selectedItem._id, statusCode);
                     }}
                   >
                     Confirm
+                  </Button>
+                  <Button variant="outlined" onClick={handleCloseModal}>
+                    Cancel
                   </Button>
                 </Box>
               </Modal>
             )}
           </Box>
-
+        </div>
+      )}
           <CustomTabPanel value={value} index={0}>
             {!cardView ? (
               <Table
@@ -1157,7 +1218,7 @@ export default function Dashboardtab({
                   &nbsp; Filter By
                 </p>
                 <p className="filtercount">
-                  {checkListCount} Filter{checkListCount !== 1 ? "s" : ""}
+                  ({checkListCount}) Filter{checkListCount !== 1 ? "s" : ""}
                 </p>
               </div>
               <div className="checklist-content row">
@@ -1221,8 +1282,7 @@ export default function Dashboardtab({
               </div>
             </div>
           </Drawer>
-        </div>
-      )}
+       
     </div>
   );
 }
@@ -1403,7 +1463,11 @@ const PropertyCardList = ({
             <Grid item xs={12} sm={12} md={12} key={item._id}>
               <div className="card-view-wrapper row" key={item._id}>
                 <div className="card-view-img col-md-6">
-                  <Carousel />
+                  <Carousel
+                    images={images}
+                    price="£15,000 pcm"
+                    area="485,700 sq. ft."
+                  />
                   <input
                     type="checkbox"
                     className="cardview-checkbox"

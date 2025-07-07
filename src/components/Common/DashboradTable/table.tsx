@@ -595,12 +595,6 @@ function Table({ data, properties, onScrollChange }: TableProps) {
                 };
 
                 const statusCode = statusMap[selectedAction];
-                console.log(
-                  "✅ Confirm Clicked:",
-                  selectedItem._id,
-                  "Status Code:",
-                  statusCode
-                );
                 handleConfirmAction(selectedItem._id, statusCode);
               }}
               sx={{ mr: 1 }}
