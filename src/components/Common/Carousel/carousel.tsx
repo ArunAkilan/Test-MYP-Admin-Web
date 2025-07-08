@@ -41,7 +41,7 @@ const ImageCountBadge = styled(Badge)(() => ({
 //   return <Slide direction="up" ref={ref} {...props} />;
 // });
 
-const Carousel: React.FC<CarouselProps> = ({ images, price, area }) => {
+const Carousel: React.FC<CarouselProps> = ({ images}) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [open, setOpen] = useState(false);
   const [direction, setDirection] = useState<"left" | "right">("right");
