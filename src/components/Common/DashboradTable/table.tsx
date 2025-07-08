@@ -83,17 +83,45 @@ function Table({ data, properties, onScrollChange }: TableProps) {
     }
   };
 
-  const formatedData = Array.isArray(data)
-    ? data // already flat array
-    : [
-        ...(data?.residentials ?? []),
-        ...(data?.commercials ?? []),
-        ...(data?.plots ?? []),
-        ...(data?.residential ?? []),
-        ...(data?.commercial ?? []),
-        ...(data?.plot ?? []),
-      ];
-
+const formatedData = Array.isArray(data)
+  ? data.map((item: any) => ({
+      ...item,
+      _source:
+        properties === "residentials"
+          ? "residential"
+          : properties === "commercials"
+          ? "commercial"
+          : properties === "plots"
+          ? "plots"
+          : "unknown",
+    }))
+  : [
+      ...(data?.residentials?.map((item: any) => ({
+        ...item,
+        _source: "residential",
+      })) ?? []),
+      ...(data?.commercials?.map((item: any) => ({
+        ...item,
+        _source: "commercial",
+      })) ?? []),
+      ...(data?.plots?.map((item: any) => ({
+        ...item,
+        _source: "plots",
+      })) ?? []),
+      ...(data?.residential?.map((item: any) => ({
+        ...item,
+        _source: "residential",
+      })) ?? []),
+      ...(data?.commercial?.map((item: any) => ({
+        ...item,
+        _source: "commercial",
+      })) ?? []),
+      ...(data?.plot?.map((item: any) => ({
+        ...item,
+        _source: "plots",
+      })) ?? []),
+    ];
+    
   // Modal state
   const [open, setOpen] = React.useState(false);
   const [selectedAction, setSelectedAction] = React.useState<string | null>(
@@ -107,16 +135,27 @@ function Table({ data, properties, onScrollChange }: TableProps) {
   };
 
   const handleView = (id: string | number) => {
-    const selectedItem = formatedData.find((item: any) => item._id === id);
+    
+  const selectedItem = formatedData.find((item: any) => item._id === id);
 
-    if (selectedItem) {
-      navigate("/plots/view", {
-        state: { data: selectedItem, mode: "view" },
-      });
-    } else {
-      alert("Property not found");
-    }
-  };
+  if (!selectedItem) {
+    alert("Property not found");
+    return;
+  }
+
+  const routeBase = selectedItem._source;
+
+  if (!routeBase) {
+    alert("Unknown property type");
+    console.log("Missing _source in selectedItem", selectedItem);
+    return;
+  }
+
+  console.log("Navigating to:", `/${routeBase}/view/${id}`);
+  navigate(`/${routeBase}/view/${id}`, {
+    state: { data: selectedItem, mode: "view" },
+  });
+};
 
   const handleOpenModal = (action: string, item: ResidentialProperty) => {
     console.log(" Opening modal with action:", action, "on item:", item._id);
