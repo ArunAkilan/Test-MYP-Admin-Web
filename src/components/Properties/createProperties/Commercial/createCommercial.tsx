@@ -1,25 +1,26 @@
 import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { InputField, DynamicBreadcrumbs } from "../Common/input"; // Assuming InputField supports error props
-import GenericButton from "../Common/Button/button";
+import { InputField, DynamicBreadcrumbs } from "../../../Common/input";
+import GenericButton from "../../../Common/Button/button";
 import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
 import DoneIcon from "@mui/icons-material/Done";
 import CloseIcon from "@mui/icons-material/Close";
 import { Button, Avatar, Alert, IconButton } from "@mui/material";
-import "./createProperties/createProperty.scss"; // Your styling
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import axios from "axios";
-import { AxiosError } from "axios";
+import "../createProperty.scss"; // ✅ Corrected path
+import "./createCommercial.scss"; // ✅ This is already correct
+import axios, { AxiosError } from "axios";
 import type {
   ResidentialProperty,
   ResidentialFormState,
   UploadedImage,
   PlainObject,
-} from "./createProperties/createProperty.model";
-import type { Restrictions } from "../AdminResidencial/AdminResidencial.model";
+} from "../createProperty.model";
+import type { Restrictions } from "../../../AdminResidencial/AdminResidencial.model";
 import { GoogleMap, Marker, Autocomplete, useJsApiLoader } from "@react-google-maps/api";
 import Tooltip from "@mui/material/Tooltip";
+
 
 const containerStyle = {
   width: "100%",
@@ -27,10 +28,12 @@ const containerStyle = {
   borderRadius: "6px",
   border: "1px solid #D3DDE7",
 };
-const center = {
-  lat: 11.2333, // fallback to your city, e.g., Perambalur
-  lng: 78.8667,
-};
+const defaultCenter = { lat: 11.2419968, lng: 78.8063549 };
+
+
+
+
+
 // Utility function to set nested value dynamically
 function setNested(obj: PlainObject, path: string, value: unknown) {
   const keys = path.split(".");
@@ -172,7 +175,7 @@ function buildPayloadDynamic(
   return payload as ResidentialProperty;
 }
 
-export const CreateProperty = () => {
+export const CreateCommercialProperty = () => {
   // State for form data
   const navigate = useNavigate();
   const [firstName, setFirstName] = useState("");
@@ -203,7 +206,7 @@ export const CreateProperty = () => {
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showTopInfo, setShowTopInfo] = useState(false);
-  const [markerPosition, setMarkerPosition] = useState(center);
+  const [markerPosition, setMarkerPosition] = useState(defaultCenter);
   const [autocomplete, setAutocomplete] =
     useState<google.maps.places.Autocomplete | null>(null);
 
@@ -228,8 +231,9 @@ export const CreateProperty = () => {
     const info: Record<string, string> = {};
     for (const t of types) {
       try {
-        const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=10000&type=${t.type
-          }&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`;
+        const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=10000&type=${
+          t.type
+        }&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`;
         const res = await fetch(url);
         const data = await res.json();
         if (data.results && data.results.length > 0) {
@@ -254,45 +258,15 @@ export const CreateProperty = () => {
     setNearbyTransport(info);
   };
 
-  const onMapClick = useCallback(
-    (e: google.maps.MapMouseEvent) => {
-      const lat = e.latLng?.lat();
-      const lng = e.latLng?.lng();
-
-      if (!lat || !lng) return;
-
-      const position = { lat, lng };
-
-      // 1. Update marker position and lat/lng fields
-      setMarkerPosition(position);
-      setLatitude(lat.toString());
-      setLongitude(lng.toString());
-
-      // 2. Optionally fetch nearby transport
-      fetchNearbyTransport(lat, lng);
-
-      // 3. Use Google Maps Geocoder to reverse geocode
-      const geocoder = new google.maps.Geocoder();
-
-      geocoder.geocode({ location: position }, (results, status) => {
-        console.log(results,status, "properties")
-        if (status === "OK" && results && results[0]) {
-          setAddress(results[0].formatted_address);
-          setErrors((prev) => ({ ...prev, address: "" }));
-        } else {
-          console.error("Geocoder failed:", status);
-          setAddress("");
-          setErrors((prev) => ({
-            ...prev,
-            address: "Could not fetch address",
-          }));
-        }
-      });
-    },
-    [setMarkerPosition, setLatitude, setLongitude, setAddress, setErrors, fetchNearbyTransport]
-  );
-
-
+  // Handle map click to place marker and update lat/lng inputs
+  const onMapClick = useCallback((e: google.maps.MapMouseEvent) => {
+    if (e.latLng) {
+      setMarkerPosition({ lat: e.latLng.lat(), lng: e.latLng.lng() });
+      setLatitude(e.latLng.lat().toString());
+      setLongitude(e.latLng.lng().toString());
+      fetchNearbyTransport(e.latLng.lat(), e.latLng.lng());
+    }
+  }, []);
 
   // When user selects place from autocomplete input
   // const onPlaceChanged = () => {
@@ -379,7 +353,7 @@ export const CreateProperty = () => {
     return newErrors;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const validationErrors = validate();
@@ -430,7 +404,7 @@ export const CreateProperty = () => {
       formData.append(key, value);
     });
 
-
+    
     //Append images with MIME type handling & debug logging
     images.forEach(
       (
@@ -700,8 +674,8 @@ export const CreateProperty = () => {
                         placeholder="Enter Deposit"
                         value={advanceAmount}
                         onChange={(e) => setAdvanceAmount(e.target.value)}
-                      // error={!!errors.advanceDeposit}
-                      // helperText={errors.advanceAmount}
+                        // error={!!errors.advanceDeposit}
+                        // helperText={errors.advanceAmount}
                       />
                     </div>
                     <div className="col-6 mb-3">
@@ -729,24 +703,18 @@ export const CreateProperty = () => {
 
                 <div className="row">
                   <div className="col-12 col-md-6 mb-3">
-                    <div className="card shadow-sm rounded p-2">
-                      {isLoaded ? (
-                        <GoogleMap
-                          mapContainerStyle={containerStyle}
-                          center={markerPosition || center}
-                          zoom={14}
-                          onClick={onMapClick}
-                        >
-                          <Marker position={markerPosition || center} />
-                        </GoogleMap>
-                      ) : (
-                        <div className="text-center p-4">
-                          <div className="spinner-border text-primary" role="status">
-                            <span className="visually-hidden">Loading map...</span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
+                    {isLoaded ? (
+                      <GoogleMap
+                        mapContainerStyle={containerStyle}
+                        center={markerPosition}
+                        zoom={15}
+                        onClick={onMapClick}
+                      >
+                        <Marker position={markerPosition} />
+                      </GoogleMap>
+                    ) : (
+                      <p>Loading map...</p>
+                    )}
                   </div>
 
                   <div className="col-12 col-md-6 mb-3">
@@ -756,8 +724,8 @@ export const CreateProperty = () => {
                         {isLoaded ? (
                           <Autocomplete
                             onLoad={(autoC) => setAutocomplete(autoC)}
-                            onPlaceChanged={async () => {
-                              if (autocomplete) {
+                            onPlaceChanged={() => {
+                              if ( autocomplete) {
                                 const place = autocomplete.getPlace();
                                 const lat = place.geometry?.location?.lat();
                                 const lng = place.geometry?.location?.lng();
@@ -769,21 +737,6 @@ export const CreateProperty = () => {
                                   setLongitude(lng.toFixed(6));
                                   setMarkerPosition({ lat, lng });
                                   fetchNearbyTransport(lat, lng); // optional if you use this
-                                }
-                                if (lat && lng) {
-                                  setMarkerPosition({ lat, lng });
-
-                                  const geocoder = new google.maps.Geocoder();
-                                  const response = await geocoder.geocode({ location: { lat, lng } });
-
-                                  if (response.results[0]) {
-                                    const selectedAddress = response.results[0].formatted_address;
-                                    setAddress(selectedAddress);
-                                    setErrors({ ...errors, address: "" });
-                                  } else {
-                                    setAddress("");
-                                    setErrors({ ...errors, address: "Could not fetch address" });
-                                  }
                                 }
                               }
                             }}
@@ -818,7 +771,7 @@ export const CreateProperty = () => {
                           placeholder="Latitude"
                           value={latitude}
                           onChange={(e) => setLatitude(e.target.value)}
-                        // Add error handling if latitude is mandatory
+                          // Add error handling if latitude is mandatory
                         />
                       </div>
                       <div className="col-6 mb-3">
@@ -831,7 +784,7 @@ export const CreateProperty = () => {
                           placeholder="Longitude"
                           value={longitude}
                           onChange={(e) => setLongitude(e.target.value)}
-                        // Add error handling if longitude is mandatory
+                          // Add error handling if longitude is mandatory
                         />
                       </div>
                     </div>
@@ -921,8 +874,9 @@ export const CreateProperty = () => {
                   </div>
                   {/* Wrap the entire upload section inside a conditional class for error styling */}
                   <div
-                    className={`image-upload-wrapper ${errors.images ? "error-border" : ""
-                      }`}
+                    className={`image-upload-wrapper ${
+                      errors.images ? "error-border" : ""
+                    }`}
                   >
                     <div className="preview-images d-flex gap-3 mt-2 image-scroll-container">
                       {images.map((img, index) => (
@@ -971,15 +925,17 @@ export const CreateProperty = () => {
 
                     {/* Upload Button and Text */}
                     <div
-                      className={`BtnFrame d-flex mt-3 mb-2 align-items-start gap-3 ${images.length > 0 ? "with-gap" : ""
-                        }`}
+                      className={`BtnFrame d-flex mt-3 mb-2 align-items-start gap-3 ${
+                        images.length > 0 ? "with-gap" : ""
+                      }`}
                     >
                       <p className="image-p">
                         {/* {propertyImages
                           ? propertyImages.name : "No image chosen"} */}
                         {images && images.length > 0
-                          ? `${images.length} image${images.length > 1 ? "s" : ""
-                          } choosen`
+                          ? `${images.length} image${
+                              images.length > 1 ? "s" : ""
+                            } choosen`
                           : "No image choosen"}
                       </p>
                       <input
@@ -1014,7 +970,8 @@ export const CreateProperty = () => {
 
                           if (newFiles.length > remainingSlots) {
                             toast.info(
-                              `Only ${remainingSlots} more image${remainingSlots > 1 ? "s" : ""
+                              `Only ${remainingSlots} more image${
+                                remainingSlots > 1 ? "s" : ""
                               } can be added.`
                             );
                           }
@@ -1770,7 +1727,7 @@ export const CreateProperty = () => {
                       type="submit"
                       disabled={!isFormReadyToSubmit}
 
-                    // onClick={() => navigate("/createResidential", { state: { mode: "create" } })}
+                      // onClick={() => navigate("/createResidential", { state: { mode: "create" } })}
                     />
 
                     {/* This must be rendered */}
@@ -1786,4 +1743,4 @@ export const CreateProperty = () => {
   );
 };
 
-export default CreateProperty;
+export default CreateCommercialProperty;

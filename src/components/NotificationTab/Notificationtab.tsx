@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
@@ -15,8 +15,12 @@ interface TabPanelProps {
 
 interface Notification {
   _id: string;
-  message: string;
+ createdBy: string;
   date: string;
+  isView: string;
+  message: string;
+  propertyId:string;
+  role: string;
 }
 
 const ENDPOINT = import.meta.env.VITE_BackEndUrl;
@@ -53,8 +57,8 @@ export default function Notificationtab() {
   //Socket IO
   const [notifications, setNotifications] = useState<Notification[]>([]);
   //@ts-ignore
-  useEffect(() => {
-    axios.get<Notification[]>(`${ENDPOINT}/notifications`)
+ /// useEffect(() => {
+    axios.get<Notification[]>(`${ENDPOINT}/api/notification`)
       .then(res => setNotifications(res.data));
 
     const sock = io(ENDPOINT);
@@ -63,8 +67,8 @@ export default function Notificationtab() {
       setNotifications(prev => [data, ...prev]);
     });
 
-    return () => sock.disconnect();
-  }, []);
+    
+ // }, []);
   //Socket IO
   return (
     <div id="notification-tab">
@@ -101,7 +105,7 @@ export default function Notificationtab() {
              
               { (notifications?.length == 0) ? 
               ( <><img
-                src="charm_tick.svg"
+                src="/public/charm_tick.svg"
                 alt="charm_tick image"
                 className="notify-img"
               />
@@ -114,8 +118,9 @@ export default function Notificationtab() {
               </div></>) :
               <ul className="notifyList">
                   {notifications.map(n => (
-                    <li key={n._id}>
-                      {n.message} • {new Date(n.date).toLocaleString()}
+                    <li key={n._id} >
+                      <div className="d-flex"><b>{n?.role}:&nbsp; </b> {n.createdBy}</div>
+                      <div className="d-flex justify-content-between"><div>{n.message}</div><div>{new Date(n.date).toLocaleString()}</div></div>
                     </li>
                   ))}
               </ul>

@@ -9,6 +9,8 @@ import "./App.scss";
 import { useEffect } from "react";
 import ViewProperty from "./components/Properties/viewProperties/viewProperty";
 import CreateProperty from "./components/Properties/properties";
+import CreateCommercialProperty from "./components/Properties/createProperties/Commercial/createCommercial";
+import CreatePlotProperty from "./components/Properties/createProperties/Plot/createPlot";
 
 function AppRoutes() {
   const navigate = useNavigate();
@@ -16,6 +18,8 @@ function AppRoutes() {
   const openCreateResidential = () => {
     navigate("/residential/create");
   };
+  const openCreateCommercial = () => navigate("/commercial/create");
+  const openCreatePlotProperty =() => navigate('/plots/create');
 
   const location = useLocation();
   const noScrollRoutes = [
@@ -26,9 +30,7 @@ function AppRoutes() {
   ];
   useEffect(() => {
     const shouldHideScroll = noScrollRoutes.includes(location.pathname);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
     document.body.style.overflow = shouldHideScroll ? "hidden" : "auto";
-    localStorage.debug = '*'
   }, [location.pathname]);
 
   return (
@@ -43,7 +45,7 @@ function AppRoutes() {
           />
           <Route
             path="/commercial"
-            element={<Home properties="commercials" onAddNew={openCreateResidential} />}
+            element={<Home properties="commercials" onAddNew={openCreateCommercial} />}
           />
           <Route
             path="/residential"
@@ -51,10 +53,10 @@ function AppRoutes() {
           />
           <Route
             path="/plots"
-            element={<Home properties="plots" onAddNew={openCreateResidential} />}
+            element={<Home properties="plots" onAddNew={openCreatePlotProperty} />}
           />
-          <Route path="/commercial/create" element={<CreateProperty />} />
-          <Route path="/plots/create" element={<CreateProperty />} />
+          <Route path="/commercial/create" element={<CreateCommercialProperty />} />
+          <Route path="/plots/create" element={<CreatePlotProperty />} />
           <Route path="/residential/create" element={<CreateProperty />} />
           {/* <Route path="/plots/view" element={<ViewProperty />} /> */}
           <Route path="/plots/view/:id" element={<ViewProperty />} />
