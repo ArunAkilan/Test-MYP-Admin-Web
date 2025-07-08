@@ -7,11 +7,11 @@ import navbarLogo from "../src/assets/navbar/PRH_Admin-resize.svg"
 import Home from "./components/Dashboard/Dashboard";
 import "./App.scss";
 import { useEffect } from "react";
-import ViewProperty from "./components/Properties/viewProperties/ResidentialView/ResidentialViewProperty";
 import CreateProperty from "./components/Properties/properties";
 import CreateCommercialProperty from "./components/Properties/createProperties/Commercial/createCommercial";
-// import CreatePlotProperty from "./components/Properties/createProperties/Plot/createPlot";
+import CreatePlotProperty from "./components/Properties/createProperties/Plot/createPlot";
 import CommercialView from "../src/components/Properties/viewProperties/CommercialProperty/CommercialViewProperty"; // <-- import CommercialView here
+import ViewProperty from "./components/Properties/viewProperties/ResidentialView/ResidentialViewProperty";
 import PlotView from "./components/Properties/viewProperties/PlotView/PlotViewProperty";
 
 function AppRoutes() {
@@ -61,7 +61,7 @@ useEffect(() => {
             element={<Home properties="plots" onAddNew={openCreatePlotProperty} />}
           />
           <Route path="/commercial/create" element={<CreateCommercialProperty />} />
-          {/* <Route path="/plots/create" element={<CreatePlotProperty />} /> */}
+          <Route path="/plots/create" element={<CreatePlotProperty />} />
           <Route path="/residential/create" element={<CreateProperty />} />
 
             {/* View Routes */}
