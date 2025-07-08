@@ -67,7 +67,7 @@ export default function Notificationtab() {
     });
 
     
- }, []);
+ }, [  ]);
   //Socket IO
   return (
     <div id="notification-tab">

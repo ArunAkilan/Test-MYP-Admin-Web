@@ -98,29 +98,35 @@ const mapChipsToRestrictions = (chips: string[]): Restrictions => {
 };
 
 // Build payload dynamically based on form state
-function buildPayloadDynamic(
-  formState: PlotFormState
-): PlotFormState {
+function buildPayloadDynamic(formState: PlotFormState): PlotFormState {
   const payload: Partial<PlotFormState> = {};
 
   // owner
-  setNested(payload, "owner.firstName", formState.ownerDetails.firstName.trim());
-  setNested(payload, "owner.lastName", formState.ownerDetails.lastName.trim());
-  setNested(payload, "owner.contact.phone1", formState.ownerDetails.contact.phone1.trim());
-  setNested(payload, "owner.contact.email", formState.ownerDetails.contact.email?.trim() ?? "");
-  setNested(payload, "owner.contact.getUpdates", true);
+  setNested( payload, "ownerDetails.firstName", formState.ownerDetails.firstName.trim());
+  setNested(payload, "ownerDetails.lastName", formState.ownerDetails.lastName.trim());
+  setNested(payload, "ownerDetails.contact.phone1", formState.ownerDetails.contact.phone1.trim());
+  setNested(payload, "ownerDetails.contact.email", formState.ownerDetails.contact.email?.trim() ?? "");
+  setNested(payload, "ownerDetails.contact.getUpdates", true);
 
   // property
   setNested(payload, "propertyType", formState.propertyType);
   setNested(payload, "title", formState.title);
-  setNested(payload, "plotType", "Shop" as PlotType);
+  setNested(payload, "plotType", formState.plotType);
   setNested(payload, "facingDirection", formState.facingDirection);
 
   // rent / lease / sale
   if (formState.propertyType === "Rent") {
-    setNested(payload, "rent.rentAmount", Number(formState.rent.rentAmount) || 0);
+    setNested(
+      payload,
+      "rent.rentAmount",
+      Number(formState.rent.rentAmount) || 0
+    );
     setNested(payload, "rent.negotiable", formState.rent.negotiable);
-    setNested(payload, "rent.advanceAmount", Number(formState.rent.advanceAmount) || 0);
+    setNested(
+      payload,
+      "rent.advanceAmount",
+      Number(formState.rent.advanceAmount) || 0
+    );
     setNested(payload, "rent.agreementTiming", formState.lease.leaseTenure); // optional, rename if needed
   } else if (formState.propertyType === "Lease") {
     setNested(
@@ -154,9 +160,21 @@ function buildPayloadDynamic(
     );
 
   // area
-  setNested(payload, "location.area.totalArea", `${formState.location.area?.totalArea ?? ""} sqft`);
-  setNested(payload, "location.area.length", formState.location.area?.length ?? "");
-  setNested(payload, "location.area.width", `${formState.location.area?.width ?? ""} sqft`);
+  setNested(
+    payload,
+    "location.area.totalArea",
+    `${formState.location.area?.totalArea ?? ""} sqft`
+  );
+  setNested(
+    payload,
+    "location.area.length",
+    formState.location.area?.length ?? ""
+  );
+  setNested(
+    payload,
+    "location.area.width",
+    `${formState.location.area?.width ?? ""} sqft`
+  );
   setNested(payload, "location.area.acre", formState.location.area?.acre || 0);
 
   // floors
@@ -170,7 +188,7 @@ function buildPayloadDynamic(
   // accessibility – map selected chips → boolean object
   const restrictions = mapChipsToRestrictions(formState.selectedChips);
   setNested(payload, "restrictions", restrictions);
-  setNested(payload, "selectedChips", formState.selectedChips || []);  
+  setNested(payload, "selectedChips", formState.selectedChips || []);
   // misc
   setNested(payload, "status", "Pending");
   setNested(payload, "hasWell", formState.hasWell || false);
@@ -198,8 +216,7 @@ export const CreatePlotProperty = () => {
   const [email, setEmail] = useState("");
   const [phone1, setPhone1] = useState("");
   const [propertyType, setPropertyType] = useState<PropertyType>("Rent");
- 
-  
+
   const [title, setTitle] = useState("");
 
   const [rentAmount, setRentAmount] = useState<number>(0);
@@ -313,7 +330,6 @@ export const CreatePlotProperty = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("check first ");
     const validationErrors = validate();
     setErrors(validationErrors);
     if (Object.keys(validationErrors).length > 0) {
@@ -326,7 +342,7 @@ export const CreatePlotProperty = () => {
       ownerDetails: {
         firstName,
         lastName,
-        contact: { phone1, email }
+        contact: { phone1, email },
       },
       propertyType,
       title,
@@ -335,45 +351,48 @@ export const CreatePlotProperty = () => {
       rent: {
         rentAmount: 0,
         negotiable: false,
-        advanceAmount: 0,
-        agreementTiming: '',
+        advanceAmount: Number(advanceAmount) || 0,
+        agreementTiming: leaseTenure,
       },
       lease: {
-        leaseAmount: 0,
-        negotiable: false,
-        leaseTenure: '',
+        leaseAmount: rentAmount || 0,
+        negotiable,
+        leaseTenure,
       },
-      
+
       sale: {
-        saleAmount: 0,
-        negotiable: false,
+        saleAmount: rentAmount || 0,
+        negotiable,
       },
-      
-      
+
       location: {
         address,
+        landmark: "",
         map: {
           latitude: Number(latitude),
           longitude: Number(longitude),
+
         },
         area: {
-          totalArea: totalArea.toString(), 
+          totalArea: totalArea.toString(),
+          length: "",
+          width: "",
+          acre: 0,
         },
       },
-      
-      images: images.map(img => img.file),
+
+      images: images.map((img) => img.file),
       uploadedImages: images,
       totalFloors: Number(totalFloors) || 0,
       propertyFloor: Number(propertyFloor) || 0,
       selectedChips,
       status: "Pending",
-      isDeleted: false,
-      description: description ?? "",
+      description,
       hasWell: false,
       hasMotor: false,
       hasEBConnection: false,
       hasBorewell: false,
-      
+      isDeleted: false,
     };
 
     // Convert payload to object
@@ -454,7 +473,6 @@ export const CreatePlotProperty = () => {
 
       toast.error(`Failed to create property: ${errorMessage}`);
     }
-    console.log("check end ");
   };
 
   //TopOfCenter MUIAlertToast
@@ -602,7 +620,7 @@ export const CreatePlotProperty = () => {
                     {/* Property Type */}
                     <div className="col-md-6 mb-3">
                       <label className="TextLabel" htmlFor="propertyType">
-                        Plot Type
+                      Property Type
                       </label>
                       <InputField
                         type="dropdown"
@@ -614,6 +632,7 @@ export const CreatePlotProperty = () => {
                         }
                       />
                     </div>
+                    
                     {/* Plot Type */}
                     <div className="col-md-6 mb-3">
                       <label className="TextLabel" htmlFor="plotType">
@@ -984,7 +1003,7 @@ export const CreatePlotProperty = () => {
                               url: URL.createObjectURL(file),
                               name: file.name,
                               uploadedAt: new Date(),
-
+                              imageSize: file.size,
                             }));
 
                           if (validImages.length === 0) return;
