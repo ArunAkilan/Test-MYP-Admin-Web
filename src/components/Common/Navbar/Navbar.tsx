@@ -87,8 +87,7 @@ const Header: React.FC<HeaderProps> = ({
   //Socket IO
   const [notifications, setNotifications] = useState<Notification[]>([]);
   //@ts-ignore
-  useEffect(() => {
-    axios.get<Notification[]>(`${ENDPOINT}/api/notification`)
+   axios.get<Notification[]>(`${ENDPOINT}/api/notification`)
       .then(res => setNotifications(res.data));
 
     const sock = io(ENDPOINT);
@@ -97,8 +96,6 @@ const Header: React.FC<HeaderProps> = ({
       setNotifications(prev => [data, ...prev]);
     });
 
-    return () => sock.disconnect();
-  }, []);
   //Socket IO
 
   return (
