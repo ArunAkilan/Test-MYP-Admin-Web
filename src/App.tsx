@@ -7,10 +7,12 @@ import navbarLogo from "../src/assets/navbar/PRH_Admin-resize.svg"
 import Home from "./components/Dashboard/Dashboard";
 import "./App.scss";
 import { useEffect } from "react";
-import ViewProperty from "./components/Properties/viewProperties/viewProperty";
+import ViewProperty from "./components/Properties/viewProperties/ResidentialView/ResidentialViewProperty";
 import CreateProperty from "./components/Properties/properties";
 import CreateCommercialProperty from "./components/Properties/createProperties/Commercial/createCommercial";
-import CreatePlotProperty from "./components/Properties/createProperties/Plot/createPlot";
+// import CreatePlotProperty from "./components/Properties/createProperties/Plot/createPlot";
+import CommercialView from "../src/components/Properties/viewProperties/CommercialProperty/CommercialViewProperty"; // <-- import CommercialView here
+import PlotView from "./components/Properties/viewProperties/PlotView/PlotViewProperty";
 
 function AppRoutes() {
   const navigate = useNavigate();
@@ -22,16 +24,19 @@ function AppRoutes() {
   const openCreatePlotProperty =() => navigate('/plots/create');
 
   const location = useLocation();
+
+useEffect(() => {
   const noScrollRoutes = [
     "/dashboard", 
     "/commercial",
     "/residential",
     "/plots",
   ];
-  useEffect(() => {
-    const shouldHideScroll = noScrollRoutes.includes(location.pathname);
-    document.body.style.overflow = shouldHideScroll ? "hidden" : "auto";
-  }, [location.pathname]);
+
+  const shouldHideScroll = noScrollRoutes.includes(location.pathname);
+  document.body.style.overflow = shouldHideScroll ? "hidden" : "auto";
+}, [location.pathname]);
+
 
   return (
     <div className="app-container row">
@@ -56,10 +61,15 @@ function AppRoutes() {
             element={<Home properties="plots" onAddNew={openCreatePlotProperty} />}
           />
           <Route path="/commercial/create" element={<CreateCommercialProperty />} />
-          <Route path="/plots/create" element={<CreatePlotProperty />} />
+          {/* <Route path="/plots/create" element={<CreatePlotProperty />} /> */}
           <Route path="/residential/create" element={<CreateProperty />} />
+
+            {/* View Routes */}
           {/* <Route path="/plots/view" element={<ViewProperty />} /> */}
-          <Route path="/plots/view/:id" element={<ViewProperty />} />
+          <Route path="/plots/view/:id" element={<PlotView />} />
+          <Route path="/residential/view/:id" element={<ViewProperty />} />
+          <Route path="/commercial/view/:id" element={<CommercialView />} /> {/* Added CommercialView route */}
+
         </Routes>
       </div>
     </div>

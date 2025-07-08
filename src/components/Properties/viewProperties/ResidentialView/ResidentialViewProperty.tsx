@@ -1,6 +1,6 @@
-import type { ResidentialProperty } from "../../AdminResidencial/AdminResidencial.model";
+import type { ResidentialProperty } from "../../../AdminResidencial/AdminResidencial.model";
 import { useLocation } from "react-router-dom";
-import { DynamicBreadcrumbs } from "../../Common/input";
+import { DynamicBreadcrumbs } from "../../../Common/input";
 
 const ViewProperty = () => {
   const location = useLocation();
