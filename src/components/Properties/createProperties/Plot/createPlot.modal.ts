@@ -76,8 +76,10 @@ export interface SaleDetails {
 export interface UploadedImage {
   file: File;
   name: string;
-  preview?: string;
+  url: string;
+  imageSize?: number;
 }
+
 export interface PlotFormState {
   ownerDetails: OwnerDetails;
   location: Location;
@@ -94,9 +96,20 @@ export interface PlotFormState {
   hasEBConnection: boolean;
   hasBorewell: boolean;
   description: string;
-}
-export interface ExtendedPlotFormState extends PlotFormState {
   uploadedImages: UploadedImage[];
+  totalFloors: number;
+  propertyFloor: number;
+  selectedChips: string[];
+  status: string;
+  isDeleted: boolean;
+
+}
+
+export interface ExtendedPlotFormState extends PlotFormState {
+  totalFloors: number;
+  uploadedImages: UploadedImage[];
+
+  propertyFloor: number;
   selectedChips: string[];
   status: string;
   isDeleted: boolean;
