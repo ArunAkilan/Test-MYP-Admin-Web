@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Backdrop, CircularProgress } from "@mui/material";
-
 import axios from "axios";
 //import { useNavigate } from "react-router-dom";
 import "./Dashboard.scss";
@@ -92,7 +90,8 @@ function Home({ properties }: HomeProps) {
   const [open, setOpen] = React.useState(false);
  const [isSkeletonLoading, setIsSkeletonLoading] = useState(true);
   const location = useLocation();
-  console.log("propertyDataddd", location);
+  const [selectedPropertyType, setSelectedPropertyType] = useState<string | null>(null);
+  console.log("loadingBackdrop",loadingBackdrop)
  // NEW: Show Backdrop on successful create redirect
  useEffect(() => {
   if (location.state?.from === "residentialCreateSuccess") {
