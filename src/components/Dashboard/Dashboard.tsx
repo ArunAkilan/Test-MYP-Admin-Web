@@ -16,6 +16,7 @@ import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
 import { useNavigate } from "react-router-dom";
 import { CircularProgress, Typography, Alert } from "@mui/material";
+import Skeleton from "@mui/material/Skeleton";
 
 type PropertyType = "all" | "residentials" | "commercials" | "plots";
 
@@ -71,6 +72,7 @@ function Home({ properties }: HomeProps) {
   const [hideHeader, setHideHeader] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [open, setOpen] = React.useState(false);
+ const [isSkeletonLoading, setIsSkeletonLoading] = useState(true);
   const location = useLocation();
   console.log("propertyDataddd", location);
   const handleOpen = () => {
@@ -155,6 +157,16 @@ function Home({ properties }: HomeProps) {
     return () => window.removeEventListener("refreshTableData", handleRefresh);
   }, [properties]);
 
+    useEffect(() => {
+    // Simulate API delay
+    const timeout = setTimeout(() => {
+      // Here you should fetch actual data and set it
+      setIsSkeletonLoading(false);
+    }, 2000);
+
+    return () => clearTimeout(timeout);
+  }, []);
+
   if (loading) {
     return (
       <Box display="flex" alignItems="center" justifyContent="center" p={3}>
@@ -175,8 +187,6 @@ function Home({ properties }: HomeProps) {
       </Box>
     );
   }
-
-  console.log("dashboardData msg", dashboardData);
   const hasData =
     dashboardData.residential.length > 0 ||
     dashboardData.commercial.length > 0 ||
@@ -188,105 +198,133 @@ function Home({ properties }: HomeProps) {
 
   return (
     <div className="home-sec">
-      <div className={`new-post-wrap ${hideHeader ? "hide" : ""}`}>
-        <div className="container">
-          <div className="house-topic">
-            <div className="house-topic-content">
-              <h3>{heading}</h3>
-              <p>{para}</p>
+      {isSkeletonLoading ? (
+        // Entire component skeleton
+        <div style={{ padding: "20px" }}>
+          <Skeleton variant="rectangular" height={50} width="100%" />
+          <Skeleton
+            variant="text"
+            height={30}
+            width="80%"
+            style={{ marginTop: 16 }}
+          />
+          <Skeleton
+            variant="rectangular"
+            height={300}
+            width="100%"
+            style={{ marginTop: 24 }}
+          />
+          {[...Array(3)].map((_, i) => (
+            <div key={i} style={{ marginTop: 20 }}>
+              <Skeleton variant="rectangular" width="100%" height={120} />
+              <Skeleton variant="text" width="80%" />
+              <Skeleton variant="text" width="60%" />
             </div>
-            <div>
-              <GenericButton
-                variant="primary"
-                image={iconAdd}
-                iconPosition="left"
-                label={"Add New Property"}
-                className="genericNewPostStyles"
-                onClick={() => {
-                  // onAddNew?.();
-                  handleOpen();
-                  // navigate("/createResidential",
-                  //    { state: { mode: "create" } });
-                }}
-              />
-              <Modal
-                open={open}
-                onClose={handleClose}
-                aria-labelledby="modal-modal-title"
-                aria-describedby="modal-modal-description"
-              >
-                <Box sx={style}>
-                  <div className="property-option">
-                    <FormControl>
-                      <FormLabel id="demo-row-radio-buttons-group-label">
-                        Add New Property/ Plot
-                      </FormLabel>
-                      <RadioGroup
-                        row
-                        aria-labelledby="demo-row-radio-buttons-group-label"
-                        name="row-radio-buttons-group"
-                        value={selectedPropertyType}
-                        onChange={(e) =>
-                          setSelectedPropertyType(e.target.value)
-                        }
-                      >
-                        <FormControlLabel
-                          value="Commercial"
-                          control={<Radio />}
-                          label="Commercial"
-                        />
-                        <FormControlLabel
-                          value="Residential"
-                          control={<Radio />}
-                          label="Residential"
-                        />
-                        <FormControlLabel
-                          value="other"
-                          control={<Radio />}
-                          label="Plot"
-                        />
-                      </RadioGroup>
-                    </FormControl>
-                  </div>
+          ))}
+        </div>
+      ) : (
+        <div>
+          <div className={`new-post-wrap ${hideHeader ? "hide" : ""}`}>
+            <div className="container">
+              <div className="house-topic">
+                <div className="house-topic-content">
+                  <h3>{heading}</h3>
+                  <p>{para}</p>
+                </div>
+                <div>
                   <GenericButton
+                    variant="primary"
                     image={iconAdd}
                     iconPosition="left"
-                    label={"Continue"}
-                    className="genericContinueButton"
+                    label={"Add New Property"}
+                    className="genericNewPostStyles"
                     onClick={() => {
-                      if (selectedPropertyType === "Residential") {
-                        navigate("/residential/create", {
-                          state: { mode: "create" },
-                        });
-                      } else if (selectedPropertyType === "Commercial") {
-                        navigate("/commercial/create", {
-                          state: { mode: "create" },
-                        });
-                      } else if (selectedPropertyType === "other") {
-                        navigate("/plots/create", {
-                          state: { mode: "create" },
-                        });
-                      } else {
-                        alert("Please select a property type.");
-                      }
+                      // onAddNew?.();
+                      handleOpen();
+                      // navigate("/createResidential",
+                      //    { state: { mode: "create" } });
                     }}
                   />
-                </Box>
-              </Modal>
+                  <Modal
+                    open={open}
+                    onClose={handleClose}
+                    aria-labelledby="modal-modal-title"
+                    aria-describedby="modal-modal-description"
+                  >
+                    <Box sx={style}>
+                      <div className="property-option">
+                        <FormControl>
+                          <FormLabel id="demo-row-radio-buttons-group-label">
+                            Add New Property/ Plot
+                          </FormLabel>
+                          <RadioGroup
+                            row
+                            aria-labelledby="demo-row-radio-buttons-group-label"
+                            name="row-radio-buttons-group"
+                            value={selectedPropertyType}
+                            onChange={(e) =>
+                              setSelectedPropertyType(e.target.value)
+                            }
+                          >
+                            <FormControlLabel
+                              value="Commercial"
+                              control={<Radio />}
+                              label="Commercial"
+                            />
+                            <FormControlLabel
+                              value="Residential"
+                              control={<Radio />}
+                              label="Residential"
+                            />
+                            <FormControlLabel
+                              value="other"
+                              control={<Radio />}
+                              label="Plot"
+                            />
+                          </RadioGroup>
+                        </FormControl>
+                      </div>
+                      <GenericButton
+                        image={iconAdd}
+                        iconPosition="left"
+                        label={"Continue"}
+                        className="genericContinueButton"
+                        onClick={() => {
+                          if (selectedPropertyType === "Residential") {
+                            navigate("/residential/create", {
+                              state: { mode: "create" },
+                            });
+                          } else if (selectedPropertyType === "Commercial") {
+                            navigate("/commercial/create", {
+                              state: { mode: "create" },
+                            });
+                          } else if (selectedPropertyType === "other") {
+                            navigate("/plots/create", {
+                              state: { mode: "create" },
+                            });
+                          } else {
+                            alert("Please select a property type.");
+                          }
+                        }}
+                      />
+                    </Box>
+                  </Modal>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="container">
+            <div className="pending-approve">
+              <Dashboardtab
+                data={dashboardData}
+                properties={properties}
+                onScrollChangeParent={handleChildScroll}
+              />
             </div>
           </div>
         </div>
-      </div>
-
-      <div className="container">
-        <div className="pending-approve">
-          <Dashboardtab
-            data={dashboardData}
-            properties={properties}
-            onScrollChangeParent={handleChildScroll}
-          />
-        </div>
-      </div>
+      )}
     </div>
   );
 }

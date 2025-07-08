@@ -1,4 +1,4 @@
-// src/components/LogingPage/loginModules/MobileInput/input.tsx
+ // src/components/LogingPage/loginModules/MobileInput/input.tsx
 import * as React from "react";
 import {
   TextField,
@@ -19,6 +19,8 @@ import {
   Breadcrumbs,
   Link,
   Alert,
+  Backdrop,
+  CircularProgress,
 } from "@mui/material";
 import TextareaAutosize from "@mui/material/TextareaAutosize";
 import { styled } from "@mui/system";
@@ -27,7 +29,7 @@ import type { Theme } from "@mui/system";
 import Avatar from "@mui/material/Avatar";
 import type { SelectChangeEvent } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
-
+ 
 // ---------------- Types -------------------
 type InputType =
   | "text"
@@ -40,12 +42,12 @@ type InputType =
   | "number"
   | "checkbox"
   | "tel";
-
+ 
 interface BreadcrumbItem {
   label: string;
   href?: string;
 }
-
+ 
 interface InputFieldProps {
   id?: string;
   name?: string;
@@ -73,20 +75,22 @@ interface InputFieldProps {
   alertMessage?: string; // text inside the Alert
   alertAction?: React.ReactNode; // optional action (e.g. an <Undo /> button)
   onAlertClose?: () => void; // called when the ✕ is clicked
+  showBackdrop?: boolean;
+  onBackdropClose?: () => void;
 }
-
+ 
 // ---------------- Styles -------------------
 const grey = {
   300: "#C7D0DD",
   900: "#1C2025",
 };
-
+ 
 const blue = {
   200: "#b6daff",
   400: "#3399FF",
   600: "#0072E5",
 };
-
+ 
 const StyledTextarea = styled(TextareaAutosize)(
   ({ theme }: { theme: Theme }) => `
     width: 100%;
@@ -111,13 +115,13 @@ const StyledTextarea = styled(TextareaAutosize)(
     }
   `
 );
-
+ 
 // ---------------- Subcomponent: Breadcrumbs -------------------
 const DynamicBreadcrumbs = () => {
   const pathnames = location.pathname.split("/").filter((x) => x);
-  return(
-  <Stack spacing={2} sx={{ mb: 2 }}>
-    {/* <Breadcrumbs
+  return (
+    <Stack spacing={2} sx={{ mb: 2 }}>
+      {/* <Breadcrumbs
       separator={<NavigateNextIcon fontSize="small" />}
       aria-label="breadcrumb"
     >
@@ -142,37 +146,38 @@ const DynamicBreadcrumbs = () => {
         )
       )}
     </Breadcrumbs> */}
-    <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
-      {/* <Link underline="hover" color="inherit" component={RouterLink} to="/">
+      <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
+        {/* <Link underline="hover" color="inherit" component={RouterLink} to="/">
         Home
       </Link> */}
-      {pathnames.map((value, index) => {
-        const to = `/${pathnames.slice(0, index + 1).join("/")}`;
-        const isLast = index === pathnames.length - 1;
-        //const label = PATH_LABELS[value] || value;
-        const label = value;
-
-        return isLast ? (
-          <Typography color="text.primary" key={to}>
-            {label}
-          </Typography>
-        ) : (
-          <Link
-            underline="hover"
-            color="inherit"
-            component={RouterLink}
-            to={to}
-            key={to}
-            sx={{ textTransform: "capitalize" }}
-          >
-            {label}
-          </Link>
-        );
-      })}
-    </Breadcrumbs>
-  </Stack>
-)};
-
+        {pathnames.map((value, index) => {
+          const to = `/${pathnames.slice(0, index + 1).join("/")}`;
+          const isLast = index === pathnames.length - 1;
+          //const label = PATH_LABELS[value] || value;
+          const label = value;
+ 
+          return isLast ? (
+            <Typography color="text.primary" key={to}>
+              {label}
+            </Typography>
+          ) : (
+            <Link
+              underline="hover"
+              color="inherit"
+              component={RouterLink}
+              to={to}
+              key={to}
+              sx={{ textTransform: "capitalize" }}
+            >
+              {label}
+            </Link>
+          );
+        })}
+      </Breadcrumbs>
+    </Stack>
+  );
+};
+ 
 // ---------------- Component -------------------
 const InputField: React.FC<InputFieldProps> = ({
   id,
@@ -197,47 +202,52 @@ const InputField: React.FC<InputFieldProps> = ({
   alertMessage,
   alertAction,
   onAlertClose,
-
+  showBackdrop,
+  onBackdropClose,
 }) => {
+  const [backdropOpen, setBackdropOpen] = React.useState(false);
+  React.useEffect(() => {
+    if (showBackdrop !== undefined) {
+      setBackdropOpen(showBackdrop);
+    }
+  }, [showBackdrop]);
+ 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     if (onChange) onChange(e);
   };
-
+ 
   const handleSelectChange = (e: SelectChangeEvent<string>) => {
     if (onChange) {
       onChange(e as unknown as React.ChangeEvent<HTMLInputElement>);
     }
   };
-
+ 
   return (
     <div className="mb-3 d-flex flex-column">
-
       {/* ---------- Optional Alert ---------- */}
-    {alertMessage && (
-      <Stack sx={{ width: '100%', mb: 1 }} spacing={2}>
-        <Alert
-          severity={alertSeverity || 'info'}
-          {...(onAlertClose ? { onClose: onAlertClose } : {})}
-          action={alertAction}
-        >
-          {alertMessage}
-        </Alert>
-      </Stack>
-    )}
-
-      {/* ---------- Breadcrumbs ---------- */}
-      {breadcrumbs && breadcrumbs.length > 0 && (
-        <DynamicBreadcrumbs />
+      {alertMessage && (
+        <Stack sx={{ width: "100%", mb: 1 }} spacing={2}>
+          <Alert
+            severity={alertSeverity || "info"}
+            {...(onAlertClose ? { onClose: onAlertClose } : {})}
+            action={alertAction}
+          >
+            {alertMessage}
+          </Alert>
+        </Stack>
       )}
-
+ 
+      {/* ---------- Breadcrumbs ---------- */}
+      {breadcrumbs && breadcrumbs.length > 0 && <DynamicBreadcrumbs />}
+ 
       {label && type !== "radio" && type !== "chip" && (
         <label className="form-label" htmlFor={id}>
           {label}
         </label>
       )}
-
+ 
       {type === "text" && (
         <TextField
           fullWidth
@@ -254,7 +264,7 @@ const InputField: React.FC<InputFieldProps> = ({
           helperText={helperText}
         />
       )}
-
+ 
       {type === "email" && (
         <TextField
           fullWidth
@@ -271,7 +281,7 @@ const InputField: React.FC<InputFieldProps> = ({
           helperText={helperText}
         />
       )}
-
+ 
       {type === "textarea" && (
         <StyledTextarea
           id={id}
@@ -283,7 +293,7 @@ const InputField: React.FC<InputFieldProps> = ({
           className={className}
         />
       )}
-
+ 
       {type === "phone" && (
         <MuiTelInput
           value={typeof value === "string" ? value : ""}
@@ -306,7 +316,7 @@ const InputField: React.FC<InputFieldProps> = ({
           aria-label={ariaLabel}
         />
       )}
-
+ 
       {type === "dropdown" && (
         <FormControl fullWidth size="small" error={error}>
           <InputLabel id={`${id}-select-label`}>{label}</InputLabel>
@@ -332,7 +342,7 @@ const InputField: React.FC<InputFieldProps> = ({
           )}
         </FormControl>
       )}
-
+ 
       {type === "radio" && radioOptions && (
         <FormControl error={error}>
           <FormLabel id={`${id}-radio-label`}>{label}</FormLabel>
@@ -359,7 +369,7 @@ const InputField: React.FC<InputFieldProps> = ({
           )}
         </FormControl>
       )}
-
+ 
       {type === "chip" && icon && label && (
         <Stack direction="row" spacing={1}>
           {(() => {
@@ -381,7 +391,7 @@ const InputField: React.FC<InputFieldProps> = ({
                 }
                 // variant={selectedChips?.includes(label!) ? "filled" : "outlined"}
                 // color={selectedChips?.includes(label!) ? "primary" : "default"}
-
+ 
                 variant={isSelected ? "filled" : "outlined"}
                 color={isSelected ? "primary" : "default"}
                 onClick={() => onChipToggle && label && onChipToggle(label)}
@@ -406,10 +416,23 @@ const InputField: React.FC<InputFieldProps> = ({
           })()}
         </Stack>
       )}
+ 
+      {/* ---------- Backdrop ---------- */}
+      <Backdrop
+        sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
+        open={backdropOpen}
+        onClick={() => {
+          setBackdropOpen(false);
+          if (onBackdropClose) onBackdropClose();
+        }}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+     
     </div>
   );
 };
-
+ 
 // ---------------- Modal (unchanged) -------------------
 const style = {
   position: "absolute" as const,
@@ -422,12 +445,12 @@ const style = {
   boxShadow: 24,
   p: 4,
 };
-
+ 
 export function BasicModal() {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-
+ 
   return (
     <div>
       <Button onClick={handleOpen}>Open modal</Button>
@@ -449,5 +472,5 @@ export function BasicModal() {
     </div>
   );
 }
-
+ 
 export { InputField, DynamicBreadcrumbs };

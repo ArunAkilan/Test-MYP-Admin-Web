@@ -258,8 +258,8 @@ Props) {
                 style={{
                   maxHeight: "90%",
                   maxWidth: "90%",
-                  width: "720px",
-                  height: "580px",
+                  width: "100%",
+                  height: "100%",
                   objectFit: "contain",
                 }}
               />

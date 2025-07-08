@@ -27,7 +27,7 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 // import { debounce } from "lodash";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
-import Skeleton from "@mui/material/Skeleton";
+
 import Carousel from "../Carousel/carousel";
 import Popover from "@mui/material/Popover";
 import tickIcon from "../../../assets/table/Icon_Tick.svg";
@@ -40,6 +40,9 @@ import img1 from "../../../assets/dashboardtab/card-image.svg";
 import img2 from "../../../assets/Container_ImageHolder (2).png";
 import img3 from "../../../assets/Container_ImageHolder (1).png";
 import img4 from "../../../assets/Container_ImageHolder (3).png";
+import Backdrop from "@mui/material/Backdrop";
+import CircularProgress from "@mui/material/CircularProgress";
+
 type Property = {
   _id?: string;
   propertyType?: string;
@@ -49,12 +52,7 @@ type Property = {
   };
   [key: string]: any;
 };
-const images = [
-  img1,
-  img2,
-  img3,
-  img4
-];
+const images = [img1, img2, img3, img4];
 type PropertyData = {
   residential: Property[];
   commercial: Property[];
@@ -129,12 +127,12 @@ export default function Dashboardtab({
   const [alignment, setAlignment] = React.useState("List View");
   const [isExpanded, setIsExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<
     "Approve" | "Deny" | "Delete" | null
   >(null);
   const [selectedItem, setSelectedItem] = useState<PropertyItem | null>(null);
+  const [isBackdropLoading, setIsBackdropLoading] = useState(false);
 
   //const currentStatus = statusByTab[value];
   const filterOptions = {
@@ -580,16 +578,6 @@ export default function Dashboardtab({
         rent: item.rent ?? {},
       }));
 
-  useEffect(() => {
-    // Simulate API delay
-    const timeout = setTimeout(() => {
-      // Here you should fetch actual data and set it
-      setIsLoading(false);
-    }, 2000);
-
-    return () => clearTimeout(timeout);
-  }, []);
-
   // handlemodal
   const handleOpenModal = (
     action: "Approve" | "Deny" | "Delete",
@@ -647,641 +635,615 @@ export default function Dashboardtab({
 
   const handleConfirmAction = async (id: string, status: number) => {
     try {
+      setIsBackdropLoading(true);
       await handleAction(id, status);
       handleCloseModal();
       window.dispatchEvent(new Event("refreshTableData"));
     } catch (e) {
       console.error("Error performing action:", e);
-    }
+    } finally {
+    setIsBackdropLoading(false); // ✅ hide loading
+  }
   };
 
+  const handleConfirmButtonClick =  () => {
+    if (!selectedItem?._id || !selectedAction) return;
+    const statusCode = { Approve: 1, Deny: 0, Delete: 2 }[selectedAction];
+    handleConfirmAction(selectedItem._id, statusCode);
+    };
   return (
     <div id="pending-approval-tab">
-      {isLoading ? (
-        // Entire component skeleton
-        <div style={{ padding: "20px" }}>
-          <Skeleton variant="rectangular" height={50} width="100%" />
-          <Skeleton
-            variant="text"
-            height={30}
-            width="80%"
-            style={{ marginTop: 16 }}
-          />
-          <Skeleton
-            variant="rectangular"
-            height={300}
-            width="100%"
-            style={{ marginTop: 24 }}
-          />
-          {[...Array(3)].map((_, i) => (
-            <div key={i} style={{ marginTop: 20 }}>
-              <Skeleton variant="rectangular" width="100%" height={120} />
-              <Skeleton variant="text" width="80%" />
-              <Skeleton variant="text" width="60%" />
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div>
-          <Box
+      <div>
+        <Box
+          sx={{
+            //display: hideHeader ? "block" : "none",
+            position: hideHeader ? "fixed" : "static",
+            zIndex: "99",
+            width: hideHeader ? "66%" : "100%",
+            backgroundColor: "#ffffff",
+            top: hideHeader ? "0px" : "124px",
+          }}
+        >
+          <Tabs
+            value={value}
+            onChange={handleChange}
+            aria-label="basic tabs example"
             sx={{
-              //display: hideHeader ? "block" : "none",
-              position: hideHeader ? "fixed" : "static",
-              zIndex: "99",
-              width: hideHeader ? "66%" : "100%",
-              backgroundColor: "#ffffff",
-              top: hideHeader ? "0px" : "124px",
+              paddingBottom: hideHeader ? "0" : "24px",
+              display: hideHeader ? "block" : "true",
             }}
+            id="pending-approval-tabs-wrap"
           >
-            <Tabs
-              value={value}
-              onChange={handleChange}
-              aria-label="basic tabs example"
-              sx={{
-                paddingBottom: hideHeader ? "0" : "24px",
-                display: hideHeader ? "block" : "true",
-              }}
-              id="pending-approval-tabs-wrap"
-            >
-              <Tab
-                label={
-                  <React.Fragment>
-                    Pending &nbsp;
-                    {value !== 0 && (
-                      <span style={{ fontSize: "smaller" }}>
-                        ({handlePendingCount})
-                      </span>
-                    )}
-                  </React.Fragment>
-                }
-                {...a11yProps(0)}
-                icon={<Avatar alt="test avatar" src="/pending-action.svg" />}
-                iconPosition="start"
-              />
+            <Tab
+              label={
+                <React.Fragment>
+                  Pending &nbsp;
+                  {value !== 0 && (
+                    <span style={{ fontSize: "smaller" }}>
+                      ({handlePendingCount})
+                    </span>
+                  )}
+                </React.Fragment>
+              }
+              {...a11yProps(0)}
+              icon={<Avatar alt="test avatar" src="/pending-action.svg" />}
+              iconPosition="start"
+            />
 
-              <Tab
-                label={
-                  <React.Fragment>
-                    Approved &nbsp;
-                    {value !== 1 && (
-                      <span style={{ fontSize: "smaller" }}>
-                        ({handleApprovedCount})
-                      </span>
-                    )}
-                  </React.Fragment>
-                }
-                {...a11yProps(1)}
-                icon={<Avatar alt="test avatar" src="/pending-approval.svg" />}
-                iconPosition="start"
-              />
+            <Tab
+              label={
+                <React.Fragment>
+                  Approved &nbsp;
+                  {value !== 1 && (
+                    <span style={{ fontSize: "smaller" }}>
+                      ({handleApprovedCount})
+                    </span>
+                  )}
+                </React.Fragment>
+              }
+              {...a11yProps(1)}
+              icon={<Avatar alt="test avatar" src="/pending-approval.svg" />}
+              iconPosition="start"
+            />
 
-              <Tab
-                label={
-                  <React.Fragment>
-                    Rejected &nbsp;
-                    {value !== 2 && (
-                      <span style={{ fontSize: "smaller" }}>
-                        ({handleRejectedCount})
-                      </span>
-                    )}
-                  </React.Fragment>
-                }
-                {...a11yProps(2)}
-                icon={<Avatar alt="test avatar" src="/pending-reject.svg" />}
-                iconPosition="start"
-              />
+            <Tab
+              label={
+                <React.Fragment>
+                  Rejected &nbsp;
+                  {value !== 2 && (
+                    <span style={{ fontSize: "smaller" }}>
+                      ({handleRejectedCount})
+                    </span>
+                  )}
+                </React.Fragment>
+              }
+              {...a11yProps(2)}
+              icon={<Avatar alt="test avatar" src="/pending-reject.svg" />}
+              iconPosition="start"
+            />
 
-              <Tab
-                label={
-                  <React.Fragment>
-                    Deleted &nbsp;
-                    {value !== 3 && (
-                      <span style={{ fontSize: "smaller" }}>
-                        ({handleDeletedCount})
-                      </span>
-                    )}
-                  </React.Fragment>
-                }
-                {...a11yProps(3)}
-                icon={<Avatar alt="test avatar" src="/pending-delete.svg" />}
-                iconPosition="start"
-              />
-            </Tabs>
-            <CustomTabPanel value={value} index={0}>
-              <div className="new-listing-wrap">
-                <div className="container">
-                  <div className="new-listing">
-                    <div className="new-listing-wrap-list">
-                      {!isExpanded && (
-                        <h3 className="result">
-                          <span className="resultCount">{getResultCount}</span>{" "}
-                          Filtered Results
-                        </h3>
-                      )}
-                      {checkListCount !== 0 && (
-                        <button
-                          className="clear-btn"
-                          onClick={() => {
-                            filterResetFunction();
-                          }}
-                        >
-                          <img
-                            src="../src/assets/dashboardtab/ic_round-clear-16.svg"
-                            alt="close icon"
-                          />
-                          Clear Filter
-                        </button>
-                      )}
-                    </div>
-
-                    <div className="list-panel">
-                      <div className="search">
-                        <input
-                          type="search"
-                          placeholder="Search Properties"
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          disabled
-                        />
-                        <img src="Search-1.svg" alt="search svg" />
-                      </div>
-                      <div className="list-card-toggle">
-                        <ToggleButtonGroup
-                          color="primary"
-                          value={alignment}
-                          exclusive
-                          onChange={handleChangeSwitch}
-                          aria-label="Platform"
-                        >
-                          <ToggleButton value="List View">
-                            <img
-                              src="../src/assets/dashboardtab/solar_list-linear.svg"
-                              alt="list-view"
-                            />
-                            List View
-                          </ToggleButton>
-                          <ToggleButton value="Card View">
-                            <img
-                              src="../src/assets/dashboardtab/system-uicons_card-view.svg"
-                              alt="card-view"
-                            />
-                            Card View
-                          </ToggleButton>
-                        </ToggleButtonGroup>
-                      </div>
-                      <div className="filter-link color-edit">
-                        <Button
-                          className="filter-text"
-                          aria-describedby={id}
-                          // onClick={handleClick}
-                          onClick={toggleDrawer(true)}
-                        >
-                          <img
-                            src="majesticons_filter-line.svg"
-                            alt="filter img"
-                          />
-                          Filter {checkListCount}
-                        </Button>
-                      </div>
-                      {alignment === "Card View" && (
-                        <div className="sort-link color-edit">
-                          <Button className="filter-text" aria-describedby={id}>
-                            <img
-                              src="material-symbols_sort-rounded.svg"
-                              alt="filter img"
-                            />
-                            Sort
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CustomTabPanel>
-            <CustomTabPanel value={value} index={1}>
-              <div className="new-listing-wrap">
-                <div className="container">
-                  <div className="new-listing">
-                    <div className="new-listing-wrap-list">
-                      {!isExpanded && (
-                        <h3 className="result">
-                          <span className="resultCount">{getResultCount}</span>{" "}
-                          Results
-                        </h3>
-                      )}
-                    </div>
-
-                    <div className="list-panel">
-                      <div
-                        onClick={() => setIsExpanded(true)}
-                        className={`search ${isExpanded ? "active" : ""}`}
-                      >
-                        <input type="search" placeholder="Search Properties" />
-                        <img src="Search-1.svg" alt="search svg" />
-                      </div>
-                      <div className="list-card-toggle">
-                        <ToggleButtonGroup
-                          color="primary"
-                          value={alignment}
-                          exclusive
-                          onChange={handleChangeSwitch}
-                          aria-label="Platform"
-                        >
-                          <ToggleButton value="List View">
-                            <img
-                              src="../src/assets/dashboardtab/solar_list-linear.svg"
-                              alt="list-view"
-                            />
-                            List View
-                          </ToggleButton>
-                          <ToggleButton value="Card View">
-                            <img
-                              src="../src/assets/dashboardtab/system-uicons_card-view.svg"
-                              alt="card-view"
-                            />
-                            Card View
-                          </ToggleButton>
-                        </ToggleButtonGroup>
-                      </div>
-                      <div className="filter-link color-edit">
-                        <Button
-                          className="filter-text"
-                          aria-describedby={id}
-                          // onClick={handleClick}
-                          onClick={toggleDrawer(true)}
-                        >
-                          <img
-                            src="majesticons_filter-line.svg"
-                            alt="filter img"
-                          />
-                          Filter {checkListCount}
-                        </Button>
-                      </div>
-                      {alignment === "Card View" && (
-                        <div className="sort-link color-edit">
-                          <Button className="filter-text" aria-describedby={id}>
-                            <img
-                              src="material-symbols_sort-rounded.svg"
-                              alt="filter img"
-                            />
-                            Sort
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CustomTabPanel>
-            <CustomTabPanel value={value} index={2}>
-              <div className="new-listing-wrap">
-                <div className="container">
-                  <div className="new-listing">
-                    <div className="new-listing-wrap-list">
-                      {!isExpanded && (
-                        <h3 className="result">
-                          <span className="resultCount">{getResultCount}</span>{" "}
-                          Results
-                        </h3>
-                      )}
-                    </div>
-
-                    <div className="list-panel">
-                      <div
-                        onClick={() => setIsExpanded(true)}
-                        className={`search ${isExpanded ? "active" : ""}`}
-                      >
-                        <input type="search" placeholder="Search Properties" />
-                        <img src="Search-1.svg" alt="search svg" />
-                      </div>
-                      <div className="list-card-toggle">
-                        <ToggleButtonGroup
-                          color="primary"
-                          value={alignment}
-                          exclusive
-                          onChange={handleChangeSwitch}
-                          aria-label="Platform"
-                        >
-                          <ToggleButton value="List View">
-                            <img
-                              src="../src/assets/dashboardtab/solar_list-linear.svg"
-                              alt="list-view"
-                            />
-                            List View
-                          </ToggleButton>
-                          <ToggleButton value="Card View">
-                            <img
-                              src="../src/assets/dashboardtab/system-uicons_card-view.svg"
-                              alt="card-view"
-                            />
-                            Card View
-                          </ToggleButton>
-                        </ToggleButtonGroup>
-                      </div>
-                      <div className="filter-link color-edit">
-                        <Button
-                          className="filter-text"
-                          aria-describedby={id}
-                          // onClick={handleClick}
-                          onClick={toggleDrawer(true)}
-                        >
-                          <img
-                            src="majesticons_filter-line.svg"
-                            alt="filter img"
-                          />
-                          Filter {checkListCount}
-                        </Button>
-                      </div>
-                      {alignment === "Card View" && (
-                        <div className="sort-link color-edit">
-                          <Button className="filter-text" aria-describedby={id}>
-                            <img
-                              src="material-symbols_sort-rounded.svg"
-                              alt="filter img"
-                            />
-                            Sort
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CustomTabPanel>
-            <CustomTabPanel value={value} index={3}>
-              <div className="new-listing-wrap">
-                <div className="container">
-                  <div className="new-listing">
-                    <div className="new-listing-wrap-list">
-                      {!isExpanded && (
-                        <h3 className="result">
-                          <span className="resultCount">{getResultCount}</span>{" "}
-                          Results
-                        </h3>
-                      )}
-                    </div>
-
-                    <div className="list-panel">
-                      <div
-                        onClick={() => setIsExpanded(true)}
-                        className={`search ${isExpanded ? "active" : ""}`}
-                      >
-                        <input type="search" placeholder="Search Properties" />
-                        <img src="Search-1.svg" alt="search svg" />
-                      </div>
-                      <div className="list-card-toggle">
-                        <ToggleButtonGroup
-                          color="primary"
-                          value={alignment}
-                          exclusive
-                          onChange={handleChangeSwitch}
-                          aria-label="Platform"
-                        >
-                          <ToggleButton value="List View">
-                            <img
-                              src="../src/assets/dashboardtab/solar_list-linear.svg"
-                              alt="list-view"
-                            />
-                            List View
-                          </ToggleButton>
-                          <ToggleButton value="Card View">
-                            <img
-                              src="../src/assets/dashboardtab/system-uicons_card-view.svg"
-                              alt="card-view"
-                            />
-                            Card View
-                          </ToggleButton>
-                        </ToggleButtonGroup>
-                      </div>
-                      <div className="filter-link color-edit">
-                        <Button
-                          className="filter-text"
-                          aria-describedby={id}
-                          // onClick={handleClick}
-                          onClick={toggleDrawer(true)}
-                        >
-                          <img
-                            src="majesticons_filter-line.svg"
-                            alt="filter img"
-                          />
-                          Filter {checkListCount}
-                        </Button>
-                      </div>
-                      {alignment === "Card View" && (
-                        <div className="sort-link color-edit">
-                          <Button className="filter-text" aria-describedby={id}>
-                            <img
-                              src="material-symbols_sort-rounded.svg"
-                              alt="filter img"
-                            />
-                            Sort
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CustomTabPanel>
-            
-            {open && selectedItem && selectedAction && (
-              <Modal
-                open={open}
-                onClose={() => setOpen(false)}
-                aria-labelledby="modal-modal-title"
-                aria-describedby="modal-modal-description"
-              >
-                <Box sx={modalStyle}>
-                  <img src={imageMap[selectedAction]} alt="action icon" />
-                  <Typography
-                    id="modal-modal-title"
-                    variant="h6"
-                    component="h2"
-                  >
-                    Confirm {selectedAction}
-                  </Typography>
-                  <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                    Are you sure you want to {selectedAction.toLowerCase()} the
-                    listing <strong>{selectedItem?.location?.address}</strong>?
-                  </Typography>
-
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => {
-                      if (!selectedItem?._id || !selectedAction) return;
-                      const statusCode = { Approve: 1, Deny: 0, Delete: 2 }[
-                        selectedAction
-                      ];
-                      handleConfirmAction(selectedItem._id, statusCode);
-                    }}
-                  >
-                    Confirm
-                  </Button>
-                  <Button variant="outlined" onClick={handleCloseModal}>
-                    Cancel
-                  </Button>
-                </Box>
-              </Modal>
-            )}
-          </Box>
-        </div>
-      )}
+            <Tab
+              label={
+                <React.Fragment>
+                  Deleted &nbsp;
+                  {value !== 3 && (
+                    <span style={{ fontSize: "smaller" }}>
+                      ({handleDeletedCount})
+                    </span>
+                  )}
+                </React.Fragment>
+              }
+              {...a11yProps(3)}
+              icon={<Avatar alt="test avatar" src="/pending-delete.svg" />}
+              iconPosition="start"
+            />
+          </Tabs>
           <CustomTabPanel value={value} index={0}>
-            {!cardView ? (
-              <Table
-                data={tableValues}
-                properties={properties}
-                onScrollChange={handleChildScroll}
-                handleOpenModal={handleOpenModal}
-              />
-            ) : (
-              <PropertyCardList
-                formatData={formatData}
-                properties={tableValues}
-                onScrollChange={handleChildScroll}
-                handleOpenModal={handleOpenModal}
-              />
-            )}
-          </CustomTabPanel>
-
-          <CustomTabPanel value={value} index={1}>
-            {!cardView ? (
-              <Table
-                data={tableValues}
-                properties={properties}
-                onScrollChange={handleChildScroll}
-                handleOpenModal={handleOpenModal}
-              />
-            ) : (
-              <PropertyCardList
-                properties={tableValues}
-                onScrollChange={handleChildScroll}
-                formatData={formatData}
-                handleOpenModal={handleOpenModal}
-              />
-            )}
-          </CustomTabPanel>
-
-          <CustomTabPanel value={value} index={2}>
-            {!cardView ? (
-              <Table
-                data={tableValues}
-                properties={properties}
-                onScrollChange={handleChildScroll}
-                handleOpenModal={handleOpenModal}
-              />
-            ) : (
-              <PropertyCardList
-                properties={tableValues}
-                onScrollChange={handleChildScroll}
-                formatData={formatData}
-                handleOpenModal={handleOpenModal}
-              />
-            )}
-          </CustomTabPanel>
-
-          <CustomTabPanel value={value} index={3}>
-            {!cardView ? (
-              <Table
-                data={tableValues}
-                properties={properties}
-                onScrollChange={handleChildScroll}
-                handleOpenModal={handleOpenModal}
-              />
-            ) : (
-              <PropertyCardList
-                properties={tableValues}
-                onScrollChange={handleChildScroll}
-                formatData={formatData}
-                handleOpenModal={handleOpenModal}
-              />
-            )}
-          </CustomTabPanel>
-
-          <Drawer
-            anchor="right"
-            open={drawerOpen}
-            onClose={toggleDrawer(false)}
-          >
-            <div className="filter-div-wrapper">
-              <div className="filter-header">
-                <p>
-                  <img
-                    src="../src/assets/dashboardtab/icon-park-outline_down.svg"
-                    alt="icon park"
-                    style={{ cursor: "pointer" }}
-                    onClick={() => setDrawerOpen(false)}
-                  />
-                  &nbsp; Filter By
-                </p>
-                <p className="filtercount">
-                  ({checkListCount}) Filter{checkListCount !== 1 ? "s" : ""}
-                </p>
-              </div>
-              <div className="checklist-content row">
-                {(
-                  filterOptions[properties === "all" ? "all" : properties] ?? []
-                ).map((section: any, index: any) => (
-                  <div className="checklist-list col-md-12" key={index}>
-                    <Accordion>
-                      <AccordionSummary
-                        expandIcon={<ExpandMoreIcon />}
-                        aria-controls="panel1-content"
-                        id="panel1-header"
+            <div className="new-listing-wrap">
+              <div className="container">
+                <div className="new-listing">
+                  <div className="new-listing-wrap-list">
+                    {!isExpanded && (
+                      <h3 className="result">
+                        <span className="resultCount">{getResultCount}</span>{" "}
+                        Filtered Results
+                      </h3>
+                    )}
+                    {checkListCount !== 0 && (
+                      <button
+                        className="clear-btn"
+                        onClick={() => {
+                          filterResetFunction();
+                        }}
                       >
-                        <Typography variant="h6">{section.heading}</Typography>
-                      </AccordionSummary>
-
-                      <AccordionDetails key={resetCounter}>
-                        <div className="label-wrapper">
-                          {section.options.map((opt: any, i: any) => (
-                            <FormControlLabel
-                              key={i}
-                              control={
-                                <Checkbox
-                                  checked={currentCheckList.includes(opt)}
-                                  onChange={() => handleCheckboxChange(opt)}
-                                  inputProps={{ "aria-label": opt }}
-                                />
-                              }
-                              label={opt}
-                            />
-                          ))}
-                        </div>
-                      </AccordionDetails>
-                    </Accordion>
+                        <img
+                          src="../src/assets/dashboardtab/ic_round-clear-16.svg"
+                          alt="close icon"
+                        />
+                        Clear Filter
+                      </button>
+                    )}
                   </div>
-                ))}
-              </div>
-              <div className="apply-reset-btn">
-                <button
-                  className="clear-btn"
-                  onClick={() => {
-                    filterResetFunction();
-                  }}
-                >
-                  <img
-                    src="../src/assets/dashboardtab/ic_round-clear-24.svg"
-                    alt="close icon"
-                  />
-                  Clear
-                </button>
-                <GenericButton
-                  image={filterTick}
-                  iconPosition="left"
-                  label={"Apply"}
-                  className="genericFilterApplyStyles"
-                  onClick={() => {
-                    handleApply(); // your filter logic
-                    setDrawerOpen(false); // closes the drawer
-                  }}
-                />
+
+                  <div className="list-panel">
+                    <div className="search">
+                      <input
+                        type="search"
+                        placeholder="Search Properties"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        disabled
+                      />
+                      <img src="Search-1.svg" alt="search svg" />
+                    </div>
+                    <div className="list-card-toggle">
+                      <ToggleButtonGroup
+                        color="primary"
+                        value={alignment}
+                        exclusive
+                        onChange={handleChangeSwitch}
+                        aria-label="Platform"
+                      >
+                        <ToggleButton value="List View">
+                          <img
+                            src="../src/assets/dashboardtab/solar_list-linear.svg"
+                            alt="list-view"
+                          />
+                          List View
+                        </ToggleButton>
+                        <ToggleButton value="Card View">
+                          <img
+                            src="../src/assets/dashboardtab/system-uicons_card-view.svg"
+                            alt="card-view"
+                          />
+                          Card View
+                        </ToggleButton>
+                      </ToggleButtonGroup>
+                    </div>
+                    <div className="filter-link color-edit">
+                      <Button
+                        className="filter-text"
+                        aria-describedby={id}
+                        // onClick={handleClick}
+                        onClick={toggleDrawer(true)}
+                      >
+                        <img
+                          src="majesticons_filter-line.svg"
+                          alt="filter img"
+                        />
+                        Filter {checkListCount}
+                      </Button>
+                    </div>
+                    {alignment === "Card View" && (
+                      <div className="sort-link color-edit">
+                        <Button className="filter-text" aria-describedby={id}>
+                          <img
+                            src="material-symbols_sort-rounded.svg"
+                            alt="filter img"
+                          />
+                          Sort
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
-          </Drawer>
-       
+          </CustomTabPanel>
+          <CustomTabPanel value={value} index={1}>
+            <div className="new-listing-wrap">
+              <div className="container">
+                <div className="new-listing">
+                  <div className="new-listing-wrap-list">
+                    {!isExpanded && (
+                      <h3 className="result">
+                        <span className="resultCount">{getResultCount}</span>{" "}
+                        Results
+                      </h3>
+                    )}
+                  </div>
+
+                  <div className="list-panel">
+                    <div
+                      onClick={() => setIsExpanded(true)}
+                      className={`search ${isExpanded ? "active" : ""}`}
+                    >
+                      <input type="search" placeholder="Search Properties" />
+                      <img src="Search-1.svg" alt="search svg" />
+                    </div>
+                    <div className="list-card-toggle">
+                      <ToggleButtonGroup
+                        color="primary"
+                        value={alignment}
+                        exclusive
+                        onChange={handleChangeSwitch}
+                        aria-label="Platform"
+                      >
+                        <ToggleButton value="List View">
+                          <img
+                            src="../src/assets/dashboardtab/solar_list-linear.svg"
+                            alt="list-view"
+                          />
+                          List View
+                        </ToggleButton>
+                        <ToggleButton value="Card View">
+                          <img
+                            src="../src/assets/dashboardtab/system-uicons_card-view.svg"
+                            alt="card-view"
+                          />
+                          Card View
+                        </ToggleButton>
+                      </ToggleButtonGroup>
+                    </div>
+                    <div className="filter-link color-edit">
+                      <Button
+                        className="filter-text"
+                        aria-describedby={id}
+                        // onClick={handleClick}
+                        onClick={toggleDrawer(true)}
+                      >
+                        <img
+                          src="majesticons_filter-line.svg"
+                          alt="filter img"
+                        />
+                        Filter {checkListCount}
+                      </Button>
+                    </div>
+                    {alignment === "Card View" && (
+                      <div className="sort-link color-edit">
+                        <Button className="filter-text" aria-describedby={id}>
+                          <img
+                            src="material-symbols_sort-rounded.svg"
+                            alt="filter img"
+                          />
+                          Sort
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CustomTabPanel>
+          <CustomTabPanel value={value} index={2}>
+            <div className="new-listing-wrap">
+              <div className="container">
+                <div className="new-listing">
+                  <div className="new-listing-wrap-list">
+                    {!isExpanded && (
+                      <h3 className="result">
+                        <span className="resultCount">{getResultCount}</span>{" "}
+                        Results
+                      </h3>
+                    )}
+                  </div>
+
+                  <div className="list-panel">
+                    <div
+                      onClick={() => setIsExpanded(true)}
+                      className={`search ${isExpanded ? "active" : ""}`}
+                    >
+                      <input type="search" placeholder="Search Properties" />
+                      <img src="Search-1.svg" alt="search svg" />
+                    </div>
+                    <div className="list-card-toggle">
+                      <ToggleButtonGroup
+                        color="primary"
+                        value={alignment}
+                        exclusive
+                        onChange={handleChangeSwitch}
+                        aria-label="Platform"
+                      >
+                        <ToggleButton value="List View">
+                          <img
+                            src="../src/assets/dashboardtab/solar_list-linear.svg"
+                            alt="list-view"
+                          />
+                          List View
+                        </ToggleButton>
+                        <ToggleButton value="Card View">
+                          <img
+                            src="../src/assets/dashboardtab/system-uicons_card-view.svg"
+                            alt="card-view"
+                          />
+                          Card View
+                        </ToggleButton>
+                      </ToggleButtonGroup>
+                    </div>
+                    <div className="filter-link color-edit">
+                      <Button
+                        className="filter-text"
+                        aria-describedby={id}
+                        // onClick={handleClick}
+                        onClick={toggleDrawer(true)}
+                      >
+                        <img
+                          src="majesticons_filter-line.svg"
+                          alt="filter img"
+                        />
+                        Filter {checkListCount}
+                      </Button>
+                    </div>
+                    {alignment === "Card View" && (
+                      <div className="sort-link color-edit">
+                        <Button className="filter-text" aria-describedby={id}>
+                          <img
+                            src="material-symbols_sort-rounded.svg"
+                            alt="filter img"
+                          />
+                          Sort
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CustomTabPanel>
+          <CustomTabPanel value={value} index={3}>
+            <div className="new-listing-wrap">
+              <div className="container">
+                <div className="new-listing">
+                  <div className="new-listing-wrap-list">
+                    {!isExpanded && (
+                      <h3 className="result">
+                        <span className="resultCount">{getResultCount}</span>{" "}
+                        Results
+                      </h3>
+                    )}
+                  </div>
+
+                  <div className="list-panel">
+                    <div
+                      onClick={() => setIsExpanded(true)}
+                      className={`search ${isExpanded ? "active" : ""}`}
+                    >
+                      <input type="search" placeholder="Search Properties" />
+                      <img src="Search-1.svg" alt="search svg" />
+                    </div>
+                    <div className="list-card-toggle">
+                      <ToggleButtonGroup
+                        color="primary"
+                        value={alignment}
+                        exclusive
+                        onChange={handleChangeSwitch}
+                        aria-label="Platform"
+                      >
+                        <ToggleButton value="List View">
+                          <img
+                            src="../src/assets/dashboardtab/solar_list-linear.svg"
+                            alt="list-view"
+                          />
+                          List View
+                        </ToggleButton>
+                        <ToggleButton value="Card View">
+                          <img
+                            src="../src/assets/dashboardtab/system-uicons_card-view.svg"
+                            alt="card-view"
+                          />
+                          Card View
+                        </ToggleButton>
+                      </ToggleButtonGroup>
+                    </div>
+                    <div className="filter-link color-edit">
+                      <Button
+                        className="filter-text"
+                        aria-describedby={id}
+                        // onClick={handleClick}
+                        onClick={toggleDrawer(true)}
+                      >
+                        <img
+                          src="majesticons_filter-line.svg"
+                          alt="filter img"
+                        />
+                        Filter {checkListCount}
+                      </Button>
+                    </div>
+                    {alignment === "Card View" && (
+                      <div className="sort-link color-edit">
+                        <Button className="filter-text" aria-describedby={id}>
+                          <img
+                            src="material-symbols_sort-rounded.svg"
+                            alt="filter img"
+                          />
+                          Sort
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CustomTabPanel>
+
+          {open && selectedItem && selectedAction && (
+            <Modal
+              open={open}
+              onClose={() => setOpen(false)}
+              aria-labelledby="modal-modal-title"
+              aria-describedby="modal-modal-description"
+            >
+              <Box sx={modalStyle}>
+                <img src={imageMap[selectedAction]} alt="action icon" />
+                <Typography id="modal-modal-title" variant="h6" component="h2">
+                  Confirm {selectedAction}
+                </Typography>
+                <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                  Are you sure you want to {selectedAction.toLowerCase()} the
+                  listing <strong>{selectedItem?.location?.address}</strong>?
+                </Typography>
+
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleConfirmButtonClick}
+                >
+                  Confirm
+                </Button>
+                <Button variant="outlined" onClick={handleCloseModal}>
+                  Cancel
+                </Button>
+              </Box>
+            </Modal>
+          )}
+        </Box>
+        <Backdrop
+          sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+          open={isBackdropLoading}
+        >
+          <CircularProgress color="inherit" />
+        </Backdrop>
+      </div>
+
+      <CustomTabPanel value={value} index={0}>
+        {!cardView ? (
+          <Table
+            data={tableValues}
+            properties={properties}
+            onScrollChange={handleChildScroll}
+            handleOpenModal={handleOpenModal}
+          />
+        ) : (
+          <PropertyCardList
+            formatData={formatData}
+            properties={tableValues}
+            onScrollChange={handleChildScroll}
+            handleOpenModal={handleOpenModal}
+          />
+        )}
+      </CustomTabPanel>
+
+      <CustomTabPanel value={value} index={1}>
+        {!cardView ? (
+          <Table
+            data={tableValues}
+            properties={properties}
+            onScrollChange={handleChildScroll}
+            handleOpenModal={handleOpenModal}
+          />
+        ) : (
+          <PropertyCardList
+            properties={tableValues}
+            onScrollChange={handleChildScroll}
+            formatData={formatData}
+            handleOpenModal={handleOpenModal}
+          />
+        )}
+      </CustomTabPanel>
+
+      <CustomTabPanel value={value} index={2}>
+        {!cardView ? (
+          <Table
+            data={tableValues}
+            properties={properties}
+            onScrollChange={handleChildScroll}
+            handleOpenModal={handleOpenModal}
+          />
+        ) : (
+          <PropertyCardList
+            properties={tableValues}
+            onScrollChange={handleChildScroll}
+            formatData={formatData}
+            handleOpenModal={handleOpenModal}
+          />
+        )}
+      </CustomTabPanel>
+
+      <CustomTabPanel value={value} index={3}>
+        {!cardView ? (
+          <Table
+            data={tableValues}
+            properties={properties}
+            onScrollChange={handleChildScroll}
+            handleOpenModal={handleOpenModal}
+          />
+        ) : (
+          <PropertyCardList
+            properties={tableValues}
+            onScrollChange={handleChildScroll}
+            formatData={formatData}
+            handleOpenModal={handleOpenModal}
+          />
+        )}
+      </CustomTabPanel>
+
+      <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
+        <div className="filter-div-wrapper">
+          <div className="filter-header">
+            <p>
+              <img
+                src="../src/assets/dashboardtab/icon-park-outline_down.svg"
+                alt="icon park"
+                style={{ cursor: "pointer" }}
+                onClick={() => setDrawerOpen(false)}
+              />
+              &nbsp; Filter By
+            </p>
+            <p className="filtercount">
+              ({checkListCount}) Filter{checkListCount !== 1 ? "s" : ""}
+            </p>
+          </div>
+          <div className="checklist-content row">
+            {(
+              filterOptions[properties === "all" ? "all" : properties] ?? []
+            ).map((section: any, index: any) => (
+              <div className="checklist-list col-md-12" key={index}>
+                <Accordion>
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="panel1-content"
+                    id="panel1-header"
+                  >
+                    <Typography variant="h6">{section.heading}</Typography>
+                  </AccordionSummary>
+
+                  <AccordionDetails key={resetCounter}>
+                    <div className="label-wrapper">
+                      {section.options.map((opt: any, i: any) => (
+                        <FormControlLabel
+                          key={i}
+                          control={
+                            <Checkbox
+                              checked={currentCheckList.includes(opt)}
+                              onChange={() => handleCheckboxChange(opt)}
+                              inputProps={{ "aria-label": opt }}
+                            />
+                          }
+                          label={opt}
+                        />
+                      ))}
+                    </div>
+                  </AccordionDetails>
+                </Accordion>
+              </div>
+            ))}
+          </div>
+          <div className="apply-reset-btn">
+            <button
+              className="clear-btn"
+              onClick={() => {
+                filterResetFunction();
+              }}
+            >
+              <img
+                src="../src/assets/dashboardtab/ic_round-clear-24.svg"
+                alt="close icon"
+              />
+              Clear
+            </button>
+            <GenericButton
+              image={filterTick}
+              iconPosition="left"
+              label={"Apply"}
+              className="genericFilterApplyStyles"
+              onClick={() => {
+                handleApply(); // your filter logic
+                setDrawerOpen(false); // closes the drawer
+              }}
+            />
+          </div>
+        </div>
+      </Drawer>
     </div>
   );
 }
