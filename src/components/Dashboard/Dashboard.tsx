@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Backdrop, CircularProgress } from "@mui/material";
+// import { Backdrop, CircularProgress } from "@mui/material";
 
 import axios from "axios";
 //import { useNavigate } from "react-router-dom";
@@ -16,7 +16,8 @@ import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import { Backdrop, CircularProgress } from "@mui/material";
 
 type PropertyType = "all" | "residentials" | "commercials" | "plots";
 
@@ -55,8 +56,6 @@ const style = {
   borderRadius: 2,
 };
 
-
-
 // function Home({ properties, onAddNew }: HomeProps)
 function Home({ properties }: HomeProps) {
   const [dashboardData, setDashboardData] = useState<PropertyData>({
@@ -81,9 +80,9 @@ function Home({ properties }: HomeProps) {
   };
   const para = paragMap[properties] || "Properties";
 
-  const [loadingBackdrop, setLoadingBackdrop] = useState(false);
+  // const [loadingBackdrop, setLoadingBackdrop] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
-  console.log("loading",loading)
+  console.log("loading", loading);
   const [error, setError] = useState<string | null>(null);
   const [hideHeader, setHideHeader] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -92,42 +91,38 @@ function Home({ properties }: HomeProps) {
 
   const location = useLocation();
   console.log("propertyDataddd", location);
- // NEW: Show Backdrop on successful create redirect
- useEffect(() => {
-  if (location.state?.from === "residentialCreateSuccess") {
-    setLoadingBackdrop(true);
+  // NEW: Show Backdrop on successful create redirect
+  useEffect(() => {
+    if (location.state?.from === "residentialCreateSuccess") {
+      // setLoadingBackdrop(true);
 
-     // Clear the state so backdrop doesn't show again on refresh
-     window.history.replaceState({}, document.title);
+      // Clear the state so backdrop doesn't show again on refresh
+      window.history.replaceState({}, document.title);
 
-     setTimeout(() => {
-      setLoadingBackdrop(false);
-      window.dispatchEvent(new Event("refreshTableData")); // ✅ triggers table reload
-    }, 2000); // show for 2 seconds
-  }
-}, [location.state]);
+      setTimeout(() => {
+        // setLoadingBackdrop(false);
+        window.dispatchEvent(new Event("refreshTableData")); // ✅ triggers table reload
+      }, 2000); // show for 2 seconds
+    }
+  }, [location.state]);
 
   const handleOpen = () => {
-    if(location?.pathname==="/dashboard"){
+    if (location?.pathname === "/dashboard") {
       setOpen(true);
-    }
-    else if(location?.pathname==="/commercial"){
+    } else if (location?.pathname === "/commercial") {
       navigate("/commercial/create", {
         state: { mode: "create" },
       });
-    }
-    else if(location?.pathname==="/residential"){
+    } else if (location?.pathname === "/residential") {
       navigate("/residential/create", {
         state: { mode: "create" },
       });
-    }
-    else if(location?.pathname==="/plots"){
-       navigate("/plots/create", {
+    } else if (location?.pathname === "/plots") {
+      navigate("/plots/create", {
         state: { mode: "create" },
       });
     }
-    
-  }
+  };
   const handleClose = () => setOpen(false);
   const navigate = useNavigate();
   const handleChildScroll = (scrollTop: number) => {
@@ -144,12 +139,8 @@ function Home({ properties }: HomeProps) {
     setLastScrollY(currentScrollY);
   };
 
-
-
   const propertyData = location.state?.data;
   console.log("propertyData", propertyData);
-
-  
 
   useEffect(() => {
     const fetchAllData = async () => {
@@ -183,7 +174,6 @@ function Home({ properties }: HomeProps) {
         }
         setLoading(false);
       }
-      
     };
 
     fetchAllData();
@@ -194,8 +184,8 @@ function Home({ properties }: HomeProps) {
     return () => window.removeEventListener("refreshTableData", handleRefresh);
   }, [properties]);
 
-  if (loading)
-    return <p style={{ padding: "1rem" }}>Loading data for {properties}...</p>;
+  // if (loading)
+  //   return <p style={{ padding: "1rem" }}>Loading data for {properties}...</p>;
   if (error) return <p style={{ color: "red" }}>Error: {error}</p>;
 
   console.log("dashboardData msg", dashboardData);
@@ -205,13 +195,21 @@ function Home({ properties }: HomeProps) {
     dashboardData.plot.length > 0;
 
   if (!hasData) {
-    return <p>No data found for {properties}</p>;
+    return (
+      <>
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loading }
+      >
+        <CircularProgress color="inherit" />
+        <span style={{ marginLeft: 10 }}>Loading data for {properties}...</span>
+      </Backdrop>
+      </>
+    );
   }
 
   return (
-    
     <div className="home-sec">
-
       <div className={`new-post-wrap ${hideHeader ? "hide" : ""}`}>
         <div className="container">
           <div className="house-topic">
@@ -287,7 +285,9 @@ function Home({ properties }: HomeProps) {
                           state: { mode: "create" },
                         });
                       } else if (selectedPropertyType === "other") {
-                        navigate("/plots/create", { state: { mode: "create" } });
+                        navigate("/plots/create", {
+                          state: { mode: "create" },
+                        });
                       } else {
                         alert("Please select a property type.");
                       }
@@ -309,8 +309,8 @@ function Home({ properties }: HomeProps) {
           />
         </div>
       </div>
-       {/* Backdrop spinner when loading */}
-    <Backdrop
+      {/* Backdrop spinner when loading */}
+      {/* <Backdrop
       sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
       open={loading || loadingBackdrop}
       
@@ -318,23 +318,21 @@ function Home({ properties }: HomeProps) {
       <CircularProgress color="inherit" />
       <span style={{ marginLeft: 10 }}>Loading data for {properties}...</span>
 
-    </Backdrop>
+    </Backdrop> */}
 
-    {/* Show error message if any */}
-    {error && <p style={{ color: "red" }}>Error: {error}</p>}
+      {/* Show error message if any */}
+      {error && <p style={{ color: "red" }}>Error: {error}</p>}
 
-    {/* Show no data message only if not loading and no error */}
-    {!loading && !error && !hasData && <p>No data found for {properties}</p>}
+      {/* Show no data message only if not loading and no error */}
+      {!loading && !error && !hasData && <p>No data found for {properties}</p>}
 
-    {/* Show dashboard only if loaded, no error, and has data */}
-    {!loading && !error && hasData && (
-      <>
-        {/* Your dashboard content goes here */}
-        {/* For example, your existing JSX inside <div className="home-sec"> */}
-      </>
-    )}
-
-
+      {/* Show dashboard only if loaded, no error, and has data */}
+      {!loading && !error && hasData && (
+        <>
+          {/* Your dashboard content goes here */}
+          {/* For example, your existing JSX inside <div className="home-sec"> */}
+        </>
+      )}
     </div>
   );
 }
