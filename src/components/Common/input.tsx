@@ -155,7 +155,7 @@ const DynamicBreadcrumbs = () => {
           const isLast = index === pathnames.length - 1;
           //const label = PATH_LABELS[value] || value;
           const label = value;
- 
+
           return isLast ? (
             <Typography color="text.primary" key={to}>
               {label}
@@ -177,7 +177,7 @@ const DynamicBreadcrumbs = () => {
     </Stack>
   );
 };
- 
+
 // ---------------- Component -------------------
 const InputField: React.FC<InputFieldProps> = ({
   id,
@@ -211,7 +211,7 @@ const InputField: React.FC<InputFieldProps> = ({
       setBackdropOpen(showBackdrop);
     }
   }, [showBackdrop]);
- 
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -238,10 +238,10 @@ const InputField: React.FC<InputFieldProps> = ({
           </Alert>
         </Stack>
       )}
- 
+
       {/* ---------- Breadcrumbs ---------- */}
       {breadcrumbs && breadcrumbs.length > 0 && <DynamicBreadcrumbs />}
- 
+
       {label && type !== "radio" && type !== "chip" && (
         <label className="form-label" htmlFor={id}>
           {label}
@@ -416,7 +416,7 @@ const InputField: React.FC<InputFieldProps> = ({
           })()}
         </Stack>
       )}
- 
+
       {/* ---------- Backdrop ---------- */}
       <Backdrop
         sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
@@ -428,7 +428,7 @@ const InputField: React.FC<InputFieldProps> = ({
       >
         <CircularProgress color="inherit" />
       </Backdrop>
-     
+      
     </div>
   );
 };

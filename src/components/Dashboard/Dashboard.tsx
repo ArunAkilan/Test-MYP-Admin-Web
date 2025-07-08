@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { Backdrop, CircularProgress } from "@mui/material";
+
 import axios from "axios";
 //import { useNavigate } from "react-router-dom";
 import "./Dashboard.scss";
@@ -31,6 +33,17 @@ interface PropertyData {
   plot: ResidentialProperty[];
 }
 
+const mapKey: Record<PropertyType, keyof PropertyData> = {
+  residentials: "residential",
+  commercials: "commercial",
+  plots: "plot",
+  all: "residential", // not used directly
+};
+
+interface HomeProps {
+  properties: PropertyType;
+}
+
 const style = {
   position: "absolute",
   top: "50%",
@@ -43,6 +56,9 @@ const style = {
   py: 3,
   borderRadius: 2,
 };
+
+
+
 // function Home({ properties, onAddNew }: HomeProps)
 function Home({ properties }: HomeProps) {
   const [dashboardData, setDashboardData] = useState<PropertyData>({
@@ -67,7 +83,9 @@ function Home({ properties }: HomeProps) {
   };
   const para = paragMap[properties] || "Properties";
 
+  const [loadingBackdrop, setLoadingBackdrop] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
+  console.log("loading",loading)
   const [error, setError] = useState<string | null>(null);
   const [hideHeader, setHideHeader] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -75,6 +93,21 @@ function Home({ properties }: HomeProps) {
  const [isSkeletonLoading, setIsSkeletonLoading] = useState(true);
   const location = useLocation();
   console.log("propertyDataddd", location);
+ // NEW: Show Backdrop on successful create redirect
+ useEffect(() => {
+  if (location.state?.from === "residentialCreateSuccess") {
+    setLoadingBackdrop(true);
+
+     // Clear the state so backdrop doesn't show again on refresh
+     window.history.replaceState({}, document.title);
+
+     setTimeout(() => {
+      setLoadingBackdrop(false);
+      window.dispatchEvent(new Event("refreshTableData")); // ✅ triggers table reload
+    }, 2000); // show for 2 seconds
+  }
+}, [location.state]);
+
   const handleOpen = () => {
     if (location?.pathname === "/dashboard") {
       setOpen(true);
@@ -93,7 +126,6 @@ function Home({ properties }: HomeProps) {
     }
   };
   const handleClose = () => setOpen(false);
-  const [selectedPropertyType, setSelectedPropertyType] = useState("");
   const navigate = useNavigate();
   const handleChildScroll = (scrollTop: number) => {
     // setIsFixed(scrollTop > 50);
@@ -109,18 +141,18 @@ function Home({ properties }: HomeProps) {
     setLastScrollY(currentScrollY);
   };
 
-  const mapKey: Record<PropertyType, keyof PropertyData> = {
-    residentials: "residential",
-    commercials: "commercial",
-    plots: "plot",
-    all: "residential", // not used directly
-  };
+
 
   const propertyData = location.state?.data;
   console.log("propertyData", propertyData);
 
+  
+
   useEffect(() => {
     const fetchAllData = async () => {
+      setLoading(true);
+      setError(null);
+
       try {
         const response = await axios.get(
           `${import.meta.env.VITE_BackEndUrl}/api/${properties}`
@@ -148,9 +180,11 @@ function Home({ properties }: HomeProps) {
         }
         setLoading(false);
       }
+      
     };
 
     fetchAllData();
+
     const handleRefresh = () => fetchAllData(); // refresh handler
 
     window.addEventListener("refreshTableData", handleRefresh);
