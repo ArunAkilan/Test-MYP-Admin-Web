@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
@@ -56,8 +56,7 @@ export default function Notificationtab() {
   };
   //Socket IO
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  //@ts-ignore
- /// useEffect(() => {
+  useEffect(() => {
     axios.get<Notification[]>(`${ENDPOINT}/api/notification`)
       .then(res => setNotifications(res.data));
 
@@ -68,7 +67,7 @@ export default function Notificationtab() {
     });
 
     
- // }, []);
+ }, []);
   //Socket IO
   return (
     <div id="notification-tab">
