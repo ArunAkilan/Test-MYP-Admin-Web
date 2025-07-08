@@ -87,8 +87,7 @@ function Home({ properties }: HomeProps) {
   const [hideHeader, setHideHeader] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [open, setOpen] = React.useState(false);
-  const [selectedPropertyType, setSelectedPropertyType] = useState("");
-
+ const [isSkeletonLoading, setIsSkeletonLoading] = useState(true);
   const location = useLocation();
   console.log("propertyDataddd", location);
   // NEW: Show Backdrop on successful create redirect
@@ -108,20 +107,26 @@ function Home({ properties }: HomeProps) {
 
   const handleOpen = () => {
     if (location?.pathname === "/dashboard") {
+    if (location?.pathname === "/dashboard") {
       setOpen(true);
+    } else if (location?.pathname === "/commercial") {
     } else if (location?.pathname === "/commercial") {
       navigate("/commercial/create", {
         state: { mode: "create" },
       });
+    } else if (location?.pathname === "/residential") {
     } else if (location?.pathname === "/residential") {
       navigate("/residential/create", {
         state: { mode: "create" },
       });
     } else if (location?.pathname === "/plots") {
       navigate("/plots/create", {
+    } else if (location?.pathname === "/plots") {
+      navigate("/plots/create", {
         state: { mode: "create" },
       });
     }
+  };
   };
   const handleClose = () => setOpen(false);
   const navigate = useNavigate();
