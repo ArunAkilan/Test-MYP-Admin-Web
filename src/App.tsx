@@ -1,9 +1,16 @@
 import Header from "./components/Common/Navbar/Navbar";
 import Sidebar from "./components/Common/Sidebar/Sidebar";
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import navbarLogo from "../src/assets/navbar/PRH_Admin-resize.svg"
+import navbarLogo from "../src/assets/navbar/PRH_Admin-resize.svg";
 import Home from "./components/Dashboard/Dashboard";
 import "./App.scss";
 import { useEffect } from "react";
@@ -21,55 +28,66 @@ function AppRoutes() {
     navigate("/residential/create");
   };
   const openCreateCommercial = () => navigate("/commercial/create");
-  const openCreatePlotProperty =() => navigate('/plots/create');
+  const openCreatePlotProperty = () => navigate("/plots/create");
 
   const location = useLocation();
 
-useEffect(() => {
-  const noScrollRoutes = [
-    "/dashboard", 
-    "/commercial",
-    "/residential",
-    "/plots",
+  useEffect(() => {
+    const noScrollRoutes = [
+      "/dashboard",
+      "/commercial",
+      "/residential",
+      "/plots",
+    ];
+
+    const shouldHideScroll = noScrollRoutes.includes(location.pathname);
+    document.body.style.overflow = shouldHideScroll ? "hidden" : "auto";
+  }, [location.pathname]);
+  // const location = useLocation();
+
+  // Define routes where sidebar should be hidden
+  const hideSidebarRoutes = [
+    "/residential/view",
+    "/commercial/view",
+    "/plots/view",
+    "/login",
   ];
 
-  const shouldHideScroll = noScrollRoutes.includes(location.pathname);
-  document.body.style.overflow = shouldHideScroll ? "hidden" : "auto";
-}, [location.pathname]);
-
+  // Check if the current pathname starts with any of the routes
+  const shouldHideSidebar = hideSidebarRoutes.some((route) =>
+    location.pathname.startsWith(route)
+  );
 
   return (
     <div className="app-container row">
-      <Sidebar />
-      <div className="col-md-9 offset-md-3 content-area" style={{ flex: 1, overflowY: "auto" }}>
+      {!shouldHideSidebar && <Sidebar />}
+      <div
+        className={`content-area ${
+          !shouldHideSidebar ? "col-md-9 offset-md-3" : "col-md-12"
+        }`}
+        style={{ flex: 1, overflowY: "auto" }}
+      >
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" />} />
-          <Route
-            path="/dashboard"
-            element={<Home properties="all" onAddNew={openCreateResidential} />}
-          />
+          <Route path="/dashboard" element={<Home properties="all" />} />
           <Route
             path="/commercial"
-            element={<Home properties="commercials" onAddNew={openCreateCommercial} />}
+            element={<Home properties="commercials" />}
           />
           <Route
             path="/residential"
-            element={<Home properties="residentials" onAddNew={openCreateResidential} />}
+            element={<Home properties="residentials" />}
           />
+          <Route path="/plots" element={<Home properties="plots" />} />
           <Route
-            path="/plots"
-            element={<Home properties="plots" onAddNew={openCreatePlotProperty} />}
+            path="/commercial/create"
+            element={<CreateCommercialProperty />}
           />
-          <Route path="/commercial/create" element={<CreateCommercialProperty />} />
           <Route path="/plots/create" element={<CreatePlotProperty />} />
           <Route path="/residential/create" element={<CreateProperty />} />
-
-            {/* View Routes */}
-          {/* <Route path="/plots/view" element={<ViewProperty />} /> */}
           <Route path="/plots/view/:id" element={<PlotView />} />
           <Route path="/residential/view/:id" element={<ViewProperty />} />
-          <Route path="/commercial/view/:id" element={<CommercialView />} /> {/* Added CommercialView route */}
-
+          <Route path="/commercial/view/:id" element={<CommercialView />} />
         </Routes>
       </div>
     </div>

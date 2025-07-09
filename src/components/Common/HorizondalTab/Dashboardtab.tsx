@@ -1495,7 +1495,7 @@ const PropertyCardList = ({
                     </div>
                     <div className="card-icon-delete">
                       <img
-                        src="../src/assets/dashboardtab/Icon_Delete.svg"
+                        src="../src/assets/dashboardtab/Icon-Delete-orange.svg"
                         alt="icon-delete"
                         style={{ cursor: "pointer" }}
                         onClick={() => handleOpenModal("Delete", item)}
