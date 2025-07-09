@@ -296,9 +296,6 @@ const InputField: React.FC<InputFieldProps> = ({
  
       {type === "phone" && (
         <div className="mb-3">
-          <label htmlFor={id} className="form-label">
-            {label}
-          </label>
           <input
             type="tel"
             value={typeof value === "string" ? value : ""}

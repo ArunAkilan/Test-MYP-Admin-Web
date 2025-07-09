@@ -5,7 +5,7 @@ import GenericButton from "../../../Common/Button/button";
 import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
 import DoneIcon from "@mui/icons-material/Done";
 import CloseIcon from "@mui/icons-material/Close";
-import { Button, Avatar, Alert, IconButton } from "@mui/material";
+import { Button, Avatar, Alert, IconButton, Backdrop, CircularProgress, } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./createPlot.scss";
@@ -102,7 +102,7 @@ function buildPayloadDynamic(formState: PlotFormState): PlotFormState {
   const payload: Partial<PlotFormState> = {};
 
   // owner
-  setNested( payload, "ownerDetails.firstName", formState.ownerDetails.firstName.trim());
+  setNested(payload, "ownerDetails.firstName", formState.ownerDetails.firstName.trim());
   setNested(payload, "ownerDetails.lastName", formState.ownerDetails.lastName.trim());
   setNested(payload, "ownerDetails.contact.phone1", formState.ownerDetails.contact.phone1.trim());
   setNested(payload, "ownerDetails.contact.email", formState.ownerDetails.contact.email?.trim() ?? "");
@@ -218,6 +218,8 @@ export const CreatePlotProperty = () => {
   const [propertyType, setPropertyType] = useState<PropertyType>("Rent");
 
   const [title, setTitle] = useState("");
+  const [loading, setLoading] = useState(false);
+
 
   const [rentAmount, setRentAmount] = useState<number>(0);
   const [negotiable, setNegotiable] = useState<boolean>(false);
@@ -330,6 +332,8 @@ export const CreatePlotProperty = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoading(true); // Backdrop
+
     const validationErrors = validate();
     setErrors(validationErrors);
     if (Object.keys(validationErrors).length > 0) {
@@ -439,6 +443,8 @@ export const CreatePlotProperty = () => {
     );
 
     try {
+      setLoading(true); // <- Show backdrop
+
       // Send POST request
       const response = await axios.post(
         `${import.meta.env.VITE_BackEndUrl}/api/plot/create`,
@@ -450,15 +456,34 @@ export const CreatePlotProperty = () => {
         }
       );
 
-      toast.success("Property created successfully!");
+      setLoading(false); // Hide Backdrop FIRST
 
-      // TODO: Send data to backend
-      // Redirect after a short delay (so toast is visible)
       setTimeout(() => {
-        navigate("/plot", {
-          state: { data: response.data },
-        });
-      }, 2000);
+        toast.success("Property created successfully!");
+      
+        // Wait until backdrop is gone
+        setTimeout(() => {
+          const plotId = response?.data?._id;
+      
+          if (plotId) {
+            navigate(`/plots/view/${plotId}`);
+          } else {
+            // fallback in case no ID is returned
+            navigate("/plots", {
+              state: { data: response.data, showLoading: true },
+            });
+          }
+        }, 1000);
+      }, 100);
+      
+
+      // // TODO: Send data to backend
+      // // Redirect after a short delay (so toast is visible)
+      // setTimeout(() => {
+      //   navigate("/plot", {
+      //     state: { data: response.data },
+      //   });
+      // }, 2000);
     } catch (err) {
       const error = err as AxiosError<{ message?: string; error?: string }>;
 
@@ -472,6 +497,8 @@ export const CreatePlotProperty = () => {
       console.error("Submission Error:", error);
 
       toast.error(`Failed to create property: ${errorMessage}`);
+    } finally {
+      setLoading(false); // <- Hide backdrop on error
     }
   };
 
@@ -538,6 +565,16 @@ export const CreatePlotProperty = () => {
                     </p>
                   </Alert>
                 )}
+                {/* Backdrop while submitting */}
+                <Backdrop
+                  sx={{
+                    color: "#fff",
+                    zIndex: (theme) => theme.zIndex.drawer + 1,
+                  }}
+                  open={loading}
+                >
+                  <CircularProgress color="inherit" />
+                </Backdrop>
               </div>
               {/* Owner Information Section */}
               <section className="OwnerDetails mb-4">
@@ -665,9 +702,12 @@ export const CreatePlotProperty = () => {
                       />
                     </div>
                   </div>
+                  </div>
                   {/* -------- Dynamic Inputs based on propertyType --------- */}
                   {/* Rent/Lease/Sale Specific Fields */}
-
+                  {propertyType === "Rent" && (
+                    <>
+                  <div className="OwnerInputField row mb-3">
                   <div className=" d-flex flex-d-row gap-3">
                     <div className="col-md-6 mb-3">
                       <label className="TextLabel" htmlFor="rentAmount">
@@ -729,7 +769,104 @@ export const CreatePlotProperty = () => {
                       />
                     </div>
                   </div>
-                </div>
+                  </div>
+                    </>
+                  )}
+                  
+
+                  {propertyType === "Lease" && (
+                    <>
+                      <div className="OwnerInputField row mb-3">
+                        <div className="d-flex flex-d-row gap-3">
+                          <div className="col-md-6 mb-3">
+                            <label className="TextLabel" htmlFor="leaseAmount">
+                              Lease Amount(₹)
+                            </label>
+                            <InputField
+                              type="text"
+                              id="leaseAmount"
+                              placeholder="Enter Amount in Rupees (₹)"
+                              value={rentAmount}
+                              onChange={(e) =>
+                                setRentAmount(Number(e.target.value))
+                              }
+                            />
+                          </div>
+                          <div className="row">
+                            <div className="col-12">
+                              <label className="TextLabel" htmlFor="negotiable">
+                                Negotiable
+                              </label>
+                              <div className="d-flex flex-wrap gap-3">
+                                <InputField
+                                  type="radio"
+                                  radioOptions={["Yes", "No"]}
+                                  id="negotiable"
+                                  value={negotiable ? "Yes" : "No"}
+                                  onChange={(e) =>
+                                    setNegotiable(e.target.value === "Yes")
+                                  }
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>                          
+                          <div className="col-12">
+                            <label className="TextLabel" htmlFor="tenure">
+                              Tenure (Years)
+                            </label>
+                            <InputField
+                              type="text"
+                              id="tenure"
+                              placeholder="No. of Years"
+                              value={leaseTenure}
+                              onChange={(e) => setLeaseTenure(e.target.value)}
+                            />
+                          </div>
+                        
+                      </div>
+                    </>
+                  )}
+                  {propertyType === "Sale" && (
+                    <>
+                      <div className="OwnerInputField row mb-3">
+                        <div className="d-flex flex-d-row gap-3">
+                          <div className="col-md-6 mb-3">
+                            <label className="TextLabel" htmlFor="saleAmount">
+                              Sale Amount(₹)
+                            </label>
+                            <InputField
+                              type="text"
+                              id="saleAmount"
+                              placeholder="Enter Amount in Rupees (₹)"
+                              value={rentAmount}
+                              onChange={(e) =>
+                                setRentAmount(Number(e.target.value))
+                              }
+                            />
+                          </div>
+                          <div className="row">
+                            <div className="col-12">
+                              <label className="TextLabel" htmlFor="negotiable">
+                                Negotiable
+                              </label>
+                              <div className="d-flex flex-wrap gap-3">
+                                <InputField
+                                  type="radio"
+                                  radioOptions={["Yes", "No"]}
+                                  id="negotiable"
+                                  value={negotiable ? "Yes" : "No"}
+                                  onChange={(e) =>
+                                    setNegotiable(e.target.value === "Yes")
+                                  }
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
               </section>
 
               {/* Location Details Section */}
