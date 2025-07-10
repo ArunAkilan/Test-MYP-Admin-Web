@@ -1,5 +1,6 @@
 import "./sidebar.scss";
 import * as React from "react";
+import { useState } from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import { Avatar } from "@mui/material";
@@ -22,6 +23,7 @@ const tabRoutes = ["/dashboard", "/commercial", "/residential", "/plots"];
 export default function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
+   const [activeTab, setActiveTab] = useState('dashboard');
 
   const currentTabIndex = tabRoutes.findIndex((path) =>
     location.pathname.startsWith(path)
@@ -47,6 +49,27 @@ export default function Sidebar() {
       navigate(tabRoutes[newValue]);
     }
   };
+
+    React.useEffect(() => {
+      const savedTab = localStorage.getItem('activeTab');
+      if (savedTab && tabRoutes.includes(savedTab)) {
+        setActiveTab(savedTab);
+      }
+    }, []);
+
+     // Recheck token on every tab change
+      React.useEffect(() => {
+        const token = localStorage.getItem('token');
+        console.log(`[Tab Switch] Checking token... Current token: ${token}`);
+    
+        if (token !== 'demo-token') {
+          console.warn('Invalid or missing token! Redirecting to login...');
+          navigate('/admin');
+        }
+    
+        // Save the current tab
+        localStorage.setItem('activeTab', activeTab);
+      }, [activeTab, navigate]);
 
   return (
     <div
@@ -94,3 +117,7 @@ export default function Sidebar() {
     </div>
   );
 }
+function setActiveTab(savedTab: string) {
+  throw new Error("Function not implemented.");
+}
+

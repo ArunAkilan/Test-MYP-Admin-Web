@@ -5,6 +5,7 @@ import Popover from "@mui/material/Popover";
 import Notificationtab from "../../NotificationTab/Notificationtab";
 import { io } from 'socket.io-client';
 import axios from 'axios';
+import { useNavigate } from "react-router-dom";
 
 interface HeaderProps {
   Title: string;
@@ -45,6 +46,13 @@ const Header: React.FC<HeaderProps> = ({
     setSecondAnchorEl(event.currentTarget);
     setFirstAnchorEl(null); // Close first popover if open
   };
+
+  const navigate = useNavigate()
+
+  const adminLogout = ()=>{
+        localStorage.removeItem('token');
+    navigate('/login');
+  }
 
   // const handleClose = () => {
   //   setFirstAnchorEl(null);
@@ -216,13 +224,13 @@ useEffect(() => {
                         className="col-2"
                       />
                     </div>
-                    <div className="row admin-btn-popup-bottom admin-popup-cmn-div">
+                    <div onClick={adminLogout} className="row admin-btn-popup-bottom admin-popup-cmn-div">
                       <img
                         src="../src/assets/navbar/mynaui_logout.svg"
                         alt="logout"
                         className="col-2"
                       />
-                      <p className="col-8">Signout</p>
+                      <p className="col-8" >Signout</p>
                     </div>
                   </div>
                 </Popover>
