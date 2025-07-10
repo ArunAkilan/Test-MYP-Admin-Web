@@ -85,16 +85,16 @@ const Header: React.FC<HeaderProps> = ({
 
 
   //Socket IO
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<any>([]);
 
 useEffect(() => {
-    axios.get<Notification[]>(`${ENDPOINT}/api/notification`)
-      .then(res => setNotifications(res.data));
+    axios.get<any>(`${ENDPOINT}/api/notifications`)
+      .then((res:any) => setNotifications(res.data.notifications));
 
     const sock = io(ENDPOINT);
 
-    sock.on('notification', (data: Notification) => {
-      setNotifications(prev => [data, ...prev]);
+    sock.on('notification', (data: any) => {
+      setNotifications((prev:any) => [data, ...prev]);
     });
 
   }, []);
@@ -145,7 +145,7 @@ useEffect(() => {
                   <button aria-describedby={idFirst} onClick={handleFirstClick}>
                     <img src="/public/BTN_Notification.svg" alt="Notification svg" />
                   </button> 
-                  <div className="notifyround">{notifications.length}</div>
+                  <div className="notifyround">{notifications?.length}</div>
                   {/* <BellIcon count={notifications.length} /> */}
                   <Popover
                     anchorReference="anchorPosition"
