@@ -101,7 +101,7 @@ function App() {
         <Header
           MainLogo={navbarLogo}
           Title="Admin"
-          ProfileLogo="/public/Ellipse 1.svg"
+          ProfileLogo="Ellipse 1.svg"
           Profile={false}
         />
         <div className="container body-content-container">

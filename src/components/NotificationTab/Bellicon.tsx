@@ -13,7 +13,7 @@ const BellIcon: React.FC<Props> = ({ count }) => {
 
     return (
         <div style={{ position: 'relative' }}>
-            <img src="/public/BTN_Notification.svg" alt="Notification svg"
+            <img src="BTN_Notification.svg" alt="Notification svg"
                 className="h-6 w-6 cursor-pointer" onClick={() => setOpen(!open)} />
             {count > 0 && <span className="badge">{count}</span>}
             {open && <div className="dropdown"> {/* custom dropdown UI */}
