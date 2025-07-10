@@ -2,12 +2,12 @@
     width: 100%;
 }
 
-#pending-approval-tab .MuiTabs-indicator {
+#pending-approval-tabs-wrap .MuiTabs-indicator {
   background: #00BFA6 !important; 
   height: 4px !important;
   border-radius: 100px;
 }
-#pending-approval-tab button {
+#pending-approval-tabs-wrap button,.new-listing-wrap button {
     min-height: 48px !important;
     color: #2E2E2F;
     font-size: 16px;
@@ -19,7 +19,7 @@
     
     padding: 12px 0 ;
 }
-#pending-approval-tab button:not(:last-child) {
+#pending-approval-tabs-wrap button:not(:last-child),.new-listing-wrap button {
     margin-right: 24px;
 }
 #pending-approval-tab  button:hover {
@@ -29,11 +29,13 @@
   color: #214999;
   font-weight: 700;
 }
-#pending-approval-tab button img {
+#pending-approval-tabs-wrap button img,.new-listing-wrap button img {
     width: max-content !important;
     height: max-content !important;
     margin-right: 0;
+    padding: 0 6px 0 0px;
 }
+
 .MuiTab-iconWrapper {
     margin-right: 0 !important;
 }
