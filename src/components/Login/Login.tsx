@@ -23,7 +23,7 @@ const Login = () => {
             <div className="login-wrapper">
                 <div className="login container ">
                     <div className="image">
-                        <img src="PRH Admin.svg" alt="prh admin image" />
+                        <img src="prh_admin.svg" alt="prh admin image" />
                     </div>
                     <div className="heading container">
                         <p>Sign in to your account</p>
