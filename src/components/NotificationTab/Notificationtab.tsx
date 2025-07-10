@@ -59,8 +59,7 @@ export default function Notificationtab() {
   useEffect(() => {
     axios.get<any>(`${ENDPOINT}/api/notifications`)
       .then((res:any) => {
-        debugger
-        setNotifications(res.data.notifications);
+         setNotifications(res.data.notifications);
       });
 
     const sock = io(ENDPOINT);
