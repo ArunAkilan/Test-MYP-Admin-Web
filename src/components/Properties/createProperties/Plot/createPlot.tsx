@@ -5,7 +5,7 @@ import GenericButton from "../../../Common/Button/button";
 import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
 import DoneIcon from "@mui/icons-material/Done";
 import CloseIcon from "@mui/icons-material/Close";
-import { Button, Avatar, Alert, IconButton } from "@mui/material";
+import { Button, Avatar, Alert, IconButton, Backdrop, CircularProgress, } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./createPlot.scss";
@@ -98,29 +98,35 @@ const mapChipsToRestrictions = (chips: string[]): Restrictions => {
 };
 
 // Build payload dynamically based on form state
-function buildPayloadDynamic(
-  formState: PlotFormState
-): PlotFormState {
+function buildPayloadDynamic(formState: PlotFormState): PlotFormState {
   const payload: Partial<PlotFormState> = {};
 
   // owner
-  setNested(payload, "owner.firstName", formState.ownerDetails.firstName.trim());
-  setNested(payload, "owner.lastName", formState.ownerDetails.lastName.trim());
-  setNested(payload, "owner.contact.phone1", formState.ownerDetails.contact.phone1.trim());
-  setNested(payload, "owner.contact.email", formState.ownerDetails.contact.email?.trim() ?? "");
-  setNested(payload, "owner.contact.getUpdates", true);
+  setNested(payload, "ownerDetails.firstName", formState.ownerDetails.firstName.trim());
+  setNested(payload, "ownerDetails.lastName", formState.ownerDetails.lastName.trim());
+  setNested(payload, "ownerDetails.contact.phone1", formState.ownerDetails.contact.phone1.trim());
+  setNested(payload, "ownerDetails.contact.email", formState.ownerDetails.contact.email?.trim() ?? "");
+  setNested(payload, "ownerDetails.contact.getUpdates", true);
 
   // property
   setNested(payload, "propertyType", formState.propertyType);
   setNested(payload, "title", formState.title);
-  setNested(payload, "plotType", "Shop" as PlotType);
+  setNested(payload, "plotType", formState.plotType);
   setNested(payload, "facingDirection", formState.facingDirection);
 
   // rent / lease / sale
   if (formState.propertyType === "Rent") {
-    setNested(payload, "rent.rentAmount", Number(formState.rent.rentAmount) || 0);
+    setNested(
+      payload,
+      "rent.rentAmount",
+      Number(formState.rent.rentAmount) || 0
+    );
     setNested(payload, "rent.negotiable", formState.rent.negotiable);
-    setNested(payload, "rent.advanceAmount", Number(formState.rent.advanceAmount) || 0);
+    setNested(
+      payload,
+      "rent.advanceAmount",
+      Number(formState.rent.advanceAmount) || 0
+    );
     setNested(payload, "rent.agreementTiming", formState.lease.leaseTenure); // optional, rename if needed
   } else if (formState.propertyType === "Lease") {
     setNested(
@@ -154,9 +160,21 @@ function buildPayloadDynamic(
     );
 
   // area
-  setNested(payload, "location.area.totalArea", `${formState.location.area?.totalArea ?? ""} sqft`);
-  setNested(payload, "location.area.length", formState.location.area?.length ?? "");
-  setNested(payload, "location.area.width", `${formState.location.area?.width ?? ""} sqft`);
+  setNested(
+    payload,
+    "location.area.totalArea",
+    `${formState.location.area?.totalArea ?? ""} sqft`
+  );
+  setNested(
+    payload,
+    "location.area.length",
+    formState.location.area?.length ?? ""
+  );
+  setNested(
+    payload,
+    "location.area.width",
+    `${formState.location.area?.width ?? ""} sqft`
+  );
   setNested(payload, "location.area.acre", formState.location.area?.acre || 0);
 
   // floors
@@ -170,7 +188,7 @@ function buildPayloadDynamic(
   // accessibility – map selected chips → boolean object
   const restrictions = mapChipsToRestrictions(formState.selectedChips);
   setNested(payload, "restrictions", restrictions);
-  setNested(payload, "selectedChips", formState.selectedChips || []);  
+  setNested(payload, "selectedChips", formState.selectedChips || []);
   // misc
   setNested(payload, "status", "Pending");
   setNested(payload, "hasWell", formState.hasWell || false);
@@ -198,9 +216,10 @@ export const CreatePlotProperty = () => {
   const [email, setEmail] = useState("");
   const [phone1, setPhone1] = useState("");
   const [propertyType, setPropertyType] = useState<PropertyType>("Rent");
- 
-  
+
   const [title, setTitle] = useState("");
+  const [loading, setLoading] = useState(false);
+
 
   const [rentAmount, setRentAmount] = useState<number>(0);
   const [negotiable, setNegotiable] = useState<boolean>(false);
@@ -313,7 +332,8 @@ export const CreatePlotProperty = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("check first ");
+    setLoading(true); // Backdrop
+
     const validationErrors = validate();
     setErrors(validationErrors);
     if (Object.keys(validationErrors).length > 0) {
@@ -326,7 +346,7 @@ export const CreatePlotProperty = () => {
       ownerDetails: {
         firstName,
         lastName,
-        contact: { phone1, email }
+        contact: { phone1, email },
       },
       propertyType,
       title,
@@ -335,45 +355,48 @@ export const CreatePlotProperty = () => {
       rent: {
         rentAmount: 0,
         negotiable: false,
-        advanceAmount: 0,
-        agreementTiming: '',
+        advanceAmount: Number(advanceAmount) || 0,
+        agreementTiming: leaseTenure,
       },
       lease: {
-        leaseAmount: 0,
-        negotiable: false,
-        leaseTenure: '',
+        leaseAmount: rentAmount || 0,
+        negotiable,
+        leaseTenure,
       },
-      
+
       sale: {
-        saleAmount: 0,
-        negotiable: false,
+        saleAmount: rentAmount || 0,
+        negotiable,
       },
-      
-      
+
       location: {
         address,
+        landmark: "",
         map: {
           latitude: Number(latitude),
           longitude: Number(longitude),
+
         },
         area: {
-          totalArea: totalArea.toString(), 
+          totalArea: totalArea.toString(),
+          length: "",
+          width: "",
+          acre: 0,
         },
       },
-      
-      images: images.map(img => img.file),
+
+      images: images.map((img) => img.file),
       uploadedImages: images,
       totalFloors: Number(totalFloors) || 0,
       propertyFloor: Number(propertyFloor) || 0,
       selectedChips,
       status: "Pending",
-      isDeleted: false,
-      description: description ?? "",
+      description,
       hasWell: false,
       hasMotor: false,
       hasEBConnection: false,
       hasBorewell: false,
-      
+      isDeleted: false,
     };
 
     // Convert payload to object
@@ -420,6 +443,8 @@ export const CreatePlotProperty = () => {
     );
 
     try {
+      setLoading(true); // <- Show backdrop
+
       // Send POST request
       const response = await axios.post(
         `${import.meta.env.VITE_BackEndUrl}/api/plot/create`,
@@ -431,15 +456,34 @@ export const CreatePlotProperty = () => {
         }
       );
 
-      toast.success("Property created successfully!");
+      setLoading(false); // Hide Backdrop FIRST
 
-      // TODO: Send data to backend
-      // Redirect after a short delay (so toast is visible)
       setTimeout(() => {
-        navigate("/plot", {
-          state: { data: response.data },
-        });
-      }, 2000);
+        toast.success("Property created successfully!");
+      
+        // Wait until backdrop is gone
+        setTimeout(() => {
+          const plotId = response?.data?._id;
+      
+          if (plotId) {
+            navigate(`/plots/view/${plotId}`);
+          } else {
+            // fallback in case no ID is returned
+            navigate("/plots", {
+              state: { data: response.data, showLoading: true },
+            });
+          }
+        }, 1000);
+      }, 100);
+      
+
+      // // TODO: Send data to backend
+      // // Redirect after a short delay (so toast is visible)
+      // setTimeout(() => {
+      //   navigate("/plot", {
+      //     state: { data: response.data },
+      //   });
+      // }, 2000);
     } catch (err) {
       const error = err as AxiosError<{ message?: string; error?: string }>;
 
@@ -453,8 +497,9 @@ export const CreatePlotProperty = () => {
       console.error("Submission Error:", error);
 
       toast.error(`Failed to create property: ${errorMessage}`);
+    } finally {
+      setLoading(false); // <- Hide backdrop on error
     }
-    console.log("check end ");
   };
 
   //TopOfCenter MUIAlertToast
@@ -520,6 +565,16 @@ export const CreatePlotProperty = () => {
                     </p>
                   </Alert>
                 )}
+                {/* Backdrop while submitting */}
+                <Backdrop
+                  sx={{
+                    color: "#fff",
+                    zIndex: (theme) => theme.zIndex.drawer + 1,
+                  }}
+                  open={loading}
+                >
+                  <CircularProgress color="inherit" />
+                </Backdrop>
               </div>
               {/* Owner Information Section */}
               <section className="OwnerDetails mb-4">
@@ -602,7 +657,7 @@ export const CreatePlotProperty = () => {
                     {/* Property Type */}
                     <div className="col-md-6 mb-3">
                       <label className="TextLabel" htmlFor="propertyType">
-                        Plot Type
+                      Property Type
                       </label>
                       <InputField
                         type="dropdown"
@@ -614,6 +669,7 @@ export const CreatePlotProperty = () => {
                         }
                       />
                     </div>
+                    
                     {/* Plot Type */}
                     <div className="col-md-6 mb-3">
                       <label className="TextLabel" htmlFor="plotType">
@@ -646,9 +702,12 @@ export const CreatePlotProperty = () => {
                       />
                     </div>
                   </div>
+                  </div>
                   {/* -------- Dynamic Inputs based on propertyType --------- */}
                   {/* Rent/Lease/Sale Specific Fields */}
-
+                  {propertyType === "Rent" && (
+                    <>
+                  <div className="OwnerInputField row mb-3">
                   <div className=" d-flex flex-d-row gap-3">
                     <div className="col-md-6 mb-3">
                       <label className="TextLabel" htmlFor="rentAmount">
@@ -710,7 +769,104 @@ export const CreatePlotProperty = () => {
                       />
                     </div>
                   </div>
-                </div>
+                  </div>
+                    </>
+                  )}
+                  
+
+                  {propertyType === "Lease" && (
+                    <>
+                      <div className="OwnerInputField row mb-3">
+                        <div className="d-flex flex-d-row gap-3">
+                          <div className="col-md-6 mb-3">
+                            <label className="TextLabel" htmlFor="leaseAmount">
+                              Lease Amount(₹)
+                            </label>
+                            <InputField
+                              type="text"
+                              id="leaseAmount"
+                              placeholder="Enter Amount in Rupees (₹)"
+                              value={rentAmount}
+                              onChange={(e) =>
+                                setRentAmount(Number(e.target.value))
+                              }
+                            />
+                          </div>
+                          <div className="row">
+                            <div className="col-12">
+                              <label className="TextLabel" htmlFor="negotiable">
+                                Negotiable
+                              </label>
+                              <div className="d-flex flex-wrap gap-3">
+                                <InputField
+                                  type="radio"
+                                  radioOptions={["Yes", "No"]}
+                                  id="negotiable"
+                                  value={negotiable ? "Yes" : "No"}
+                                  onChange={(e) =>
+                                    setNegotiable(e.target.value === "Yes")
+                                  }
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>                          
+                          <div className="col-12">
+                            <label className="TextLabel" htmlFor="tenure">
+                              Tenure (Years)
+                            </label>
+                            <InputField
+                              type="text"
+                              id="tenure"
+                              placeholder="No. of Years"
+                              value={leaseTenure}
+                              onChange={(e) => setLeaseTenure(e.target.value)}
+                            />
+                          </div>
+                        
+                      </div>
+                    </>
+                  )}
+                  {propertyType === "Sale" && (
+                    <>
+                      <div className="OwnerInputField row mb-3">
+                        <div className="d-flex flex-d-row gap-3">
+                          <div className="col-md-6 mb-3">
+                            <label className="TextLabel" htmlFor="saleAmount">
+                              Sale Amount(₹)
+                            </label>
+                            <InputField
+                              type="text"
+                              id="saleAmount"
+                              placeholder="Enter Amount in Rupees (₹)"
+                              value={rentAmount}
+                              onChange={(e) =>
+                                setRentAmount(Number(e.target.value))
+                              }
+                            />
+                          </div>
+                          <div className="row">
+                            <div className="col-12">
+                              <label className="TextLabel" htmlFor="negotiable">
+                                Negotiable
+                              </label>
+                              <div className="d-flex flex-wrap gap-3">
+                                <InputField
+                                  type="radio"
+                                  radioOptions={["Yes", "No"]}
+                                  id="negotiable"
+                                  value={negotiable ? "Yes" : "No"}
+                                  onChange={(e) =>
+                                    setNegotiable(e.target.value === "Yes")
+                                  }
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
               </section>
 
               {/* Location Details Section */}
@@ -984,7 +1140,7 @@ export const CreatePlotProperty = () => {
                               url: URL.createObjectURL(file),
                               name: file.name,
                               uploadedAt: new Date(),
-
+                              imageSize: file.size,
                             }));
 
                           if (validImages.length === 0) return;

@@ -5,7 +5,7 @@ import GenericButton from "../../../Common/Button/button";
 import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
 import DoneIcon from "@mui/icons-material/Done";
 import CloseIcon from "@mui/icons-material/Close";
-import { Button, Avatar, Alert, IconButton } from "@mui/material";
+import { Button, Avatar, Alert, IconButton, Backdrop, CircularProgress, } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../createProperty.scss"; //  Corrected path
@@ -41,6 +41,7 @@ import {
 } from "@react-google-maps/api";
 import Tooltip from "@mui/material/Tooltip";
 import type { PlainObject } from "../createProperty.model";
+// import { set } from "lodash";
 
 const containerStyle = {
   width: "100%",
@@ -225,6 +226,8 @@ export const CreateCommercialProperty = () => {
   const [title, setTitle] = useState("");
 
   const [tilesOnFloor, setTilesOnFloor] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const [rentAmount, setRentAmount] = useState<number>(0);
   const [negotiable, setNegotiable] = useState<boolean>(false);
   const [advanceAmount, setAdvanceAmount] = useState("");
@@ -336,11 +339,13 @@ export const CreateCommercialProperty = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("check first ");
+    setLoading(true); // Backdrop
+
     const validationErrors = validate();
     setErrors(validationErrors);
+
     if (Object.keys(validationErrors).length > 0) {
-      toast.error("Please fix the errors in the form.");
+        toast.error("Please fix the errors in the form.");
       return;
     }
 
@@ -463,15 +468,32 @@ export const CreateCommercialProperty = () => {
         }
       );
 
-      toast.success("Property created successfully!");
+      setLoading(false); // Hide Backdrop FIRST
 
-      // TODO: Send data to backend
-      // Redirect after a short delay (so toast is visible)
       setTimeout(() => {
-        navigate("/commercial", {
-          state: { data: response.data },
-        });
-      }, 2000);
+        toast.success("Property created successfully!");
+      
+        // Wait until backdrop is gone
+        setTimeout(() => {
+          const plotId = response?.data?._id;
+      
+          if (plotId) {
+            navigate(`/commercial/view/${plotId}`);
+          } else {
+            // fallback in case no ID is returned
+            navigate("/commercial", {
+              state: { data: response.data, showLoading: true },
+            });
+          }
+        }, 1000);
+      }, 100);
+      // // TODO: Send data to backend
+      // // Redirect after a short delay (so toast is visible)
+      // setTimeout(() => {
+      //   navigate("/commercial", {
+      //     state: { data: response.data },
+      //   });
+      // }, 2000);
     } catch (err) {
       const error = err as AxiosError<{ message?: string; error?: string }>;
 
@@ -552,6 +574,16 @@ export const CreateCommercialProperty = () => {
                     </p>
                   </Alert>
                 )}
+                {/* Backdrop while submitting */}
+                <Backdrop
+                  sx={{
+                    color: "#fff",
+                    zIndex: (theme) => theme.zIndex.drawer + 1,
+                  }}
+                  open={loading}
+                >
+                  <CircularProgress color="inherit" />
+                </Backdrop>
               </div>
               {/* Owner Information Section */}
               <section className="OwnerDetails mb-4">
@@ -630,7 +662,7 @@ export const CreateCommercialProperty = () => {
                 </div>
 
                 <div className="OwnerInputField  row mb-3">
-                  <div className="d-flex flex-d-row gap-3">
+                  <div className="d-flex flex-d-row gap-3 p-0">
                     {/* Property Type */}
                     <div className="col-md-6 mb-3">
                       <label className="TextLabel" htmlFor="propertyType">
@@ -674,69 +706,173 @@ export const CreateCommercialProperty = () => {
                   </div>
                   {/* -------- Dynamic Inputs based on propertyType --------- */}
                   {/* Rent/Lease/Sale Specific Fields */}
+                  {propertyType === "Rent" && (
+                    <>
+                      <div className="OwnerInputField row mb-3">
+                        <div className=" d-flex flex-d-row gap-3 p-0">
+                          <div className="col-md-6 mb-3">
+                            <label className="TextLabel" htmlFor="rentAmount">
+                              Rent Amount(₹)
+                            </label>
+                            <InputField
+                              type="text"
+                              id="rentAmount"
+                              placeholder="Enter Amount in Rupees (₹)"
+                              value={rentAmount}
+                              onChange={(e) =>
+                                setRentAmount(Number(e.target.value))
+                              }
+                            />
+                          </div>
+                          <div className="row">
+                            <div className="col-12">
+                              <label className="TextLabel" htmlFor="negotiable">
+                                Negotiable
+                              </label>
+                              <div className="d-flex flex-wrap gap-3">
+                                <InputField
+                                  type="radio"
+                                  radioOptions={["Yes", "No"]}
+                                  id="negotiable"
+                                  value={negotiable ? "Yes" : "No"}
+                                  onChange={(e) =>
+                                    setNegotiable(e.target.value === "Yes")
+                                  }
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
 
-                  <div className=" d-flex flex-d-row gap-3">
-                    <div className="col-md-6 mb-3">
-                      <label className="TextLabel" htmlFor="rentAmount">
-                        Rent Amount(₹)
-                      </label>
-                      <InputField
-                        type="text"
-                        id="rentAmount"
-                        placeholder="Enter Amount in Rupees (₹)"
-                        value={rentAmount}
-                        onChange={(e) => setRentAmount(Number(e.target.value))}
-                      />
-                    </div>
-                    <div className="row">
-                      <div className="col-12">
-                        <label className="TextLabel" htmlFor="negotiable">
-                          Negotiable
-                        </label>
-                        <div className="d-flex flex-wrap gap-3">
-                          <InputField
-                            type="radio"
-                            radioOptions={["Yes", "No"]}
-                            id="negotiable"
-                            value={negotiable ? "Yes" : "No"}
-                            onChange={(e) =>
-                              setNegotiable(e.target.value === "Yes")
-                            }
-                          />
+                        <div className="d-flex flex-d-row gap-3 p-0">
+                          <div className="col-6 mb-3">
+                            <label
+                              className="TextLabel"
+                              htmlFor="advanceDeposit"
+                            >
+                              Advance Deposit (₹)
+                            </label>
+                            <InputField
+                              type="text"
+                              id="advanceDeposit"
+                              placeholder="Enter Deposit"
+                              value={advanceAmount}
+                              onChange={(e) => setAdvanceAmount(e.target.value)}
+                              // error={!!errors.advanceDeposit}
+                              // helperText={errors.advanceAmount}
+                            />
+                          </div>
+                          <div className="col-6 mb-3">
+                            <label className="TextLabel" htmlFor="tenure">
+                              Agreement Timings (Years)
+                            </label>
+                            <InputField
+                              type="text"
+                              id="tenure"
+                              placeholder="No. of Years"
+                              value={leaseTenure}
+                              onChange={(e) => setLeaseTenure(e.target.value)}
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
+                    </>
+                  )}
+                  {propertyType === "Lease" && (
+                    <>
+                      <div className="OwnerInputField row mb-3">
+                        <div className=" d-flex flex-d-row gap-3 p-0">
+                          <div className="col-md-6 mb-3">
+                            <label className="TextLabel" htmlFor="leaseAmount">
+                              Lease Amount(₹)
+                            </label>
+                            <InputField
+                              type="text"
+                              id="leaseAmount"
+                              placeholder="Enter Amount in Rupees (₹)"
+                              value={rentAmount}
+                              onChange={(e) =>
+                                setRentAmount(Number(e.target.value))
+                              }
+                            />
+                          </div>
+                          <div className="row">
+                            <div className="col-12">
+                              <label className="TextLabel" htmlFor="negotiable">
+                                Negotiable
+                              </label>
+                              <div className="d-flex flex-wrap gap-3">
+                                <InputField
+                                  type="radio"
+                                  radioOptions={["Yes", "No"]}
+                                  id="negotiable"
+                                  value={negotiable ? "Yes" : "No"}
+                                  onChange={(e) =>
+                                    setNegotiable(e.target.value === "Yes")
+                                  }
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
 
-                  <div className="d-flex flex-d-row gap-3">
-                    <div className="col-6 mb-3">
-                      <label className="TextLabel" htmlFor="advanceDeposit">
-                        Advance Deposit (₹)
-                      </label>
-                      <InputField
-                        type="text"
-                        id="advanceDeposit"
-                        placeholder="Enter Deposit"
-                        value={advanceAmount}
-                        onChange={(e) => setAdvanceAmount(e.target.value)}
-                        // error={!!errors.advanceDeposit}
-                        // helperText={errors.advanceAmount}
-                      />
-                    </div>
-                    <div className="col-6 mb-3">
-                      <label className="TextLabel" htmlFor="tenure">
-                        Tenure (Years)
-                      </label>
-                      <InputField
-                        type="text"
-                        id="tenure"
-                        placeholder="No. of Years"
-                        value={leaseTenure}
-                        onChange={(e) => setLeaseTenure(e.target.value)}
-                      />
-                    </div>
-                  </div>
+                          <div className="col-12">
+                            <label className="TextLabel" htmlFor="tenure">
+                              Lease Tenure (Years)
+                            </label>
+                            <InputField
+                              type="text"
+                              id="tenure"
+                              placeholder="No. of Years"
+                              value={leaseTenure}
+                              onChange={(e) => setLeaseTenure(e.target.value)}
+                            />
+                          </div>
+                      </div>
+                    </>
+                  )}
+                  {propertyType === "Sale" && (
+                    <>
+                      <div className="OwnerInputField row mb-3">
+                        <div className=" d-flex flex-d-row gap-3 p-0">
+                          <div className="col-md-6 mb-3">
+                            <label className="TextLabel" htmlFor="saleAmount">
+                              Sale Amount(₹)
+                            </label>
+                            <InputField
+                              type="text"
+                              id="saleAmount"
+                              placeholder="Enter Amount in Rupees (₹)"
+                              value={rentAmount}
+                              onChange={(e) =>
+                                setRentAmount(Number(e.target.value))
+                              }
+                            />
+                          </div>
+                          <div className="row">
+                            <div className="col-12">
+                              <label className="TextLabel" htmlFor="negotiable">
+                                Negotiable
+                              </label>
+                              <div className="d-flex flex-wrap gap-3">
+                                <InputField
+                                  type="radio"
+                                  radioOptions={["Yes", "No"]}
+                                  id="negotiable"
+                                  value={negotiable ? "Yes" : "No"}
+                                  onChange={(e) =>
+                                    setNegotiable(e.target.value === "Yes")
+                                  }
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}  
                 </div>
+
               </section>
 
               {/* Location Details Section */}
