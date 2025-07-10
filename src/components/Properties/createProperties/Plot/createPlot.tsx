@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { InputField, DynamicBreadcrumbs } from "../../../Common/input"; // Assuming InputField supports error props
+import { InputField, DynamicBreadcrumbs } from "../../../Common/input";
 import GenericButton from "../../../Common/Button/button";
 import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
 import DoneIcon from "@mui/icons-material/Done";
@@ -8,20 +8,32 @@ import CloseIcon from "@mui/icons-material/Close";
 import { Button, Avatar, Alert, IconButton } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import axios from "axios";
-import { AxiosError } from "axios";
+import "./createPlot.scss";
+import axios, { AxiosError } from "axios";
 import type {
-  ResidentialProperty,
-  ResidentialFormState,
+  PropertyType,
+  PlotType,
+  FacingDirection,
+  // OwnerContact,
+  // OwnerDetails,
+  // Location,
+  // RentDetails,
+  // LeaseDetails,
+  // SaleDetails,
+  PlotFormState,
+  // ExtendedPlotFormState,
   UploadedImage,
-  PlainObject,
-} from "../createProperty.model";
-import type { Restrictions } from "../../../AdminResidencial/AdminResidencial.model";
-import { GoogleMap, Marker, Autocomplete, useJsApiLoader } from "@react-google-maps/api";
-import Tooltip from "@mui/material/Tooltip";
-import "../Plot/createPlot.scss"
-import "../createProperty.scss"; 
+} from "./createPlot.modal";
 
+import type { Restrictions } from "../../../AdminResidencial/AdminResidencial.model";
+import {
+  GoogleMap,
+  Marker,
+  Autocomplete,
+  useJsApiLoader,
+} from "@react-google-maps/api";
+import Tooltip from "@mui/material/Tooltip";
+import type { PlainObject } from "../createProperty.model";
 
 const containerStyle = {
   width: "100%",
@@ -30,10 +42,12 @@ const containerStyle = {
   border: "1px solid #D3DDE7",
 };
 const defaultCenter = { lat: 11.2419968, lng: 78.8063549 };
-
-
-
-
+const GOOGLE_LIBRARIES: (
+  | "places"
+  | "geometry"
+  | "drawing"
+  | "visualization"
+)[] = ["places", "geometry"];
 
 // Utility function to set nested value dynamically
 function setNested(obj: PlainObject, path: string, value: unknown) {
@@ -85,124 +99,123 @@ const mapChipsToRestrictions = (chips: string[]): Restrictions => {
 
 // Build payload dynamically based on form state
 function buildPayloadDynamic(
-  formState: ResidentialFormState
-): ResidentialProperty {
-  const payload: Partial<ResidentialProperty> = {};
+  formState: PlotFormState
+): PlotFormState {
+  const payload: Partial<PlotFormState> = {};
 
-  setNested(payload, "owner.firstName", (formState.firstName ?? "").trim());
-  setNested(payload, "owner.lastName", (formState.lastName ?? "").trim());
-  setNested(payload, "owner.contact.phone1", (formState.phone1 ?? "").trim());
-  setNested(payload, "owner.contact.email", (formState.email ?? "").trim());
-  setNested(payload, "owner.contact.getUpdates", false);
-  setNested(payload, "propertyType", formState.propertyType || "Semi Furnished");
-  const rentAmount = parseFloat(formState.rent);
-  setNested(payload, "rent.rentAmount", isNaN(rentAmount) ? 0 : rentAmount);
-  setNested(payload, "rent.negotiable", formState.negotiable === false);
-  const advance = parseFloat(formState.advanceAmount);
-  setNested(payload, "rent.advanceAmount", isNaN(advance) ? 0 : advance);
-  setNested(payload, "rent.leaseTenure", formState.leaseTenure);
-  setNested(payload, "location.landmark", "Near Green Park");
-  if (formState.latitude)
-    setNested(payload, "location.map.latitude", parseFloat(formState.latitude));
-  if (formState.longitude)
+  // owner
+  setNested(payload, "owner.firstName", formState.ownerDetails.firstName.trim());
+  setNested(payload, "owner.lastName", formState.ownerDetails.lastName.trim());
+  setNested(payload, "owner.contact.phone1", formState.ownerDetails.contact.phone1.trim());
+  setNested(payload, "owner.contact.email", formState.ownerDetails.contact.email?.trim() ?? "");
+  setNested(payload, "owner.contact.getUpdates", true);
+
+  // property
+  setNested(payload, "propertyType", formState.propertyType);
+  setNested(payload, "title", formState.title);
+  setNested(payload, "plotType", "Shop" as PlotType);
+  setNested(payload, "facingDirection", formState.facingDirection);
+
+  // rent / lease / sale
+  if (formState.propertyType === "Rent") {
+    setNested(payload, "rent.rentAmount", Number(formState.rent.rentAmount) || 0);
+    setNested(payload, "rent.negotiable", formState.rent.negotiable);
+    setNested(payload, "rent.advanceAmount", Number(formState.rent.advanceAmount) || 0);
+    setNested(payload, "rent.agreementTiming", formState.lease.leaseTenure); // optional, rename if needed
+  } else if (formState.propertyType === "Lease") {
+    setNested(
+      payload,
+      "lease.leaseAmount",
+      Number(formState.rent.rentAmount) || 0
+    );
+    setNested(payload, "lease.negotiable", formState.rent.negotiable);
+    setNested(payload, "lease.leaseTenure", formState.lease.leaseTenure);
+  } else if (formState.propertyType === "Sale") {
+    setNested(
+      payload,
+      "sale.saleAmount",
+      Number(formState.rent.rentAmount) || 0
+    );
+    setNested(payload, "sale.negotiable", formState.rent.negotiable);
+  }
+  // location
+  setNested(payload, "location.address", formState.location.address);
+  if (formState.location.map?.latitude)
+    setNested(
+      payload,
+      "location.map.latitude",
+      Number(formState.location.map?.latitude)
+    );
+  if (formState.location.map?.longitude)
     setNested(
       payload,
       "location.map.longitude",
-      parseFloat(formState.longitude)
+      Number(formState.location.map?.longitude)
     );
-  setNested(payload, "location.address", formState.address);
-  setNested(payload, "area.totalArea", `${formState.totalArea} sqft`);
-  setNested(payload, "area.length", "50 ft");
-  setNested(payload, "area.width", "30 ft");
 
-  const imageUrls = formState.images.map((f) => f.name).filter(Boolean);
+  // area
+  setNested(payload, "location.area.totalArea", `${formState.location.area?.totalArea ?? ""} sqft`);
+  setNested(payload, "location.area.length", formState.location.area?.length ?? "");
+  setNested(payload, "location.area.width", `${formState.location.area?.width ?? ""} sqft`);
+  setNested(payload, "location.area.acre", formState.location.area?.acre || 0);
 
+  // floors
+  setNested(payload, "totalFloors", Number(formState.totalFloors) || 0);
+  setNested(payload, "propertyFloor", Number(formState.propertyFloor) || 0);
+
+  // images
+  const imageUrls = formState.uploadedImages.map((img) => img.name);
   setNested(payload, "images", imageUrls);
 
-  setNested(payload, "title", formState.title);
-  setNested(payload, "residentialType", formState.residentialType || "Apartment");
-  setNested(payload, "facingDirection", formState.facingDirection || "East");
-  setNested(payload, "rooms", `${formState.rooms || "1"} BHK`);
-  setNested(
-    payload,
-    "totalFloors",
-    formState.totalFloors ? parseInt(formState.totalFloors) : 0
-  );
-  setNested(
-    payload,
-    "propertyFloor",
-    formState.propertyFloor ? parseInt(formState.propertyFloor) : 0
-  );
-  setNested(payload, "furnishingType", formState.furnishingType?.replace("-", " "));
-  setNested(payload, "description", formState.description);
-  setNested(payload, "area.builtUpArea", `${formState.builtUpArea} sqft`);
-  setNested(payload, "area.carpetArea", `${formState.carpetArea} sqft`);
-  setNested(
-    payload,
-    "restrictions",
-    mapChipsToRestrictions(formState.selectedChips)
-  );
-  setNested(payload, "availability", {
-    transport: {
-      nearbyBusStop: false,
-      nearbyAirport: false,
-      nearbyPort: false,
-    },
-    broadband: false,
-    securities: false,
-  });
-  setNested(payload, "facility", {
-    maintenance: false,
-    waterFacility: false,
-    roadFacility: false,
-    drainage: false,
-    parking: false,
-    balcony: false,
-    terrace: false,
-  });
-  setNested(payload, "accessibility", {
-    ramp: false,
-    steps: false,
-    lift: false,
-  });
-  setNested(payload, "amenities", {
-    separateEBConnection: false,
-    nearbyMarket: false,
-    nearbyGym: false,
-    nearbyTurf: false,
-    nearbyArena: false,
-    nearbyMall: false,
-  });
-  return payload as ResidentialProperty;
+  // accessibility – map selected chips → boolean object
+  const restrictions = mapChipsToRestrictions(formState.selectedChips);
+  setNested(payload, "restrictions", restrictions);
+  setNested(payload, "selectedChips", formState.selectedChips || []);  
+  // misc
+  setNested(payload, "status", "Pending");
+  setNested(payload, "hasWell", formState.hasWell || false);
+  setNested(payload, "hasMotor", formState.hasMotor || false);
+  setNested(payload, "hasEBConnection", formState.hasEBConnection || false);
+  setNested(payload, "hasBorewell", formState.hasBorewell || false);
+  setNested(payload, "uploadedImages", formState.uploadedImages || []);
+  setNested(payload, "isActive", true);
+  setNested(payload, "isVerified", false);
+  setNested(payload, "isFeatured", false);
+  setNested(payload, "isDraft", false);
+  setNested(payload, "isPublished", false);
+  setNested(payload, "isArchived", false);
+  setNested(payload, "isDeleted", false);
+  setNested(payload, "description", formState.description ?? "");
+
+  return payload as PlotFormState;
 }
 
-export const CreateProperty = () => {
+export const CreatePlotProperty = () => {
   // State for form data
   const navigate = useNavigate();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phone1, setPhone1] = useState("");
-  const [propertyType, setPropertyType] = useState("Rent");
+  const [propertyType, setPropertyType] = useState<PropertyType>("Rent");
+ 
+  
   const [title, setTitle] = useState("");
-  const [rent, setRent] = useState("");
+
+  const [rentAmount, setRentAmount] = useState<number>(0);
   const [negotiable, setNegotiable] = useState<boolean>(false);
   const [advanceAmount, setAdvanceAmount] = useState("");
   const [leaseTenure, setLeaseTenure] = useState("");
-  const [residentialType, setResidentialType] = useState("House");
+  const [plotType, setPlotType] = useState("Agriculture" as PlotType);
   const [address, setAddress] = useState("");
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
-  const [images, setImages] = useState<UploadedImage[]>([]); // For file upload
-
+  const [images, setImages] = useState<UploadedImage[]>([]);
   const [totalArea, setTotalArea] = useState("");
-  const [builtUpArea, setBuiltUpArea] = useState("");
-  const [carpetArea, setCarpetArea] = useState("");
-  const [facingDirection, setfacingDirection] = useState("East");
+  const [facingDirection, setFacingDirection] =
+    useState<FacingDirection>("East");
   const [totalFloors, setTotalFloors] = useState("");
   const [propertyFloor, setPropertyFloor] = useState("");
-  const [furnishingType, setFurnishingType] = useState("Unfurnished");
-  const [rooms, setRoomCount] = useState("1");
   const [description, setPropertyDescription] = useState("");
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -219,7 +232,7 @@ export const CreateProperty = () => {
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "", // put your API key in .env file
-    libraries: ["places", "geometry"],
+    libraries: GOOGLE_LIBRARIES,
   });
 
   const fetchNearbyTransport = async (lat: number, lng: number) => {
@@ -269,54 +282,6 @@ export const CreateProperty = () => {
     }
   }, []);
 
-  // When user selects place from autocomplete input
-  // const onPlaceChanged = () => {
-  //   if (autocomplete) {
-  //     const place = autocomplete.getPlace();
-  //     if (place.geometry) {
-  //       const lat = place.geometry.location?.lat();
-  //       const lng = place.geometry.location?.lng();
-  //       if (lat && lng) {
-  //         setMarkerPosition({ lat, lng });
-  //         setLatitude(lat.toString());
-  //         setLongitude(lng.toString());
-  //         fetchNearbyTransport(lat, lng);
-  //       }
-  //     }
-  //   }
-  // };
-
-  // Autocomplete setup
-  // const onLoadAutocomplete = (autoC: google.maps.places.Autocomplete) => {
-  //   setAutocomplete(autoC);
-  // };
-
-  // Handle image selection from file input
-  // const onImageSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   if (!e.target.files) return;
-
-  //   const selectedFiles = Array.from(e.target.files);
-  //   const newImages = selectedFiles.map((file) => ({
-  //     file,
-  //     name: file.name,
-  //     previewUrl: URL.createObjectURL(file),
-  //   }));
-  //   setImages((prev) => [...prev, ...newImages]);
-  // };
-
-  // Remove image preview by index
-  // const removeImage = (index: number) => {
-  //   setImages((prev) => {
-  //     // Revoke URL to avoid memory leaks
-  //     if (prev[index]?.url) {
-  //       URL.revokeObjectURL(prev[index].url);
-  //     }
-  //     const newArr = [...prev];
-  //     newArr.splice(index, 1);
-  //     return newArr;
-  //   });
-  // };
-
   // Validation function
   const validate = (): Record<string, string> => {
     const newErrors: Record<string, string> = {};
@@ -332,21 +297,13 @@ export const CreateProperty = () => {
     if (!images.length) {
       newErrors.images = "Upload at least one image";
     }
-    if (!totalArea.trim() || isNaN(parseFloat(totalArea)))
-      newErrors.totalArea = "Valid total area is required";
 
-    if (!builtUpArea.trim() || isNaN(parseFloat(builtUpArea)))
-      newErrors.builtUpArea = "Valid built up area is required";
+    // if (!totalArea.trim() || isNaN(parseFloat(totalArea)))
+    //   newErrors.totalArea = "Valid total area is required";
 
-    if (!carpetArea.trim() || isNaN(parseFloat(carpetArea)))
-      newErrors.carpetArea = "Valid carpet area is required";
-
-    if (!rooms.trim() || isNaN(parseInt(rooms)))
-      newErrors.rooms = "Valid rooms number is required";
-
-    if (!selectedChips.length) {
-      newErrors.selectedChips = "Select at least one occupancy restriction.";
-    }
+    // if (!selectedChips.length) {
+    //   newErrors.selectedChips = "Select at least one occupancy restriction.";
+    // }
 
     setErrors(newErrors);
     // setShowTopAlert(!isValid);
@@ -354,9 +311,9 @@ export const CreateProperty = () => {
     return newErrors;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+    console.log("check first ");
     const validationErrors = validate();
     setErrors(validationErrors);
     if (Object.keys(validationErrors).length > 0) {
@@ -365,32 +322,58 @@ export const CreateProperty = () => {
     }
 
     // Form is valid, proceed with submission
-    const formState: ResidentialFormState = {
-      firstName,
-      lastName,
-      email,
-      phone1,
+    const formState: PlotFormState = {
+      ownerDetails: {
+        firstName,
+        lastName,
+        contact: { phone1, email }
+      },
       propertyType,
       title,
-      rent,
-      negotiable,
-      advanceAmount,
-      leaseTenure,
-      residentialType,
-      address,
-      latitude,
-      longitude,
-      images,
-      totalArea,
-      builtUpArea,
-      carpetArea,
+      plotType,
       facingDirection,
-      totalFloors,
-      propertyFloor,
-      furnishingType,
-      rooms,
-      description,
+      rent: {
+        rentAmount: 0,
+        negotiable: false,
+        advanceAmount: 0,
+        agreementTiming: '',
+      },
+      lease: {
+        leaseAmount: 0,
+        negotiable: false,
+        leaseTenure: '',
+      },
+      
+      sale: {
+        saleAmount: 0,
+        negotiable: false,
+      },
+      
+      
+      location: {
+        address,
+        map: {
+          latitude: Number(latitude),
+          longitude: Number(longitude),
+        },
+        area: {
+          totalArea: totalArea.toString(), 
+        },
+      },
+      
+      images: images.map(img => img.file),
+      uploadedImages: images,
+      totalFloors: Number(totalFloors) || 0,
+      propertyFloor: Number(propertyFloor) || 0,
       selectedChips,
+      status: "Pending",
+      isDeleted: false,
+      description: description ?? "",
+      hasWell: false,
+      hasMotor: false,
+      hasEBConnection: false,
+      hasBorewell: false,
+      
     };
 
     // Convert payload to object
@@ -399,21 +382,39 @@ export const CreateProperty = () => {
     // Build FormData (for multipart/form-data)
     const formData = new FormData();
 
-    const flatPayload = flattenObject(payload);
+    const flatPayload = flattenObject(payload as unknown as PlainObject);
 
     Object.entries(flatPayload).forEach(([key, value]) => {
-      formData.append(key, value);
+      if (key !== "images") {
+        formData.append(key, value);
+      }
     });
 
-    
     //Append images with MIME type handling & debug logging
+    const MAX_FILE_SIZE_MB = 5;
+
     images.forEach(
       (
         img
         // index
       ) => {
-        if (img.file instanceof File) {
-          formData.append("images", img.file);
+        if (
+          img.file instanceof File &&
+          ["image/jpeg", "image/jpg", "image/png", "image/webp"].includes(
+            img.file.type
+          )
+        ) {
+          if (img.file.size <= MAX_FILE_SIZE_MB * 1024 * 1024) {
+            formData.append("images", img.file);
+          } else {
+            toast.error(
+              `${img.name} exceeds ${MAX_FILE_SIZE_MB}MB size limit.`
+            );
+          }
+          // console.warn(`Skipped invalid image: ${img.name}`);
+          toast.error(
+            `Invalid file type: ${img.name}. Only JPEG, PNG, or WEBP allowed.`
+          );
         }
       }
     );
@@ -421,7 +422,7 @@ export const CreateProperty = () => {
     try {
       // Send POST request
       const response = await axios.post(
-        `${import.meta.env.VITE_BackEndUrl}/api/residential/create`,
+        `${import.meta.env.VITE_BackEndUrl}/api/plot/create`,
         formData,
         {
           headers: {
@@ -435,7 +436,7 @@ export const CreateProperty = () => {
       // TODO: Send data to backend
       // Redirect after a short delay (so toast is visible)
       setTimeout(() => {
-        navigate("/residential", {
+        navigate("/plot", {
           state: { data: response.data },
         });
       }, 2000);
@@ -453,6 +454,7 @@ export const CreateProperty = () => {
 
       toast.error(`Failed to create property: ${errorMessage}`);
     }
+    console.log("check end ");
   };
 
   //TopOfCenter MUIAlertToast
@@ -467,12 +469,9 @@ export const CreateProperty = () => {
     phone1.trim() &&
     title.trim() &&
     address.trim() &&
-    images.length > 0 &&
-    totalArea.trim() &&
-    builtUpArea.trim() &&
-    carpetArea.trim() &&
-    rooms.trim() &&
-    selectedChips.length > 0;
+    images.length > 0;
+  // totalArea.trim();
+  // selectedChips.length > 0
 
   return (
     <form onSubmit={handleSubmit}>
@@ -599,49 +598,68 @@ export const CreateProperty = () => {
                 </div>
 
                 <div className="OwnerInputField  row mb-3">
-                  <div className="d-flex flex-d-row">
-                    <div className="col-12 col-md-6 mb-3">
+                  <div className="d-flex flex-d-row gap-3">
+                    {/* Property Type */}
+                    <div className="col-md-6 mb-3">
                       <label className="TextLabel" htmlFor="propertyType">
-                        Property Type
+                        Plot Type
                       </label>
                       <InputField
                         type="dropdown"
                         id="propertyType"
                         dropdownOptions={["Rent", "Lease", "Sale"]}
                         value={propertyType}
-                        onChange={(e) => setPropertyType(e.target.value)}
+                        onChange={(e) =>
+                          setPropertyType(e.target.value as PropertyType)
+                        }
                       />
                     </div>
-                    <div className="row">
-                      <div className="col-12">
-                        <label className="TextLabel" htmlFor="residentialType">
-                          Residential Type
-                        </label>
-                        <div className="d-flex flex-wrap gap-3">
-                          <InputField
-                            type="radio"
-                            className="radioField"
-                            radioOptions={["House", "Apartment", "Villa"]}
-                            id="residentialType"
-                            value={residentialType}
-                            onChange={(e) => setResidentialType(e.target.value)}
-                          />
-                        </div>
-                      </div>
+                    {/* Plot Type */}
+                    <div className="col-md-6 mb-3">
+                      <label className="TextLabel" htmlFor="plotType">
+                        Plot Type
+                      </label>
+                      <InputField
+                        type="dropdown"
+                        id="plotType"
+                        placeholder="None"
+                        dropdownOptions={[
+                          "Agriculture",
+                          "Business Use",
+                          "Commercial Use",
+                          "Industrial Use",
+                          "Personal Use",
+                          "Parking",
+                          "Shed/Storage",
+                          "Poultry or Livestock",
+                          "Events or Functions",
+                          "Investment Purpose",
+                          "Renewable Energy Projects",
+                          "Timber/Tree Plantation",
+                          "Nursery/Gardening Business",
+                          "Telecom Towers",
+                        ]}
+                        value={plotType || "Agriculture"}
+                        onChange={(e) =>
+                          setPlotType(e.target.value as PlotType)
+                        }
+                      />
                     </div>
                   </div>
+                  {/* -------- Dynamic Inputs based on propertyType --------- */}
+                  {/* Rent/Lease/Sale Specific Fields */}
 
-                  <div className=" d-flex flex-d-row">
-                    <div className="col-12 col-md-6 mb-3">
-                      <label className="TextLabel" htmlFor="monthlyRent">
-                        Monthly Rent (₹)
+                  <div className=" d-flex flex-d-row gap-3">
+                    <div className="col-md-6 mb-3">
+                      <label className="TextLabel" htmlFor="rentAmount">
+                        Rent Amount(₹)
                       </label>
                       <InputField
                         type="text"
-                        id="monthlyRent"
+                        id="rentAmount"
                         placeholder="Enter Amount in Rupees (₹)"
-                        value={rent}
-                        onChange={(e) => setRent(e.target.value)}
+                        value={rentAmount}
+                        onChange={(e) => setRentAmount(Number(e.target.value))}
                       />
                     </div>
                     <div className="row">
@@ -681,7 +699,7 @@ export const CreateProperty = () => {
                     </div>
                     <div className="col-6 mb-3">
                       <label className="TextLabel" htmlFor="tenure">
-                        Tenure (Years)
+                        Agreement Timings (Years){" "}
                       </label>
                       <InputField
                         type="text"
@@ -726,7 +744,7 @@ export const CreateProperty = () => {
                           <Autocomplete
                             onLoad={(autoC) => setAutocomplete(autoC)}
                             onPlaceChanged={() => {
-                              if ( autocomplete) {
+                              if (autocomplete) {
                                 const place = autocomplete.getPlace();
                                 const lat = place.geometry?.location?.lat();
                                 const lng = place.geometry?.location?.lng();
@@ -965,6 +983,8 @@ export const CreateProperty = () => {
                               file,
                               url: URL.createObjectURL(file),
                               name: file.name,
+                              uploadedAt: new Date(),
+
                             }));
 
                           if (validImages.length === 0) return;
@@ -1019,7 +1039,7 @@ export const CreateProperty = () => {
                 <div className="OwnerDetailTextField mt-3 row">
                   <div className="col-12 col-md-6 mb-3">
                     <label className="TextLabel" htmlFor="totalArea">
-                      Total Area <span className="star">*</span>
+                      Total Area
                     </label>
                     <InputField
                       type="text"
@@ -1027,48 +1047,18 @@ export const CreateProperty = () => {
                       placeholder="Enter Total Area (sq.ft)"
                       value={totalArea}
                       onChange={(e) => setTotalArea(e.target.value)}
-                      error={!!errors.totalArea}
-                      helperText={errors.totalArea}
+                      // error={!!errors.totalArea}
+                      // helperText={errors.totalArea}
                     />
                   </div>
                   <div className="col-12 col-md-6 mb-3">
                     <label className="TextLabel" htmlFor="builtUpArea">
-                      Built Up Area <span className="star">*</span>
-                    </label>
-                    <InputField
-                      type="text"
-                      id="builtUpArea"
-                      placeholder="Enter Built-Up Area (sq.ft)"
-                      value={builtUpArea}
-                      onChange={(e) => setBuiltUpArea(e.target.value)}
-                      error={!!errors.builtUpArea}
-                      helperText={errors.builtUpArea}
-                    />
-                  </div>
-
-                  <div className="col-12 col-md-6 mb-3">
-                    <label className="TextLabel" htmlFor="carpetArea">
-                      Carpet Area <span className="star">*</span>
-                    </label>
-                    <InputField
-                      type="text"
-                      id="carpetArea"
-                      placeholder="Enter Carpet Area (sq.ft)"
-                      value={carpetArea}
-                      onChange={(e) => setCarpetArea(e.target.value)}
-                      error={!!errors.carpetArea}
-                      helperText={errors.carpetArea}
-                    />
-                  </div>
-
-                  <div className="col-12 col-md-6 mb-3">
-                    <label className="TextLabel" htmlFor="facing">
                       Facing
                     </label>
                     <InputField
                       type="dropdown"
-                      id="facing"
-                      placeholder="Select Direction Facing"
+                      id="facingDirection"
+                      placeholder="None"
                       dropdownOptions={[
                         "North",
                         "East",
@@ -1077,99 +1067,119 @@ export const CreateProperty = () => {
                         "North East",
                         "North West",
                         "South East",
-                        "South West"
-                        
+                        "South West",
                       ]}
                       value={facingDirection || "East"}
-                      onChange={(e) => setfacingDirection(e.target.value)}
+                      onChange={(e) =>
+                        setFacingDirection(e.target.value as FacingDirection)
+                      }
                     />
                   </div>
-
-                  <div className="col-12 col-md-6 mb-3">
-                    <label className="TextLabel" htmlFor="totalFloors">
-                      Total Floors
-                    </label>
-                    <InputField
-                      type="text"
-                      id="totalFloors"
-                      placeholder="Enter Total Number of Floors"
-                      value={totalFloors}
-                      onChange={(e) => setTotalFloors(e.target.value)}
-                      error={!!errors.totalFloors}
-                      helperText={errors.totalFloors}
-                    />
+                  <div className="d-flex flex-d-row gap-3">
+                    <div className="col-12 col-md-6 mb-3">
+                      <label className="TextLabel" htmlFor="totalFloors">
+                        Length
+                      </label>
+                      <InputField
+                        type="text"
+                        id="totalFloors"
+                        placeholder="Enter Length (Ft)"
+                        value={totalFloors}
+                        onChange={(e) => setTotalFloors(e.target.value)}
+                        error={!!errors.totalFloors}
+                        helperText={errors.totalFloors}
+                      />
+                    </div>
+                    <div className="col-12 col-md-6 mb-3">
+                      <label className="TextLabel" htmlFor="propertyOnFloor">
+                        Width
+                      </label>
+                      <InputField
+                        type="text"
+                        id="propertyOnFloor"
+                        placeholder="Enter Width (Ft)"
+                        value={propertyFloor}
+                        onChange={(e) => setPropertyFloor(e.target.value)}
+                        error={!!errors.propertyFloor}
+                        helperText={errors.propertyFloor}
+                      />
+                    </div>
                   </div>
                   <div className="col-12 col-md-6 mb-3">
                     <label className="TextLabel" htmlFor="propertyOnFloor">
-                      Property on
+                      Acre
                     </label>
                     <InputField
                       type="text"
                       id="propertyOnFloor"
-                      placeholder="Enter Floor Number"
+                      placeholder="Enter Length (Ft)"
                       value={propertyFloor}
                       onChange={(e) => setPropertyFloor(e.target.value)}
                       error={!!errors.propertyFloor}
                       helperText={errors.propertyFloor}
                     />
                   </div>
-
-                  <div className="col-12 col-md-6 mb-3">
-                    <label className="TextLabel" htmlFor="furnishedType">
-                      Furnished Type
-                    </label>
-                    <InputField
-                      type="dropdown"
-                      id="furnishedType"
-                      dropdownOptions={[
-                        "Fully Furnished",
-                        "Semi Furnished",
-                        "Unfurnished",
-                      ]}
-                      value={furnishingType || "Unfurnished"}
-                      onChange={(e) => setFurnishingType(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="col-12 col-md-6 mb-3">
-                    <label className="TextLabel" htmlFor="roomCount">
-                      Rooms <span className="star">*</span>
-                    </label>
-                    <InputField
-                      type="dropdown"
-                      id="roomCount"
-                      dropdownOptions={["1", "2", "3", "4", "5+"]}
-                      value={rooms || "1"}
-                      onChange={(e) => setRoomCount(e.target.value)}
-                      error={!!errors.rooms}
-                      helperText={errors.rooms}
-                    />
-                  </div>
                 </div>
               </section>
 
-              {/* Amenities Section - No direct validation needed unless you have min/max selections */}
-              <section className=" AmenitiesSection mb-4">
-                <div className="ownerTitle mb-3">
-                  <h6>Nearby Services & Essentials</h6>
+              <section className="ownerFacilitiess">
+                <div className="ownerTitle">
+                  <h6>Facilities Provided</h6>
                   <p>
-                    Select the important places or services available near this
-                    property
+                    Specify the amenities and utilities available in the plot
                   </p>
                 </div>
-
-                <div className="chipField row g-3">
+                <div className="chipField row">
                   <div
                     className="chipcard d-flex gap-4 col-6 col-md-3 mb-3"
                     style={{ padding: "31px" }}
                   >
                     <InputField
-                      className="col-6 col-sm-4 col-md-3 col-lg-2 d-flex"
                       type="chip"
-                      label="Separate Electricity Billing"
+                      label="Well"
                       icon={
                         <Avatar
-                          alt="Separate Electricity Billing"
+                          alt="Well"
+                          src="/src/assets/createProperty/material-symbols_water-full-outline.svg"
+                          className="avatarImg"
+                        />
+                      }
+                      selectedChips={selectedChips}
+                      onChipToggle={(label) => {
+                        setSelectedChips((prev) =>
+                          prev.includes(label)
+                            ? prev.filter((chip) => chip !== label)
+                            : [...prev, label]
+                        );
+                      }}
+                    />
+
+                    <InputField
+                      type="chip"
+                      label="Bore Well"
+                      icon={
+                        <Avatar
+                          alt="Bore Well"
+                          src="/src/assets/createProperty/fa6-solid_bore-hole.svg"
+                          className="avatarImg"
+                        />
+                      }
+                      selectedChips={selectedChips}
+                      onChipToggle={(label) => {
+                        setSelectedChips((prev) =>
+                          prev.includes(label)
+                            ? prev.filter((chip) => chip !== label)
+                            : [...prev, label]
+                        );
+                      }}
+                    />
+
+                    <InputField
+                      type="chip"
+                      label="EB Connection"
+                      icon={
+                        <Avatar
+                          alt="EB Connection"
                           src="/src/assets/createProperty/mage_electricity.svg"
                           className="avatarImg"
                         />
@@ -1185,428 +1195,12 @@ export const CreateProperty = () => {
                     />
 
                     <InputField
-                      className="col-6 col-sm-4 col-md-3 col-lg-2 d-flex"
                       type="chip"
-                      label="Public Park"
+                      label="Motor"
                       icon={
                         <Avatar
-                          alt="Public Park"
-                          src="/src/assets/createProperty/material-symbols_park-outline-rounded.svg"
-                          className="avatarImg"
-                        />
-                      }
-                      selectedChips={selectedChips}
-                      onChipToggle={(label) => {
-                        setSelectedChips((prev) =>
-                          prev.includes(label)
-                            ? prev.filter((chip) => chip !== label)
-                            : [...prev, label]
-                        );
-                      }}
-                    />
-
-                    <InputField
-                      className="col-6 col-sm-4 col-md-3 col-lg-2 d-flex"
-                      type="chip"
-                      label="Gym"
-                      icon={
-                        <Avatar
-                          alt="Gym"
-                          src="/src/assets/createProperty/hugeicons_equipment-gym-03.svg"
-                          className="avatarImg"
-                        />
-                      }
-                      selectedChips={selectedChips}
-                      onChipToggle={(label) => {
-                        setSelectedChips((prev) =>
-                          prev.includes(label)
-                            ? prev.filter((chip) => chip !== label)
-                            : [...prev, label]
-                        );
-                      }}
-                    />
-                    <InputField
-                      className="col-6 col-sm-4 col-md-3 col-lg-2 d-flex"
-                      type="chip"
-                      label="Movie Theater"
-                      icon={
-                        <Avatar
-                          alt="Movie Theater"
-                          src="/src/assets/createProperty/mingcute_movie-line.svg"
-                          className="avatarImg"
-                        />
-                      }
-                      selectedChips={selectedChips}
-                      onChipToggle={(label) => {
-                        setSelectedChips((prev) =>
-                          prev.includes(label)
-                            ? prev.filter((chip) => chip !== label)
-                            : [...prev, label]
-                        );
-                      }}
-                    />
-                    <InputField
-                      className="col-6 col-sm-4 col-md-3 col-lg-2 d-flex"
-                      type="chip"
-                      label="Shopping Mall"
-                      icon={
-                        <Avatar
-                          alt="Shopping Mall"
-                          src="/src/assets/createProperty/material-symbols_local-mall-outline.svg"
-                          className="avatarImg"
-                        />
-                      }
-                      selectedChips={selectedChips}
-                      onChipToggle={(label) => {
-                        setSelectedChips((prev) =>
-                          prev.includes(label)
-                            ? prev.filter((chip) => chip !== label)
-                            : [...prev, label]
-                        );
-                      }}
-                    />
-                  </div>
-                </div>
-              </section>
-
-              {/* Accessibility Section - No direct validation needed */}
-              <section className="AccessibilitySection mb-4">
-                <div className="ownerTitle">
-                  <h6>Move-In Accessibility</h6>
-                  <p>
-                    Choose how easy it is to access and move into the property
-                  </p>
-                </div>
-
-                <div className="chipField row">
-                  <div
-                    className="chipcard d-flex gap-4 col-6 col-md-3 mb-3"
-                    style={{ padding: "31px" }}
-                  >
-                    <InputField
-                      type="chip"
-                      label="Lift Access"
-                      icon={
-                        <Avatar
-                          alt="Lift Access"
-                          src="/src/assets/createProperty/Icon_Lift.svg"
-                          className="avatarImg"
-                        />
-                      }
-                      selectedChips={selectedChips}
-                      onChipToggle={(label) => {
-                        setSelectedChips((prev) =>
-                          prev.includes(label)
-                            ? prev.filter((chip) => chip !== label)
-                            : [...prev, label]
-                        );
-                      }}
-                    />
-
-                    <InputField
-                      type="chip"
-                      label="Ramp Access"
-                      icon={
-                        <Avatar
-                          alt="Ramp Access"
-                          src="/src/assets/createProperty/guidance_ramp-up.svg"
-                          className="avatarImg"
-                        />
-                      }
-                      selectedChips={selectedChips}
-                      onChipToggle={(label) => {
-                        setSelectedChips((prev) =>
-                          prev.includes(label)
-                            ? prev.filter((chip) => chip !== label)
-                            : [...prev, label]
-                        );
-                      }}
-                    />
-
-                    <InputField
-                      type="chip"
-                      label="Only via Stairs"
-                      icon={
-                        <Avatar
-                          alt="Only via Stairs"
+                          alt="Motor"
                           src="/src/assets/createProperty/tabler_stairs.svg"
-                          className="avatarImg"
-                        />
-                      }
-                      selectedChips={selectedChips}
-                      onChipToggle={(label) => {
-                        setSelectedChips((prev) =>
-                          prev.includes(label)
-                            ? prev.filter((chip) => chip !== label)
-                            : [...prev, label]
-                        );
-                      }}
-                    />
-                  </div>
-                </div>
-              </section>
-
-              <section className="AccessibilitySection mb-4">
-                <div className="ownerTitle">
-                  <h6>Connectivity & Security Features</h6>
-                  <p>
-                    Highlight the connectivity options and security services
-                    included with this property{" "}
-                  </p>
-                </div>
-
-                <div className="chipField row">
-                  <div
-                    className="chipcard d-flex gap-4 col-6 col-md-3 mb-3"
-                    style={{ padding: "31px" }}
-                  >
-                    <InputField
-                      type="chip"
-                      label="Broadband Connection"
-                      icon={
-                        <Avatar
-                          alt="Lift Access"
-                          src="/src/assets/createProperty/Group.svg"
-                          className="avatarImg"
-                        />
-                      }
-                      selectedChips={selectedChips}
-                      onChipToggle={(label) => {
-                        setSelectedChips((prev) =>
-                          prev.includes(label)
-                            ? prev.filter((chip) => chip !== label)
-                            : [...prev, label]
-                        );
-                      }}
-                    />
-
-                    <InputField
-                      type="chip"
-                      label="Security"
-                      icon={
-                        <Avatar
-                          alt="Ramp Access"
-                          src="/src/assets/createProperty/mingcute_user-security-line.svg"
-                          className="avatarImg"
-                        />
-                      }
-                      selectedChips={selectedChips}
-                      onChipToggle={(label) => {
-                        setSelectedChips((prev) =>
-                          prev.includes(label)
-                            ? prev.filter((chip) => chip !== label)
-                            : [...prev, label]
-                        );
-                      }}
-                    />
-                  </div>
-                </div>
-              </section>
-
-              {/* Utilities Section - No direct validation needed */}
-              <section className="UtilitiesSection ">
-                <div className="ownerTitle">
-                  <h6>Infrastructure & Utilities</h6>
-                  <p>
-                    Select the facilities or utilities included with this
-                    property{" "}
-                  </p>
-                </div>
-
-                <div className="chipField">
-                  <div className="chipcard " style={{ padding: "31px" }}>
-                    <div className="firstRow d-flex gap-4">
-                      <InputField
-                        type="chip"
-                        label="Regular Maintenance Included"
-                        icon={
-                          <Avatar
-                            alt="Regular Maintenance Included"
-                            src="/src/assets/createProperty/Icon_Cleaning.svg"
-                            className="avatarImg"
-                          />
-                        }
-                        selectedChips={selectedChips}
-                        onChipToggle={(label) => {
-                          setSelectedChips((prev) =>
-                            prev.includes(label)
-                              ? prev.filter((chip) => chip !== label)
-                              : [...prev, label]
-                          );
-                        }}
-                      />
-
-                      <InputField
-                        type="chip"
-                        label="Water Supply Available"
-                        icon={
-                          <Avatar
-                            alt="Water Supply Available"
-                            src="/src/assets/createProperty/material-symbols_water-full-outline.svg"
-                            className="avatarImg"
-                          />
-                        }
-                        selectedChips={selectedChips}
-                        onChipToggle={(label) => {
-                          setSelectedChips((prev) =>
-                            prev.includes(label)
-                              ? prev.filter((chip) => chip !== label)
-                              : [...prev, label]
-                          );
-                        }}
-                      />
-
-                      <InputField
-                        type="chip"
-                        label="Good Road Access"
-                        icon={
-                          <Avatar
-                            alt="Good Road Access"
-                            src="/src/assets/createProperty/Icon_Road.svg"
-                            className="avatarImg"
-                          />
-                        }
-                        selectedChips={selectedChips}
-                        onChipToggle={(label) => {
-                          setSelectedChips((prev) =>
-                            prev.includes(label)
-                              ? prev.filter((chip) => chip !== label)
-                              : [...prev, label]
-                          );
-                        }}
-                      />
-                    </div>
-
-                    <div className="secondRow d-flex gap-4">
-                      <InputField
-                        type="chip"
-                        label="Sewage Connection Available"
-                        icon={
-                          <Avatar
-                            alt="Sewage Connection Available"
-                            src="/src/assets/createProperty/Icon_restroom.svg"
-                            className="avatarImg"
-                          />
-                        }
-                        selectedChips={selectedChips}
-                        onChipToggle={(label) => {
-                          setSelectedChips((prev) =>
-                            prev.includes(label)
-                              ? prev.filter((chip) => chip !== label)
-                              : [...prev, label]
-                          );
-                        }}
-                      />
-                      <InputField
-                        type="chip"
-                        label="Dedicated Parking Available"
-                        icon={
-                          <Avatar
-                            alt="Dedicated Parking Available"
-                            src="/src/assets/createProperty/Icon_Parking.svg"
-                            className="avatarImg"
-                          />
-                        }
-                        selectedChips={selectedChips}
-                        onChipToggle={(label) => {
-                          setSelectedChips((prev) =>
-                            prev.includes(label)
-                              ? prev.filter((chip) => chip !== label)
-                              : [...prev, label]
-                          );
-                        }}
-                      />
-                      <InputField
-                        type="chip"
-                        label="Private Balcony Included"
-                        icon={
-                          <Avatar
-                            alt="Private Balcony Included"
-                            src="/src/assets/createProperty/Icon_Balcony.svg"
-                            className="avatarImg"
-                          />
-                        }
-                        selectedChips={selectedChips}
-                        onChipToggle={(label) => {
-                          setSelectedChips((prev) =>
-                            prev.includes(label)
-                              ? prev.filter((chip) => chip !== label)
-                              : [...prev, label]
-                          );
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              {/* Restrictions Section - No direct validation needed */}
-              <section className="RestrictionsSection mb-4">
-                <div className="ownerTitle">
-                  <h6>
-                    Occupancy Restrictions <span className="star">*</span>
-                  </h6>
-                  <p>
-                    Select any rules about who can stay or live in this property
-                  </p>
-                  {errors.selectedChips && (
-                    <p className="text-danger">{errors.selectedChips}</p> // <-- error message here
-                  )}
-                </div>
-
-                <div className="chipField row">
-                  <div
-                    className="chipcard d-flex gap-4 col-6 col-md-3 mb-3"
-                    style={{ padding: "31px" }}
-                  >
-                    <InputField
-                      type="chip"
-                      label="Guests Not Allowed"
-                      icon={
-                        <Avatar
-                          alt="Guests Not Allowed"
-                          src="/src/assets/createProperty/solar_user-linear.svg"
-                          className="avatarImg"
-                          sx={{ width: 18, height: 18 }}
-                        />
-                      }
-                      selectedChips={selectedChips}
-                      onChipToggle={(label) => {
-                        setSelectedChips((prev) =>
-                          prev.includes(label)
-                            ? prev.filter((chip) => chip !== label)
-                            : [...prev, label]
-                        );
-                      }}
-                    />
-
-                    <InputField
-                      type="chip"
-                      label="No Pets Allowed"
-                      icon={
-                        <Avatar
-                          alt="No Pets Allowed"
-                          src="/src/assets/createProperty/streamline_pets-allowed.svg"
-                          className="avatarImg"
-                        />
-                      }
-                      selectedChips={selectedChips}
-                      onChipToggle={(label) => {
-                        setSelectedChips((prev) =>
-                          prev.includes(label)
-                            ? prev.filter((chip) => chip !== label)
-                            : [...prev, label]
-                        );
-                      }}
-                    />
-
-                    <InputField
-                      type="chip"
-                      label="No Bachelors Allowed"
-                      icon={
-                        <Avatar
-                          alt="No Bachelors Allowed"
-                          src="/src/assets/createProperty/Icon_Lift (1).svg"
                           className="avatarImg"
                         />
                       }
@@ -1655,8 +1249,6 @@ export const CreateProperty = () => {
                   onChange={(e) => setPropertyDescription(e.target.value)}
                 ></textarea>
               </section>
-
-              
 
               <ToastContainer
                 position="top-right"
@@ -1728,7 +1320,7 @@ export const CreateProperty = () => {
                       type="submit"
                       disabled={!isFormReadyToSubmit}
 
-                      // onClick={() => navigate("/createResidential", { state: { mode: "create" } })}
+                      // onClick={() => navigate("/createCommercial", { state: { mode: "create" } })}
                     />
 
                     {/* This must be rendered */}
@@ -1744,4 +1336,4 @@ export const CreateProperty = () => {
   );
 };
 
-export default CreateProperty;
+export default CreatePlotProperty;

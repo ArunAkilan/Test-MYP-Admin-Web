@@ -83,6 +83,17 @@ export interface Accessibility {
   lift: boolean;
   ramp: boolean;
 }
+export type UploadedImage = {
+  file: File;
+  url: string;
+  name: string;
+};
+export type AccessibilityChip =
+  | "Bachelors Allowed"
+  | "Guest Allowed"
+  | "Pets Allowed";
+
+  export type PlainObject = { [key: string]: unknown };
 
 export interface CommercialPropertyForm {
   owner: OwnerDetails;
@@ -105,4 +116,10 @@ export interface CommercialPropertyForm {
   status: "Pending" | "Approved" | "Rejected" | "Deleted" | "Sold";
   isDeleted: boolean;
   description?: string;
+
+}
+// ===== FRONTEND FORM STATE TYPE =====
+export interface CommercialFormState extends CommercialPropertyForm {
+  uploadedImages: UploadedImage[]; // used only in frontend UI for previews
+  selectedChips: string[];
 }

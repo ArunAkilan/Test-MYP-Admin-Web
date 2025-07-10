@@ -5,7 +5,14 @@ import GenericButton from "../Common/Button/button";
 import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
 import DoneIcon from "@mui/icons-material/Done";
 import CloseIcon from "@mui/icons-material/Close";
-import { Button, Avatar, Alert, IconButton } from "@mui/material";
+import {
+  Button,
+  Avatar,
+  Alert,
+  IconButton,
+  Backdrop,
+  CircularProgress,
+} from "@mui/material";
 import "./createProperties/createProperty.scss"; // Your styling
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -18,7 +25,12 @@ import type {
   PlainObject,
 } from "./createProperties/createProperty.model";
 import type { Restrictions } from "../AdminResidencial/AdminResidencial.model";
-import { GoogleMap, Marker, Autocomplete, useJsApiLoader } from "@react-google-maps/api";
+import {
+  GoogleMap,
+  Marker,
+  Autocomplete,
+  useJsApiLoader,
+} from "@react-google-maps/api";
 import Tooltip from "@mui/material/Tooltip";
 
 const containerStyle = {
@@ -90,7 +102,11 @@ function buildPayloadDynamic(
   setNested(payload, "owner.contact.phone1", (formState.phone1 ?? "").trim());
   setNested(payload, "owner.contact.email", (formState.email ?? "").trim());
   setNested(payload, "owner.contact.getUpdates", false);
-  setNested(payload, "propertyType", formState.propertyType || "Semi Furnished");
+  setNested(
+    payload,
+    "propertyType",
+    formState.propertyType || "Semi Furnished"
+  );
   const rentAmount = parseFloat(formState.rent);
   setNested(payload, "rent.rentAmount", isNaN(rentAmount) ? 0 : rentAmount);
   setNested(payload, "rent.negotiable", formState.negotiable === false);
@@ -116,7 +132,11 @@ function buildPayloadDynamic(
   setNested(payload, "images", imageUrls);
 
   setNested(payload, "title", formState.title);
-  setNested(payload, "residentialType", formState.residentialType || "Apartment");
+  setNested(
+    payload,
+    "residentialType",
+    formState.residentialType || "Apartment"
+  );
   setNested(payload, "facingDirection", formState.facingDirection || "East");
   setNested(payload, "rooms", `${formState.rooms || "1"} BHK`);
   setNested(
@@ -129,7 +149,11 @@ function buildPayloadDynamic(
     "propertyFloor",
     formState.propertyFloor ? parseInt(formState.propertyFloor) : 0
   );
-  setNested(payload, "furnishingType", formState.furnishingType?.replace("-", " "));
+  setNested(
+    payload,
+    "furnishingType",
+    formState.furnishingType?.replace("-", " ")
+  );
   setNested(payload, "description", formState.description);
   setNested(payload, "area.builtUpArea", `${formState.builtUpArea} sqft`);
   setNested(payload, "area.carpetArea", `${formState.carpetArea} sqft`);
@@ -175,6 +199,9 @@ function buildPayloadDynamic(
 export const CreateProperty = () => {
   // State for form data
   const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(false);
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -228,8 +255,9 @@ export const CreateProperty = () => {
     const info: Record<string, string> = {};
     for (const t of types) {
       try {
-        const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=10000&type=${t.type
-          }&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`;
+        const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=10000&type=${
+          t.type
+        }&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`;
         const res = await fetch(url);
         const data = await res.json();
         if (data.results && data.results.length > 0) {
@@ -275,7 +303,7 @@ export const CreateProperty = () => {
       const geocoder = new google.maps.Geocoder();
 
       geocoder.geocode({ location: position }, (results, status) => {
-        console.log(results,status, "properties")
+        console.log(results, status, "properties");
         if (status === "OK" && results && results[0]) {
           setAddress(results[0].formatted_address);
           setErrors((prev) => ({ ...prev, address: "" }));
@@ -289,10 +317,15 @@ export const CreateProperty = () => {
         }
       });
     },
-    [setMarkerPosition, setLatitude, setLongitude, setAddress, setErrors, fetchNearbyTransport]
+    [
+      setMarkerPosition,
+      setLatitude,
+      setLongitude,
+      setAddress,
+      setErrors,
+      fetchNearbyTransport,
+    ]
   );
-
-
 
   // When user selects place from autocomplete input
   // const onPlaceChanged = () => {
@@ -381,6 +414,8 @@ export const CreateProperty = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true); //Backdrop
+
 
     const validationErrors = validate();
     setErrors(validationErrors);
@@ -430,7 +465,6 @@ export const CreateProperty = () => {
       formData.append(key, value);
     });
 
-
     //Append images with MIME type handling & debug logging
     images.forEach(
       (
@@ -444,6 +478,7 @@ export const CreateProperty = () => {
     );
 
     try {
+      setLoading(true); // <- Show backdrop
       // Send POST request
       const response = await axios.post(
         `${import.meta.env.VITE_BackEndUrl}/api/residential/create`,
@@ -456,15 +491,19 @@ export const CreateProperty = () => {
       );
 
       toast.success("Property created successfully!");
-
-      // TODO: Send data to backend
-      // Redirect after a short delay (so toast is visible)
-      setTimeout(() => {
-        navigate("/residential", {
-          state: { data: response.data },
-        });
-      }, 2000);
+      navigate("/residential", {
+        state: { data: response.data, showLoading: true },
+      });
+      
+      // // TODO: Send data to backend
+      // // Redirect after a short delay (so toast is visible)
+      // setTimeout(() => {
+      //     navigate("/residential", {
+      //       state: { data: response.data },
+      //     });
+      //   }, /* 2000 */);
     } catch (err) {
+
       const error = err as AxiosError<{ message?: string; error?: string }>;
 
       console.error("Submission error:", error.response || error);
@@ -477,6 +516,10 @@ export const CreateProperty = () => {
       console.error("Submission Error:", error);
 
       toast.error(`Failed to create property: ${errorMessage}`);
+    }
+    finally{
+      setLoading(false); // <- Hide backdrop on error
+
     }
   };
 
@@ -546,6 +589,13 @@ export const CreateProperty = () => {
                     </p>
                   </Alert>
                 )}
+                {/* Backdrop while submitting */}
+    <Backdrop
+      sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+      open={loading}
+    >
+      <CircularProgress color="inherit" />
+    </Backdrop>
               </div>
               {/* Owner Information Section */}
               <section className="OwnerDetails mb-4">
@@ -700,8 +750,8 @@ export const CreateProperty = () => {
                         placeholder="Enter Deposit"
                         value={advanceAmount}
                         onChange={(e) => setAdvanceAmount(e.target.value)}
-                      // error={!!errors.advanceDeposit}
-                      // helperText={errors.advanceAmount}
+                        // error={!!errors.advanceDeposit}
+                        // helperText={errors.advanceAmount}
                       />
                     </div>
                     <div className="col-6 mb-3">
@@ -741,8 +791,13 @@ export const CreateProperty = () => {
                         </GoogleMap>
                       ) : (
                         <div className="text-center p-4">
-                          <div className="spinner-border text-primary" role="status">
-                            <span className="visually-hidden">Loading map...</span>
+                          <div
+                            className="spinner-border text-primary"
+                            role="status"
+                          >
+                            <span className="visually-hidden">
+                              Loading map...
+                            </span>
                           </div>
                         </div>
                       )}
@@ -774,15 +829,21 @@ export const CreateProperty = () => {
                                   setMarkerPosition({ lat, lng });
 
                                   const geocoder = new google.maps.Geocoder();
-                                  const response = await geocoder.geocode({ location: { lat, lng } });
+                                  const response = await geocoder.geocode({
+                                    location: { lat, lng },
+                                  });
 
                                   if (response.results[0]) {
-                                    const selectedAddress = response.results[0].formatted_address;
+                                    const selectedAddress =
+                                      response.results[0].formatted_address;
                                     setAddress(selectedAddress);
                                     setErrors({ ...errors, address: "" });
                                   } else {
                                     setAddress("");
-                                    setErrors({ ...errors, address: "Could not fetch address" });
+                                    setErrors({
+                                      ...errors,
+                                      address: "Could not fetch address",
+                                    });
                                   }
                                 }
                               }
@@ -818,7 +879,7 @@ export const CreateProperty = () => {
                           placeholder="Latitude"
                           value={latitude}
                           onChange={(e) => setLatitude(e.target.value)}
-                        // Add error handling if latitude is mandatory
+                          // Add error handling if latitude is mandatory
                         />
                       </div>
                       <div className="col-6 mb-3">
@@ -831,7 +892,7 @@ export const CreateProperty = () => {
                           placeholder="Longitude"
                           value={longitude}
                           onChange={(e) => setLongitude(e.target.value)}
-                        // Add error handling if longitude is mandatory
+                          // Add error handling if longitude is mandatory
                         />
                       </div>
                     </div>
@@ -921,8 +982,9 @@ export const CreateProperty = () => {
                   </div>
                   {/* Wrap the entire upload section inside a conditional class for error styling */}
                   <div
-                    className={`image-upload-wrapper ${errors.images ? "error-border" : ""
-                      }`}
+                    className={`image-upload-wrapper ${
+                      errors.images ? "error-border" : ""
+                    }`}
                   >
                     <div className="preview-images d-flex gap-3 mt-2 image-scroll-container">
                       {images.map((img, index) => (
@@ -971,15 +1033,17 @@ export const CreateProperty = () => {
 
                     {/* Upload Button and Text */}
                     <div
-                      className={`BtnFrame d-flex mt-3 mb-2 align-items-start gap-3 ${images.length > 0 ? "with-gap" : ""
-                        }`}
+                      className={`BtnFrame d-flex mt-3 mb-2 align-items-start gap-3 ${
+                        images.length > 0 ? "with-gap" : ""
+                      }`}
                     >
                       <p className="image-p">
                         {/* {propertyImages
                           ? propertyImages.name : "No image chosen"} */}
                         {images && images.length > 0
-                          ? `${images.length} image${images.length > 1 ? "s" : ""
-                          } choosen`
+                          ? `${images.length} image${
+                              images.length > 1 ? "s" : ""
+                            } choosen`
                           : "No image choosen"}
                       </p>
                       <input
@@ -1014,7 +1078,8 @@ export const CreateProperty = () => {
 
                           if (newFiles.length > remainingSlots) {
                             toast.info(
-                              `Only ${remainingSlots} more image${remainingSlots > 1 ? "s" : ""
+                              `Only ${remainingSlots} more image${
+                                remainingSlots > 1 ? "s" : ""
                               } can be added.`
                             );
                           }
@@ -1119,8 +1184,7 @@ export const CreateProperty = () => {
                         "North East",
                         "North West",
                         "South East",
-                        "South West"
-                        
+                        "South West",
                       ]}
                       value={facingDirection || "East"}
                       onChange={(e) => setfacingDirection(e.target.value)}
@@ -1698,8 +1762,6 @@ export const CreateProperty = () => {
                 ></textarea>
               </section>
 
-              
-
               <ToastContainer
                 position="top-right"
                 autoClose={3000}
@@ -1770,7 +1832,7 @@ export const CreateProperty = () => {
                       type="submit"
                       disabled={!isFormReadyToSubmit}
 
-                    // onClick={() => navigate("/createResidential", { state: { mode: "create" } })}
+                      // onClick={() => navigate("/createResidential", { state: { mode: "create" } })}
                     />
 
                     {/* This must be rendered */}
@@ -1782,6 +1844,7 @@ export const CreateProperty = () => {
           </div>
         </div>
       </div>
+     
     </form>
   );
 };

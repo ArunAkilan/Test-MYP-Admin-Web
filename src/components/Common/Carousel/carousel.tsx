@@ -1,256 +1,208 @@
-import { useRef, useState, useEffect } from "react";
-import Card from "@mui/material/Card";
-// import CardContent from "@mui/material/CardContent";
-import CardMedia from "@mui/material/CardMedia";
-// import Typography from "@mui/material/Typography";
-import Box from "@mui/material/Box";
-import IconButton from "@mui/material/IconButton";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import "./carousel.scss";
+import React, { useState } from "react";
+import {
+  Box,
+  Card,
+  IconButton,
+  Badge,
+  styled,
 
-export const Carousel = () => {
-  const sampleCarouselItems = [
-    {
-      img: "../src/assets/dashboardtab/card-image.svg",
-      title: "₹24,000/Month | 1800 sqft",
-      subtitle: "Vadakku mathavi street",
-      description: "Old Bus Stand, Perambalur",
-    },
-    {
-      img: "../src/assets/dashboardtab/card-image.svg",
-      title: "₹24,000/Month | 1800 sqft",
-      subtitle: "TVadakku mathavi street",
-      description: "Old Bus Stand, Perambalur",
-    },
-    {
-      img: "../src/assets/dashboardtab/card-image.svg",
-      title: "₹24,000/Month | 1800 sqft",
-      subtitle: "Vadakku mathavi street",
-      description: "Old Bus Stand, Perambalur",
-    },
-    {
-      img: "../src/assets/dashboardtab/card-image.svg",
-      title: "₹24,000/Month | 1800 sqft",
-      subtitle: "TVadakku mathavi street",
-      description: "Old Bus Stand, Perambalur",
-    },
-    // {
-    //   img: "card-image.jpg",
-    //   title: "₹24,000/Month | 1800 sqft",
-    //   subtitle: "Vadakku mathavi street",
-    //   description: "Old Bus Stand, Perambalur",
-    // },
-    // {
-    //   img: "card-image.jpg",
-    //   title: "₹24,000/Month | 1800 sqft",
-    //   subtitle: "Vadakku mathavi street",
-    //   description: "Old Bus Stand, Perambalur",
-    // },
-    // {
-    //   img: "card-image.jpg",
-    //   title: "₹30,000/Month | 2000 sqft",
-    //   subtitle: "East Main Street",
-    //   description: "Near Market Road",
-    // },
-    // {
-    //   img: "card-image.jpg",
-    //   title: "₹15,000/Month | 1200 sqft",
-    //   subtitle: "West Road",
-    //   description: "Opposite Bus Stand",
-    // },
-    // {
-    //   img: "card-image.jpg",
-    //   title: "₹18,500/Month | 1400 sqft",
-    //   subtitle: "North Cross Street",
-    //   description: "Beside Petrol Bunk",
-    // },
-    // {
-    //   img: "card-image.jpg",
-    //   title: "₹22,000/Month | 1600 sqft",
-    //   subtitle: "Central Avenue",
-    //   description: "Near Hospital",
-    // },
-  ];
+} from "@mui/material";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import CameraAltIcon from "@mui/icons-material/CameraAlt";
+// import CloseIcon from "@mui/icons-material/Close";
+// import type { TransitionProps } from "@mui/material/transitions";
+import ImageCarouselModal from "./imagecarousel";
 
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [showLeftArrow, setShowLeftArrow] = useState(false);
-  const [showRightArrow, setShowRightArrow] = useState(true);
+interface CarouselProps {
+  images: string[];
+  price: string;
+  area: string;
+}
 
-  const checkScrollPosition = () => {
-    if (scrollRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-      setShowLeftArrow(scrollLeft > 0);
-      setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 1);
-    }
+const ImageCountBadge = styled(Badge)(() => ({
+  position: "absolute",
+  top: 8,
+  left: 8,
+  backgroundColor: "#000",
+  color: "#fff",
+  padding: "4px 8px",
+  borderRadius: 16,
+  fontSize: 12,
+  display: "flex",
+  alignItems: "center",
+  zIndex: 2,
+}));
+
+// const Transition = React.forwardRef(function Transition(
+//   props: TransitionProps & { children: React.ReactElement },
+//   ref: React.Ref<unknown>
+// ) {
+//   return <Slide direction="up" ref={ref} {...props} />;
+// });
+
+const Carousel: React.FC<CarouselProps> = ({ images}) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [open, setOpen] = useState(false);
+  const [direction, setDirection] = useState<"left" | "right">("right");
+  console.log("direction",direction)
+
+  const handlePrev = () => {
+    setDirection("left");
+    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1));
   };
 
-  useEffect(() => {
-    const currentRef = scrollRef.current;
-    currentRef?.addEventListener("scroll", checkScrollPosition);
-    return () => {
-      currentRef?.removeEventListener("scroll", checkScrollPosition);
-    };
-  }, []);
-
-  const scroll = (scrollOffset: number) => {
-    if (scrollRef.current) {
-      const container = scrollRef.current;
-      const containerWidth = container.offsetWidth;
-      const scrollAmount = Math.min(containerWidth, Math.abs(scrollOffset)) * Math.sign(scrollOffset);
-      container.scrollBy({ left: scrollAmount, behavior: "smooth" });
-    }
+  const handleNext = () => {
+    setDirection("right");
+    setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0));
   };
+
+  // const handleThumbClick = (index: number) => {
+  //   setCurrentIndex(index);
+  // };
 
   return (
-    <Box sx={{ 
-      position: "relative", 
-      width: "100%", 
-      margin: "auto",
-      overflow: "hidden",
-      px: { xs: 0, sm: 2 },
-      py: 2,
-    }}>
-      {showLeftArrow && (
-        <IconButton
-          onClick={() => scroll(-300)}
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: { xs: 4, sm: 8 },
-            transform: "translateY(-50%)",
-            bgcolor: "background.paper",
-            boxShadow: 3,
-            borderRadius: "50%",
-            "&:hover": { bgcolor: "action.hover" },
-            zIndex: 10,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: { xs: 36, sm: 44 },
-            height: { xs: 36, sm: 44 },
-            color: "primary.main",
-            transition: "all 0.3s ease",
-          }}
-          aria-label="scroll left"
-        >
-          <ArrowBackIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
-        </IconButton>
-      )}
-
-      {showRightArrow && (
-        <IconButton
-          onClick={() => scroll(300)}
-          sx={{
-            position: "absolute",
-            top: "50%",
-            right: { xs: 4, sm: 8 },
-            transform: "translateY(-50%)",
-            bgcolor: "background.paper",
-            boxShadow: 3,
-            borderRadius: "50%",
-            "&:hover": { bgcolor: "action.hover" },
-            zIndex: 10,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: { xs: 36, sm: 44 },
-            height: { xs: 36, sm: 44 },
-            color: "primary.main",
-            transition: "all 0.3s ease",
-          }}
-          aria-label="scroll right"
-        >
-          <ArrowForwardIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
-        </IconButton>
-      )}
-
-      <Box
-        ref={scrollRef}
+    <>
+      <Card
         sx={{
-          display: "flex",
-          overflowX: "auto",
-          scrollBehavior: "smooth",
-          gap: { xs: 2, sm: 3 },
-          px: { xs: 2, sm: 3 },
-          py: 1,
-          width: "100%",
-          scrollSnapType: "x mandatory",
-          "&::-webkit-scrollbar": { display: "none" },
+          borderRadius: 3,
+          overflow: "hidden",
+          boxShadow: 3,
+          maxWidth: 600,
+          mx: "auto",
+          cursor: "pointer",
         }}
+        onClick={() => setOpen(true)}
       >
-        {sampleCarouselItems.map((item, index) => (
-          <Card
-            key={index}
+        <Box
+          sx={{
+            width: "100%",
+            height: 240,
+            overflow: "hidden",
+            position: "relative",
+            borderRadius: 2,
+          }}
+        >
+          <Box
             sx={{
-              width: {
-                xs: "107%",
-                sm: "107%",
-                md: "107%",
-                lg: "108%",
-              },
-              minWidth: {
-                xs: "107%",
-                sm: "107%",
-                md: "107%",
-                lg: "108%",
-              },
-              scrollSnapAlign: "start",
-              flex: "0 0 auto",
-              borderRadius: 2,
-              boxShadow: 2,
-              transition: "transform 0.3s ease, box-shadow 0.3s ease",
-              "&:hover": {
-                transform: "translateY(-4px)",
-                boxShadow: 4,
-              },
+              display: "flex",
+              width: `${images.length * 100}%`,
+              transform: `translateX(-${
+                currentIndex * (100 / images.length)
+              }%)`,
+              transition: "transform 0.5s ease-in-out",
             }}
           >
-            <CardMedia
-              sx={{ 
-                height: { xs: 160, sm: 180 },
-                borderTopLeftRadius: 8,
-                borderTopRightRadius: 8,
-              }}
-              image={item.img}
-              // title={item.title}
-            />
-            {/* <CardContent sx={{ padding: { xs: 2, sm: 3 } }}>
-              <Typography 
-                gutterBottom 
-                component="div" 
-                sx={{ 
-                  fontWeight: 600,
-                  fontSize: { xs: '1rem', sm: '1.1rem' },
-                  color: "text.primary",
+            {images.map((img, index) => (
+              <Box
+                key={index}
+                sx={{
+                  width: `${100 / images.length}%`,
+                  flexShrink: 0,
+                  height: "85vh",
+                  position: "relative",
                 }}
               >
-                {item.title}
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{ 
-                  color: "text.secondary",
-                  fontWeight: 500,
-                  fontSize: { xs: '0.875rem', sm: '0.9375rem' },
-                  mb: 1,
+                <img
+                  src={img}
+                  alt={`Slide ${index + 1}`}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    display: "block",
+                  }}
+                />
+
+                {/* Badge for image count */}
+                {index === currentIndex && (
+                  <ImageCountBadge
+                    badgeContent={`${currentIndex + 1}/${images.length}`}
+                    anchorOrigin={{ vertical: "top", horizontal: "left" }}
+                    sx={{
+                      position: "absolute",
+                      top: 8,
+                      left: 8,
+                      bgcolor: "rgba(0, 0, 0, 0.6)",
+                      color: "#fff",
+                      borderRadius: 1,
+                      px: 1,
+                      py: 0.5,
+                      fontSize: "0.75rem",
+                    }}
+                  >
+                    <CameraAltIcon
+                      fontSize="small"
+                      sx={{ color: "#fff", mr: 0.5 }}
+                    />
+                  </ImageCountBadge>
+                )}
+              </Box>
+            ))}
+          </Box>
+
+          {/* Navigation Buttons */}
+          {images.length > 1 && (
+            <>
+              <IconButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePrev();
+                }}
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  left: 12,
+                  transform: "translateY(-50%)",
+                  bgcolor: "rgba(255,255,255,0.8)",
+                  ":hover": { bgcolor: "rgba(255,255,255,1)" },
+                  zIndex: 1,
                 }}
               >
-                {item.subtitle}
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{ 
-                  color: "text.secondary",
-                  fontSize: { xs: '0.8125rem', sm: '0.875rem' },
+                <ArrowBackIosNewIcon fontSize="small" />
+              </IconButton>
+
+              <IconButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleNext();
+                }}
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  right: 12,
+                  transform: "translateY(-50%)",
+                  bgcolor: "rgba(255,255,255,0.8)",
+                  ":hover": { bgcolor: "rgba(255,255,255,1)" },
+                  zIndex: 1,
                 }}
               >
-                {item.description}
-              </Typography>
-            </CardContent> */}
-          </Card>
-        ))}
-      </Box>
-    </Box>
+                <ArrowForwardIosIcon fontSize="small" />
+              </IconButton>
+            </>
+          )}
+        </Box>
+{/* 
+        <Box sx={{ p: 2 }}>
+          <Typography variant="h6" fontWeight={600}>
+            {price}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {area}
+          </Typography>
+        </Box> */}
+      </Card>
+
+{/* Fullscreen Dialog */}
+ <ImageCarouselModal
+  open={open}
+  onClose={() => setOpen(false)}
+  images={images}
+  price="₹20,000"
+  area="2 BHK, 1200 sqft"
+/>
+    </>
   );
 };
+
+export default Carousel;
