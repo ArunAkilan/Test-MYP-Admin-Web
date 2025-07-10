@@ -87,7 +87,7 @@ const Header: React.FC<HeaderProps> = ({
   //Socket IO
   const [notifications, setNotifications] = useState<Notification[]>([]);
   //@ts-ignore
-   axios.get<Notification[]>(`${ENDPOINT}/api/notification`)
+   axios.get<Notification[]>(`${ENDPOINT}/api/notifications`)
       .then(res => setNotifications(res.data));
 
     const sock = io(ENDPOINT);

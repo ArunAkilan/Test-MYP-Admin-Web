@@ -58,7 +58,7 @@ export default function Notificationtab() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   //@ts-ignore
  /// useEffect(() => {
-    axios.get<Notification[]>(`${ENDPOINT}/api/notification`)
+    axios.get<Notification[]>(`${ENDPOINT}/api/notifications`)
       .then(res => setNotifications(res.data));
 
     const sock = io(ENDPOINT);
