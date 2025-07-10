@@ -1,29 +1,40 @@
 import Header from "./components/Common/Navbar/Navbar";
 import Sidebar from "./components/Common/Sidebar/Sidebar";
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+  useLocation
+} from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import navbarLogo from "../src/assets/navbar/PRH_Admin-resize.svg"
+import navbarLogo from "../src/assets/navbar/PRH_Admin-resize.svg";
 import Home from "./components/Dashboard/Dashboard";
 import "./App.scss";
 import { useEffect } from "react";
 import ViewProperty from "./components/Properties/viewProperties/viewProperty";
 import { CreateProperty } from "./components/Properties/properties";
+import Login from "./components/Login/Login";
 
 function AppRoutes() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isLoginRoute = location.pathname === "/admin";
 
   const openCreateResidential = () => {
     navigate("/residential/create");
   };
 
-  const location = useLocation();
   const noScrollRoutes = [
-    "/dashboard", 
+    "/dashboard",
     "/commercial",
     "/residential",
-    "/plots",
+    "/plots"
   ];
+
   useEffect(() => {
     const shouldHideScroll = noScrollRoutes.includes(location.pathname);
     document.body.style.overflow = shouldHideScroll ? "hidden" : "auto";
@@ -31,21 +42,32 @@ function AppRoutes() {
 
   return (
     <div className="app-container row">
-      <Sidebar />
-      <div className="col-md-9 offset-md-3 content-area" style={{ flex: 1, overflowY: "auto" }}>
+      {!isLoginRoute && <Sidebar />}
+
+      <div
+        className={`content-area ${
+          !isLoginRoute ? "col-md-9 offset-md-3" : ""
+        }`}
+        style={{ flex: 1, overflowY: "auto" }}
+      >
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" />} />
           <Route
             path="/dashboard"
             element={<Home properties="all" onAddNew={openCreateResidential} />}
           />
+          <Route path="/admin" element={<Login />} />
           <Route
             path="/commercial"
-            element={<Home properties="commercials" onAddNew={openCreateResidential} />}
+            element={
+              <Home properties="commercials" onAddNew={openCreateResidential} />
+            }
           />
           <Route
             path="/residential"
-            element={<Home properties="residentials" onAddNew={openCreateResidential} />}
+            element={
+              <Home properties="residentials" onAddNew={openCreateResidential} />
+            }
           />
           <Route
             path="/plots"
@@ -65,18 +87,30 @@ function AppRoutes() {
 function App() {
   return (
     <Router>
-      <div className="grid-container">
+      <LayoutWrapper />
+    </Router>
+  );
+}
+
+
+function LayoutWrapper() {
+  const location = useLocation();
+  const isLoginRoute = location.pathname === "/admin";
+
+  return (
+    <div className="grid-container">
+      {!isLoginRoute && (
         <Header
           MainLogo={navbarLogo}
           Title="Admin"
           ProfileLogo="/public/Ellipse 1.svg"
           Profile={false}
         />
-        <div className="container body-content-container">
-          <AppRoutes />
-        </div>
+      )}
+      <div className="container body-content-container">
+        <AppRoutes />
       </div>
-    </Router>
+    </div>
   );
 }
 
