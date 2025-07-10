@@ -5,6 +5,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import viewImage from "../../../assets/viewProperty/carousel-image.svg";
 import "./ViewCarousel.scss"
+import ImageCarouselModal from "../Carousel/imagecarousel";
 const images = [viewImage, viewImage, viewImage, viewImage];
 
 const PrevArrow = ({ onClick }: { onClick?: () => void }) => (
@@ -26,6 +27,7 @@ const NextArrow = ({ onClick }: { onClick?: () => void }) => (
 );
 
 const ViewCarousel: React.FC = () => {
+  const [modalOpen, setModalOpen] = useState(false);
   const mainSlider = useRef<Slider | null>(null);
   const thumbSlider = useRef<Slider | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -52,7 +54,7 @@ const ViewCarousel: React.FC = () => {
           beforeChange={(_, next) => setCurrentIndex(next)}
         >
           {images.map((src, index) => (
-            <div key={index}>
+            <div key={index} onClick={() => setModalOpen(true)} className="cursor-pointer">
               <img
                 src={src}
                 alt={`Image ${index + 1}`}
@@ -90,6 +92,13 @@ const ViewCarousel: React.FC = () => {
           ))}
         </Slider>
       </div>
+      <ImageCarouselModal
+  open={modalOpen}
+  onClose={() => setModalOpen(false)}
+  images={images}
+  price="₹20,000"
+  area="2 BHK, 1200 sqft"
+/>
     </div>
   );
 };

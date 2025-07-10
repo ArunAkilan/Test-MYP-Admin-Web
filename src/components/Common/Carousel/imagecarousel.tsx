@@ -21,8 +21,8 @@ interface Props {
   open: boolean;
   onClose: () => void;
   images: string[];
-  price: string;
-  area: string;
+  price?: string;
+  area?: string;
 }
 
 export default function ImageCarouselModal({

@@ -150,8 +150,6 @@ const formatedData = Array.isArray(data)
     console.log("Missing _source in selectedItem", selectedItem);
     return;
   }
-
-  console.log("Navigating to:", `/${routeBase}/view/${id}`);
   navigate(`/${routeBase}/view/${id}`, {
     state: { data: selectedItem, mode: "view" },
   });

@@ -22,13 +22,13 @@ import ViewProperty from "./components/Properties/viewProperties/ResidentialView
 import PlotView from "./components/Properties/viewProperties/PlotView/PlotViewProperty";
 
 function AppRoutes() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
-  const openCreateResidential = () => {
-    navigate("/residential/create");
-  };
-  const openCreateCommercial = () => navigate("/commercial/create");
-  const openCreatePlotProperty = () => navigate("/plots/create");
+  // const openCreateResidential = () => {
+  //   navigate("/residential/create");
+  // };
+  // const openCreateCommercial = () => navigate("/commercial/create");
+  // const openCreatePlotProperty = () => navigate("/plots/create");
 
   const location = useLocation();
 
