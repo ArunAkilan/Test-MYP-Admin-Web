@@ -117,7 +117,7 @@ export default function Sidebar() {
     </div>
   );
 }
-function setActiveTab(savedTab: string) {
-  throw new Error("Function not implemented.");
-}
+// function setActiveTab(savedTab: string) {
+//   throw new Error("Function not implemented.");
+// }
 
