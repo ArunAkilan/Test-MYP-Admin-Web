@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
+// import type {ResidentialFormState} from "../../createProperties/createProperty.model";
 import { DynamicBreadcrumbs } from "../../../Common/input";
 import VIewCarousel from "../../../Common/ViewCarousel/ViewCarousel";
 import type { ResidentialProperty } from "./ResidencialViewProperty.modal";
@@ -43,13 +44,30 @@ import Icon_Tick from "../../../../assets/viewProperty/Icon_Tick.png";
 import Icon_Deny from "../../../../assets/viewProperty/Icon_Deny.png";
 import Icon_Delete from "../../../../assets/viewProperty/Icon_Delete.png";
 import backIcon from "../../../../assets/dashboardtab/icon-park-outline_down.svg"
+import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
+interface PropertyResponse {
+  property: ResidentialProperty;
+}
 const ViewProperty = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const propertyData = location.state?.data as ResidentialProperty;
+   const { id } = useParams();
+const [property, setProperty] = useState<PropertyResponse | null>(null);
 
-  console.log("mode", propertyData);
+  console.log("property", property);
+
+   useEffect(() => {
+    axios
+      .get(`${import.meta.env.VITE_BackEndUrl}/api/residential/${id}`)
+      .then((res) => setProperty(res.data))
+      .catch((err) => console.error("Error fetching property:", err));
+  }, [id]);
+
+  if (!property) return <div>Loading...</div>;
 
   if (!propertyData) {
     return <p className="mt-5">No property data found</p>;
@@ -88,7 +106,7 @@ const ViewProperty = () => {
       <section className="row address-detail">
         <div className="d-flex title-address col-md-6  ">
           <div className="landmark-type">
-            <h3 className="mb-0">{propertyData?.title}</h3>
+            <h3 className="mb-0">{property?.property?.title}</h3>
             <button className="btn detail-type">
               {propertyData?.propertyType}
             </button>
@@ -122,7 +140,7 @@ const ViewProperty = () => {
             <div className="area-facing-divider"></div>
             <div className=" text-center">
               <p className="mb-1">Rent</p>
-              <h3 className="mb-1 user-result-data">Rent</h3>
+              <h3 className="mb-1 user-result-data">{property?.property?.rent?.rentAmount}</h3>
               <p className="text-muted">Per Month</p>
             </div>
             <div className="area-facing-divider"></div>

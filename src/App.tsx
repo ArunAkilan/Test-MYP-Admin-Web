@@ -5,8 +5,7 @@ import {
   Routes,
   Route,
   Navigate,
-  useNavigate,
-  useLocation
+  useLocation,
 } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
@@ -20,26 +19,17 @@ import CreatePlotProperty from "./components/Properties/createProperties/Plot/cr
 import CommercialView from "../src/components/Properties/viewProperties/CommercialProperty/CommercialViewProperty"; // <-- import CommercialView here
 import ViewProperty from "./components/Properties/viewProperties/ResidentialView/ResidentialViewProperty";
 import PlotView from "./components/Properties/viewProperties/PlotView/PlotViewProperty";
-import Login from "./components/Login/Login";
 
 function AppRoutes() {
-  const navigate = useNavigate();
-  const location = useLocation();
+  // const navigate = useNavigate();
 
-  const isLoginRoute = location.pathname === "/admin";
-
-  const openCreateResidential = () => {
-    navigate("/residential/create");
-  };
+  // const openCreateResidential = () => {
+  //   navigate("/residential/create");
+  // };
   // const openCreateCommercial = () => navigate("/commercial/create");
   // const openCreatePlotProperty = () => navigate("/plots/create");
 
-  // const noScrollRoutes = [
-  //   "/dashboard",
-  //   "/commercial",
-  //   "/residential",
-  //   "/plots"
-  // ];
+  const location = useLocation();
 
   useEffect(() => {
     const noScrollRoutes = [
@@ -55,46 +45,37 @@ function AppRoutes() {
   // const location = useLocation();
 
   // Define routes where sidebar should be hidden
-  // const hideSidebarRoutes = [
-  //   "/residential/view",
-  //   "/commercial/view",
-  //   "/plots/view",
-  //   "/login",
-  // ];
+  const hideSidebarRoutes = [
+    "/residential/view",
+    "/commercial/view",
+    "/plots/view",
+    "/login",
+  ];
 
   // Check if the current pathname starts with any of the routes
-  // const shouldHideSidebar = hideSidebarRoutes.some((route) =>
-  //   location.pathname.startsWith(route)
-  // );
+  const shouldHideSidebar = hideSidebarRoutes.some((route) =>
+    location.pathname.startsWith(route)
+  );
 
   return (
     <div className="app-container row">
-      {!isLoginRoute && <Sidebar />}
-
+      {!shouldHideSidebar && <Sidebar />}
       <div
         className={`content-area ${
-          !isLoginRoute ? "col-md-9 offset-md-3" : ""
+          !shouldHideSidebar ? "col-md-9 offset-md-3" : "col-md-12"
         }`}
         style={{ flex: 1, overflowY: "auto" }}
       >
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" />} />
-          <Route
-            path="/dashboard"
-            element={<Home properties="all" onAddNew={openCreateResidential} />}
-          />
-          <Route path="/admin" element={<Login />} />
+          <Route path="/dashboard" element={<Home properties="all" />} />
           <Route
             path="/commercial"
-            element={
-              <Home properties="commercials" onAddNew={openCreateResidential} />
-            }
+            element={<Home properties="commercials" />}
           />
           <Route
             path="/residential"
-            element={
-              <Home properties="residentials" onAddNew={openCreateResidential} />
-            }
+            element={<Home properties="residentials" />}
           />
           <Route path="/plots" element={<Home properties="plots" />} />
           <Route
@@ -115,30 +96,18 @@ function AppRoutes() {
 function App() {
   return (
     <Router>
-      <LayoutWrapper />
-    </Router>
-  );
-}
-
-
-function LayoutWrapper() {
-  const location = useLocation();
-  const isLoginRoute = location.pathname === "/admin";
-
-  return (
-    <div className="grid-container">
-      {!isLoginRoute && (
+      <div className="grid-container">
         <Header
           MainLogo={navbarLogo}
           Title="Admin"
-          ProfileLogo="Ellipse 1.svg"
+          ProfileLogo="/public/Ellipse 1.svg"
           Profile={false}
         />
-      )}
-      <div className="container body-content-container">
-        <AppRoutes />
+        <div className="container body-content-container">
+          <AppRoutes />
+        </div>
       </div>
-    </div>
+    </Router>
   );
 }
 

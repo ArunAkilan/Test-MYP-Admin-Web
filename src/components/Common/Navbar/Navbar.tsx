@@ -15,9 +15,10 @@ interface HeaderProps {
 }
 
 interface Notification {
-  _id: string;
+   id: string;
+  title: string;
   message: string;
-  date: string;
+  timestamp: string;
 }
 
 const ENDPOINT = import.meta.env.VITE_BackEndUrl;
@@ -93,16 +94,16 @@ const Header: React.FC<HeaderProps> = ({
 
 
   //Socket IO
-  const [notifications, setNotifications] = useState<any>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
 useEffect(() => {
-    axios.get<any>(`${ENDPOINT}/api/notifications`)
-      .then((res:any) => setNotifications(res.data.notifications));
+    axios.get<{ notifications: Notification[] }>(`${ENDPOINT}/api/notifications`)
+      .then((res) => setNotifications(res.data.notifications));
 
     const sock = io(ENDPOINT);
 
-    sock.on('notification', (data: any) => {
-      setNotifications((prev:any) => [data, ...prev]);
+    sock.on('notification', (data: Notification) => {
+      setNotifications((prev) => [data, ...prev]);
     });
 
   }, []);
