@@ -13,7 +13,6 @@ import CreatePlotProperty from "./components/Properties/createProperties/Plot/cr
 import CommercialView from "../src/components/Properties/viewProperties/CommercialProperty/CommercialViewProperty"; // <-- import CommercialView here
 import ViewProperty from "./components/Properties/viewProperties/ResidentialView/ResidentialViewProperty";
 import PlotView from "./components/Properties/viewProperties/PlotView/PlotViewProperty";
-
 function AppRoutes() {
   const navigate = useNavigate();
 
@@ -68,8 +67,7 @@ useEffect(() => {
           {/* <Route path="/plots/view" element={<ViewProperty />} /> */}
           <Route path="/plots/view/:id" element={<PlotView />} />
           <Route path="/residential/view/:id" element={<ViewProperty />} />
-          <Route path="/commercial/view/:id" element={<CommercialView />} /> {/* Added CommercialView route */}
-
+          <Route path="/commercial/view/:id" element={<CommercialView />} /> 
         </Routes>
       </div>
     </div>

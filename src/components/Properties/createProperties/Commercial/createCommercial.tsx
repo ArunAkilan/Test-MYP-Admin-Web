@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { InputField, DynamicBreadcrumbs } from "../../../Common/input";
 import GenericButton from "../../../Common/Button/button";
 import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
@@ -11,22 +11,12 @@ import "react-toastify/dist/ReactToastify.css";
 import "../createProperty.scss"; //  Corrected path
 import "./createCommercial.scss"; // This is already correct
 import axios, { AxiosError } from "axios";
-
 import type {
   PropertyType,
   CommercialType,
   FacingDirection,
   WashroomType,
   RoadFacility,
-  // OwnerContact,
-  // OwnerDetails,
-  // Location,
-  // Area,
-  // RentDetails,
-  // LeaseDetails,
-  // SaleDetails,
-  // Facility,
-  // Accessibility,
   CommercialPropertyForm,
   UploadedImage,
   CommercialFormState,
@@ -145,7 +135,7 @@ function buildPayloadDynamic(
       "rent.advanceAmount",
       Number(formState.rent.advanceAmount) || 0
     );
-    setNested(payload, "rent.agreementTiming", formState.lease.leaseTenure); // optional, rename if needed
+    setNested(payload, "rent.agreementTiming", formState.lease.leaseTenure); 
   } else if (formState.propertyType === "Lease") {
     setNested(
       payload,
@@ -221,7 +211,6 @@ export const CreateCommercialProperty = () => {
   const [readyToOccupy, setReadyToOccupy] = useState<boolean>(true);
   const [parking, setParking] = useState("");
   const [waterFacility, setWaterFacility] = useState<string>("Available");
-  // or
 
   const [title, setTitle] = useState("");
 
@@ -249,6 +238,56 @@ export const CreateCommercialProperty = () => {
   const [markerPosition, setMarkerPosition] = useState(defaultCenter);
   const [autocomplete, setAutocomplete] =
     useState<google.maps.places.Autocomplete | null>(null);
+    const location = useLocation();
+const isEditMode = location.state?.mode === "edit";
+const editData = location.state?.data;
+const editId = location.state?.data?._id;
+console.log("editid", editId);
+
+// Update state when in edit mode
+useEffect(() => {
+  if (isEditMode && editData) {
+    setFirstName(editData.owner?.firstName || "");
+    setLastName(editData.owner?.lastName || "");
+    setEmail(editData.owner?.contact?.email || "");
+    setPhone1(editData.owner?.contact?.phone1 || "");
+    setTitle(editData.title || "");
+    setPropertyType(editData.propertyType || "Rent");
+    setAddress(editData.location?.address || "");
+    setLatitude(editData.location?.map?.latitude || "");
+    setLongitude(editData.location?.map?.longitude || "");
+    setRentAmount(editData.rent?.rentAmount || 0);
+    setAdvanceAmount(editData.rent?.advanceAmount || "");
+    setLeaseTenure(editData.lease?.leaseTenure || "");
+    setNegotiable(editData.rent?.negotiable || false);
+    setTotalArea(editData.area?.totalArea?.replace(" sqft", "") || "");
+    setFacingDirection(editData.facingDirection || "East");
+    setTotalFloors(editData.totalFloors || "");
+    setPropertyFloor(editData.propertyFloor || "");
+    setPropertyDescription(editData.description || "");
+    setSelectedChips([]); // or map from editData if needed
+    setImages((editData.images || []).map((img: string) => ({ name: img })));
+    setMarkerPosition({
+      lat: editData.location?.map?.latitude || defaultCenter.lat,
+      lng: editData.location?.map?.longitude || defaultCenter.lng,
+    });
+    setWashroom(editData.washroom || "None");
+    setRoadFasicility(editData.roadFacility || "None");
+    setReadyToOccupy(editData.readyToOccupy || true);
+    setParking(editData.facility?.parking ? "Available" : "Not Available");
+    setWaterFacility(editData.facility?.waterFacility ? "Available" : "Not Available");
+    setTilesOnFloor(editData.facility?.tilesOnFloor || false);
+    setCommercialType(editData.commercialType || "Shop");
+    // Set nearby transport if available
+    if (editData.location?.map?.latitude && editData.location?.map?.longitude) {
+      fetchNearbyTransport(
+        editData.location.map.latitude,
+        editData.location.map.longitude
+      );
+    }
+  }
+}, [isEditMode, editData]);
+
 
   const [nearbyTransport, setNearbyTransport] = useState<
     Record<string, string>
@@ -298,6 +337,7 @@ export const CreateCommercialProperty = () => {
     setNearbyTransport(info);
   };
 
+  
   // Handle map click to place marker and update lat/lng inputs
   const onMapClick = useCallback((e: google.maps.MapMouseEvent) => {
     if (e.latLng) {
@@ -456,58 +496,104 @@ export const CreateCommercialProperty = () => {
       }
     );
 
-    try {
-      // Send POST request
-      const response = await axios.post(
-        `${import.meta.env.VITE_BackEndUrl}/api/commercial/create`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+    // try {
+    //   // Send POST request
+    //   const response = await axios.post(
+    //     `${import.meta.env.VITE_BackEndUrl}/api/commercial/create`,
+    //     formData,
+    //     {
+    //       headers: {
+    //         "Content-Type": "multipart/form-data",
+    //       },
+    //     }
+    //   );
 
-      setLoading(false); // Hide Backdrop FIRST
+    //   setLoading(false); // Hide Backdrop FIRST
 
-      setTimeout(() => {
-        toast.success("Property created successfully!");
+    //   setTimeout(() => {
+    //     toast.success("Property created successfully!");
       
-        // Wait until backdrop is gone
+    //     // Wait until backdrop is gone
+    //     setTimeout(() => {
+    //       const plotId = response?.data?._id;
+      
+    //       if (plotId) {
+    //         navigate(`/commercial/view/${plotId}`);
+    //       } else {
+    //         // fallback in case no ID is returned
+    //         navigate("/commercial", {
+    //           state: { data: response.data, showLoading: true },
+    //         });
+    //       }
+    //     }, 1000);
+    //   }, 100);
+    //   // // TODO: Send data to backend
+    //   // // Redirect after a short delay (so toast is visible)
+    //   // setTimeout(() => {
+    //   //   navigate("/commercial", {
+    //   //     state: { data: response.data },
+    //   //   });
+    //   // }, 2000);
+    // } catch (err) {
+    //   const error = err as AxiosError<{ message?: string; error?: string }>;
+
+    //   console.error("Submission error:", error.response || error);
+
+    //   const errorMessage =
+    //     error.response?.data?.message ||
+    //     error.response?.data?.error ||
+    //     error.message ||
+    //     "Something went wrong!";
+    //   console.error("Submission Error:", error);
+
+    //   toast.error(`Failed to create property: ${errorMessage}`);
+    // }
+    try {
+      const url = isEditMode
+        ? `${import.meta.env.VITE_BackEndUrl}/api/commercial/${editId}`
+        : `${import.meta.env.VITE_BackEndUrl}/api/commercial/create`;
+    
+      const method = isEditMode ? "put" : "post";
+    
+      const response = await axios[method](url, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+    
+      setLoading(false); // Hide Backdrop
+    
+      setTimeout(() => {
+        toast.success(
+          isEditMode ? "Property updated successfully!" : "Property created successfully!"
+        );
+    
         setTimeout(() => {
           const plotId = response?.data?._id;
-      
+    
           if (plotId) {
             navigate(`/commercial/view/${plotId}`);
           } else {
-            // fallback in case no ID is returned
             navigate("/commercial", {
               state: { data: response.data, showLoading: true },
             });
           }
         }, 1000);
       }, 100);
-      // // TODO: Send data to backend
-      // // Redirect after a short delay (so toast is visible)
-      // setTimeout(() => {
-      //   navigate("/commercial", {
-      //     state: { data: response.data },
-      //   });
-      // }, 2000);
     } catch (err) {
       const error = err as AxiosError<{ message?: string; error?: string }>;
-
-      console.error("Submission error:", error.response || error);
-
+    
       const errorMessage =
         error.response?.data?.message ||
         error.response?.data?.error ||
         error.message ||
         "Something went wrong!";
-      console.error("Submission Error:", error);
-
-      toast.error(`Failed to create property: ${errorMessage}`);
+    
+      toast.error(
+        `Failed to ${isEditMode ? "update" : "create"} property: ${errorMessage}`
+      );
     }
+    
     console.log("check end ");
   };
 
@@ -1553,14 +1639,13 @@ export const CreateCommercialProperty = () => {
                   <div>
                     {/* Your form and other JSX */}
                     <GenericButton
-                      label="Create New Property"
-                      icon={<DoneIcon />}
-                      className="createNP btn btn-primary"
-                      type="submit"
-                      disabled={!isFormReadyToSubmit}
+  label={loading ? "Saving..." : isEditMode ? "Update Property" : "Create New Property"}
+  icon={loading ? <CircularProgress size={16} color="inherit" /> : <DoneIcon />}
+  className="createNP btn btn-primary"
+  type="submit"
+  disabled={loading}
+/>
 
-                      // onClick={() => navigate("/createCommercial", { state: { mode: "create" } })}
-                    />
 
                     {/* This must be rendered */}
                     <ToastContainer />

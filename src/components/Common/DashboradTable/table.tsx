@@ -1,56 +1,32 @@
 import "./table.scss";
 import type { ResidentialProperty } from "../../AdminResidencial/AdminResidencial.model";
-import { useNavigate } from "react-router-dom";
-import { Box, Typography, Modal } from "@mui/material";
-import * as React from "react";
-import "./table.scss";
-import Button from "@mui/material/Button";
-import { useLocation } from "react-router-dom";
+import { Box, Typography, Modal, Popover, Button, Backdrop, CircularProgress } from "@mui/material";
+import React,{ useState, useEffect } from "react";
 import axios from "axios";
-import { useState, useEffect } from "react";
-import Popover from "@mui/material/Popover";
-import tickIcon from "../../../assets/table/Icon_Tick.svg";
-import denyIcon from "../../../assets/table/Icon_Deny.svg";
-import Backdrop from "@mui/material/Backdrop";
-import CircularProgress from "@mui/material/CircularProgress";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import tickIcon from "../../../assets/table/Icon_Tick.svg";
+import denyIcon from "../../../assets/table/Icon_Deny.svg";
+import { useLocation, useNavigate } from "react-router-dom";
+
+
 interface TableProps {
   //data: ResidentialProperty[];
-  data: any;
-  properties?:
-    | "all"
-    | "residential"
-    | "residentials"
-    | "commercial"
-    | "commercials"
-    | "plot"
-    | "plots"
-    | undefined;
+  data: ResidentialProperty[];
+  properties?: | "all" | "residential" | "residentials" | "commercial" | "commercials" | "plot" | "plots" | undefined;
   onScrollChange: (scrollTop: number) => void;
-  handleOpenModal: (action: "Approve" | "Deny" | "Delete", item: any) => void;
+  handleOpenModal: (action: "Approve" | "Deny" | "Delete", item: ResidentialProperty) => void;
 }
 
 const modalStyle = {
-  position: "absolute" as const,
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: 400,
-  bgcolor: "background.paper",
-  border: "2px solid #000",
-  boxShadow: 24,
-  p: 4,
-};
+  position: "absolute" as const, top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: 400, bgcolor: "background.paper", border: "2px solid #000", boxShadow: 24, p: 4,};
 
 function Table({ data, properties, onScrollChange }: TableProps) {
+
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [isBackdropLoading, setIsBackdropLoading] = useState(false);
-  const [popoverAnchorEl, setPopoverAnchorEl] = useState<HTMLElement | null>(
-    null
-  );
+  const [popoverAnchorEl, setPopoverAnchorEl] = useState<HTMLElement | null>(null);
   const navigate = useNavigate();
-
   const location = useLocation();
   const propertyData = location.state?.data;
   console.log("propertyData", propertyData);
@@ -67,7 +43,6 @@ function Table({ data, properties, onScrollChange }: TableProps) {
         return "residential";
     }
   };
-
   const handleAction = async (id: string, status: number) => {
     const singularProperty = getSingularProperty();
     try {
@@ -78,7 +53,8 @@ function Table({ data, properties, onScrollChange }: TableProps) {
         { status: `${status}` }
       );
       console.log("Status updated:", response.data);
-    } catch (err) {
+      console.log("editid", response?.data?._id);
+    } catch {
       console.error("Failed to update status");
     }
   };
@@ -95,67 +71,38 @@ const formatedData = Array.isArray(data)
           ? "plots"
           : "unknown",
     }))
-  : [
-      ...(data?.residentials?.map((item: any) => ({
-        ...item,
-        _source: "residential",
-      })) ?? []),
-      ...(data?.commercials?.map((item: any) => ({
-        ...item,
-        _source: "commercial",
-      })) ?? []),
-      ...(data?.plots?.map((item: any) => ({
-        ...item,
-        _source: "plots",
-      })) ?? []),
-      ...(data?.residential?.map((item: any) => ({
-        ...item,
-        _source: "residential",
-      })) ?? []),
-      ...(data?.commercial?.map((item: any) => ({
-        ...item,
-        _source: "commercial",
-      })) ?? []),
-      ...(data?.plot?.map((item: any) => ({
-        ...item,
-        _source: "plots",
-      })) ?? []),
-    ];
+  : [...(data?.residentials?.map((item: any) => ({...item,_source: "residential",})) ?? []),
+  ...(data?.commercials?.map((item: any) => ({...item,_source: "commercial",})) ?? []),
+  ...(data?.plots?.map((item: any) => ({...item, _source: "plots",})) ?? []),
+  ...(data?.residential?.map((item: any) => ({...item, _source: "residential",})) ?? []),
+  ...(data?.commercial?.map((item: any) => ({...item, _source: "commercial",})) ?? []),
+  ...(data?.plot?.map((item: any) => ({...item, _source: "plots",})) ?? []),];
     
   // Modal state
   const [open, setOpen] = React.useState(false);
-  const [selectedAction, setSelectedAction] = React.useState<string | null>(
-    null
-  );
-  const [selectedItem, setSelectedItem] =
-    React.useState<ResidentialProperty | null>(null);
+  const [selectedAction, setSelectedAction] = React.useState<string | null>(null);
+  const [selectedItem, setSelectedItem] =React.useState<ResidentialProperty | null>(null);
 
   const handleEdit = (item: ResidentialProperty) => {
-    navigate("/createResidential", { state: { data: item, mode: "edit" } });
-  };
+    console.log("Editing item:", item);
+    navigate(`/commercial/create`, { state: { data: item, mode: "edit" } });};
 
   const handleView = (id: string | number) => {
     
   const selectedItem = formatedData.find((item: any) => item._id === id);
 
-  if (!selectedItem) {
-    alert("Property not found");
-    return;
-  }
+  if (!selectedItem) {alert("Property not found");return;}
 
   const routeBase = selectedItem._source;
 
-  if (!routeBase) {
-    alert("Unknown property type");
+  if (!routeBase) {alert("Unknown property type");
     console.log("Missing _source in selectedItem", selectedItem);
-    return;
-  }
+    return;}
 
   console.log("Navigating to:", `/${routeBase}/view/${id}`);
   navigate(`/${routeBase}/view/${id}`, {
-    state: { data: selectedItem, mode: "view" },
-  });
-};
+    state: { data: selectedItem, mode: "view" },});
+  };
 
   const handleOpenModal = (action: string, item: ResidentialProperty) => {
     console.log(" Opening modal with action:", action, "on item:", item._id);
@@ -177,7 +124,7 @@ const formatedData = Array.isArray(data)
       handleCloseModal();
       window.dispatchEvent(new Event("refreshTableData"));
 
-      // ✅ Success toast message
+      //  Success toast message
       const actionText =
         status === 1 ? "Approved" : status === 0 ? "Denied" : "Deleted";
       toast.success(`Listing successfully ${actionText.toLowerCase()}`);
@@ -189,8 +136,7 @@ const formatedData = Array.isArray(data)
   };
 
   if (!Array.isArray(data)) {
-    const fallback =
-      data?.residential || data?.commercial || data?.plot || data?.data;
+    const fallback = data?.residential || data?.commercial || data?.plot || data?.data;
 
     if (Array.isArray(fallback)) {
       data = fallback;
@@ -233,20 +179,14 @@ const formatedData = Array.isArray(data)
     }
   };
 
-  const handlePopoverClose = () => {
-    setPopoverAnchorEl(null);
-  };
+  const handlePopoverClose = () => {setPopoverAnchorEl(null);};
 
   const isPopoverOpen = Boolean(popoverAnchorEl);
   const popoverId = isPopoverOpen ? "simple-popover" : undefined;
 
   // handleBulkAction on popover
   const handleBulkAction = async (action: string) => {
-    const statusMap: Record<string, number> = {
-      Approve: 1,
-      Deny: 0,
-      Delete: 2,
-    };
+    const statusMap: Record<string, number> = {Approve: 1,Deny: 0,Delete: 2,};
 
     const statusCode = statusMap[action];
 
@@ -258,26 +198,20 @@ const formatedData = Array.isArray(data)
       setSelectedRows([]); // Clear selection
       handlePopoverClose(); // Close popover
       window.dispatchEvent(new Event("refreshTableData")); // Refresh table
-    } catch (err) {
+    } catch {
       console.error(`Failed to ${action.toLowerCase()} selected properties`);
     }
   };
 
   useEffect(() => {
-    if (selectedRows.length === 0) {
-      handlePopoverClose();
-    }
-  }, [selectedRows]);
+    if (selectedRows.length === 0) {handlePopoverClose();
+    }}, [selectedRows]);
 
   return (
     <>
       <div
         ref={containerRef}
-        style={{
-          height: hideHeader ? "450px" : "315px",
-          overflowY: "auto",
-          marginBottom: "50px",
-        }}
+        style={{height: hideHeader ? "450px" : "315px",overflowY: "auto",marginBottom: "50px",}}
       >
         <div className="container table-responsive">
           <table>

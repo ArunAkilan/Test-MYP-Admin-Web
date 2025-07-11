@@ -1,32 +1,33 @@
+// React & Hooks
 import { useState, useCallback, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { InputField, DynamicBreadcrumbs } from "../../../Common/input";
-import GenericButton from "../../../Common/Button/button";
+import { useParams, useNavigate } from "react-router-dom";
+// MUI Components
+import { Button, Avatar, Alert, IconButton, Backdrop, CircularProgress, } from "@mui/material";
 import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
 import DoneIcon from "@mui/icons-material/Done";
 import CloseIcon from "@mui/icons-material/Close";
-import { Button, Avatar, Alert, IconButton, Backdrop, CircularProgress, } from "@mui/material";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import "./createPlot.scss";
+// External Libraries
 import axios, { AxiosError } from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import { GoogleMap, Marker, Autocomplete, useJsApiLoader } from "@react-google-maps/api";
+// Internal Components
+import { InputField, DynamicBreadcrumbs } from "../../../Common/input";
+import GenericButton from "../../../Common/Button/button";
+// Styles
+import "react-toastify/dist/ReactToastify.css";
+import "./UpdateCommercial.scss"
+// Types
 import type {
-  PropertyType,
-  PlotType,
-  FacingDirection,
-  PlotFormState,
-  UploadedImage,
-} from "./createPlot.modal";
+    PropertyType, CommercialType, FacingDirection, WashroomType,
+    RoadFacility, CommercialPropertyForm, UploadedImage, CommercialFormState
+} from "../../createProperties/Commercial/createCommercial.modal";
 
 import type { Restrictions } from "../../../AdminResidencial/AdminResidencial.model";
-import {
-  GoogleMap,
-  Marker,
-  Autocomplete,
-  useJsApiLoader,
-} from "@react-google-maps/api";
+import type { PlainObject } from "../../createProperties/createProperty.model";
+
 import Tooltip from "@mui/material/Tooltip";
-import type { PlainObject } from "../createProperty.model";
+// Removed unused import for 'set' from "lodash"
+// import { set } from "lodash";
 
 const containerStyle = {
   width: "100%",
@@ -41,6 +42,7 @@ const GOOGLE_LIBRARIES: (
   | "drawing"
   | "visualization"
 )[] = ["places", "geometry"];
+
 
 // Utility function to set nested value dynamically
 function setNested(obj: PlainObject, path: string, value: unknown) {
@@ -91,20 +93,22 @@ const mapChipsToRestrictions = (chips: string[]): Restrictions => {
 };
 
 // Build payload dynamically based on form state
-function buildPayloadDynamic(formState: PlotFormState): PlotFormState {
-  const payload: Partial<PlotFormState> = {};
+function buildPayloadDynamic(
+  formState: CommercialFormState
+): CommercialPropertyForm {
+  const payload: Partial<CommercialPropertyForm> = {};
 
   // owner
-  setNested(payload, "ownerDetails.firstName", formState.ownerDetails.firstName.trim());
-  setNested(payload, "ownerDetails.lastName", formState.ownerDetails.lastName.trim());
-  setNested(payload, "ownerDetails.contact.phone1", formState.ownerDetails.contact.phone1.trim());
-  setNested(payload, "ownerDetails.contact.email", formState.ownerDetails.contact.email?.trim() ?? "");
-  setNested(payload, "ownerDetails.contact.getUpdates", true);
+  setNested(payload, "owner.firstName", formState.owner.firstName.trim());
+  setNested(payload, "owner.lastName", formState.owner.lastName.trim());
+  setNested(payload, "owner.contact.phone1", formState.owner.contact.phone1.trim());
+  setNested(payload, "owner.contact.email", formState.owner.contact.email?.trim() ?? "");
+  setNested(payload, "owner.contact.getUpdates", true);
 
   // property
   setNested(payload, "propertyType", formState.propertyType);
   setNested(payload, "title", formState.title);
-  setNested(payload, "plotType", formState.plotType);
+  setNested(payload, "commercialType", "Shop" as CommercialType);
   setNested(payload, "facingDirection", formState.facingDirection);
 
   // rent / lease / sale
@@ -120,7 +124,7 @@ function buildPayloadDynamic(formState: PlotFormState): PlotFormState {
       "rent.advanceAmount",
       Number(formState.rent.advanceAmount) || 0
     );
-    setNested(payload, "rent.agreementTiming", formState.lease.leaseTenure); // optional, rename if needed
+    setNested(payload, "rent.agreementTiming", formState.lease.leaseTenure); 
   } else if (formState.propertyType === "Lease") {
     setNested(
       payload,
@@ -153,22 +157,9 @@ function buildPayloadDynamic(formState: PlotFormState): PlotFormState {
     );
 
   // area
-  setNested(
-    payload,
-    "location.area.totalArea",
-    `${formState.location.area?.totalArea ?? ""} sqft`
-  );
-  setNested(
-    payload,
-    "location.area.length",
-    formState.location.area?.length ?? ""
-  );
-  setNested(
-    payload,
-    "location.area.width",
-    `${formState.location.area?.width ?? ""} sqft`
-  );
-  setNested(payload, "location.area.acre", formState.location.area?.acre || 0);
+  setNested(payload, "area.totalArea", `${formState.area.totalArea} sqft`);
+  setNested(payload, "area.builtUpArea", `${formState.area.builtUpArea} sqft`);
+  setNested(payload, "area.carpetArea", `${formState.area.carpetArea} sqft`);
 
   // floors
   setNested(payload, "totalFloors", Number(formState.totalFloors) || 0);
@@ -180,52 +171,56 @@ function buildPayloadDynamic(formState: PlotFormState): PlotFormState {
 
   // accessibility – map selected chips → boolean object
   const restrictions = mapChipsToRestrictions(formState.selectedChips);
-  setNested(payload, "restrictions", restrictions);
-  setNested(payload, "selectedChips", formState.selectedChips || []);
+  setNested(payload, "accessibility", {
+    steps: restrictions.bachelorsAllowed,
+    lift: restrictions.guestAllowed,
+    ramp: restrictions.petsAllowed,
+  });
+
   // misc
+  setNested(payload, "washroom", formState.washroom);
+  setNested(payload, "readyToOccupy", true);
   setNested(payload, "status", "Pending");
-  setNested(payload, "hasWell", formState.hasWell || false);
-  setNested(payload, "hasMotor", formState.hasMotor || false);
-  setNested(payload, "hasEBConnection", formState.hasEBConnection || false);
-  setNested(payload, "hasBorewell", formState.hasBorewell || false);
-  setNested(payload, "uploadedImages", formState.uploadedImages || []);
-  setNested(payload, "isActive", true);
-  setNested(payload, "isVerified", false);
-  setNested(payload, "isFeatured", false);
-  setNested(payload, "isDraft", false);
-  setNested(payload, "isPublished", false);
-  setNested(payload, "isArchived", false);
   setNested(payload, "isDeleted", false);
   setNested(payload, "description", formState.description ?? "");
 
-  return payload as PlotFormState;
+  return payload as CommercialPropertyForm;
 }
 
-export const CreatePlotProperty = () => {
+export const UpdateCommercialProperty = () => {
   // State for form data
   const navigate = useNavigate();
+    // Get the commercial property ID from URL params
+  const { id } = useParams<{ id: string }>();  // <-- get commercial property ID from URL
+
+    // State variables for form fields
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phone1, setPhone1] = useState("");
   const [propertyType, setPropertyType] = useState<PropertyType>("Rent");
+  const [washroom, setWashroom] = useState<WashroomType>("None");
+  const [roadFasicility, setRoadFasicility] = useState<RoadFacility>("None");
+  const [readyToOccupy, setReadyToOccupy] = useState<boolean>(true);
+  const [parking, setParking] = useState("");
+  const [waterFacility, setWaterFacility] = useState<string>("Available");
 
   const [title, setTitle] = useState("");
-  const [loading, setLoading] = useState(false);
 
+  const [tilesOnFloor, setTilesOnFloor] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [rentAmount, setRentAmount] = useState<number>(0);
   const [negotiable, setNegotiable] = useState<boolean>(false);
   const [advanceAmount, setAdvanceAmount] = useState("");
   const [leaseTenure, setLeaseTenure] = useState("");
-  const [plotType, setPlotType] = useState("Agriculture" as PlotType);
+  const [commercialType, setCommercialType] = useState("Shop");
   const [address, setAddress] = useState("");
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
   const [images, setImages] = useState<UploadedImage[]>([]);
   const [totalArea, setTotalArea] = useState("");
-  const [facingDirection, setFacingDirection] =
-    useState<FacingDirection>("East");
+  const [facingDirection, setFacingDirection] = useState<FacingDirection>("East");
   const [totalFloors, setTotalFloors] = useState("");
   const [propertyFloor, setPropertyFloor] = useState("");
   const [description, setPropertyDescription] = useState("");
@@ -233,57 +228,114 @@ export const CreatePlotProperty = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showTopInfo, setShowTopInfo] = useState(false);
   const [markerPosition, setMarkerPosition] = useState(defaultCenter);
-  const [autocomplete, setAutocomplete] =
-    useState<google.maps.places.Autocomplete | null>(null);
-    const location = useLocation();
-    const isEditMode = location.state?.mode === "edit";
-    const editData = location.state?.data;
-    const editId = location.state?.data?._id;
-    console.log("editid", editId);
-  // Update state when in edit mode
-  useEffect(() => {
-    if (isEditMode && editData) {
-      setFirstName(editData.ownerDetails.firstName || "");
-      setLastName(editData.ownerDetails.lastName || "");
-      setEmail(editData.ownerDetails.contact.email || "");
-      setPhone1(editData.ownerDetails.contact.phone1 || "");
-      setPropertyType(editData.propertyType || "Rent");
-      setTitle(editData.title || "");
-      setRentAmount(editData.rent?.rentAmount || 0);
-      setNegotiable(editData.rent?.negotiable || false);
-      setAdvanceAmount(String(editData.rent?.advanceAmount || ""));
-      setLeaseTenure(editData.lease?.leaseTenure || "");
-      setPlotType(editData.plotType || "Agriculture");
-      setAddress(editData.location.address || "");
-      setLatitude(String(editData.location.map.latitude) || "");
-      setLongitude(String(editData.location.map.longitude) || "");
-      setImages(
-        editData.uploadedImages.map((img: UploadedImage) => ({
-          name: img.name,
-          file: img.file,
-        }))
-      );
-      setTotalArea(
-        editData.location.area.totalArea.replace(" sqft", "") || ""
-      );
-      setFacingDirection(editData.facingDirection || "East");
-      setTotalFloors(String(editData.totalFloors) || "");
-      setPropertyFloor(String(editData.propertyFloor) || "");
-      setSelectedChips(editData.selectedChips || []);
-      setPropertyDescription(editData.description || "");
-    }
-  }, [isEditMode, editData]);
+  const [autocomplete, setAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
 
-  const [nearbyTransport, setNearbyTransport] = useState<
-    Record<string, string>
-  >({ "BUS STAND": "0 KM", AIRPORT: "0 KM", METRO: "0 KM", RAILWAY: "0 KM" });
+  const [nearbyTransport, setNearbyTransport] = useState<Record<string, string>>({ 
+    "BUS STAND": "0 KM", AIRPORT: "0 KM", METRO: "0 KM", RAILWAY: "0 KM" });
 
   // Google Maps API loader
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "", // put your API key in .env file
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "", 
     libraries: GOOGLE_LIBRARIES,
   });
+
+   // Fetch property details by ID on mount to populate form fields
+   useEffect(() => {
+    if (!id) return;
+    setLoading(true); // Show backdrop while loading
+    
+    axios.get(
+      `${import.meta.env.VITE_BackEndUrl}/api/commercial/${id}`) // Fetch property details by ID
+      .then(({ data }) => {
+        // Pre-fill states with fetched data
+        setFirstName(data.owner?.firstName || "");
+        setLastName(data.owner?.lastName || "");
+        setEmail(data.owner?.contact?.email || "");
+        setPhone1(data.owner?.contact?.phone1 || "");
+        setPropertyType(data.propertyType || "Rent");
+        setWashroom(data.washroom || "None");
+        setRoadFasicility(data.facility?.roadFacility || "None");
+        setReadyToOccupy(data.readyToOccupy ?? true);
+        setParking(data.facility?.parking ? "Yes" : "");
+        setWaterFacility(data.facility?.waterFacility ? "Available" : "Not Available");
+        setTitle(data.title || "");
+        setTilesOnFloor(data.facility?.tilesOnFloor || false);
+        setRentAmount(data.rent?.rentAmount || 0);
+        setNegotiable(data.rent?.negotiable || false);
+        setAdvanceAmount(data.rent?.advanceAmount?.toString() || "");
+        setLeaseTenure(data.lease?.leaseTenure || "");
+        setCommercialType(data.commercialType || "Shop");
+        setAddress(data.location?.address || "");
+        setLatitude(data.location?.map?.latitude?.toString() || "");
+        setLongitude(data.location?.map?.longitude?.toString() || "");
+        setImages((data.images || []).map((name: string) => ({ name, file: null })));
+        setTotalArea(data.area?.totalArea || "");
+        setFacingDirection(data.facingDirection || "East");
+        setTotalFloors(data.totalFloors?.toString() || "");
+        setPropertyFloor(data.propertyFloor?.toString() || "");
+        setPropertyDescription(data.description || "");
+        // Reconstruct selectedChips from accessibility if possible
+        const chips: string[] = [];
+        if (data.accessibility?.lift === true) chips.push("Guests Not Allowed");
+        if (data.accessibility?.ramp === true) chips.push("No Pets Allowed");
+        if (data.accessibility?.steps === true) chips.push("No Bachelors Allowed");
+        setSelectedChips(chips);
+
+        // Set marker position for map if lat/lng present
+        if (data.location?.map?.latitude && data.location?.map?.longitude) {
+            setMarkerPosition({
+              lat: Number(data.location.map.latitude),
+              lng: Number(data.location.map.longitude),
+            });
+            fetchNearbyTransport(Number(data.location.map.latitude), Number(data.location.map.longitude));
+          }
+        } )
+      .catch((error) => {
+        toast.error(`Failed to fetch property details: ${error.response?.data?.message || error.message}`);
+        console.error("Fetch error:", error);
+      })
+      .finally(() => {
+        setLoading(false); // Hide backdrop after loading
+      });
+  }, [id]);
+
+  // Handle Google Map autocomplete load
+  // Removed unused onLoadAutocomplete function
+  // Handle Place selection from autocomplete
+  const onPlaceChanged = useCallback(() => {
+    if (autocomplete !== null) {
+      const place = autocomplete.getPlace();
+
+      if (place.geometry && place.geometry.location) {
+        toast.error("No details available for input: " + place.name + place.name + "'");
+        return;
+      }
+      const lat = place.geometry?.location?.lat();
+      const lng = place.geometry?.location?.lng();
+      if (lat !== undefined) {
+        setLatitude(lat.toString());
+      }
+      if (lng !== undefined) {
+        setLongitude(lng.toString());
+      }
+      setAddress(place.formatted_address || place.name || "");
+
+      if (lat !== undefined && lng !== undefined) {
+        setMarkerPosition({ lat, lng });
+      }
+    }
+  }, [autocomplete]);
+
+  // Pass onPlaceChanged to Autocomplete
+  useEffect(() => {
+    if (autocomplete) {
+      autocomplete.addListener("place_changed", onPlaceChanged);
+    }
+  }, [autocomplete, onPlaceChanged]);
+
+  
+
 
   const fetchNearbyTransport = async (lat: number, lng: number) => {
     const types = [
@@ -361,73 +413,82 @@ export const CreatePlotProperty = () => {
     return newErrors;
   };
 
+    // Updated submit handler to send PUT request to update property
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true); // Backdrop
 
     const validationErrors = validate();
     setErrors(validationErrors);
+
     if (Object.keys(validationErrors).length > 0) {
-      toast.error("Please fix the errors in the form.");
+        toast.error("Please fix the errors in the form.");
+        setLoading(false);
       return;
     }
 
     // Form is valid, proceed with submission
-    const formState: PlotFormState = {
-      ownerDetails: {
-        firstName,
-        lastName,
-        contact: { phone1, email },
+    const formState: CommercialFormState = {
+      owner: {
+        firstName: firstName,
+        lastName: lastName,
+        contact: {
+          phone1: phone1,
+          email: email,
+        },
       },
-      propertyType,
+      propertyType: propertyType, // e.g. "Rent" | "Lease" | "Sale"
       title,
-      plotType,
+      commercialType: commercialType as CommercialType,
       facingDirection,
+      readyToOccupy,
+      washroom,
       rent: {
-        rentAmount: 0,
-        negotiable: false,
+        rentAmount: Number(rentAmount) || 0,
+        negotiable,
         advanceAmount: Number(advanceAmount) || 0,
         agreementTiming: leaseTenure,
       },
       lease: {
-        leaseAmount: rentAmount || 0,
+        leaseAmount: Number(rentAmount) || 0,
         negotiable,
-        leaseTenure,
+        leaseTenure: leaseTenure,
       },
-
       sale: {
-        saleAmount: rentAmount || 0,
+        saleAmount: Number(rentAmount) || 0,
         negotiable,
       },
-
       location: {
         address,
-        landmark: "",
         map: {
           latitude: Number(latitude),
           longitude: Number(longitude),
-
-        },
-        area: {
-          totalArea: totalArea.toString(),
-          length: "",
-          width: "",
-          acre: 0,
         },
       },
-
-      images: images.map((img) => img.file),
+      area: {
+        totalArea,
+      },
+      images: images.map((img) => img.name),
       uploadedImages: images,
       totalFloors: Number(totalFloors) || 0,
       propertyFloor: Number(propertyFloor) || 0,
+
+      facility: {
+        tilesOnFloor,
+        roadFacility: roadFasicility,
+        parking: !!parking,
+        waterFacility: waterFacility === "Available",
+      },
+      accessibility: {
+        steps: false,
+        lift: false,
+        ramp: false,
+      },
+
       selectedChips,
       status: "Pending",
-      description,
-      hasWell: false,
-      hasMotor: false,
-      hasEBConnection: false,
-      hasBorewell: false,
       isDeleted: false,
+      description: description ?? "",
     };
 
     // Convert payload to object
@@ -446,81 +507,54 @@ export const CreatePlotProperty = () => {
 
     //Append images with MIME type handling & debug logging
     const MAX_FILE_SIZE_MB = 5;
-
-    images.forEach(
-      (
-        img
-        // index
-      ) => {
+    images.forEach((img ) => {
         if (
           img.file instanceof File &&
-          ["image/jpeg", "image/jpg", "image/png", "image/webp"].includes(
-            img.file.type
-          )
+          ["image/jpeg", "image/jpg", "image/png", "image/webp"].includes(img.file.type)
         ) {
           if (img.file.size <= MAX_FILE_SIZE_MB * 1024 * 1024) {
             formData.append("images", img.file);
           } else {
-            toast.error(
-              `${img.name} exceeds ${MAX_FILE_SIZE_MB}MB size limit.`
-            );
-          }
-          // console.warn(`Skipped invalid image: ${img.name}`);
-          toast.error(
-            `Invalid file type: ${img.name}. Only JPEG, PNG, or WEBP allowed.`
-          );
+            toast.error(`${img.name} exceeds ${MAX_FILE_SIZE_MB}MB size limit.`);
+          } 
+        } else if (img.name) {
+          toast.error(`Invalid file type: ${img.name}. Only JPEG, PNG, or WEBP allowed.`);
         }
-      }
-    );
+      });
 
     try {
-      setLoading(true); // <- Show backdrop
-
-      const url = isEditMode
-        ? `${import.meta.env.VITE_BackEndUrl}/api/plot/${editId}`
-        : `${import.meta.env.VITE_BackEndUrl}/api/plot/create`;
-        const method = isEditMode ? "put" : "post";
-        const response = await axios[method](url, formData, {
+      // Send POST request
+    await axios.put(
+        `${import.meta.env.VITE_BackEndUrl}/api/commercial/${id}`,
+        formData,
+        {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        });
+        }
+      );
 
       setLoading(false); // Hide Backdrop FIRST
 
-      setTimeout(() => {
-        toast.success(
-          isEditMode ? "Property updated successfully!" : "Property created successfully!"
-        );
+        toast.success("Property created successfully!");
+      
         // Wait until backdrop is gone
         setTimeout(() => {
-          const plotId = response?.data?._id;
-      
-          if (plotId) {
-            navigate(`/plots/view/${plotId}`);
-          } else {
-            // fallback in case no ID is returned
-            navigate("/plots", {
-              state: { data: response.data, showLoading: true },
-            });
-          }
+            navigate(`/commercial/view/${id}}`);
         }, 1000);
-      }, 100);
     } catch (err) {
       const error = err as AxiosError<{ message?: string; error?: string }>;
+      console.error("Update error:", error.response || error);
+
       const errorMessage =
         error.response?.data?.message ||
         error.response?.data?.error ||
         error.message ||
         "Something went wrong!";
-      console.error("Submission Error:", error);
 
-      toast.error(
-        `Failed to ${isEditMode ? "update" : "create"} property: ${errorMessage}`
-      );
+      toast.error(`Failed to create property: ${errorMessage}`);
+        setLoading(false); // Hide Backdrop on error
     }
-    
-    console.log("check end ");
   };
 
   //TopOfCenter MUIAlertToast
@@ -674,11 +708,11 @@ export const CreatePlotProperty = () => {
                 </div>
 
                 <div className="OwnerInputField  row mb-3">
-                  <div className="d-flex flex-d-row gap-3">
+                  <div className="d-flex flex-d-row gap-3 p-0">
                     {/* Property Type */}
                     <div className="col-md-6 mb-3">
                       <label className="TextLabel" htmlFor="propertyType">
-                      Property Type
+                        Property Type
                       </label>
                       <InputField
                         type="dropdown"
@@ -690,115 +724,110 @@ export const CreatePlotProperty = () => {
                         }
                       />
                     </div>
-                    
-                    {/* Plot Type */}
+                    {/* Commercial Type */}
                     <div className="col-md-6 mb-3">
-                      <label className="TextLabel" htmlFor="plotType">
-                        Plot Type
+                      <label className="TextLabel" htmlFor="commercialType">
+                        Commercial Type
                       </label>
                       <InputField
                         type="dropdown"
-                        id="plotType"
+                        id="commercialType"
                         placeholder="None"
                         dropdownOptions={[
-                          "Agriculture",
-                          "Business Use",
-                          "Commercial Use",
-                          "Industrial Use",
-                          "Personal Use",
-                          "Parking",
-                          "Shed/Storage",
-                          "Poultry or Livestock",
-                          "Events or Functions",
-                          "Investment Purpose",
-                          "Renewable Energy Projects",
-                          "Timber/Tree Plantation",
-                          "Nursery/Gardening Business",
-                          "Telecom Towers",
+                          "Office Space",
+                          "Co-Working",
+                          "Shop",
+                          "Showroom",
+                          "Godown/Warehouse",
+                          "Industrial Building",
+                          "Industrial Shed",
+                          "Other Business",
                         ]}
-                        value={plotType || "Agriculture"}
+                        value={commercialType || "Shop"}
                         onChange={(e) =>
-                          setPlotType(e.target.value as PlotType)
+                          setCommercialType(e.target.value as CommercialType)
                         }
                       />
                     </div>
-                  </div>
                   </div>
                   {/* -------- Dynamic Inputs based on propertyType --------- */}
                   {/* Rent/Lease/Sale Specific Fields */}
                   {propertyType === "Rent" && (
                     <>
-                  <div className="OwnerInputField row mb-3">
-                  <div className=" d-flex flex-d-row gap-3">
-                    <div className="col-md-6 mb-3">
-                      <label className="TextLabel" htmlFor="rentAmount">
-                        Rent Amount(₹)
-                      </label>
-                      <InputField
-                        type="text"
-                        id="rentAmount"
-                        placeholder="Enter Amount in Rupees (₹)"
-                        value={rentAmount}
-                        onChange={(e) => setRentAmount(Number(e.target.value))}
-                      />
-                    </div>
-                    <div className="row">
-                      <div className="col-12">
-                        <label className="TextLabel" htmlFor="negotiable">
-                          Negotiable
-                        </label>
-                        <div className="d-flex flex-wrap gap-3">
-                          <InputField
-                            type="radio"
-                            radioOptions={["Yes", "No"]}
-                            id="negotiable"
-                            value={negotiable ? "Yes" : "No"}
-                            onChange={(e) =>
-                              setNegotiable(e.target.value === "Yes")
-                            }
-                          />
+                      <div className="OwnerInputField row mb-3">
+                        <div className=" d-flex flex-d-row gap-3 p-0">
+                          <div className="col-md-6 mb-3">
+                            <label className="TextLabel" htmlFor="rentAmount">
+                              Rent Amount(₹)
+                            </label>
+                            <InputField
+                              type="text"
+                              id="rentAmount"
+                              placeholder="Enter Amount in Rupees (₹)"
+                              value={rentAmount}
+                              onChange={(e) =>
+                                setRentAmount(Number(e.target.value))
+                              }
+                            />
+                          </div>
+                          <div className="row">
+                            <div className="col-12">
+                              <label className="TextLabel" htmlFor="negotiable">
+                                Negotiable
+                              </label>
+                              <div className="d-flex flex-wrap gap-3">
+                                <InputField
+                                  type="radio"
+                                  radioOptions={["Yes", "No"]}
+                                  id="negotiable"
+                                  value={negotiable ? "Yes" : "No"}
+                                  onChange={(e) =>
+                                    setNegotiable(e.target.value === "Yes")
+                                  }
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="d-flex flex-d-row gap-3 p-0">
+                          <div className="col-6 mb-3">
+                            <label
+                              className="TextLabel"
+                              htmlFor="advanceDeposit"
+                            >
+                              Advance Deposit (₹)
+                            </label>
+                            <InputField
+                              type="text"
+                              id="advanceDeposit"
+                              placeholder="Enter Deposit"
+                              value={advanceAmount}
+                              onChange={(e) => setAdvanceAmount(e.target.value)}
+                              // error={!!errors.advanceDeposit}
+                              // helperText={errors.advanceAmount}
+                            />
+                          </div>
+                          <div className="col-6 mb-3">
+                            <label className="TextLabel" htmlFor="tenure">
+                              Agreement Timings (Years)
+                            </label>
+                            <InputField
+                              type="text"
+                              id="tenure"
+                              placeholder="No. of Years"
+                              value={leaseTenure}
+                              onChange={(e) => setLeaseTenure(e.target.value)}
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
-
-                  <div className="d-flex flex-d-row gap-3">
-                    <div className="col-6 mb-3">
-                      <label className="TextLabel" htmlFor="advanceDeposit">
-                        Advance Deposit (₹)
-                      </label>
-                      <InputField
-                        type="text"
-                        id="advanceDeposit"
-                        placeholder="Enter Deposit"
-                        value={advanceAmount}
-                        onChange={(e) => setAdvanceAmount(e.target.value)}
-                        // error={!!errors.advanceDeposit}
-                        // helperText={errors.advanceAmount}
-                      />
-                    </div>
-                    <div className="col-6 mb-3">
-                      <label className="TextLabel" htmlFor="tenure">
-                        Agreement Timings (Years){" "}
-                      </label>
-                      <InputField
-                        type="text"
-                        id="tenure"
-                        placeholder="No. of Years"
-                        value={leaseTenure}
-                        onChange={(e) => setLeaseTenure(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  </div>
                     </>
                   )}
-                  
-
                   {propertyType === "Lease" && (
                     <>
                       <div className="OwnerInputField row mb-3">
-                        <div className="d-flex flex-d-row gap-3">
+                        <div className=" d-flex flex-d-row gap-3 p-0">
                           <div className="col-md-6 mb-3">
                             <label className="TextLabel" htmlFor="leaseAmount">
                               Lease Amount(₹)
@@ -831,10 +860,11 @@ export const CreatePlotProperty = () => {
                               </div>
                             </div>
                           </div>
-                        </div>                          
+                        </div>
+
                           <div className="col-12">
                             <label className="TextLabel" htmlFor="tenure">
-                              Tenure (Years)
+                              Lease Tenure (Years)
                             </label>
                             <InputField
                               type="text"
@@ -844,14 +874,13 @@ export const CreatePlotProperty = () => {
                               onChange={(e) => setLeaseTenure(e.target.value)}
                             />
                           </div>
-                        
                       </div>
                     </>
                   )}
                   {propertyType === "Sale" && (
                     <>
                       <div className="OwnerInputField row mb-3">
-                        <div className="d-flex flex-d-row gap-3">
+                        <div className=" d-flex flex-d-row gap-3 p-0">
                           <div className="col-md-6 mb-3">
                             <label className="TextLabel" htmlFor="saleAmount">
                               Sale Amount(₹)
@@ -887,7 +916,9 @@ export const CreatePlotProperty = () => {
                         </div>
                       </div>
                     </>
-                  )}
+                  )}  
+                </div>
+
               </section>
 
               {/* Location Details Section */}
@@ -1160,8 +1191,6 @@ export const CreatePlotProperty = () => {
                               file,
                               url: URL.createObjectURL(file),
                               name: file.name,
-                              uploadedAt: new Date(),
-                              imageSize: file.size,
                             }));
 
                           if (validImages.length === 0) return;
@@ -1255,12 +1284,12 @@ export const CreatePlotProperty = () => {
                   <div className="d-flex flex-d-row gap-3">
                     <div className="col-12 col-md-6 mb-3">
                       <label className="TextLabel" htmlFor="totalFloors">
-                        Length
+                        Total Floors
                       </label>
                       <InputField
                         type="text"
                         id="totalFloors"
-                        placeholder="Enter Length (Ft)"
+                        placeholder="Enter Total Number of Floors"
                         value={totalFloors}
                         onChange={(e) => setTotalFloors(e.target.value)}
                         error={!!errors.totalFloors}
@@ -1269,32 +1298,18 @@ export const CreatePlotProperty = () => {
                     </div>
                     <div className="col-12 col-md-6 mb-3">
                       <label className="TextLabel" htmlFor="propertyOnFloor">
-                        Width
+                        Property on
                       </label>
                       <InputField
                         type="text"
                         id="propertyOnFloor"
-                        placeholder="Enter Width (Ft)"
+                        placeholder="Enter Floor Number"
                         value={propertyFloor}
                         onChange={(e) => setPropertyFloor(e.target.value)}
                         error={!!errors.propertyFloor}
                         helperText={errors.propertyFloor}
                       />
                     </div>
-                  </div>
-                  <div className="col-12 col-md-6 mb-3">
-                    <label className="TextLabel" htmlFor="propertyOnFloor">
-                      Acre
-                    </label>
-                    <InputField
-                      type="text"
-                      id="propertyOnFloor"
-                      placeholder="Enter Length (Ft)"
-                      value={propertyFloor}
-                      onChange={(e) => setPropertyFloor(e.target.value)}
-                      error={!!errors.propertyFloor}
-                      helperText={errors.propertyFloor}
-                    />
                   </div>
                 </div>
               </section>
@@ -1303,9 +1318,122 @@ export const CreatePlotProperty = () => {
                 <div className="ownerTitle">
                   <h6>Facilities Provided</h6>
                   <p>
-                    Specify the amenities and utilities available in the plot
+                    Specify the amenities and utilities available in the
+                    property
                   </p>
                 </div>
+                <div className="ownerFacilitiessField mt-3 row">
+                  <div className="col-12 col-md-6 mb-3">
+                    <label className="TextLabel" htmlFor="washroom">
+                      Washroom
+                    </label>
+                    <InputField
+                      type="dropdown"
+                      id="washroom"
+                      placeholder="None"
+                      dropdownOptions={["None", "Private", "Common"]}
+                      value={washroom || "None"}
+                      onChange={(e) =>
+                        setWashroom(e.target.value as WashroomType)
+                      }
+                    />
+                  </div>
+                  <div className="col-12 col-md-6 mb-3">
+                    <label className="TextLabel" htmlFor="roadFasicility">
+                      Road Facility
+                    </label>
+                    <InputField
+                      type="dropdown"
+                      id="roadFasicility"
+                      placeholder="15 Feet"
+                      dropdownOptions={[
+                        "None",
+                        "15 Feet",
+                        "20 Feet",
+                        "30 Feet",
+                      ]}
+                      value={roadFasicility}
+                      onChange={(e) =>
+                        setRoadFasicility(e.target.value as RoadFacility)
+                      }
+                    />
+                  </div>
+                </div>
+                <div className="row">
+                  <div className="col-12 col-md-6 mb-3">
+                    <label className="TextLabel" htmlFor="parking">
+                      Parking
+                    </label>
+                    <InputField
+                      type="radio"
+                      className="radioField"
+                      radioOptions={["Available", "No, Not applicable"]}
+                      id="parking"
+                      value={parking || "Available"}
+                      onChange={(e) => setParking(e.target.value)}
+                    />
+                  </div>
+                  <div className="col-12 col-md-6 mb-3">
+                    <label className="TextLabel" htmlFor="tilesOnFloor">
+                      Tiles on Floor
+                    </label>
+                    <InputField
+                      type="radio"
+                      className="tilesOnFloor"
+                      radioOptions={["Yes,Available", "No, Not applicable"]}
+                      id="tilesOnFloor"
+                      value={
+                        tilesOnFloor ? "Yes,Available" : "No, Not applicable"
+                      }
+                      onChange={(e) =>
+                        setTilesOnFloor(e.target.value === "Yes,Available")
+                      }
+                    />
+                  </div>
+                </div>
+                <div className="row">
+                  <div className="col-12 col-md-6 mb-3">
+                    <label className="TextLabel" htmlFor="waterFacility">
+                      Water Facility
+                    </label>
+                    <InputField
+                      type="radio"
+                      className="waterFacility"
+                      radioOptions={["Available", "Not applicable"]}
+                      id="waterFacility"
+                      value={waterFacility}
+                      onChange={(e) => setWaterFacility(e.target.value)}
+                    />
+                  </div>
+                  <div className="col-12 col-md-6 mb-3">
+                    <label className="TextLabel" htmlFor="readyToOccupy">
+                      Ready To Occupy
+                    </label>
+                    <InputField
+                      type="radio"
+                      className="readyToOccupy"
+                      radioOptions={["Ready to Occupy", "Not Ready Yet"]}
+                      id="parking"
+                      value={
+                        readyToOccupy ? "Ready to Occupy" : "Not Ready Yet"
+                      }
+                      onChange={(e) =>
+                        setReadyToOccupy(e.target.value === "Ready to Occupy")
+                      }
+                    />
+                  </div>
+                </div>
+              </section>
+
+              {/* Accessibility Section - No direct validation needed */}
+              <section className="AccessibilitySection mb-4">
+                <div className="ownerTitle">
+                  <h6>Move-In Accessibility</h6>
+                  <p>
+                    Choose how easy it is to access and move into the property
+                  </p>
+                </div>
+
                 <div className="chipField row">
                   <div
                     className="chipcard d-flex gap-4 col-6 col-md-3 mb-3"
@@ -1313,11 +1441,11 @@ export const CreatePlotProperty = () => {
                   >
                     <InputField
                       type="chip"
-                      label="Well"
+                      label="Lift Access"
                       icon={
                         <Avatar
-                          alt="Well"
-                          src="/src/assets/createProperty/material-symbols_water-full-outline.svg"
+                          alt="Lift Access"
+                          src="/src/assets/createProperty/Icon_Lift.svg"
                           className="avatarImg"
                         />
                       }
@@ -1333,11 +1461,11 @@ export const CreatePlotProperty = () => {
 
                     <InputField
                       type="chip"
-                      label="Bore Well"
+                      label="Ramp Access"
                       icon={
                         <Avatar
-                          alt="Bore Well"
-                          src="/src/assets/createProperty/fa6-solid_bore-hole.svg"
+                          alt="Ramp Access"
+                          src="/src/assets/createProperty/guidance_ramp-up.svg"
                           className="avatarImg"
                         />
                       }
@@ -1353,30 +1481,10 @@ export const CreatePlotProperty = () => {
 
                     <InputField
                       type="chip"
-                      label="EB Connection"
+                      label="Only via Stairs"
                       icon={
                         <Avatar
-                          alt="EB Connection"
-                          src="/src/assets/createProperty/mage_electricity.svg"
-                          className="avatarImg"
-                        />
-                      }
-                      selectedChips={selectedChips}
-                      onChipToggle={(label) => {
-                        setSelectedChips((prev) =>
-                          prev.includes(label)
-                            ? prev.filter((chip) => chip !== label)
-                            : [...prev, label]
-                        );
-                      }}
-                    />
-
-                    <InputField
-                      type="chip"
-                      label="Motor"
-                      icon={
-                        <Avatar
-                          alt="Motor"
+                          alt="Only via Stairs"
                           src="/src/assets/createProperty/tabler_stairs.svg"
                           className="avatarImg"
                         />
@@ -1491,11 +1599,11 @@ export const CreatePlotProperty = () => {
                   <div>
                     {/* Your form and other JSX */}
                     <GenericButton
-                      label={loading ? "Saving..." : isEditMode ? "Update Property" : "Create New Property"}
-                      icon={loading ? <CircularProgress size={16} color="inherit" /> : <DoneIcon />}
+                      label="Create New Property"
+                      icon={<DoneIcon />}
                       className="createNP btn btn-primary"
                       type="submit"
-                      disabled={loading}
+                      disabled={!isFormReadyToSubmit}
 
                       // onClick={() => navigate("/createCommercial", { state: { mode: "create" } })}
                     />
@@ -1513,4 +1621,4 @@ export const CreatePlotProperty = () => {
   );
 };
 
-export default CreatePlotProperty;
+export default UpdateCommercialProperty;
