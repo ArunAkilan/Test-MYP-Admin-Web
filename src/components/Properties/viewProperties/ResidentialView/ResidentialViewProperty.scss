@@ -1,0 +1,127 @@
+.address-detail {
+    padding: 48px 0 0;
+}
+.title-address {
+    flex-direction: column;
+    align-items: flex-start;
+}
+.title-address h3 {
+    font-size: 22px ;
+    line-height: 27px;
+    letter-spacing: 0px;
+    font-family: "Raleway";
+    font-weight: 700;
+    color: #2E2E2F;
+}
+.landmark-type {
+    display: flex;
+    align-items: center;
+}
+.detail-type {
+    font-size: 12px ;
+    line-height: 18px;
+    letter-spacing: 0px;
+    font-family: "Open Sans";
+    font-weight: 400;
+    color: #53B224;
+    border: 1px solid #53B224;
+    border-radius: 4px;
+    padding: 4px 8px;
+    margin: 0 16px;
+}
+.detail-status-type {
+    background: #00BFA6;
+    font-size: 12px ;
+    line-height: 18px;
+    letter-spacing: 0px;
+    font-family: "Open Sans";
+    font-weight: 400;
+    color: #fff;
+    padding: 7px 24px;
+}
+.lead {
+    padding: 8px 0;
+    margin-bottom: 0 !important;
+    font-size: 14px ;
+    line-height: 22px;
+    letter-spacing: 0.1px;
+    font-family: "Open Sans";
+    font-weight: 400;
+    color: #757575;
+}
+.area-facing-detail-inner-div {
+    display: flex;
+    justify-content: space-between;
+
+}
+.area-facing-detail-inner-div p {
+    font-size: 12px ;
+    line-height: 18px;
+    letter-spacing: -0.05px;
+    font-family: "Raleway";
+    font-weight: 700;
+    color: #757575;
+}
+.caps {
+    text-transform: uppercase;
+}
+.area-facing-detail-inner-div .text-muted {
+    font-size: 14px ;
+    line-height: 22px;
+    letter-spacing: 0.1px;
+    font-family: "Open Sans";
+    font-weight: 600;
+}
+.area-facing-detail-inner-div .user-result-data {
+    font-size: 22px ;
+    line-height: 27px;
+    letter-spacing: 0px;
+    font-family: "Raleway";
+    font-weight: 700;
+    color: #55565C;
+}
+.area-facing-divider {
+    width: 2px;
+    height: 88px;
+    background: #F2F3F5;
+    padding: 0;
+}
+
+.midDetails h3,.propertyDes h3 {
+    font-size: 16px ;
+    line-height: 18px;
+    letter-spacing: 0px;
+    font-family: "Raleway";
+    font-weight: 700;
+    color: #2E2E2F;
+    margin-bottom: 32px;
+}
+.row-individual-data p {
+    margin-bottom: 0;
+    padding-bottom: 8px;
+    text-transform: uppercase;
+    font-size: 12px ;
+    line-height: 18px;
+    letter-spacing: -0.05px;
+    font-family: "Raleway";
+    font-weight: 700;
+    color: #55565C;
+}
+.row-individual-data span ,.propertyDes p {
+    font-family: "Open Sans";
+    text-transform: capitalize;
+    font-size: 12px ;
+    line-height: 18px;
+    letter-spacing: 0px;
+    font-weight: 400;
+    display: flex;
+    align-items: center;
+    
+}
+.row-individual-data span {
+    padding-bottom: 15px;
+    color: #2E2E2F;
+}
+.propertyDes p {
+    color: #55565C;
+}
