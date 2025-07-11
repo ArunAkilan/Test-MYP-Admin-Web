@@ -88,12 +88,3 @@ export interface PropertyDataResponse {
   plot?: PropertyView[];
   data?: PropertyView[];
 }
-export interface PropertyDataResponse {
-  residentials?: PropertyView[];
-  commercials?: PropertyView[];
-  plots?: PropertyView[];
-  residential?: PropertyView[];
-  commercial?: PropertyView[];
-  plot?: PropertyView[];
-  data?: PropertyView[];
-}

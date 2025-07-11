@@ -1,5 +1,7 @@
 import "./table.scss";
-import type { ResidentialProperty } from "../../AdminResidencial/AdminResidencial.model";
+import type { ResidentialProperty} from "../../AdminResidencial/AdminResidencial.model";
+import type { PropertyDataResponse } from "./table.model";
+
 import { Box, Typography, Modal, Popover, Button, Backdrop, CircularProgress } from "@mui/material";
 import React,{ useState, useEffect } from "react";
 import axios from "axios";
@@ -8,15 +10,29 @@ import "react-toastify/dist/ReactToastify.css";
 import tickIcon from "../../../assets/table/Icon_Tick.svg";
 import denyIcon from "../../../assets/table/Icon_Deny.svg";
 import { useLocation, useNavigate } from "react-router-dom";
+import type { CommercialProperty, PlotProperty } from "./table.model";
 
 
 interface TableProps {
   //data: ResidentialProperty[];
-  data: ResidentialProperty[];
+  data: PropertyDataResponse | ResidentialProperty[];
   properties?: | "all" | "residential" | "residentials" | "commercial" | "commercials" | "plot" | "plots" | undefined;
   onScrollChange: (scrollTop: number) => void;
   handleOpenModal: (action: "Approve" | "Deny" | "Delete", item: ResidentialProperty) => void;
 }
+
+export  interface Property {
+  _id: string; // use string for MongoDB IDs
+  name: string;
+  address: string;
+  size: string;
+  floor: string;
+  facing: string;
+  furnishing: string;
+  type: string;
+  washroom: string;
+}
+
 
 const modalStyle = {
   position: "absolute" as const, top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: 400, bgcolor: "background.paper", border: "2px solid #000", boxShadow: 24, p: 4,};
@@ -60,7 +76,7 @@ function Table({ data, properties, onScrollChange }: TableProps) {
   };
 
 const formatedData = Array.isArray(data)
-  ? data.map((item: any) => ({
+  ? data.map((item: ResidentialProperty) => ({
       ...item,
       _source:
         properties === "residentials"
@@ -71,12 +87,12 @@ const formatedData = Array.isArray(data)
           ? "plots"
           : "unknown",
     }))
-  : [...(data?.residentials?.map((item: any) => ({...item,_source: "residential",})) ?? []),
-  ...(data?.commercials?.map((item: any) => ({...item,_source: "commercial",})) ?? []),
-  ...(data?.plots?.map((item: any) => ({...item, _source: "plots",})) ?? []),
-  ...(data?.residential?.map((item: any) => ({...item, _source: "residential",})) ?? []),
-  ...(data?.commercial?.map((item: any) => ({...item, _source: "commercial",})) ?? []),
-  ...(data?.plot?.map((item: any) => ({...item, _source: "plots",})) ?? []),];
+  : [...(data?.residentials?.map((item: ResidentialProperty) => ({...item,_source: "residential",})) ?? []),
+  ...(data?.commercials?.map((item: CommercialProperty) => ({...item,_source: "commercial",})) ?? []),
+  ...(data?.plots?.map((item: PlotProperty) => ({...item, _source: "plots",})) ?? []),
+  ...(data?.residential?.map((item: ResidentialProperty) => ({...item, _source: "residential",})) ?? []),
+  ...(data?.commercial?.map((item: CommercialProperty) => ({...item, _source: "commercial",})) ?? []),
+  ...(data?.plot?.map((item: PlotProperty) => ({...item, _source: "plots",})) ?? []),];
     
   // Modal state
   const [open, setOpen] = React.useState(false);
