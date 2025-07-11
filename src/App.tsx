@@ -37,6 +37,7 @@ function AppRoutes() {
       "/commercial",
       "/residential",
       "/plots",
+      
     ];
 
     const shouldHideScroll = noScrollRoutes.includes(location.pathname);
@@ -68,20 +69,11 @@ function AppRoutes() {
       >
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" />} />
-          <Route path="/dashboard" element={<Home properties="all" />} />
-          <Route
-            path="/commercial"
-            element={<Home properties="commercials" />}
-          />
-          <Route
-            path="/residential"
-            element={<Home properties="residentials" />}
-          />
-          <Route path="/plots" element={<Home properties="plots" />} />
-          <Route
-            path="/commercial/create"
-            element={<CreateCommercialProperty />}
-          />
+          <Route path="/dashboard" element={<Home properties="all" onAddNew={openCreateResidential} />} />
+          <Route path="/commercial" element={<Home properties="commercials" onAddNew={openCreateCommercial} />}/>
+          <Route path="/residential" element={<Home properties="residentials" onAddNew={openCreateResidential}/>}/>
+          <Route path="/plots" element={<Home properties="plots" onAddNew={openCreatePlotProperty}/>} />
+          <Route path="/commercial/create" element={<CreateCommercialProperty />}/>
           <Route path="/plots/create" element={<CreatePlotProperty />} />
           <Route path="/residential/create" element={<CreateProperty />} />
           <Route path="/plots/view/:id" element={<PlotView />} />

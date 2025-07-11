@@ -43,13 +43,13 @@ const ViewCarousel: React.FC = () => {
             </div>
         <Slider
           asNavFor={thumbSlider.current as Slider}
-          ref={(slider) => {mainSlider.current = slider}}
+          ref={(slider: Slider) => {mainSlider.current = slider}}
           arrows
           infinite
           fade
           nextArrow={<NextArrow />}
           prevArrow={<PrevArrow />}
-          beforeChange={(_, next) => setCurrentIndex(next)}
+          beforeChange={(_: number, next: number) => setCurrentIndex(next)}
         >
           {images.map((src, index) => (
             <div key={index}>
@@ -69,7 +69,7 @@ const ViewCarousel: React.FC = () => {
       <div className="w-1/4 col-md-4 h-full pl-4">
         <Slider
           asNavFor={mainSlider.current as Slider}
-          ref={(slider) => {thumbSlider.current = slider}}
+          ref={(slider: Slider) => {thumbSlider.current = slider}}
           slidesToShow={2}
           vertical
           swipeToSlide
