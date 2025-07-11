@@ -8,8 +8,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { Button, Avatar, Alert, IconButton, Backdrop, CircularProgress, } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "../createProperty.scss"; //  Corrected path
-import "./createCommercial.scss"; // This is already correct
+import "./createCommercial.scss"; 
 import axios, { AxiosError } from "axios";
 import type {
   PropertyType,

@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { InputField, DynamicBreadcrumbs } from "../Common/input"; // Assuming InputField supports error props
 import GenericButton from "../Common/Button/button";
 import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
@@ -39,10 +39,14 @@ const containerStyle = {
   borderRadius: "6px",
   border: "1px solid #D3DDE7",
 };
-const center = {
-  lat: 11.2333, // fallback to your city, e.g., Perambalur
-  lng: 78.8667,
-};
+const defaultCenter = { lat: 11.2419968, lng: 78.8063549 };
+const GOOGLE_LIBRARIES: (
+  | "places"
+  | "geometry"
+  | "drawing"
+  | "visualization"
+)[] = ["places", "geometry"];
+
 // Utility function to set nested value dynamically
 function setNested(obj: PlainObject, path: string, value: unknown) {
   const keys = path.split(".");
@@ -232,19 +236,74 @@ export const CreateProperty = () => {
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showTopInfo, setShowTopInfo] = useState(false);
+  const center = {
+    lat: 11.2333,
+    lng: 78.8667,
+  };
   const [markerPosition, setMarkerPosition] = useState(center);
   const [autocomplete, setAutocomplete] =
     useState<google.maps.places.Autocomplete | null>(null);
+    const location = useLocation();
+    const isEditMode = location.state?.mode === "edit";
+    const editData = location.state?.data;
+    const editId = location.state?.data?._id;
+    console.log("editid", editId);
+
+    // Update state when in edit mode
+    useEffect(() => {
+      if (isEditMode && editData) {
+        setFirstName(editData.owner?.firstName || "");
+        setLastName(editData.owner?.lastName || "");
+        setEmail(editData.owner?.contact?.email || "");
+        setPhone1(editData.owner?.contact?.phone1 || "");
+        setTitle(editData.title || "");
+        setPropertyType(editData.propertyType || "Rent");
+        setAddress(editData.location?.address || "");
+        setLatitude(editData.location?.map?.latitude?.toString() || "");
+        setLongitude(editData.location?.map?.longitude?.toString() || "");
+        setAdvanceAmount(editData.rent?.advanceAmount?.toString() || "");
+        setLeaseTenure(editData.lease?.leaseTenure || "");
+        setNegotiable(editData.rent?.negotiable || false);
+        setTotalArea(editData.area?.totalArea?.replace(" sqft", "") || "");
+        setBuiltUpArea(editData.area?.builtUpArea?.replace(" sqft", "") || "");
+        setCarpetArea(editData.area?.carpetArea?.replace(" sqft", "") || "");
+        setTotalFloors(editData.totalFloors?.toString() || "");
+        setPropertyFloor(editData.propertyFloor?.toString() || "");
+        setPropertyDescription(editData.description || "");
+    
+        // Map restrictions booleans back to chips:
+        const chips: string[] = [];
+        if (editData.restrictions) {
+          if (editData.restrictions.guestAllowed === false) chips.push("Guests Not Allowed");
+          if (editData.restrictions.petsAllowed === false) chips.push("No Pets Allowed");
+          if (editData.restrictions.bachelorsAllowed === false) chips.push("No Bachelors Allowed");
+        }
+        setSelectedChips(chips);
+    
+        setImages((editData.images || []).map((img: string) => ({ name: img })));
+    
+        setMarkerPosition({
+          lat: editData.location?.map?.latitude || defaultCenter.lat,
+          lng: editData.location?.map?.longitude || defaultCenter.lng,
+        });
+    
+        // Fetch nearby transport info if lat/lng are available
+        if (editData.location?.map?.latitude && editData.location?.map?.longitude) {
+          fetchNearbyTransport(editData.location.map.latitude, editData.location.map.longitude);
+        }
+      }
+    }, [isEditMode, editData]);
+    
 
   const [nearbyTransport, setNearbyTransport] = useState<
     Record<string, string>
   >({ "BUS STAND": "0 KM", AIRPORT: "0 KM", METRO: "0 KM", RAILWAY: "0 KM" });
 
-  // Google Maps API loader
+ // Google Maps API loader
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "", // put your API key in .env file
-    libraries: ["places", "geometry"],
+    libraries: GOOGLE_LIBRARIES,
   });
 
   const fetchNearbyTransport = async (lat: number, lng: number) => {
@@ -284,98 +343,15 @@ export const CreateProperty = () => {
     setNearbyTransport(info);
   };
 
-  const onMapClick = useCallback(
-    (e: google.maps.MapMouseEvent) => {
-      const lat = e.latLng?.lat();
-      const lng = e.latLng?.lng();
-
-      if (!lat || !lng) return;
-
-      const position = { lat, lng };
-
-      // 1. Update marker position and lat/lng fields
-      setMarkerPosition(position);
-      setLatitude(lat.toString());
-      setLongitude(lng.toString());
-
-      // 2. Optionally fetch nearby transport
-      fetchNearbyTransport(lat, lng);
-
-      // 3. Use Google Maps Geocoder to reverse geocode
-      const geocoder = new google.maps.Geocoder();
-
-      geocoder.geocode({ location: position }, (results, status) => {
-        console.log(results, status, "properties");
-        if (status === "OK" && results && results[0]) {
-          setAddress(results[0].formatted_address);
-          setErrors((prev) => ({ ...prev, address: "" }));
-        } else {
-          console.error("Geocoder failed:", status);
-          setAddress("");
-          setErrors((prev) => ({
-            ...prev,
-            address: "Could not fetch address",
-          }));
-        }
-      });
-    },
-    [
-      setMarkerPosition,
-      setLatitude,
-      setLongitude,
-      setAddress,
-      setErrors,
-      fetchNearbyTransport,
-    ]
-  );
-
-  // When user selects place from autocomplete input
-  // const onPlaceChanged = () => {
-  //   if (autocomplete) {
-  //     const place = autocomplete.getPlace();
-  //     if (place.geometry) {
-  //       const lat = place.geometry.location?.lat();
-  //       const lng = place.geometry.location?.lng();
-  //       if (lat && lng) {
-  //         setMarkerPosition({ lat, lng });
-  //         setLatitude(lat.toString());
-  //         setLongitude(lng.toString());
-  //         fetchNearbyTransport(lat, lng);
-  //       }
-  //     }
-  //   }
-  // };
-
-  // Autocomplete setup
-  // const onLoadAutocomplete = (autoC: google.maps.places.Autocomplete) => {
-  //   setAutocomplete(autoC);
-  // };
-
-  // Handle image selection from file input
-  // const onImageSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   if (!e.target.files) return;
-
-  //   const selectedFiles = Array.from(e.target.files);
-  //   const newImages = selectedFiles.map((file) => ({
-  //     file,
-  //     name: file.name,
-  //     previewUrl: URL.createObjectURL(file),
-  //   }));
-  //   setImages((prev) => [...prev, ...newImages]);
-  // };
-
-  // Remove image preview by index
-  // const removeImage = (index: number) => {
-  //   setImages((prev) => {
-  //     // Revoke URL to avoid memory leaks
-  //     if (prev[index]?.url) {
-  //       URL.revokeObjectURL(prev[index].url);
-  //     }
-  //     const newArr = [...prev];
-  //     newArr.splice(index, 1);
-  //     return newArr;
-  //   });
-  // };
+  // Handle map click to place marker and update lat/lng inputs
+  const onMapClick = useCallback((e: google.maps.MapMouseEvent) => {
+    if (e.latLng) {
+      setMarkerPosition({ lat: e.latLng.lat(), lng: e.latLng.lng() });
+      setLatitude(e.latLng.lat().toString());
+      setLongitude(e.latLng.lng().toString());
+      fetchNearbyTransport(e.latLng.lat(), e.latLng.lng());
+    }
+  }, []);
 
   // Validation function
   const validate = (): Record<string, string> => {
@@ -419,11 +395,13 @@ export const CreateProperty = () => {
     setLoading(true); // Backdrop
 
     const validationErrors = validate();
-    setErrors(validationErrors);
-    if (Object.keys(validationErrors).length > 0) {
-      toast.error("Please fix the errors in the form.");
-      return;
-    }
+console.log("Validation Errors:", validationErrors);
+setErrors(validationErrors);
+if (Object.keys(validationErrors).length > 0) {
+  toast.error("Please fix the errors in the form.");
+  setLoading(false); // Don't forget to reset loading here
+  return;
+}
 
     // Form is valid, proceed with submission
     const formState: ResidentialFormState = {
@@ -465,51 +443,64 @@ export const CreateProperty = () => {
     Object.entries(flatPayload).forEach(([key, value]) => {
       formData.append(key, value);
     });
+    const MAX_FILE_SIZE_MB = 5; // or whatever max size you want, in megabytes
 
     //Append images with MIME type handling & debug logging
-    images.forEach(
-      (
-        img
-        // index
-      ) => {
-        if (img.file instanceof File) {
-          formData.append("images", img.file);
+    images.forEach((img) => {
+      if (img.file instanceof File) {
+        if (
+          ["image/jpeg", "image/jpg", "image/png", "image/webp"].includes(
+            img.file.type
+          )
+        ) {
+          if (img.file.size <= MAX_FILE_SIZE_MB * 1024 * 1024) {
+            formData.append("images", img.file);
+          } else {
+            toast.error(`${img.name} exceeds ${MAX_FILE_SIZE_MB}MB size limit.`);
+          }
+        } else {
+          console.warn(`Skipped invalid image: ${img.name}`);
+          toast.error(
+            `Invalid file type: ${img.name}. Only JPEG, PNG, or WEBP allowed.`
+          );
         }
+      } else if (typeof img.name === "string") {
+        // Existing image URLs from edit mode, append them so backend knows to keep them
+        formData.append("existingImages", img.name);
       }
-    );
+    });
 
     try {
-      setLoading(true); // <- Show backdrop
+      const url = isEditMode
+      ? `${import.meta.env.VITE_BackEndUrl}/api/residential/${editId}`
+      : `${import.meta.env.VITE_BackEndUrl}/api/residential/create`;
+
+      const method = isEditMode ? "put" : "post"
       // Send POST request
-      const response = await axios.post(
-        `${import.meta.env.VITE_BackEndUrl}/api/residential/create`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await axios[method](url, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       setLoading(false); // Hide Backdrop FIRST
 
       setTimeout(() => {
-        toast.success("Property created successfully!");
+        toast.success(isEditMode ? "Property updated successfully!" : "Property created successfully!");
         // Wait until backdrop is gone
         setTimeout(() => {
-          navigate("/residential", {
-            state: { data: response.data, showLoading: true },
-          });
+          const plotId = response?.data?._id;
+
+          if (plotId) {
+            navigate(`/commercial/view/${plotId}`);
+          } else {
+            navigate("/commercial", {
+              state: { data: response.data, showLoading: true },
+            });
+          }
         }, 1000); // Wait 1 second before redirecting
       }, 100); // Show success toast
 
-      // // TODO: Send data to backend
-      // // Redirect after a short delay (so toast is visible)
-      // setTimeout(() => {
-      //     navigate("/residential", {
-      //       state: { data: response.data },
-      //     });
-      //   }, /* 2000 */);
     } catch (err) {
       const error = err as AxiosError<{ message?: string; error?: string }>;
 
@@ -522,7 +513,7 @@ export const CreateProperty = () => {
         "Something went wrong!";
       console.error("Submission Error:", error);
 
-      toast.error(`Failed to create property: ${errorMessage}`);
+      toast.error(`Failed to ${isEditMode ? "update" : "create"} property: ${errorMessage}`);
     } finally {
       setLoading(false); // <- Hide backdrop on error
     }
@@ -1923,14 +1914,12 @@ export const CreateProperty = () => {
                   <div>
                     {/* Your form and other JSX */}
                     <GenericButton
-                      label="Create New Property"
-                      icon={<DoneIcon />}
-                      className="createNP btn btn-primary"
-                      type="submit"
-                      disabled={!isFormReadyToSubmit}
-
-                      // onClick={() => navigate("/createResidential", { state: { mode: "create" } })}
-                    />
+                        label={loading ? "Saving..." : isEditMode ? "Update Property" : "Create New Property"}
+                        icon={loading ? <CircularProgress size={16} color="inherit" /> : <DoneIcon />}
+                        className="createNP btn btn-primary"
+                        type="submit"
+                        disabled={loading}
+                      />
 
                     {/* This must be rendered */}
                     <ToastContainer />

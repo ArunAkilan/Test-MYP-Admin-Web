@@ -1,7 +1,6 @@
 import "./table.scss";
 import type { ResidentialProperty} from "../../AdminResidencial/AdminResidencial.model";
 import type { PropertyDataResponse } from "./table.model";
-
 import { Box, Typography, Modal, Popover, Button, Backdrop, CircularProgress } from "@mui/material";
 import React,{ useState, useEffect } from "react";
 import axios from "axios";
@@ -99,10 +98,20 @@ const formatedData = Array.isArray(data)
   const [selectedAction, setSelectedAction] = React.useState<string | null>(null);
   const [selectedItem, setSelectedItem] =React.useState<ResidentialProperty | null>(null);
 
-  const handleEdit = (item: ResidentialProperty) => {
-    console.log("Editing item:", item);
-    navigate(`/commercial/create`, { state: { data: item, mode: "edit" } });};
+  // const handleEdit = (item: ResidentialProperty) => {
+  //   console.log("Editing item:", item);
+  //   navigate(`/commercial/create`, { state: { data: item, mode: "edit" } });};
 
+  const handleEdit = (item: any) => {
+    console.log("item._source =", item._source);
+  
+    // If _source is an object with a type field:
+    const propertyType = typeof item._source === "string" 
+      ? item._source 
+      : item._source?.type || "residential";
+  
+    navigate(`/${propertyType}/create`, { state: { data: item, mode: "edit" } });
+  };
   const handleView = (id: string | number) => {
     
   const selectedItem = formatedData.find((item: any) => item._id === id);
