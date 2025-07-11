@@ -41,25 +41,25 @@ export interface OwnerDetails {
 }
 
 export interface Location {
-  landmark?: string;
-  address?: string;
-  map?: {
-    latitude?: number;
-    longitude?: number;
+  landmark: string; // Required
+  address: string;  // Required
+  map: {            // Required
+    latitude: number; 
+    longitude: number;
   };
-  area?: {
-    totalArea?: string;
-    length?: string;
-    width?: string;
-    acre?: number;
+  area: {           // Required
+    totalArea: string;
+    length: string;
+    width: string;
+    acre: number;
   };
 }
 
 export interface RentDetails {
-  rentAmount: number;
-  negotiable: boolean;
-  advanceAmount: number;
-  agreementTiming: string;
+  rentAmount: number; // default to 0
+  negotiable: boolean; // default to false
+  advanceAmount: number; // default to 0
+  agreementTiming: string; // default to ""
 }
 
 export interface LeaseDetails {
@@ -77,8 +77,10 @@ export interface UploadedImage {
   file: File;
   name: string;
   url: string;
-  imageSize?: number;
+  imageSize: number; 
 }
+
+export type PlotStatus = "Pending" | "Approved" | "Rejected" | "Deleted" | "Sold";
 
 export interface PlotFormState {
   ownerDetails: OwnerDetails;
@@ -105,12 +107,3 @@ export interface PlotFormState {
 
 }
 
-export interface ExtendedPlotFormState extends PlotFormState {
-  totalFloors: number;
-  uploadedImages: UploadedImage[];
-
-  propertyFloor: number;
-  selectedChips: string[];
-  status: string;
-  isDeleted: boolean;
-}

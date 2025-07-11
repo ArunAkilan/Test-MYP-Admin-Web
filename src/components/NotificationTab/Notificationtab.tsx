@@ -57,8 +57,10 @@ export default function Notificationtab() {
   //Socket IO
   const [notifications, setNotifications] = useState<Notification[]>([]);
   useEffect(() => {
-    axios.get<Notification[]>(`${ENDPOINT}/api/notification`)
-      .then(res => setNotifications(res.data));
+    axios.get<any>(`${ENDPOINT}/api/notifications`)
+      .then((res:any) => {
+         setNotifications(res.data.notifications);
+      });
 
     const sock = io(ENDPOINT);
     
@@ -67,7 +69,7 @@ export default function Notificationtab() {
     });
 
     
- }, []);
+ }, [  ]);
   //Socket IO
   return (
     <div id="notification-tab">
@@ -104,7 +106,7 @@ export default function Notificationtab() {
              
               { (notifications?.length == 0) ? 
               ( <><img
-                src="/public/charm_tick.svg"
+                src="charm_tick.svg"
                 alt="charm_tick image"
                 className="notify-img"
               />

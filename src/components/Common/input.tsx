@@ -24,7 +24,7 @@ import {
 } from "@mui/material";
 import TextareaAutosize from "@mui/material/TextareaAutosize";
 import { styled } from "@mui/system";
-import { MuiTelInput } from "mui-tel-input";
+// import { MuiTelInput } from "mui-tel-input";
 import type { Theme } from "@mui/system";
 import Avatar from "@mui/material/Avatar";
 import type { SelectChangeEvent } from "@mui/material";
@@ -295,26 +295,34 @@ const InputField: React.FC<InputFieldProps> = ({
       )}
  
       {type === "phone" && (
-        <MuiTelInput
-          value={typeof value === "string" ? value : ""}
-          onChange={(newValue: string) => {
-            const digitsOnly = newValue.replace(/\D/g, "");
-            if (digitsOnly.length <= 12 && onPhoneChange) {
-              onPhoneChange(newValue);
-            }
-          }}
-          defaultCountry="IN"
-          label={label}
-          fullWidth
-          size="small"
-          error={error}
-          helperText={helperText}
-          placeholder={placeholder || "+91 1234567890"}
-          className={className}
-          name={name}
-          id={id}
-          aria-label={ariaLabel}
-        />
+        <div className="mb-3">
+          <input
+            type="tel"
+            value={typeof value === "string" ? value : ""}
+            onChange={(e) => {
+              const newValue = e.target.value;
+              const digitsOnly = newValue.replace(/\D/g, "");
+              if (digitsOnly.length <= 12 && onPhoneChange) {
+                onPhoneChange(newValue);
+              }
+            }}
+            className={`form-control ${error ? "is-invalid" : ""} ${
+              className || ""
+            }`}
+            id={id}
+            name={name}
+            aria-label={ariaLabel}
+            placeholder={placeholder || "+91 1234567890"}
+          />
+          {helperText && !error && (
+            <div className="form-text">{helperText}</div>
+          )}
+          {error && (
+            <div className="invalid-feedback">
+              {helperText || "Please enter a valid phone number"}
+            </div>
+          )}
+        </div>
       )}
  
       {type === "dropdown" && (
@@ -428,7 +436,6 @@ const InputField: React.FC<InputFieldProps> = ({
       >
         <CircularProgress color="inherit" />
       </Backdrop>
-      
     </div>
   );
 };

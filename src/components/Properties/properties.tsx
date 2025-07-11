@@ -97,11 +97,13 @@ function buildPayloadDynamic(
 ): ResidentialProperty {
   const payload: Partial<ResidentialProperty> = {};
 
+  // Owner info
   setNested(payload, "owner.firstName", (formState.firstName ?? "").trim());
   setNested(payload, "owner.lastName", (formState.lastName ?? "").trim());
   setNested(payload, "owner.contact.phone1", (formState.phone1 ?? "").trim());
   setNested(payload, "owner.contact.email", (formState.email ?? "").trim());
   setNested(payload, "owner.contact.getUpdates", false);
+
   setNested(
     payload,
     "propertyType",
@@ -109,7 +111,7 @@ function buildPayloadDynamic(
   );
   const rentAmount = parseFloat(formState.rent);
   setNested(payload, "rent.rentAmount", isNaN(rentAmount) ? 0 : rentAmount);
-  setNested(payload, "rent.negotiable", formState.negotiable === false);
+  setNested(payload, "rent.negotiable", !!formState.negotiable);
   const advance = parseFloat(formState.advanceAmount);
   setNested(payload, "rent.advanceAmount", isNaN(advance) ? 0 : advance);
   setNested(payload, "rent.leaseTenure", formState.leaseTenure);
@@ -414,8 +416,7 @@ export const CreateProperty = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true); //Backdrop
-
+    setLoading(true); // Backdrop
 
     const validationErrors = validate();
     setErrors(validationErrors);
@@ -490,11 +491,18 @@ export const CreateProperty = () => {
         }
       );
 
-      toast.success("Property created successfully!");
-      navigate("/residential", {
-        state: { data: response.data, showLoading: true },
-      });
-      
+      setLoading(false); // Hide Backdrop FIRST
+
+      setTimeout(() => {
+        toast.success("Property created successfully!");
+        // Wait until backdrop is gone
+        setTimeout(() => {
+          navigate("/residential", {
+            state: { data: response.data, showLoading: true },
+          });
+        }, 1000); // Wait 1 second before redirecting
+      }, 100); // Show success toast
+
       // // TODO: Send data to backend
       // // Redirect after a short delay (so toast is visible)
       // setTimeout(() => {
@@ -503,7 +511,6 @@ export const CreateProperty = () => {
       //     });
       //   }, /* 2000 */);
     } catch (err) {
-
       const error = err as AxiosError<{ message?: string; error?: string }>;
 
       console.error("Submission error:", error.response || error);
@@ -516,10 +523,8 @@ export const CreateProperty = () => {
       console.error("Submission Error:", error);
 
       toast.error(`Failed to create property: ${errorMessage}`);
-    }
-    finally{
+    } finally {
       setLoading(false); // <- Hide backdrop on error
-
     }
   };
 
@@ -590,12 +595,15 @@ export const CreateProperty = () => {
                   </Alert>
                 )}
                 {/* Backdrop while submitting */}
-    <Backdrop
-      sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
-      open={loading}
-    >
-      <CircularProgress color="inherit" />
-    </Backdrop>
+                <Backdrop
+                  sx={{
+                    color: "#fff",
+                    zIndex: (theme) => theme.zIndex.drawer + 1,
+                  }}
+                  open={loading}
+                >
+                  <CircularProgress color="inherit" />
+                </Backdrop>
               </div>
               {/* Owner Information Section */}
               <section className="OwnerDetails mb-4">
@@ -672,9 +680,8 @@ export const CreateProperty = () => {
                   <h6>Property Overview</h6>
                   <p>Provide basic details about the property</p>
                 </div>
-
                 <div className="OwnerInputField  row mb-3">
-                  <div className="d-flex flex-d-row">
+                  <div className="d-flex flex-d-row gap-3 p-0 ">
                     <div className="col-12 col-md-6 mb-3">
                       <label className="TextLabel" htmlFor="propertyType">
                         Property Type
@@ -687,48 +694,156 @@ export const CreateProperty = () => {
                         onChange={(e) => setPropertyType(e.target.value)}
                       />
                     </div>
-                    <div className="row">
-                      <div className="col-12">
-                        <label className="TextLabel" htmlFor="residentialType">
-                          Residential Type
-                        </label>
-                        <div className="d-flex flex-wrap gap-3">
-                          <InputField
-                            type="radio"
-                            className="radioField"
-                            radioOptions={["House", "Apartment", "Villa"]}
-                            id="residentialType"
-                            value={residentialType}
-                            onChange={(e) => setResidentialType(e.target.value)}
-                          />
-                        </div>
-                      </div>
+                    <div className="col-12 col-md-6 mb-3">
+                      <label className="TextLabel" htmlFor="residentialType">
+                        Residential Type
+                      </label>
+                      <InputField
+                        type="dropdown"
+                        id="residentialType"
+                        placeholder="Select Direction Facing"
+                        dropdownOptions={["House", "Apartment", "Villa"]}
+                        value={residentialType || "House"}
+                        onChange={(e) => setResidentialType(e.target.value)}
+                      />
                     </div>
                   </div>
 
-                  <div className=" d-flex flex-d-row">
-                    <div className="col-12 col-md-6 mb-3">
-                      <label className="TextLabel" htmlFor="monthlyRent">
-                        Monthly Rent (₹)
-                      </label>
-                      <InputField
-                        type="text"
-                        id="monthlyRent"
-                        placeholder="Enter Amount in Rupees (₹)"
-                        value={rent}
-                        onChange={(e) => setRent(e.target.value)}
-                      />
-                    </div>
-                    <div className="row">
-                      <div className="col-12">
-                        <label className="TextLabel" htmlFor="negotiable">
+                  {propertyType === "Rent" && (
+                    <>
+                      <div className="OwnerInputField row mb-3">
+                        <div className="d-flex flex-d-row gap-4 p-0">
+                          <div className="col-12 col-md-6 mb-3">
+                            <label className="TextLabel" htmlFor="monthlyRent">
+                              Monthly Rent (₹)
+                            </label>
+                            <InputField
+                              type="text"
+                              id="monthlyRent"
+                              placeholder="Enter Monthly Rent (₹)"
+                              value={rent}
+                              onChange={(e) => setRent(e.target.value)}
+                            />
+                          </div>
+                          <div className="col-12 mb-3">
+                            <label className="TextLabel" htmlFor="negotiable">
+                              Negotiable
+                            </label>
+                            <div className="d-flex flex-wrap gap-3">
+                              <InputField
+                                type="radio"
+                                radioOptions={["Yes", "No"]}
+                                id="negotiable"
+                                value={negotiable ? "Yes" : "No"}
+                                onChange={(e) =>
+                                  setNegotiable(e.target.value === "Yes")
+                                }
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        <div className="col-12 col-md-6 mb-3">
+                          <label className="TextLabel" htmlFor="advanceDeposit">
+                            Advance Deposit (₹)
+                          </label>
+                          <InputField
+                            type="text"
+                            id="advanceDeposit"
+                            placeholder="Enter Deposit"
+                            value={advanceAmount}
+                            onChange={(e) => setAdvanceAmount(e.target.value)}
+                            // error={!!errors.advanceDeposit}
+                            // helperText={errors.advanceAmount}
+                          />
+                        </div>
+                        <div className="col-12 col-md-6 mb-3">
+                          <label className="TextLabel" htmlFor="agreementTime">
+                            Agreement Timings (Years)
+                          </label>
+                          <InputField
+                            type="text"
+                            id="agreementTime"
+                            placeholder="No. of Years"
+                            value={leaseTenure}
+                            onChange={(e) => setLeaseTenure(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {propertyType === "Lease" && (
+                    <>
+                      <div className="OwnerInputField mb-3">
+                        <div className="row  p-0">
+                          <div className="col-6 mb-3">
+                            <label className="TextLabel" htmlFor="leaseAmount">
+                              Lease Amount (₹)
+                            </label>
+                            <InputField
+                              type="text"
+                              id="leaseAmount"
+                              placeholder="Enter Lease Amount (₹)"
+                              value={rent}
+                              onChange={(e) => setRent(e.target.value)}
+                            />
+                          </div>
+                          <div className="col-6">
+                            <label className="TextLabel" htmlFor="negotiableLease">
+                              Negotiable
+                            </label>
+                            <div className="d-flex flex-wrap gap-3">
+                              <InputField
+                                type="radio"
+                                radioOptions={["Yes", "No"]}
+                                id="negotiableLease"
+                                value={negotiable ? "Yes" : "No"}
+                                onChange={(e) =>
+                                  setNegotiable(e.target.value === "Yes")
+                                }
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="col-12">
+                          <label className="TextLabel" htmlFor="tenure">
+                            Tenure (Years)
+                          </label>
+                          <InputField
+                            type="text"
+                            id="tenure"
+                            placeholder="No. of Years"
+                            value={leaseTenure}
+                            onChange={(e) => setLeaseTenure(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                    </>
+                  )}
+                  {propertyType === "Sale" && (
+                    <>
+                      <div className="col-6 mb-3">
+                        <label className="TextLabel" htmlFor="salePrice">
+                          Sale Price (₹)
+                        </label>
+                        <InputField
+                          type="text"
+                          id="salePrice"
+                          placeholder="Enter Sale Price (₹)"
+                          value={rent}
+                          onChange={(e) => setRent(e.target.value)}
+                        />
+                      </div>
+                      <div className="col-6 mb-3">
+                        <label className="TextLabel" htmlFor="negotiableSale">
                           Negotiable
                         </label>
                         <div className="d-flex flex-wrap gap-3">
                           <InputField
                             type="radio"
                             radioOptions={["Yes", "No"]}
-                            id="negotiable"
+                            id="negotiableSale"
                             value={negotiable ? "Yes" : "No"}
                             onChange={(e) =>
                               setNegotiable(e.target.value === "Yes")
@@ -736,37 +851,8 @@ export const CreateProperty = () => {
                           />
                         </div>
                       </div>
-                    </div>
-                  </div>
-
-                  <div className="d-flex flex-d-row gap-3">
-                    <div className="col-6 mb-3">
-                      <label className="TextLabel" htmlFor="advanceDeposit">
-                        Advance Deposit (₹)
-                      </label>
-                      <InputField
-                        type="text"
-                        id="advanceDeposit"
-                        placeholder="Enter Deposit"
-                        value={advanceAmount}
-                        onChange={(e) => setAdvanceAmount(e.target.value)}
-                        // error={!!errors.advanceDeposit}
-                        // helperText={errors.advanceAmount}
-                      />
-                    </div>
-                    <div className="col-6 mb-3">
-                      <label className="TextLabel" htmlFor="tenure">
-                        Tenure (Years)
-                      </label>
-                      <InputField
-                        type="text"
-                        id="tenure"
-                        placeholder="No. of Years"
-                        value={leaseTenure}
-                        onChange={(e) => setLeaseTenure(e.target.value)}
-                      />
-                    </div>
-                  </div>
+                    </>
+                  )}
                 </div>
               </section>
 
@@ -1055,12 +1141,23 @@ export const CreateProperty = () => {
                         onChange={(e) => {
                           if (!e.target.files) return;
 
+                          const allowedMimeTypes = [
+                            "image/jpeg",
+                            "image/jpg",
+                            "image/png",
+                            "image/webp",
+                          ];
+
                           const newFiles = Array.from(e.target.files);
                           const remainingSlots = 12 - images.length;
 
                           const validImages: UploadedImage[] = newFiles
                             .filter((file) => {
-                              const isValid = file.type.startsWith("image/");
+                              const isValid = allowedMimeTypes.includes(
+                                file.type
+                              );
+
+                              // const isValid = file.type.startsWith("image/");
                               if (!isValid) {
                                 toast.error(`Invalid file type: ${file.name}`);
                               }
@@ -1844,7 +1941,6 @@ export const CreateProperty = () => {
           </div>
         </div>
       </div>
-     
     </form>
   );
 };
