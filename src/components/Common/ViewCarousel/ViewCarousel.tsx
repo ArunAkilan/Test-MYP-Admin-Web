@@ -5,11 +5,12 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import viewImage from "../../../assets/viewProperty/carousel-image.svg";
 import "./ViewCarousel.scss"
+import ImageCarouselModal from "../Carousel/imagecarousel";
 const images = [viewImage, viewImage, viewImage, viewImage];
 
 const PrevArrow = ({ onClick }: { onClick?: () => void }) => (
   <div
-    className="absolute left-2 top-1/2 -translate-y-1/2 z-10 cursor-pointer bg-white p-2 rounded-full shadow-md"
+    className="absolute custom-left-arrow left-2 top-1/2 -translate-y-1/2 z-10 cursor-pointer bg-white p-2 rounded-full shadow-md"
     onClick={onClick}
   >
     <ChevronLeft size={20} />
@@ -18,7 +19,7 @@ const PrevArrow = ({ onClick }: { onClick?: () => void }) => (
 
 const NextArrow = ({ onClick }: { onClick?: () => void }) => (
   <div
-    className="absolute right-2 top-1/2 -translate-y-1/2 z-10 cursor-pointer bg-white p-2 rounded-full shadow-md"
+    className="absolute custom-right-arrow right-2 top-1/2 -translate-y-1/2 z-10 cursor-pointer bg-white p-2 rounded-full shadow-md"
     onClick={onClick}
   >
     <ChevronRight size={20} />
@@ -26,6 +27,7 @@ const NextArrow = ({ onClick }: { onClick?: () => void }) => (
 );
 
 const ViewCarousel: React.FC = () => {
+  const [modalOpen, setModalOpen] = useState(false);
   const mainSlider = useRef<Slider | null>(null);
   const thumbSlider = useRef<Slider | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -37,10 +39,10 @@ const ViewCarousel: React.FC = () => {
       <div className="relative large-image-wrapper col-md-8 w-[500px] h-full">
 
         {/* Image count */}
-        <div className="absolute top-4 left-4 bg-black text-white px-3 py-1 rounded-full text-sm flex items-center gap-1">
+        <div className="absolute slide-counter  top-4 left-4 bg-black text-white px-3 py-1 rounded-full text-sm flex items-center gap-1">
             <Camera size={16} />
-            {currentIndex + 1}/{images.length} Images
-            </div>
+            {currentIndex + 1}/{images.length}
+        </div>
         <Slider
           asNavFor={thumbSlider.current as Slider}
           ref={(slider: Slider) => {mainSlider.current = slider}}
@@ -52,7 +54,7 @@ const ViewCarousel: React.FC = () => {
           beforeChange={(_: number, next: number) => setCurrentIndex(next)}
         >
           {images.map((src, index) => (
-            <div key={index}>
+            <div key={index} onClick={() => setModalOpen(true)} className="cursor-pointer">
               <img
                 src={src}
                 alt={`Image ${index + 1}`}
@@ -90,6 +92,13 @@ const ViewCarousel: React.FC = () => {
           ))}
         </Slider>
       </div>
+      <ImageCarouselModal
+  open={modalOpen}
+  onClose={() => setModalOpen(false)}
+  images={images}
+  price="₹20,000"
+  area="2 BHK, 1200 sqft"
+/>
     </div>
   );
 };

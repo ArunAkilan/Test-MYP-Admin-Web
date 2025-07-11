@@ -1,6 +1,8 @@
 import type { CommercialPropertyForm } from "../../createProperties/Commercial/createCommercial.modal";
 import { useLocation, useNavigate } from "react-router-dom";
 import { DynamicBreadcrumbs } from "../../../Common/input";
+import "./CommercialViewProperty.scss"
+import backIcon from "../../../../assets/dashboardtab/icon-park-outline_down.svg"
 
 const CommercialView = () => {
   const location = useLocation();
@@ -36,12 +38,16 @@ const CommercialView = () => {
     amount.toLocaleString("en-IN");
 
   return (
-    <section className="container py-4">
-      <DynamicBreadcrumbs />
+    <section className="container pt-4 ">
+      <div className="breadcrumb">
+        <button onClick={() => navigate(-1)} className="btn btn-secondary">
+          <img src={backIcon} alt="backIcon" />Back
+        </button>
+        <DynamicBreadcrumbs />
+      </div>
+      
 
-      <button onClick={() => navigate(-1)} className="btn btn-secondary mb-3">
-        Back
-      </button>
+      
 
       <section className="mb-4">
         <h2>{title}</h2>

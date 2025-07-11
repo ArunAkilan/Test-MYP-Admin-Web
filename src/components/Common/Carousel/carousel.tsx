@@ -16,8 +16,8 @@ import ImageCarouselModal from "./imagecarousel";
 
 interface CarouselProps {
   images: string[];
-  price: string;
-  area: string;
+  price?: string;
+  area?: string;
 }
 
 const ImageCountBadge = styled(Badge)(() => ({
@@ -198,8 +198,7 @@ const Carousel: React.FC<CarouselProps> = ({ images}) => {
   open={open}
   onClose={() => setOpen(false)}
   images={images}
-  price="₹20,000"
-  area="2 BHK, 1200 sqft"
+
 />
     </>
   );

@@ -1,0 +1,104 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'archivo' !important;
+}
+
+.login-wrapper {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #F0F5FC;
+}
+
+.login.container {
+    width: 544px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 16px;
+}
+.image {
+  padding: 32px;
+}
+
+.heading p {
+  color: #46494C;
+  text-align: center;
+  font-size: 22px;
+  font-style: normal;
+  font-weight: 600;
+  margin-bottom: 0;
+  line-height: 27px;
+  padding-bottom: 24px;
+}
+
+.email,.password {
+  position: relative;
+  padding-bottom: 24px;
+}
+
+.email img,.password img {
+  position: absolute;
+  top: 10px;
+  left: 16px;
+}
+.input-cmn input {
+  width: 100%;
+  padding: 10px 0 10px 44px;
+  color: #6D7074;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 18px;
+  border-radius: 2px;
+  border: 0.5px solid #C5CEE0;
+}
+
+.signin {
+  border-radius: 2px;
+  background: var(--most-used-colors-30-royal-depths-90, #1F3B73);
+  box-shadow: 4px 8px 16px 0px rgba(229, 229, 229, 0.24), 2px 4px 8px 0px rgba(107, 131, 178, 0.16), 1px 2px 4px 0px rgba(41, 61, 102, 0.16), 0px 1px 2px 0px rgba(41, 44, 51, 0.24);
+
+  padding: 16px 0px 14px 0px;
+  width: 100%;
+  border: none;
+  color: #fff;
+  text-align: center;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 18px;
+}
+.forget.container {
+  display: flex;
+  justify-content: center;
+  padding: 32px;
+  flex-shrink: 0;
+}
+.forget.container p {
+  margin-bottom: 0;
+  color: #6D7074;
+  text-align: center;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 18px; 
+}
+.forget.container p button {
+  color: #46494C;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 18px;
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-decoration-skip-ink: auto;
+  text-decoration-thickness: auto;
+  text-underline-offset: auto;
+  text-underline-position: from-font;
+  border: none;
+}

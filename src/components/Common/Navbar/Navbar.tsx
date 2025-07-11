@@ -5,6 +5,7 @@ import Popover from "@mui/material/Popover";
 import Notificationtab from "../../NotificationTab/Notificationtab";
 import { io } from 'socket.io-client';
 import axios from 'axios';
+import { useNavigate } from "react-router-dom";
 
 interface HeaderProps {
   Title: string;
@@ -46,6 +47,13 @@ const Header: React.FC<HeaderProps> = ({
     setFirstAnchorEl(null); // Close first popover if open
   };
 
+  const navigate = useNavigate()
+
+  const adminLogout = ()=>{
+        localStorage.removeItem('token');
+    navigate('/login');
+  }
+
   // const handleClose = () => {
   //   setFirstAnchorEl(null);
   //   setSecondAnchorEl(null);
@@ -85,16 +93,16 @@ const Header: React.FC<HeaderProps> = ({
 
 
   //Socket IO
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<any>([]);
 
 useEffect(() => {
-    axios.get<Notification[]>(`${ENDPOINT}/api/notification`)
-      .then(res => setNotifications(res.data));
+    axios.get<any>(`${ENDPOINT}/api/notifications`)
+      .then((res:any) => setNotifications(res.data.notifications));
 
     const sock = io(ENDPOINT);
 
-    sock.on('notification', (data: Notification) => {
-      setNotifications(prev => [data, ...prev]);
+    sock.on('notification', (data: any) => {
+      setNotifications((prev:any) => [data, ...prev]);
     });
 
   }, []);
@@ -131,21 +139,21 @@ useEffect(() => {
                 }`}
             >
               <div className="h-search">
-                <img src="/public/Search.svg" alt="Search img" />
+                <img src="Search.svg" alt="Search img" />
 
                 <input type="search" placeholder="Search Anything..." />
               </div>
               <div className="bell">
                 <img
-                  src="/public/Vector.svg"
+                  src="Vector.svg"
                   alt="setting svg"
                   className="setting-image"
                 />
                 <div className="bell-image">
                   <button aria-describedby={idFirst} onClick={handleFirstClick}>
-                    <img src="/public/BTN_Notification.svg" alt="Notification svg" />
+                    <img src="BTN_Notification.svg" alt="Notification svg" />
                   </button> 
-                  <div className="notifyround">{notifications.length}</div>
+                  <div className="notifyround">{notifications?.length}</div>
                   {/* <BellIcon count={notifications.length} /> */}
                   <Popover
                     anchorReference="anchorPosition"
@@ -216,13 +224,13 @@ useEffect(() => {
                         className="col-2"
                       />
                     </div>
-                    <div className="row admin-btn-popup-bottom admin-popup-cmn-div">
+                    <div onClick={adminLogout} className="row admin-btn-popup-bottom admin-popup-cmn-div">
                       <img
                         src="../src/assets/navbar/mynaui_logout.svg"
                         alt="logout"
                         className="col-2"
                       />
-                      <p className="col-8">Signout</p>
+                      <p className="col-8" >Signout</p>
                     </div>
                   </div>
                 </Popover>
