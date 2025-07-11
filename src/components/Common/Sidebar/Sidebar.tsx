@@ -34,13 +34,13 @@ export default function Sidebar() {
   );
 
   React.useEffect(() => {
-  const index = tabRoutes.findIndex((path) =>
-    location.pathname.startsWith(path)
-  );
-  if (index !== -1 && index !== value) {
-    setValue(index);
-  }
-}, [location.pathname, value]);
+    const index = tabRoutes.findIndex((path) =>
+      location.pathname.startsWith(path)
+    );
+    if (index !== -1 && index !== value) {
+      setValue(index);
+    }
+  }, [location.pathname]);
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     // Prevent navigation if already on the selected tab
@@ -117,7 +117,7 @@ export default function Sidebar() {
     </div>
   );
 }
-// function setActiveTab(savedTab: string) {
-//   throw new Error("Function not implemented.");
-// }
+function setActiveTab(savedTab: string) {
+  throw new Error("Function not implemented.");
+}
 
