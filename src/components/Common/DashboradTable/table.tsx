@@ -150,8 +150,6 @@ const formatedData = Array.isArray(data)
     console.log("Missing _source in selectedItem", selectedItem);
     return;
   }
-
-  console.log("Navigating to:", `/${routeBase}/view/${id}`);
   navigate(`/${routeBase}/view/${id}`, {
     state: { data: selectedItem, mode: "view" },
   });
@@ -177,14 +175,14 @@ const formatedData = Array.isArray(data)
       handleCloseModal();
       window.dispatchEvent(new Event("refreshTableData"));
 
-      // ✅ Success toast message
+      // Success toast message
       const actionText =
         status === 1 ? "Approved" : status === 0 ? "Denied" : "Deleted";
       toast.success(`Listing successfully ${actionText.toLowerCase()}`);
     } catch (e) {
       console.error("Error performing action:", e);
     } finally {
-      setIsBackdropLoading(false); // ✅ hide loading
+      setIsBackdropLoading(false); 
     }
   };
 

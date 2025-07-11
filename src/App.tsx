@@ -31,15 +31,15 @@ function AppRoutes() {
   const openCreateResidential = () => {
     navigate("/residential/create");
   };
-  const openCreateCommercial = () => navigate("/commercial/create");
-  const openCreatePlotProperty = () => navigate("/plots/create");
+  // const openCreateCommercial = () => navigate("/commercial/create");
+  // const openCreatePlotProperty = () => navigate("/plots/create");
 
-  const noScrollRoutes = [
-    "/dashboard",
-    "/commercial",
-    "/residential",
-    "/plots"
-  ];
+  // const noScrollRoutes = [
+  //   "/dashboard",
+  //   "/commercial",
+  //   "/residential",
+  //   "/plots"
+  // ];
 
   useEffect(() => {
     const noScrollRoutes = [
@@ -55,17 +55,17 @@ function AppRoutes() {
   // const location = useLocation();
 
   // Define routes where sidebar should be hidden
-  const hideSidebarRoutes = [
-    "/residential/view",
-    "/commercial/view",
-    "/plots/view",
-    "/login",
-  ];
+  // const hideSidebarRoutes = [
+  //   "/residential/view",
+  //   "/commercial/view",
+  //   "/plots/view",
+  //   "/login",
+  // ];
 
   // Check if the current pathname starts with any of the routes
-  const shouldHideSidebar = hideSidebarRoutes.some((route) =>
-    location.pathname.startsWith(route)
-  );
+  // const shouldHideSidebar = hideSidebarRoutes.some((route) =>
+  //   location.pathname.startsWith(route)
+  // );
 
   return (
     <div className="app-container row">

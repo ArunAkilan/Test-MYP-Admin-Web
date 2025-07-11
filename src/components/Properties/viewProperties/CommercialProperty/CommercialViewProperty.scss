@@ -1,0 +1,15 @@
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 56px;
+}
+.breadcrumb > div {
+    margin-bottom: 0 !important;
+}
+.breadcrumb button {
+    background: #F2F3F5;
+    color: #2E2E2F;
+}
+.breadcrumb button:hover {
+    color: #2E2E2F;
+}
