@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { DynamicBreadcrumbs } from "../../../Common/input";
 import VIewCarousel from "../../../Common/ViewCarousel/ViewCarousel";
 import type { ResidentialProperty } from "./ResidencialViewProperty.modal";
@@ -42,9 +42,11 @@ import Icon_edit from "../../../../assets/viewProperty/Icon_edit.png";
 import Icon_Tick from "../../../../assets/viewProperty/Icon_Tick.png";
 import Icon_Deny from "../../../../assets/viewProperty/Icon_Deny.png";
 import Icon_Delete from "../../../../assets/viewProperty/Icon_Delete.png";
+import backIcon from "../../../../assets/dashboardtab/icon-park-outline_down.svg"
 
 const ViewProperty = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const propertyData = location.state?.data as ResidentialProperty;
 
   console.log("mode", propertyData);
@@ -54,7 +56,7 @@ const ViewProperty = () => {
   }
 
   return (
-    <section className="container">
+    <section className="container pt-4">
       {/* <section className="breadcrumb d-flex flex-row align-items-center gap-2 mb-3">
         <div className="d-flex align-items-center gap-1">
           <p className="mb-0">Residential</p>
@@ -74,7 +76,12 @@ const ViewProperty = () => {
           <p className="mb-0 fw-bold">{propertyData?.title}</p>
         </div>
       </section> */}
-      <DynamicBreadcrumbs />
+      <div className="breadcrumb">
+        <button onClick={() => navigate(-1)} className="btn btn-secondary">
+          <img src={backIcon} alt="backIcon" />Back
+        </button>
+        <DynamicBreadcrumbs />
+      </div>
       <div className="slick-carousel">
         <VIewCarousel />
       </div>
@@ -102,7 +109,7 @@ const ViewProperty = () => {
           <div className="area-facing-detail-inner-div w-100 mt-2">
             <div className="text-center">
               <p className="mb-1 caps">Area</p>
-              <h3 className="mb-1">1000</h3>
+              <h3 className="mb-1 user-result-data">1000</h3>
               <p className="text-muted">Sq.Ft</p>
             </div>
             <div className="area-facing-divider"></div>
