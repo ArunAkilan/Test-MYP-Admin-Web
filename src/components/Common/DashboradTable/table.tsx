@@ -104,6 +104,7 @@ const formatedData = Array.isArray(data)
 
   const handleEdit = (item: any) => {
     console.log("item._source =", item._source);
+    
   
     // If _source is an object with a type field:
     const propertyType = typeof item._source === "string" 

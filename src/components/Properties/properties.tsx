@@ -108,11 +108,7 @@ function buildPayloadDynamic(
   setNested(payload, "owner.contact.email", (formState.email ?? "").trim());
   setNested(payload, "owner.contact.getUpdates", false);
 
-  setNested(
-    payload,
-    "propertyType",
-    formState.propertyType || "Semi Furnished"
-  );
+  setNested(payload, "propertyType", formState.propertyType || "Semi Furnished");
   const rentAmount = parseFloat(formState.rent);
   setNested(payload, "rent.rentAmount", isNaN(rentAmount) ? 0 : rentAmount);
   setNested(payload, "rent.negotiable", !!formState.negotiable);
@@ -123,11 +119,7 @@ function buildPayloadDynamic(
   if (formState.latitude)
     setNested(payload, "location.map.latitude", parseFloat(formState.latitude));
   if (formState.longitude)
-    setNested(
-      payload,
-      "location.map.longitude",
-      parseFloat(formState.longitude)
-    );
+    setNested(payload, "location.map.longitude", parseFloat(formState.longitude));
   setNested(payload, "location.address", formState.address);
   setNested(payload, "area.totalArea", `${formState.totalArea} sqft`);
   setNested(payload, "area.length", "50 ft");
@@ -138,36 +130,20 @@ function buildPayloadDynamic(
   setNested(payload, "images", imageUrls);
 
   setNested(payload, "title", formState.title);
-  setNested(
-    payload,
-    "residentialType",
-    formState.residentialType || "Apartment"
-  );
+  setNested(payload, "residentialType", formState.residentialType || "Apartment");
   setNested(payload, "facingDirection", formState.facingDirection || "East");
   setNested(payload, "rooms", `${formState.rooms || "1"} BHK`);
-  setNested(
-    payload,
-    "totalFloors",
-    formState.totalFloors ? parseInt(formState.totalFloors) : 0
-  );
+  setNested(payload, "totalFloors", formState.totalFloors ? parseInt(formState.totalFloors) : 0);
   setNested(
     payload,
     "propertyFloor",
     formState.propertyFloor ? parseInt(formState.propertyFloor) : 0
   );
-  setNested(
-    payload,
-    "furnishingType",
-    formState.furnishingType?.replace("-", " ")
-  );
+  setNested(payload, "furnishingType", formState.furnishingType?.replace("-", " "));
   setNested(payload, "description", formState.description);
   setNested(payload, "area.builtUpArea", `${formState.builtUpArea} sqft`);
   setNested(payload, "area.carpetArea", `${formState.carpetArea} sqft`);
-  setNested(
-    payload,
-    "restrictions",
-    mapChipsToRestrictions(formState.selectedChips)
-  );
+  setNested(payload, "restrictions", mapChipsToRestrictions(formState.selectedChips));
   setNested(payload, "availability", {
     transport: {
       nearbyBusStop: false,

@@ -17,7 +17,6 @@ import type {
   PlotFormState,
   UploadedImage,
 } from "./createPlot.modal";
-
 import type { Restrictions } from "../../../AdminResidencial/AdminResidencial.model";
 import {
   GoogleMap,
@@ -120,7 +119,7 @@ function buildPayloadDynamic(formState: PlotFormState): PlotFormState {
       "rent.advanceAmount",
       Number(formState.rent.advanceAmount) || 0
     );
-    setNested(payload, "rent.agreementTiming", formState.lease.leaseTenure); // optional, rename if needed
+    setNested(payload, "rent.agreementTiming", formState.rent.agreementTiming); 
   } else if (formState.propertyType === "Lease") {
     setNested(
       payload,
@@ -213,6 +212,8 @@ export const CreatePlotProperty = () => {
   const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const [editable, setEditable] = useState(true);
+
 
   const [rentAmount, setRentAmount] = useState<number>(0);
   const [negotiable, setNegotiable] = useState<boolean>(false);
@@ -243,10 +244,10 @@ export const CreatePlotProperty = () => {
   // Update state when in edit mode
   useEffect(() => {
     if (isEditMode && editData) {
-      setFirstName(editData.ownerDetails.firstName || "");
-      setLastName(editData.ownerDetails.lastName || "");
-      setEmail(editData.ownerDetails.contact.email || "");
-      setPhone1(editData.ownerDetails.contact.phone1 || "");
+      setFirstName(editData?.ownerDetails?.firstName || "");
+      setLastName(editData?.ownerDetails?.lastName || "");
+      setEmail(editData?.ownerDetails?.contact?.email || "");
+      setPhone1(editData?.ownerDetails?.contact?.phone1 || "");
       setPropertyType(editData.propertyType || "Rent");
       setTitle(editData.title || "");
       setRentAmount(editData.rent?.rentAmount || 0);
@@ -254,25 +255,39 @@ export const CreatePlotProperty = () => {
       setAdvanceAmount(String(editData.rent?.advanceAmount || ""));
       setLeaseTenure(editData.lease?.leaseTenure || "");
       setPlotType(editData.plotType || "Agriculture");
-      setAddress(editData.location.address || "");
-      setLatitude(String(editData.location.map.latitude) || "");
-      setLongitude(String(editData.location.map.longitude) || "");
+      setAddress(editData.location?.address || "");
+  
+      if (editData.location?.map) {
+        setLatitude(editData.location.map.latitude?.toString() || "");
+        setLongitude(editData.location.map.longitude?.toString() || "");
+      }
+  
       setImages(
-        editData.uploadedImages.map((img: UploadedImage) => ({
+        editData?.uploadedImages?.map((img: UploadedImage) => ({
           name: img.name,
           file: img.file,
-        }))
+        })) || []
       );
-      setTotalArea(
-        editData.location.area.totalArea.replace(" sqft", "") || ""
-      );
+  
+      setTotalArea(editData.location?.area?.totalArea?.replace(" sqft", "") || "");
       setFacingDirection(editData.facingDirection || "East");
-      setTotalFloors(String(editData.totalFloors) || "");
-      setPropertyFloor(String(editData.propertyFloor) || "");
-      setSelectedChips(editData.selectedChips || []);
+      setTotalFloors(String(editData.totalFloors || ""));
+      setPropertyFloor(String(editData.propertyFloor || ""));
+  
+      const chips: string[] = [];
+      if (editData.restrictions) {
+        if (editData.restrictions.guestAllowed === false)
+          chips.push("Guests Not Allowed");
+        if (editData.restrictions.petsAllowed === false)
+          chips.push("No Pets Allowed");
+        if (editData.restrictions.bachelorsAllowed === false)
+          chips.push("No Bachelors Allowed");
+      }
+      setSelectedChips(chips);
       setPropertyDescription(editData.description || "");
     }
   }, [isEditMode, editData]);
+  
 
   const [nearbyTransport, setNearbyTransport] = useState<
     Record<string, string>
@@ -364,11 +379,19 @@ export const CreatePlotProperty = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true); // Backdrop
+    setEditable(false);
 
     const validationErrors = validate();
     setErrors(validationErrors);
+    
     if (Object.keys(validationErrors).length > 0) {
-      toast.error("Please fix the errors in the form.");
+      toast.error("Please fix the errors in the form.", {
+        autoClose: false,
+        onClose: () => {
+          setLoading(false);
+          setEditable(true);
+        },
+      });
       return;
     }
 
@@ -446,14 +469,9 @@ export const CreatePlotProperty = () => {
 
     //Append images with MIME type handling & debug logging
     const MAX_FILE_SIZE_MB = 5;
-
-    images.forEach(
-      (
-        img
-        // index
-      ) => {
+    images.forEach((img) => {
+      if (img.file instanceof File) {
         if (
-          img.file instanceof File &&
           ["image/jpeg", "image/jpg", "image/png", "image/webp"].includes(
             img.file.type
           )
@@ -461,21 +479,21 @@ export const CreatePlotProperty = () => {
           if (img.file.size <= MAX_FILE_SIZE_MB * 1024 * 1024) {
             formData.append("images", img.file);
           } else {
-            toast.error(
-              `${img.name} exceeds ${MAX_FILE_SIZE_MB}MB size limit.`
-            );
+            toast.error(`${img.name} exceeds ${MAX_FILE_SIZE_MB}MB size limit.`);
           }
-          // console.warn(`Skipped invalid image: ${img.name}`);
+        } else {
+          console.warn(`Skipped invalid image: ${img.name}`);
           toast.error(
             `Invalid file type: ${img.name}. Only JPEG, PNG, or WEBP allowed.`
           );
         }
+      } else if (typeof img.name === "string") {
+        // Existing image URLs from edit mode, append them so backend knows to keep them
+        formData.append("existingImages", img.name);
       }
-    );
+    });
 
     try {
-      setLoading(true); // <- Show backdrop
-
       const url = isEditMode
         ? `${import.meta.env.VITE_BackEndUrl}/api/plot/${editId}`
         : `${import.meta.env.VITE_BackEndUrl}/api/plot/create`;
@@ -486,26 +504,26 @@ export const CreatePlotProperty = () => {
           },
         });
 
-      setLoading(false); // Hide Backdrop FIRST
+       // Keep loading true until toast closes
+  // So DO NOT setLoading(false) here immediately!
 
-      setTimeout(() => {
-        toast.success(
-          isEditMode ? "Property updated successfully!" : "Property created successfully!"
-        );
-        // Wait until backdrop is gone
-        setTimeout(() => {
-          const plotId = response?.data?._id;
+  toast.success(isEditMode ? "Property updated successfully!" : "Property created successfully!", {
+    onClose: () => {
+      setLoading(false);
+      setEditable(true);
       
-          if (plotId) {
-            navigate(`/plots/view/${plotId}`);
-          } else {
-            // fallback in case no ID is returned
-            navigate("/plots", {
-              state: { data: response.data, showLoading: true },
-            });
-          }
-        }, 1000);
-      }, 100);
+
+      // Navigate after loading hidden and editing enabled
+      const plotId = response?.data?._id;
+      if (plotId) {
+        navigate(`/plots/view/${plotId}`);
+      } else {
+        navigate("/plots", {
+          state: { data: response.data, showLoading: true },
+        });
+      }
+    },
+  });
     } catch (err) {
       const error = err as AxiosError<{ message?: string; error?: string }>;
       const errorMessage =
@@ -515,19 +533,22 @@ export const CreatePlotProperty = () => {
         "Something went wrong!";
       console.error("Submission Error:", error);
 
-      toast.error(
-        `Failed to ${isEditMode ? "update" : "create"} property: ${errorMessage}`
-      );
+      toast.error(`Failed to ${isEditMode ? "update" : "create"} property: ${errorMessage}`, {
+        onClose: () => {
+          setLoading(false);
+          setEditable(false);
+        },
+      });
     }
-    
-    console.log("check end ");
+    finally {
+      setLoading(false); // <- Hide backdrop on error
+    }
   };
 
   //TopOfCenter MUIAlertToast
   useEffect(() => {
-    // Show only once when the page opens
     setShowTopInfo(true);
-  }, []);
+  }, [editData]);
 
   const isFormReadyToSubmit =
     firstName.trim() &&
@@ -554,7 +575,8 @@ export const CreatePlotProperty = () => {
                   {/* Rest of your page content */}
                 </div>
 
-                <ToastContainer />
+                <ToastContainer 
+                />
                 {/* Rest of your page content */}
 
                 {showTopInfo && (
@@ -618,6 +640,7 @@ export const CreatePlotProperty = () => {
                         onChange={(e) => setFirstName(e.target.value)}
                         error={!!errors.firstName}
                         helperText={errors.firstName}
+                        disabled={!editable}
                       />
                     </div>
                     <div className="col-12 col-md-6 mb-3">
@@ -632,6 +655,7 @@ export const CreatePlotProperty = () => {
                         onChange={(e) => setLastName(e.target.value)}
                         error={!!errors.lastName}
                         helperText={errors.lastName}
+                        disabled={!editable}
                       />
                     </div>
                   </div>
@@ -661,6 +685,7 @@ export const CreatePlotProperty = () => {
                         onPhoneChange={setPhone1}
                         error={!!errors.phone1}
                         helperText={errors.phone1}
+                        disabled={!editable}
                       />
                     </div>
                   </div>
@@ -949,6 +974,7 @@ export const CreatePlotProperty = () => {
                                 onChange={(e) => setAddress(e.target.value)}
                                 error={!!errors.address}
                                 helperText={errors.address}
+                                disabled={!editable}
                               />
                             </div>
                           </Autocomplete>
@@ -1265,6 +1291,7 @@ export const CreatePlotProperty = () => {
                         onChange={(e) => setTotalFloors(e.target.value)}
                         error={!!errors.totalFloors}
                         helperText={errors.totalFloors}
+                        disabled={!editable}
                       />
                     </div>
                     <div className="col-12 col-md-6 mb-3">
@@ -1279,6 +1306,7 @@ export const CreatePlotProperty = () => {
                         onChange={(e) => setPropertyFloor(e.target.value)}
                         error={!!errors.propertyFloor}
                         helperText={errors.propertyFloor}
+                        disabled={!editable}
                       />
                     </div>
                   </div>
@@ -1294,6 +1322,7 @@ export const CreatePlotProperty = () => {
                       onChange={(e) => setPropertyFloor(e.target.value)}
                       error={!!errors.propertyFloor}
                       helperText={errors.propertyFloor}
+                      disabled={!editable}
                     />
                   </div>
                 </div>
@@ -1412,6 +1441,7 @@ export const CreatePlotProperty = () => {
                     onChange={(e) => setTitle(e.target.value)}
                     error={!!errors.title}
                     helperText={errors.title}
+                    disabled={!editable}
                   />
                 </div>
                 <label htmlFor="propertyDescription">

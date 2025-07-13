@@ -20,7 +20,6 @@ import type {
   UploadedImage,
   CommercialFormState,
 } from "./createCommercial.modal";
-
 import type { Restrictions } from "../../../AdminResidencial/AdminResidencial.model";
 import {
   GoogleMap,
@@ -103,16 +102,8 @@ function buildPayloadDynamic(
   // owner
   setNested(payload, "owner.firstName", formState.owner.firstName.trim());
   setNested(payload, "owner.lastName", formState.owner.lastName.trim());
-  setNested(
-    payload,
-    "owner.contact.phone1",
-    formState.owner.contact.phone1.trim()
-  );
-  setNested(
-    payload,
-    "owner.contact.email",
-    formState.owner.contact.email?.trim() ?? ""
-  );
+  setNested(payload, "owner.contact.phone1", formState.owner.contact.phone1.trim());
+  setNested(payload, "owner.contact.email", formState.owner.contact.email?.trim() ?? "");
   setNested(payload, "owner.contact.getUpdates", true);
 
   // property
@@ -200,6 +191,8 @@ function buildPayloadDynamic(
 export const CreateCommercialProperty = () => {
   // State for form data
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -214,7 +207,6 @@ export const CreateCommercialProperty = () => {
   const [title, setTitle] = useState("");
 
   const [tilesOnFloor, setTilesOnFloor] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   const [rentAmount, setRentAmount] = useState<number>(0);
   const [negotiable, setNegotiable] = useState<boolean>(false);
@@ -253,8 +245,14 @@ useEffect(() => {
     setTitle(editData.title || "");
     setPropertyType(editData.propertyType || "Rent");
     setAddress(editData.location?.address || "");
-    setLatitude(editData.location?.map?.latitude || "");
-    setLongitude(editData.location?.map?.longitude || "");
+    if (editData.location?.map) {
+      setLatitude(editData.location.map.latitude?.toString() || "");
+      setLongitude(editData.location.map.longitude?.toString() || "");
+    } else {
+      setLatitude("");
+      setLongitude("");
+    }
+    
     setRentAmount(editData.rent?.rentAmount || 0);
     setAdvanceAmount(editData.rent?.advanceAmount || "");
     setLeaseTenure(editData.lease?.leaseTenure || "");
@@ -264,7 +262,16 @@ useEffect(() => {
     setTotalFloors(editData.totalFloors || "");
     setPropertyFloor(editData.propertyFloor || "");
     setPropertyDescription(editData.description || "");
-    setSelectedChips([]); // or map from editData if needed
+
+    // Map restrictions booleans back to chips:
+    const chips: string[] = [];
+    if (editData.restrictions) {
+      if (editData.restrictions.guestAllowed === false) chips.push("Guests Not Allowed");
+      if (editData.restrictions.petsAllowed === false) chips.push("No Pets Allowed");
+      if (editData.restrictions.bachelorsAllowed === false) chips.push("No Bachelors Allowed");
+    }
+    setSelectedChips(chips);
+
     setImages((editData.images || []).map((img: string) => ({ name: img })));
     setMarkerPosition({
       lat: editData.location?.map?.latitude || defaultCenter.lat,
@@ -381,10 +388,12 @@ useEffect(() => {
     setLoading(true); // Backdrop
 
     const validationErrors = validate();
+    console.log("Validation Errors:", validationErrors);
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length > 0) {
         toast.error("Please fix the errors in the form.");
+        setLoading(false);
       return;
     }
 
@@ -465,17 +474,12 @@ useEffect(() => {
         formData.append(key, value);
       }
     });
-
-    //Append images with MIME type handling & debug logging
     const MAX_FILE_SIZE_MB = 5;
 
-    images.forEach(
-      (
-        img
-        // index
-      ) => {
+    //Append images with MIME type handling & debug logging
+    images.forEach((img) => {
+      if (img.file instanceof File) {
         if (
-          img.file instanceof File &&
           ["image/jpeg", "image/jpg", "image/png", "image/webp"].includes(
             img.file.type
           )
@@ -483,70 +487,20 @@ useEffect(() => {
           if (img.file.size <= MAX_FILE_SIZE_MB * 1024 * 1024) {
             formData.append("images", img.file);
           } else {
-            toast.error(
-              `${img.name} exceeds ${MAX_FILE_SIZE_MB}MB size limit.`
-            );
+            toast.error(`${img.name} exceeds ${MAX_FILE_SIZE_MB}MB size limit.`);
           }
+        } else {
           console.warn(`Skipped invalid image: ${img.name}`);
           toast.error(
             `Invalid file type: ${img.name}. Only JPEG, PNG, or WEBP allowed.`
           );
         }
+      } else if (typeof img.name === "string") {
+        // Existing image URLs from edit mode, append them so backend knows to keep them
+        formData.append("existingImages", img.name);
       }
-    );
+    });
 
-    // try {
-    //   // Send POST request
-    //   const response = await axios.post(
-    //     `${import.meta.env.VITE_BackEndUrl}/api/commercial/create`,
-    //     formData,
-    //     {
-    //       headers: {
-    //         "Content-Type": "multipart/form-data",
-    //       },
-    //     }
-    //   );
-
-    //   setLoading(false); // Hide Backdrop FIRST
-
-    //   setTimeout(() => {
-    //     toast.success("Property created successfully!");
-      
-    //     // Wait until backdrop is gone
-    //     setTimeout(() => {
-    //       const plotId = response?.data?._id;
-      
-    //       if (plotId) {
-    //         navigate(`/commercial/view/${plotId}`);
-    //       } else {
-    //         // fallback in case no ID is returned
-    //         navigate("/commercial", {
-    //           state: { data: response.data, showLoading: true },
-    //         });
-    //       }
-    //     }, 1000);
-    //   }, 100);
-    //   // // TODO: Send data to backend
-    //   // // Redirect after a short delay (so toast is visible)
-    //   // setTimeout(() => {
-    //   //   navigate("/commercial", {
-    //   //     state: { data: response.data },
-    //   //   });
-    //   // }, 2000);
-    // } catch (err) {
-    //   const error = err as AxiosError<{ message?: string; error?: string }>;
-
-    //   console.error("Submission error:", error.response || error);
-
-    //   const errorMessage =
-    //     error.response?.data?.message ||
-    //     error.response?.data?.error ||
-    //     error.message ||
-    //     "Something went wrong!";
-    //   console.error("Submission Error:", error);
-
-    //   toast.error(`Failed to create property: ${errorMessage}`);
-    // }
     try {
       const url = isEditMode
         ? `${import.meta.env.VITE_BackEndUrl}/api/commercial/${editId}`
@@ -563,9 +517,7 @@ useEffect(() => {
       setLoading(false); // Hide Backdrop
     
       setTimeout(() => {
-        toast.success(
-          isEditMode ? "Property updated successfully!" : "Property created successfully!"
-        );
+        toast.success(isEditMode ? "Property updated successfully!" : "Property created successfully!");
     
         setTimeout(() => {
           const plotId = response?.data?._id;
@@ -587,21 +539,20 @@ useEffect(() => {
         error.response?.data?.error ||
         error.message ||
         "Something went wrong!";
+        console.error("Submission Error:", error);
     
-      toast.error(
-        `Failed to ${isEditMode ? "update" : "create"} property: ${errorMessage}`
-      );
+      toast.error(`Failed to ${isEditMode ? "update" : "create"} property: ${errorMessage}`);
     }
-    
-    console.log("check end ");
+    finally {
+      setLoading(false); // <- Hide backdrop on error
+    }
   };
 
   //TopOfCenter MUIAlertToast
   useEffect(() => {
-    // Show only once when the page opens
     setShowTopInfo(true);
-  }, []);
-
+  }, [editData]);
+  
   const isFormReadyToSubmit =
     firstName.trim() &&
     lastName.trim() &&
@@ -1638,14 +1589,12 @@ useEffect(() => {
                   <div>
                     {/* Your form and other JSX */}
                     <GenericButton
-  label={loading ? "Saving..." : isEditMode ? "Update Property" : "Create New Property"}
-  icon={loading ? <CircularProgress size={16} color="inherit" /> : <DoneIcon />}
-  className="createNP btn btn-primary"
-  type="submit"
-  disabled={loading}
-/>
-
-
+                      label={loading ? "Saving..." : isEditMode ? "Update Property" : "Create New Property"}
+                      icon={loading ? <CircularProgress size={16} color="inherit" /> : <DoneIcon />}
+                      className="createNP btn btn-primary"
+                      type="submit"
+                      disabled={loading}
+                    />
                     {/* This must be rendered */}
                     <ToastContainer />
                   </div>

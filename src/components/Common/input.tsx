@@ -77,6 +77,7 @@ interface InputFieldProps {
   onAlertClose?: () => void; // called when the ✕ is clicked
   showBackdrop?: boolean;
   onBackdropClose?: () => void;
+  disabled?: boolean;
 }
  
 // ---------------- Styles -------------------
@@ -204,6 +205,7 @@ const InputField: React.FC<InputFieldProps> = ({
   onAlertClose,
   showBackdrop,
   onBackdropClose,
+  disabled,
 }) => {
   const [backdropOpen, setBackdropOpen] = React.useState(false);
   React.useEffect(() => {
@@ -262,6 +264,7 @@ const InputField: React.FC<InputFieldProps> = ({
           placeholder={placeholder}
           error={error}
           helperText={helperText}
+          disabled={disabled}
         />
       )}
  
@@ -279,6 +282,7 @@ const InputField: React.FC<InputFieldProps> = ({
           placeholder={placeholder}
           error={error}
           helperText={helperText}
+          disabled={disabled}
         />
       )}
  
@@ -313,6 +317,7 @@ const InputField: React.FC<InputFieldProps> = ({
             name={name}
             aria-label={ariaLabel}
             placeholder={placeholder || "+91 1234567890"}
+            disabled={disabled}
           />
           {helperText && !error && (
             <div className="form-text">{helperText}</div>
@@ -336,6 +341,7 @@ const InputField: React.FC<InputFieldProps> = ({
             displayEmpty
             label={label}
             inputProps={{ "aria-label": "Without label", name }}
+            disabled={disabled}
           >
             {dropdownOptions?.map((option: string, index: number) => (
               <MenuItem key={index} value={option}>
@@ -360,6 +366,7 @@ const InputField: React.FC<InputFieldProps> = ({
             name={name}
             value={value}
             onChange={handleInputChange}
+            
           >
             {radioOptions.map((option: string, index: number) => (
               <FormControlLabel
