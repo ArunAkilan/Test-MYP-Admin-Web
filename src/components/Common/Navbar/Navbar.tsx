@@ -14,11 +14,11 @@ interface HeaderProps {
   Profile: boolean;
 }
 
-interface Notification {
-  _id: string;
-  message: string;
-  date: string;
-}
+// interface Notification {
+//   _id: string;
+//   message: string;
+//   date: string;
+// }
 
 const ENDPOINT = import.meta.env.VITE_BackEndUrl;
 

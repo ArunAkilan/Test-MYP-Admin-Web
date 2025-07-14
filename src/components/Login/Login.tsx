@@ -12,7 +12,7 @@ const Login = () => {
 
         if (username === 'admin' && password === 'admin123') {
             localStorage.setItem('token', 'demo-token');
-            navigate('/admin/dashboard');
+            navigate('/dashboard');
         } else {
             alert('Invalid credentials');
         }
