@@ -51,7 +51,7 @@ const Header: React.FC<HeaderProps> = ({
 
   const adminLogout = ()=>{
         localStorage.removeItem('token');
-    navigate('/login');
+    navigate('/admin');
   }
 
   // const handleClose = () => {
@@ -93,19 +93,23 @@ const Header: React.FC<HeaderProps> = ({
 
 
   //Socket IO
-  const [notifications, setNotifications] = useState<any>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+
 
 useEffect(() => {
-    axios.get<any>(`${ENDPOINT}/api/notifications`)
-      .then((res:any) => setNotifications(res.data.notifications));
+  axios.get<{ notifications: Notification[] }>(`${ENDPOINT}/api/notifications`)
+    .then((res) => setNotifications(res.data.notifications));
 
-    const sock = io(ENDPOINT);
+  const sock = io(ENDPOINT);
 
-    sock.on('notification', (data: any) => {
-      setNotifications((prev:any) => [data, ...prev]);
-    });
+  sock.on('notification', (data: Notification) => {
+    setNotifications((prev) => [data, ...prev]);
+  });
 
-  }, []);
+  return () => {
+    sock.disconnect(); // Clean up on unmount
+  };
+}, []);
 
   //Socket IO
 
