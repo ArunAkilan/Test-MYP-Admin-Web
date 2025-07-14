@@ -167,8 +167,8 @@ function buildPayloadDynamic(
   setNested(payload, "propertyFloor", Number(formState.propertyFloor) || 0);
 
   // images
-  const imageUrls = formState.uploadedImages.map((img) => img.name);
-  setNested(payload, "images", imageUrls);
+  // const imageUrls = formState.uploadedImages.map((img) => img.name);
+  // setNested(payload, "images", imageUrls);
 
   // accessibility – map selected chips → boolean object
   const restrictions = mapChipsToRestrictions(formState.selectedChips);
@@ -479,6 +479,7 @@ useEffect(() => {
     //Append images with MIME type handling & debug logging
     images.forEach((img) => {
       if (img.file instanceof File) {
+         // Append new image files
         if (
           ["image/jpeg", "image/jpg", "image/png", "image/webp"].includes(
             img.file.type

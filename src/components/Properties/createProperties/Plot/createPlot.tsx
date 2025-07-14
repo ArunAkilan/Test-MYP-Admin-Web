@@ -174,8 +174,8 @@ function buildPayloadDynamic(formState: PlotFormState): PlotFormState {
   setNested(payload, "propertyFloor", Number(formState.propertyFloor) || 0);
 
   // images
-  const imageUrls = formState.uploadedImages.map((img) => img.name);
-  setNested(payload, "images", imageUrls);
+  // const imageUrls = formState.uploadedImages.map((img) => img.name);
+  // setNested(payload, "images", imageUrls);
 
   // accessibility – map selected chips → boolean object
   const restrictions = mapChipsToRestrictions(formState.selectedChips);

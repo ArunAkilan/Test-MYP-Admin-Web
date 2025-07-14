@@ -108,7 +108,11 @@ function buildPayloadDynamic(
   setNested(payload, "owner.contact.email", (formState.email ?? "").trim());
   setNested(payload, "owner.contact.getUpdates", false);
 
-  setNested(payload, "propertyType", formState.propertyType || "Semi Furnished");
+  setNested(
+    payload,
+    "propertyType",
+    formState.propertyType || "Semi Furnished"
+  );
   const rentAmount = parseFloat(formState.rent);
   setNested(payload, "rent.rentAmount", isNaN(rentAmount) ? 0 : rentAmount);
   setNested(payload, "rent.negotiable", !!formState.negotiable);
@@ -119,31 +123,51 @@ function buildPayloadDynamic(
   if (formState.latitude)
     setNested(payload, "location.map.latitude", parseFloat(formState.latitude));
   if (formState.longitude)
-    setNested(payload, "location.map.longitude", parseFloat(formState.longitude));
+    setNested(
+      payload,
+      "location.map.longitude",
+      parseFloat(formState.longitude)
+    );
   setNested(payload, "location.address", formState.address);
   setNested(payload, "area.totalArea", `${formState.totalArea} sqft`);
   setNested(payload, "area.length", "50 ft");
   setNested(payload, "area.width", "30 ft");
 
-  const imageUrls = formState.images.map((f) => f.name).filter(Boolean);
+  // const imageUrls = formState.images.map((f) => f.name).filter(Boolean);
 
-  setNested(payload, "images", imageUrls);
+  // setNested(payload, "images", imageUrls);
 
   setNested(payload, "title", formState.title);
-  setNested(payload, "residentialType", formState.residentialType || "Apartment");
+  setNested(
+    payload,
+    "residentialType",
+    formState.residentialType || "Apartment"
+  );
   setNested(payload, "facingDirection", formState.facingDirection || "East");
   setNested(payload, "rooms", `${formState.rooms || "1"} BHK`);
-  setNested(payload, "totalFloors", formState.totalFloors ? parseInt(formState.totalFloors) : 0);
+  setNested(
+    payload,
+    "totalFloors",
+    formState.totalFloors ? parseInt(formState.totalFloors) : 0
+  );
   setNested(
     payload,
     "propertyFloor",
     formState.propertyFloor ? parseInt(formState.propertyFloor) : 0
   );
-  setNested(payload, "furnishingType", formState.furnishingType?.replace("-", " "));
+  setNested(
+    payload,
+    "furnishingType",
+    formState.furnishingType?.replace("-", " ")
+  );
   setNested(payload, "description", formState.description);
   setNested(payload, "area.builtUpArea", `${formState.builtUpArea} sqft`);
   setNested(payload, "area.carpetArea", `${formState.carpetArea} sqft`);
-  setNested(payload, "restrictions", mapChipsToRestrictions(formState.selectedChips));
+  setNested(
+    payload,
+    "restrictions",
+    mapChipsToRestrictions(formState.selectedChips)
+  );
   setNested(payload, "availability", {
     transport: {
       nearbyBusStop: false,
@@ -219,69 +243,77 @@ export const CreateProperty = () => {
   const [markerPosition, setMarkerPosition] = useState(center);
   const [autocomplete, setAutocomplete] =
     useState<google.maps.places.Autocomplete | null>(null);
-    const location = useLocation();
-    const isEditMode = location.state?.mode === "edit";
-    const editData = location.state?.data;
-    const editId = location.state?.data?._id;
-    console.log("editid", editId);
+  const location = useLocation();
+  const isEditMode = location.state?.mode === "edit";
+  const editData = location.state?.data;
+  const editId = location.state?.data?._id;
+  console.log("editid", location);
 
-    // Update state when in edit mode
-    useEffect(() => {
-      if (isEditMode && editData) {
-        setFirstName(editData.owner?.firstName || "");
-        setLastName(editData.owner?.lastName || "");
-        setEmail(editData.owner?.contact?.email || "");
-        setPhone1(editData.owner?.contact?.phone1 || "");
-        setTitle(editData.title || "");
-        setPropertyType(editData.propertyType || "Rent");
-        setAddress(editData.location?.address || "");
-        setLatitude(editData.location?.map?.latitude?.toString() || "");
-        setLongitude(editData.location?.map?.longitude?.toString() || "");
-        setAdvanceAmount(editData.rent?.advanceAmount?.toString() || "");
-        setLeaseTenure(editData.lease?.leaseTenure || "");
-        setNegotiable(editData.rent?.negotiable || false);
-        setTotalArea(editData.area?.totalArea?.replace(" sqft", "") || "");
-        setBuiltUpArea(editData.area?.builtUpArea?.replace(" sqft", "") || "");
-        setCarpetArea(editData.area?.carpetArea?.replace(" sqft", "") || "");
-        setTotalFloors(editData.totalFloors?.toString() || "");
-        setPropertyFloor(editData.propertyFloor?.toString() || "");
-        setPropertyDescription(editData.description || "");
-    
-        // Map restrictions booleans back to chips:
-        const chips: string[] = [];
-        if (editData.restrictions) {
-          if (editData.restrictions.guestAllowed === false) chips.push("Guests Not Allowed");
-          if (editData.restrictions.petsAllowed === false) chips.push("No Pets Allowed");
-          if (editData.restrictions.bachelorsAllowed === false) chips.push("No Bachelors Allowed");
-        }
-        setSelectedChips(chips);
-    
-        setImages((editData.images || []).map((img: string) => ({ name: img })));
-    
-        setMarkerPosition({
-          lat: editData.location?.map?.latitude || defaultCenter.lat,
-          lng: editData.location?.map?.longitude || defaultCenter.lng,
-        });
-    
-        // Fetch nearby transport info if lat/lng are available
-        if (editData.location?.map?.latitude && editData.location?.map?.longitude) {
-          fetchNearbyTransport(editData.location.map.latitude, editData.location.map.longitude);
-        }
+  // Update state when in edit mode
+  useEffect(() => {
+    if (isEditMode && editData) {
+      setFirstName(editData.owner?.firstName || "");
+      setLastName(editData.owner?.lastName || "");
+      setEmail(editData.owner?.contact?.email || "");
+      setPhone1(editData.owner?.contact?.phone1 || "");
+      setTitle(editData.title || "");
+      setPropertyType(editData.propertyType || "Rent");
+      setAddress(editData.location?.address || "");
+      // setLatitude(editData.location?.map?.latitude?.toString() || "");
+      // setLongitude(editData.location?.map?.longitude?.toString() || "");
+      setAdvanceAmount(editData.rent?.advanceAmount?.toString() || "");
+      setLeaseTenure(editData.lease?.leaseTenure || "");
+      setNegotiable(editData.rent?.negotiable || false);
+      setTotalArea(editData.area?.totalArea?.replace(" sqft", "") || "");
+      setBuiltUpArea(editData.area?.builtUpArea?.replace(" sqft", "") || "");
+      setCarpetArea(editData.area?.carpetArea?.replace(" sqft", "") || "");
+      setTotalFloors(editData.totalFloors?.toString() || "");
+      setPropertyFloor(editData.propertyFloor?.toString() || "");
+      setPropertyDescription(editData.description || "");
+
+      // Map restrictions booleans back to chips:
+      const chips: string[] = [];
+      if (editData.restrictions) {
+        if (editData.restrictions.guestAllowed === false)
+          chips.push("Guests Not Allowed");
+        if (editData.restrictions.petsAllowed === false)
+          chips.push("No Pets Allowed");
+        if (editData.restrictions.bachelorsAllowed === false)
+          chips.push("No Bachelors Allowed");
       }
-    }, [isEditMode, editData]);
-    
+      setSelectedChips(chips);
+
+      setImages((editData.images || []).map((img: string) => ({ name: img })));
+
+      setMarkerPosition({
+        lat: editData.location?.map?.latitude || defaultCenter.lat,
+        lng: editData.location?.map?.longitude || defaultCenter.lng,
+      });
+      // Fetch nearby transport info if lat/lng are available
+      if (
+        editData.location?.map?.latitude &&
+        editData.location?.map?.longitude
+      ) {
+        fetchNearbyTransport(
+          editData.location.map.latitude,
+          editData.location.map.longitude
+        );
+      }
+    }
+  }, [isEditMode, editData]);
 
   const [nearbyTransport, setNearbyTransport] = useState<
     Record<string, string>
   >({ "BUS STAND": "0 KM", AIRPORT: "0 KM", METRO: "0 KM", RAILWAY: "0 KM" });
 
- // Google Maps API loader
+  // Google Maps API loader
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "", // put your API key in .env file
     libraries: GOOGLE_LIBRARIES,
   });
 
+  // pass the map instance or the map div to PlacesService
   const fetchNearbyTransport = async (lat: number, lng: number) => {
     const types = [
       { type: "bus_station", label: "BUS STAND" },
@@ -289,45 +321,85 @@ export const CreateProperty = () => {
       { type: "subway_station", label: "METRO" },
       { type: "train_station", label: "RAILWAY" },
     ];
-    const info: Record<string, string> = {};
-    for (const t of types) {
-      try {
-        const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=10000&type=${
-          t.type
-        }&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`;
-        const res = await fetch(url);
-        const data = await res.json();
-        if (data.results && data.results.length > 0) {
-          const dist =
-            window.google.maps.geometry.spherical.computeDistanceBetween(
-              new window.google.maps.LatLng(lat, lng),
-              new window.google.maps.LatLng(
-                data.results[0].geometry.location.lat,
-                data.results[0].geometry.location.lng
-              )
-            );
-          info[t.label] = `${(dist / 1000).toFixed(2)} KM`;
-        } else {
-          info[t.label] = "N/A";
-        }
-      } catch (error) {
-        console.error(`Failed to fetch ${t.label}:`, error);
 
-        info[t.label] = "N/A";
-      }
-    }
+    const info: Record<string, string> = {};
+    const location = new google.maps.LatLng(lat, lng);
+    const service = new google.maps.places.PlacesService(
+      document.createElement("div")
+    );
+
+    // Fetch nearby transport info
+    await Promise.all(
+      types.map(
+        ({ type, label }) =>
+          new Promise<void>((resolve) => {
+            service.nearbySearch(
+              { location, radius: 10000, type },
+              (results, status) => {
+                if (
+                  status === google.maps.places.PlacesServiceStatus.OK &&
+                  results &&
+                  results[0]
+                ) {
+                  const nearest = results[0].geometry!.location!;
+                  const dist =
+                    google.maps.geometry.spherical.computeDistanceBetween(
+                      location,
+                      nearest
+                    );
+                  info[label] = `${(dist / 1000).toFixed(2)} KM`;
+                } else {
+                  console.error(`NearbySearch ${label}:`, status);
+                  info[label] = "N/A";
+                }
+                resolve();
+              }
+            );
+          })
+      )
+    );
+
     setNearbyTransport(info);
   };
 
   // Handle map click to place marker and update lat/lng inputs
-  const onMapClick = useCallback((e: google.maps.MapMouseEvent) => {
-    if (e.latLng) {
-      setMarkerPosition({ lat: e.latLng.lat(), lng: e.latLng.lng() });
-      setLatitude(e.latLng.lat().toString());
-      setLongitude(e.latLng.lng().toString());
-      fetchNearbyTransport(e.latLng.lat(), e.latLng.lng());
+  const geocodeLatLng = (lat: number, lng: number): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const geocoder = new google.maps.Geocoder();
+      geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+        if (status === "OK" && results && results[0]) {
+          resolve(results[0].formatted_address);
+        } else {
+          reject(`Geocoder failed: ${status}`);
+        }
+      });
+    });
+  };
+  
+  const onMapClick = useCallback(async (e: google.maps.MapMouseEvent) => {
+    if (!e.latLng) return;
+  
+    const lat = e.latLng.lat();
+    const lng = e.latLng.lng();
+  
+    setLatitude(lat.toFixed(6));
+    setLongitude(lng.toFixed(6));
+    setMarkerPosition({ lat, lng });
+  
+    try {
+      const address = await geocodeLatLng(lat, lng);
+      setAddress(address);
+      setErrors((prev) => ({ ...prev, address: "" }));
+    } catch (err) {
+      console.error(err);
+      setAddress("");
+      setErrors((prev) => ({ ...prev, address: "Geocoder failed" }));
     }
+  
+    fetchNearbyTransport(lat, lng);
   }, []);
+  
+  
 
   // Validation function
   const validate = (): Record<string, string> => {
@@ -371,13 +443,13 @@ export const CreateProperty = () => {
     setLoading(true); // Backdrop
 
     const validationErrors = validate();
-console.log("Validation Errors:", validationErrors);
-setErrors(validationErrors);
-if (Object.keys(validationErrors).length > 0) {
-  toast.error("Please fix the errors in the form.");
-  setLoading(false); // Don't forget to reset loading here
-  return;
-}
+    console.log("Validation Errors:", validationErrors);
+    setErrors(validationErrors);
+    if (Object.keys(validationErrors).length > 0) {
+      toast.error("Please fix the errors in the form.");
+      setLoading(false); // Don't forget to reset loading here
+      return;
+    }
 
     // Form is valid, proceed with submission
     const formState: ResidentialFormState = {
@@ -432,7 +504,9 @@ if (Object.keys(validationErrors).length > 0) {
           if (img.file.size <= MAX_FILE_SIZE_MB * 1024 * 1024) {
             formData.append("images", img.file);
           } else {
-            toast.error(`${img.name} exceeds ${MAX_FILE_SIZE_MB}MB size limit.`);
+            toast.error(
+              `${img.name} exceeds ${MAX_FILE_SIZE_MB}MB size limit.`
+            );
           }
         } else {
           console.warn(`Skipped invalid image: ${img.name}`);
@@ -448,10 +522,10 @@ if (Object.keys(validationErrors).length > 0) {
 
     try {
       const url = isEditMode
-      ? `${import.meta.env.VITE_BackEndUrl}/api/residential/${editId}`
-      : `${import.meta.env.VITE_BackEndUrl}/api/residential/create`;
+        ? `${import.meta.env.VITE_BackEndUrl}/api/residential/${editId}`
+        : `${import.meta.env.VITE_BackEndUrl}/api/residential/create`;
 
-      const method = isEditMode ? "put" : "post"
+      const method = isEditMode ? "put" : "post";
       // Send POST request
       const response = await axios[method](url, formData, {
         headers: {
@@ -462,21 +536,24 @@ if (Object.keys(validationErrors).length > 0) {
       setLoading(false); // Hide Backdrop FIRST
 
       setTimeout(() => {
-        toast.success(isEditMode ? "Property updated successfully!" : "Property created successfully!");
+        toast.success(
+          isEditMode
+            ? "Property updated successfully!"
+            : "Property created successfully!"
+        );
         // Wait until backdrop is gone
         setTimeout(() => {
           const plotId = response?.data?._id;
 
           if (plotId) {
-            navigate(`/commercial/view/${plotId}`);
+            navigate(`/residential/view/${plotId}`);
           } else {
-            navigate("/commercial", {
+            navigate("/residential", {
               state: { data: response.data, showLoading: true },
             });
           }
         }, 1000); // Wait 1 second before redirecting
       }, 100); // Show success toast
-
     } catch (err) {
       const error = err as AxiosError<{ message?: string; error?: string }>;
 
@@ -489,7 +566,11 @@ if (Object.keys(validationErrors).length > 0) {
         "Something went wrong!";
       console.error("Submission Error:", error);
 
-      toast.error(`Failed to ${isEditMode ? "update" : "create"} property: ${errorMessage}`);
+      toast.error(
+        `Failed to ${
+          isEditMode ? "update" : "create"
+        } property: ${errorMessage}`
+      );
     } finally {
       setLoading(false); // <- Hide backdrop on error
     }
@@ -756,7 +837,10 @@ if (Object.keys(validationErrors).length > 0) {
                             />
                           </div>
                           <div className="col-6">
-                            <label className="TextLabel" htmlFor="negotiableLease">
+                            <label
+                              className="TextLabel"
+                              htmlFor="negotiableLease"
+                            >
                               Negotiable
                             </label>
                             <div className="d-flex flex-wrap gap-3">
@@ -869,7 +953,7 @@ if (Object.keys(validationErrors).length > 0) {
                                 const place = autocomplete.getPlace();
                                 const lat = place.geometry?.location?.lat();
                                 const lng = place.geometry?.location?.lng();
-
+                                console.log(place, "respo1");
                                 if (place.formatted_address)
                                   setAddress(place.formatted_address);
                                 if (lat && lng) {
@@ -880,13 +964,13 @@ if (Object.keys(validationErrors).length > 0) {
                                 }
                                 if (lat && lng) {
                                   setMarkerPosition({ lat, lng });
-
                                   const geocoder = new google.maps.Geocoder();
                                   const response = await geocoder.geocode({
                                     location: { lat, lng },
                                   });
 
                                   if (response.results[0]) {
+                                    console.log(response, "respo");
                                     const selectedAddress =
                                       response.results[0].formatted_address;
                                     setAddress(selectedAddress);
@@ -1890,12 +1974,24 @@ if (Object.keys(validationErrors).length > 0) {
                   <div>
                     {/* Your form and other JSX */}
                     <GenericButton
-                        label={loading ? "Saving..." : isEditMode ? "Update Property" : "Create New Property"}
-                        icon={loading ? <CircularProgress size={16} color="inherit" /> : <DoneIcon />}
-                        className="createNP btn btn-primary"
-                        type="submit"
-                        disabled={loading}
-                      />
+                      label={
+                        loading
+                          ? "Saving..."
+                          : isEditMode
+                          ? "Update Property"
+                          : "Create New Property"
+                      }
+                      icon={
+                        loading ? (
+                          <CircularProgress size={16} color="inherit" />
+                        ) : (
+                          <DoneIcon />
+                        )
+                      }
+                      className="createNP btn btn-primary"
+                      type="submit"
+                      disabled={loading}
+                    />
 
                     {/* This must be rendered */}
                     <ToastContainer />
