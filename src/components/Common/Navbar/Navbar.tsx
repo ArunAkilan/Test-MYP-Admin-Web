@@ -14,11 +14,11 @@ interface HeaderProps {
   Profile: boolean;
 }
 
-interface Notification {
-  _id: string;
-  message: string;
-  date: string;
-}
+// interface Notification {
+//   _id: string;
+//   message: string;
+//   date: string;
+// }
 
 const ENDPOINT = import.meta.env.VITE_BackEndUrl;
 
@@ -156,8 +156,9 @@ useEffect(() => {
                 <div className="bell-image">
                   <button aria-describedby={idFirst} onClick={handleFirstClick}>
                     <img src="BTN_Notification.svg" alt="Notification svg" />
-                  </button> 
+                   
                   <div className="notifyround">{notifications?.length}</div>
+                  </button>
                   {/* <BellIcon count={notifications.length} /> */}
                   <Popover
                     anchorReference="anchorPosition"
