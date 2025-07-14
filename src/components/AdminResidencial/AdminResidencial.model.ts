@@ -112,8 +112,8 @@ export interface Restrictions {
 }
 
 export interface ResidentialProperty {
-  owner: Owner;
-  propertyType?: PropertyType;
+  owner?: string;
+  propertyType?: string;
   rent?: RentDetails;
   lease?: LeaseDetails;
   sale?: SaleDetails;
@@ -122,11 +122,11 @@ export interface ResidentialProperty {
   carpetArea?: string;
   totalArea?: string;
   area?: Area;
-  images: string[];
-  title: string;
+  images?: string[];
+  title?: string;
   residentialType?: ResidentialType;
   facingDirection?: FacingDirection;
-  rooms: string;
+  rooms?: string;
   totalFloors?: number;
   propertyFloor?: number;
   furnishingType?: FurnishingType;
@@ -140,5 +140,5 @@ export interface ResidentialProperty {
   updatedAt?: string;
   _id?: string;
   washroom?: number | string;
-  status: "Pending" | "Approved" | "Rejected" | "Deleted";
+  status?: "Pending" | "Approved" | "Rejected" | "Deleted";
 }
