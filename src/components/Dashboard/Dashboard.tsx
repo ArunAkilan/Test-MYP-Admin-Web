@@ -108,7 +108,7 @@ function Home({ properties }: HomeProps) {
 }, [location.state]);
  
   const handleOpen = () => {
-    if (location?.pathname === "/dashboard") {
+    if (location?.pathname === "/admin/dashboard") {
       setOpen(true);
     } else if (location?.pathname === "/commercial") {
       navigate("/commercial/create", {

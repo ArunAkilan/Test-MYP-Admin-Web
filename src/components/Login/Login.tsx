@@ -12,7 +12,7 @@ const Login = () => {
 
         if (username === 'admin' && password === 'admin123') {
             localStorage.setItem('token', 'demo-token');
-            navigate('/dashboard');
+            navigate('/admin/dashboard');
         } else {
             alert('Invalid credentials');
         }
@@ -31,7 +31,8 @@ const Login = () => {
                     <form onSubmit={handleLogin}>
                         <div className="textinput container">
                             <div className="email input-cmn">
-                                <img src="Mail.svg" alt="mail svg" />
+                                <img src="Icon_User.svg" alt="mail svg" />
+                                
                                  <input
                                     type="text"
                                     value={username}
@@ -41,7 +42,8 @@ const Login = () => {
                                 />
                             </div>
                             <div className="password input-cmn">
-                                <img src="solar_password-bold.svg" alt="password svg" />
+                                <img src="Icon_Password.svg" alt="password svg" />
+                                
                                  <input
                                     type="password"
                                     value={password}
@@ -55,7 +57,7 @@ const Login = () => {
                     </form>
 
                     <div className="forget container">
-                        <p>Doesn’t remember your password?<button>Reset here</button></p>
+                        <p>Doesn’t remember your password? <a className="adminreset">Reset here</a></p>
                     </div>
                 </div>
             </div>

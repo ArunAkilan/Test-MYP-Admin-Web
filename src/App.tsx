@@ -35,7 +35,7 @@ function AppRoutes() {
   // const openCreatePlotProperty = () => navigate("/plots/create");
 
   // const noScrollRoutes = [
-  //   "/dashboard",
+  //   "/admin/dashboard",
   //   "/commercial",
   //   "/residential",
   //   "/plots"
@@ -43,7 +43,7 @@ function AppRoutes() {
 
   useEffect(() => {
     const noScrollRoutes = [
-      "/dashboard",
+      "/admin/dashboard",
       "/commercial",
       "/residential",
       "/plots",
@@ -78,9 +78,9 @@ function AppRoutes() {
         style={{ flex: 1, overflowY: "auto" }}
       >
         <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" />} />
+          <Route path="/" element={<Navigate to="/admin/dashboard" />} />
           <Route
-            path="/dashboard"
+            path="/admin/dashboard"
             element={<Home properties="all" onAddNew={openCreateResidential} />}
           />
           <Route path="/admin" element={<Login />} />
