@@ -5,8 +5,8 @@ import {
   Routes,
   Route,
   Navigate,
-  useNavigate,
-  useLocation
+  // useNavigate,
+  useLocation,
 } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
@@ -23,14 +23,14 @@ import PlotView from "./components/Properties/viewProperties/PlotView/PlotViewPr
 import Login from "./components/Login/Login";
 
 function AppRoutes() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const location = useLocation();
 
-  const isLoginRoute = location.pathname === "/admin";
+  // const isLoginRoute = location.pathname === "/admin";
 
-  const openCreateResidential = () => {
-    navigate("/residential/create");
-  };
+  // const openCreateResidential = () => {
+  //   navigate("/residential/create");
+  // };
   // const openCreateCommercial = () => navigate("/commercial/create");
   // const openCreatePlotProperty = () => navigate("/plots/create");
 
@@ -55,46 +55,39 @@ function AppRoutes() {
   // const location = useLocation();
 
   // Define routes where sidebar should be hidden
-  // const hideSidebarRoutes = [
-  //   "/residential/view",
-  //   "/commercial/view",
-  //   "/plots/view",
-  //   "/login",
-  // ];
+  const hideSidebarRoutes = [
+    "/residential/view",
+    "/commercial/view",
+    "/plots/view",
+    "/login",
+    "/admin"
+  ];
 
   // Check if the current pathname starts with any of the routes
-  // const shouldHideSidebar = hideSidebarRoutes.some((route) =>
-  //   location.pathname.startsWith(route)
-  // );
+  const shouldHideSidebar = hideSidebarRoutes.some((route) =>
+    location.pathname.startsWith(route)
+  );
 
   return (
     <div className="app-container row">
-      {!isLoginRoute && <Sidebar />}
-
+  {!shouldHideSidebar && <Sidebar />}
       <div
         className={`content-area ${
-          !isLoginRoute ? "col-md-9 offset-md-3" : ""
+           !shouldHideSidebar? "col-md-9 offset-md-3" : "col-md-12"
         }`}
         style={{ flex: 1, overflowY: "auto" }}
       >
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" />} />
-          <Route
-            path="/dashboard"
-            element={<Home properties="all" onAddNew={openCreateResidential} />}
-          />
-          <Route path="/admin" element={<Login />} />
-          <Route
+          <Route path="/dashboard" element={<Home properties="all" />} />
+          
+                   <Route path="/admin" element={<Login />} /> <Route
             path="/commercial"
-            element={
-              <Home properties="commercials" onAddNew={openCreateResidential} />
-            }
+            element={<Home properties="commercials" />}
           />
           <Route
             path="/residential"
-            element={
-              <Home properties="residentials" onAddNew={openCreateResidential} />
-            }
+            element={<Home properties="residentials" />}
           />
           <Route path="/plots" element={<Home properties="plots" />} />
           <Route
@@ -115,7 +108,7 @@ function AppRoutes() {
 function App() {
   return (
     <Router>
-      <LayoutWrapper />
+        <LayoutWrapper />
     </Router>
   );
 }
@@ -126,8 +119,8 @@ function LayoutWrapper() {
   const isLoginRoute = location.pathname === "/admin";
 
   return (
-    <div className="grid-container">
-      {!isLoginRoute && (
+      <div className="grid-container">
+         {!isLoginRoute && (
         <Header
           MainLogo={navbarLogo}
           Title="Admin"
@@ -135,10 +128,10 @@ function LayoutWrapper() {
           Profile={false}
         />
       )}
-      <div className="container body-content-container">
-        <AppRoutes />
+        <div className="container body-content-container">
+          <AppRoutes />
+        </div>
       </div>
-    </div>
   );
 }
 
