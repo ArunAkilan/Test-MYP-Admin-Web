@@ -33,22 +33,28 @@ export interface ResidentialProperty {
   location: {
     landmark: string;
     address: string;
+    map: {
+      latitude: number;
+      longitude: number;
+    }
   };
   area: {
     totalArea: string;
     buitUpArea: string;
     carpetArea: string;
   };
-  availability: {
-    broadband: boolean;
-    securities: boolean;
-  };
+  // availability: {
+  //   broadband: boolean;
+  //   securities: boolean;
+  // };
   facility: {
     maintenance: boolean;
     waterFacility: boolean;
     roadFacility: boolean;
     drainage: boolean;
     parking: boolean;
+    terrace: boolean;
+    balcony: boolean;
   };
   accessibility: {
     steps: boolean;
@@ -57,12 +63,37 @@ export interface ResidentialProperty {
   };
   amenities: {
     separateEBConnection: boolean;
+    nearbyArena: boolean;
+    nearbyGym: boolean;
+    nearbyMall: boolean;
+    nearbyMarket: boolean;
+    nearbyTurf: boolean;
   };
   restrictions: {
     petsAllowed: boolean;
     guestAllowed: boolean;
     bachelorsAllowed: boolean;
       };
+  owner: {
+    contact: {
+      getUpdates: boolean;
+      phone1: string;
+      email: string;
+    }
+    _id: string;
+    firstName:  string;
+    lastName: string;
+  }
+  availability : {
+    transport: {
+      nearbyBusStop: boolean;
+      nearbyAirport: boolean;
+      nearbyPort: boolean;
+      broadband: boolean;
+    }
+    broadband: boolean;
+    securities: boolean;
+  }
   images: string[];
     residentialType: string;
   facingDirection: string;
@@ -73,5 +104,6 @@ export interface ResidentialProperty {
   isDeleted: boolean;
   createdAt: string;
   updatedAt: string;
+  rooms : string;
 };
 export type PlainObject = Record<string, unknown>;

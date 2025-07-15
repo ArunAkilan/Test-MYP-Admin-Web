@@ -8,13 +8,14 @@
 }
 .large-image {
     width: 100% !important;
+    height: 500px;
 }
 
 .slide-counter {
     position: absolute;
     top: 15px ;
     left: 15px;
-    z-index: 9;
+    z-index: 0;
     border-radius: 6px;
     display: flex;
     align-items: center;
@@ -24,7 +25,7 @@
     right: 15px;
     top: 50%;
     border-radius: 100px;
-    z-index: 9;
+    z-index: 0;
     display: flex;
 }
 .custom-left-arrow {
@@ -32,6 +33,6 @@
     left: 10px;
     top: 50%;
     border-radius: 100px;
-    z-index: 9;
+    z-index: 0;
     display: flex;
 }
