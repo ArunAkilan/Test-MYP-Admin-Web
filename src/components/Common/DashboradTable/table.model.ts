@@ -1,5 +1,5 @@
 
-export interface BaseProperty {
+export interface Property  {
   _id: string;
   
   location?: {
@@ -45,6 +45,6 @@ export interface Property {
 }
 
 
-export interface PropertyWithSource extends BaseProperty {
+export interface PropertyWithSource extends Property  {
   _source: "residential" | "commercial" | "plot";
 }

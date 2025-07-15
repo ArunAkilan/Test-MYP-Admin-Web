@@ -15,8 +15,7 @@ import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import type { PropertyWithSource } from "./table.model";
-import type { Property } from "./table.model"
+import type { Property, PropertyWithSource } from "./table.model";
 
 interface PropertyDataMap {
   residentials?: PropertyWithSource[];
@@ -28,9 +27,8 @@ interface PropertyDataMap {
 }
 
 interface TableProps {
-  //data: ResidentialProperty[];
-  data: PropertyWithSource[] | PropertyDataMap;
-  properties?:
+  data: Property[] | PropertyWithSource[] | PropertyDataMap;
+  properties?: 
     | "all"
     | "residential"
     | "residentials"
@@ -125,56 +123,43 @@ function Table({ data, properties, onScrollChange }: TableProps) {
       console.error("Failed to update status");
     }
   };
+function isArrayOfObjects(data: unknown): data is (Property | PropertyWithSource)[] {
+  return Array.isArray(data) && data.every((item) => typeof item === "object" && item !== null);
+}
 
-const formatedData: PropertyWithSource[] = Array.isArray(data) 
-  ? data.map((item: Property) => ({
-      ...item,
-      _source:
-        properties === "residentials"
-          ? "residential"
-          : properties === "commercials"
-          ? "commercial"
-          : properties === "plots"
-          ? "plot"
-          : "plot", // default fallback to valid type
-    }))
+const formatedData: PropertyWithSource[] = isArrayOfObjects(data)
+  ? data.map((item: Property | PropertyWithSource): PropertyWithSource =>
+      "_source" in item
+        ? item
+        : {
+            ...item,
+            _source:
+              properties === "residentials"
+                ? "residential"
+                : properties === "commercials"
+                ? "commercial"
+                : properties === "plots"
+                ? "plot"
+                : "plot",
+          }
+    )
   : [
-      ...(data.residentials?.map((item) => ({
-        ...item,
-        _source: "residential" as const,
-      })) ?? []),
-      ...(data.commercials?.map((item) => ({
-        ...item,
-        _source: "commercial" as const,
-      })) ?? []),
-      ...(data.plots?.map((item) => ({
-        ...item,
-        _source: "plot" as const,
-      })) ?? []),
-      ...(data.residential?.map((item) => ({
-        ...item,
-        _source: "residential" as const,
-      })) ?? []),
-      ...(data.commercial?.map((item) => ({
-        ...item,
-        _source: "commercial" as const,
-      })) ?? []),
-      ...(data.plot?.map((item) => ({
-        ...item,
-        _source: "plot" as const,
-      })) ?? []),
+      ...(data.residentials ?? []),
+      ...(data.commercials ?? []),
+      ...(data.plots ?? []),
+      ...(data.residential ?? []),
+      ...(data.commercial ?? []),
+      ...(data.plot ?? []),
     ];
-
 
   // Modal state
   const [open, setOpen] = React.useState(false);
   const [selectedAction, setSelectedAction] = React.useState<string | null>(
     null
   );
-  const [selectedItem, setSelectedItem] =
-    React.useState<ResidentialProperty | null>(null);
+const [selectedItem, setSelectedItem] = React.useState<PropertyWithSource | ResidentialProperty | null>(null);
 
-  const handleEdit = (item: ResidentialProperty) => {
+  const handleEdit = (item: PropertyWithSource) => {
     navigate("/createResidential", { state: { data: item, mode: "edit" } });
   };
 
@@ -198,13 +183,12 @@ const formatedData: PropertyWithSource[] = Array.isArray(data)
     });
   };
 
-  const handleOpenModal = (action: string, item: ResidentialProperty) => {
-    console.log(" Opening modal with action:", action, "on item:", item._id);
-    setSelectedAction(action);
-    setSelectedItem(item);
-    setOpen(true);
-  };
-
+const handleOpenModal = (action: "Approve" | "Deny" | "Delete", item: PropertyWithSource) => {
+  console.log("Opening modal with action:", action, "on item:", item._id);
+  setSelectedAction(action);
+  setSelectedItem(item);
+  setOpen(true);
+};
   const handleCloseModal = () => {
     setOpen(false);
     setSelectedAction(null);
@@ -228,18 +212,6 @@ const formatedData: PropertyWithSource[] = Array.isArray(data)
       setIsBackdropLoading(false);
     }
   };
-
-  if (!Array.isArray(data)) {
-    const fallback =
-      data?.residential || data?.commercial || data?.plot ;
-
-    if (Array.isArray(fallback)) {
-      data = fallback;
-    } else {
-      console.error("Expected 'data' to be an array but got:", data);
-      return <p>Error: Invalid data format</p>;
-    }
-  }
 
   // popover
   const handlePopoverClick = (event: React.MouseEvent<HTMLInputElement>) => {
@@ -523,25 +495,25 @@ const formatedData: PropertyWithSource[] = Array.isArray(data)
                       <img
                         src="Edit.svg"
                         alt="edit"
-                        onClick={() => handleEdit(item as unknown as ResidentialProperty)}
+                        onClick={() => handleEdit(item)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
                         src="Approve.svg"
                         alt="Approve"
-                        onClick={() => handleOpenModal("Approve", item as unknown as ResidentialProperty)}
+                        onClick={() => handleOpenModal("Approve", item)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
                         src="Deny.svg"
                         alt="Deny"
-                        onClick={() => handleOpenModal("Deny", item as unknown as ResidentialProperty)}
+                        onClick={() => handleOpenModal("Deny", item)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
                         src="Delete.svg"
                         alt="Delete"
-                        onClick={() => handleOpenModal("Delete", item as unknown as ResidentialProperty)}
+                        onClick={() => handleOpenModal("Delete", item)}
                         style={{ cursor: "pointer" }}
                       />
                     </div>
