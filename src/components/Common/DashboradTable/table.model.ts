@@ -16,7 +16,7 @@ export interface TabModalState {
 
 // Generic property model (from your base interface)
 export default interface Property {
-  id?: number | string;  // <-- updated here
+  id?: number | string;
   name: string;
   address: string;
   size: string;
@@ -57,7 +57,7 @@ export interface PlotProperty extends Property {
 
 // Unified view type used in table display or modals
 export interface PropertyView {
-  id: number | string;  
+  id: number | string;
   name: string;
   address: string;
   size: string;
@@ -78,17 +78,14 @@ export interface PropertyView {
   images: string[];
 }
 
-// Property categories
-export type PropertyCategory = 'residential' | 'commercial' | 'plots';
-
 // Extend PropertyView to include `_source` property for routing and identification
 export interface PropertyViewWithSource extends PropertyView {
-  _source: PropertyCategory;
+  _source: 'residential' | 'commercial' | 'plots';
 }
 
 // Reduced property table data used for table rows
 export interface PropertyTableData {
-  id: number | string;  // <-- updated here
+  id: number | string;
   name: string;
   address: string;
   size: string;
@@ -109,8 +106,8 @@ export interface PropertyTableData {
 
 // Action callbacks passed to table row actions
 export interface PropertyTableActionsProps {
-  id: number | string;  // <-- updated here
-  onView: (id: number | string) => void;  // updated param types
+  id: number | string;
+  onView: (id: number | string) => void;
   onEdit: (id: number | string) => void;
   onDelete: (id: number | string) => void;
 }
@@ -127,53 +124,63 @@ export interface PropertyDataResponse {
 }
 
 // navigate function type explicitly
-type NavigateFunction = (path: string, options?: { state?: unknown }) => void;
+type NavigateFunction = (path: string, options?: { state?: Record<string, unknown> }) => void;
 
-// Example handler functions with proper typing
-export const handleEdit = (item: PropertyViewWithSource, navigate: NavigateFunction) => {
+// Edit handler with type-safe inputs
+export const handleEdit = (
+  item: PropertyViewWithSource,
+  navigate: NavigateFunction
+): void => {
   const propertyType = item._source || 'residential';
-  navigate(`/${propertyType}/create`, { state: { data: item, mode: 'edit' } });
+  navigate(`/${propertyType}/create`, {
+    state: { data: item, mode: 'edit' },
+  });
 };
 
+// View handler with formatted list of items and router
 export const handleView = (
   id: number | string,
   formatedData: PropertyViewWithSource[],
   navigate: NavigateFunction
-) => {
+): void => {
   const selectedItem = formatedData.find((item) => item.id === id);
   if (!selectedItem) {
     alert('Property not found');
     return;
   }
+
   const routeBase = selectedItem._source;
   if (!routeBase) {
     alert('Unknown property type');
-    console.log('Missing _source in selectedItem', selectedItem);
+    console.warn('Missing _source in selectedItem', selectedItem);
     return;
   }
+
   navigate(`/${routeBase}/view/${id}`, {
     state: { data: selectedItem, mode: 'view' },
   });
 };
 
+// Modal open handler for residential items
 export const handleOpenModal = (
   action: 'view' | 'edit' | 'delete',
   item: ResidentialProperty,
   setSelectedAction: (action: 'view' | 'edit' | 'delete' | null) => void,
   setSelectedItem: (item: ResidentialProperty | null) => void,
   setOpen: (open: boolean) => void
-) => {
+): void => {
   console.log('Opening modal with action:', action, 'on item:', item.id);
   setSelectedAction(action);
   setSelectedItem(item);
   setOpen(true);
 };
 
+// Modal close handler
 export const handleCloseModal = (
   setOpen: (open: boolean) => void,
   setSelectedAction: (action: 'view' | 'edit' | 'delete' | null) => void,
   setSelectedItem: (item: ResidentialProperty | null) => void
-) => {
+): void => {
   setOpen(false);
   setSelectedAction(null);
   setSelectedItem(null);

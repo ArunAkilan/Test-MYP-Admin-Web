@@ -1668,7 +1668,7 @@ export const CreateProperty = () => {
                 </div>
 
                 <div className="chipField">
-                  <div className="chipcard " style={{ padding: "31px" }}>
+                  <div className="chipcard d-flex flex-wrap w-100 gap-4 mb-3" style={{ padding: "31px" }}>
                     <div className="firstRow d-flex gap-4">
                       <InputField
                         type="chip"

@@ -1,8 +1,16 @@
 import "./table.scss";
-import type { ResidentialProperty} from "../../AdminResidencial/AdminResidencial.model";
+import type { ResidentialProperty } from "../../AdminResidencial/AdminResidencial.model";
 import type { PropertyDataResponse } from "./table.model";
-import { Box, Typography, Modal, Popover, Button, Backdrop, CircularProgress } from "@mui/material";
-import React,{ useState, useEffect } from "react";
+import {
+  Box,
+  Typography,
+  Modal,
+  Popover,
+  Button,
+  Backdrop,
+  CircularProgress,
+} from "@mui/material";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -11,16 +19,26 @@ import denyIcon from "../../../assets/table/Icon_Deny.svg";
 import { useLocation, useNavigate } from "react-router-dom";
 import type { CommercialProperty, PlotProperty } from "./table.model";
 
-
 interface TableProps {
   //data: ResidentialProperty[];
   data: PropertyDataResponse | ResidentialProperty[];
-  properties?: | "all" | "residential" | "residentials" | "commercial" | "commercials" | "plot" | "plots" | undefined;
+  properties?:
+    | "all"
+    | "residential"
+    | "residentials"
+    | "commercial"
+    | "commercials"
+    | "plot"
+    | "plots"
+    | undefined;
   onScrollChange: (scrollTop: number) => void;
-  handleOpenModal: (action: "Approve" | "Deny" | "Delete", item: ResidentialProperty) => void;
+  handleOpenModal: (
+    action: "Approve" | "Deny" | "Delete",
+    item: ResidentialProperty
+  ) => void;
 }
 
-export  interface Property {
+export interface Property {
   _id: string; // use string for MongoDB IDs
   name: string;
   address: string;
@@ -32,15 +50,24 @@ export  interface Property {
   washroom: string;
 }
 
-
 const modalStyle = {
-  position: "absolute" as const, top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: 400, bgcolor: "background.paper", border: "2px solid #000", boxShadow: 24, p: 4,};
+  position: "absolute" as const,
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 400,
+  bgcolor: "background.paper",
+  border: "2px solid #000",
+  boxShadow: 24,
+  p: 4,
+};
 
 function Table({ data, properties, onScrollChange }: TableProps) {
-
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [isBackdropLoading, setIsBackdropLoading] = useState(false);
-  const [popoverAnchorEl, setPopoverAnchorEl] = useState<HTMLElement | null>(null);
+  const [popoverAnchorEl, setPopoverAnchorEl] = useState<HTMLElement | null>(
+    null
+  );
   const navigate = useNavigate();
   const location = useLocation();
   const propertyData = location.state?.data;
@@ -74,29 +101,52 @@ function Table({ data, properties, onScrollChange }: TableProps) {
     }
   };
 
-const formatedData = Array.isArray(data)
-  ? data.map((item: ResidentialProperty) => ({
-      ...item,
-      _source:
-        properties === "residentials"
-          ? "residential"
-          : properties === "commercials"
-          ? "commercial"
-          : properties === "plots"
-          ? "plots"
-          : "unknown",
-    }))
-  : [...(data?.residentials?.map((item: ResidentialProperty) => ({...item,_source: "residential",})) ?? []),
-  ...(data?.commercials?.map((item: CommercialProperty) => ({...item,_source: "commercial",})) ?? []),
-  ...(data?.plots?.map((item: PlotProperty) => ({...item, _source: "plots",})) ?? []),
-  ...(data?.residential?.map((item: ResidentialProperty) => ({...item, _source: "residential",})) ?? []),
-  ...(data?.commercial?.map((item: CommercialProperty) => ({...item, _source: "commercial",})) ?? []),
-  ...(data?.plot?.map((item: PlotProperty) => ({...item, _source: "plots",})) ?? []),];
-    
+  const formatedData = Array.isArray(data)
+    ? data.map((item: ResidentialProperty) => ({
+        ...item,
+        _source:
+          properties === "residentials"
+            ? "residential"
+            : properties === "commercials"
+            ? "commercial"
+            : properties === "plots"
+            ? "plots"
+            : "unknown",
+      }))
+    : [
+        ...(data?.residentials?.map((item: ResidentialProperty) => ({
+          ...item,
+          _source: "residential",
+        })) ?? []),
+        ...(data?.commercials?.map((item: CommercialProperty) => ({
+          ...item,
+          _source: "commercial",
+        })) ?? []),
+        ...(data?.plots?.map((item: PlotProperty) => ({
+          ...item,
+          _source: "plots",
+        })) ?? []),
+        ...(data?.residential?.map((item: ResidentialProperty) => ({
+          ...item,
+          _source: "residential",
+        })) ?? []),
+        ...(data?.commercial?.map((item: CommercialProperty) => ({
+          ...item,
+          _source: "commercial",
+        })) ?? []),
+        ...(data?.plot?.map((item: PlotProperty) => ({
+          ...item,
+          _source: "plots",
+        })) ?? []),
+      ];
+
   // Modal state
   const [open, setOpen] = React.useState(false);
-  const [selectedAction, setSelectedAction] = React.useState<string | null>(null);
-  const [selectedItem, setSelectedItem] =React.useState<ResidentialProperty | null>(null);
+  const [selectedAction, setSelectedAction] = React.useState<string | null>(
+    null
+  );
+  const [selectedItem, setSelectedItem] =
+    React.useState<ResidentialProperty | null>(null);
 
   // const handleEdit = (item: ResidentialProperty) => {
   //   console.log("Editing item:", item);
@@ -104,29 +154,69 @@ const formatedData = Array.isArray(data)
 
   const handleEdit = (item: any) => {
     console.log("item._source =", item._source);
-    
-  
+
     // If _source is an object with a type field:
-    const propertyType = typeof item._source === "string" 
-      ? item._source 
-      : item._source?.type || "residential";
-  
-    navigate(`/${propertyType}/create`, { state: { data: item, mode: "edit" } });
+    const propertyType =
+      typeof item._source === "string"
+        ? item._source
+        : item._source?.type || "residential";
+
+    navigate(`/${propertyType}/create`, {
+      state: { data: item, mode: "edit" },
+    });
   };
   const handleView = (id: string | number) => {
-    
-  const selectedItem = formatedData.find((item: any) => item._id === id);
+    const selectedItem = formatedData.find((item: any) => item._id === id);
 
-  if (!selectedItem) {alert("Property not found");return;}
+    if (!selectedItem) {
+      alert("Property not found");
+      return;
+    }
 
-  const routeBase = selectedItem._source;
+    const routeBase = selectedItem._source;
 
-  if (!routeBase) {alert("Unknown property type");
-    console.log("Missing _source in selectedItem", selectedItem);
-    return;
-  }
-  navigate(`/${routeBase}/view/${id}`, {
-    state: { data: selectedItem, mode: "view" },});
+    if (!routeBase) {
+      alert("Unknown property type");
+      console.log("Missing _source in selectedItem", selectedItem);
+      return;
+    }
+    navigate(`/${routeBase}/view/${id}`, {
+      state: { data: selectedItem, mode: "view" },
+    });
+  };
+
+  // Delete action:
+  const handleDelete = async (id: string, type: string): Promise<void> => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this property?"
+    );
+    if (!confirmed) return;
+
+    const typeMap: Record<string, string> = {
+      residentials: "residential",
+      commercials: "commercial",
+      plots: "plot",
+    };
+
+    const normalizedType = type.toLowerCase().trim();
+    const slug = typeMap[normalizedType] || normalizedType;
+    const endpoint = `${import.meta.env.VITE_BackEndUrl}/api/${slug}/${id}`;
+
+    console.log("DELETE Request:", { id, type, slug, endpoint });
+
+    try {
+      const { data } = await axios.delete(endpoint);
+      console.log("Delete response:", data);
+      toast.success("Property deleted successfully");
+      window.dispatchEvent(new Event("refreshTableData"));
+    } catch (error: unknown) {
+      console.error("Error deleting property:", error);
+      const errorMessage =
+        axios.isAxiosError(error) && error.response?.data?.message
+          ? error.response.data.message
+          : "Failed to delete property. Please try again.";
+      toast.error(errorMessage);
+    }
   };
 
   const handleOpenModal = (action: string, item: ResidentialProperty) => {
@@ -156,12 +246,13 @@ const formatedData = Array.isArray(data)
     } catch (e) {
       console.error("Error performing action:", e);
     } finally {
-      setIsBackdropLoading(false); 
+      setIsBackdropLoading(false);
     }
   };
 
   if (!Array.isArray(data)) {
-    const fallback = data?.residential || data?.commercial || data?.plot || data?.data;
+    const fallback =
+      data?.residential || data?.commercial || data?.plot || data?.data;
 
     if (Array.isArray(fallback)) {
       data = fallback;
@@ -204,14 +295,20 @@ const formatedData = Array.isArray(data)
     }
   };
 
-  const handlePopoverClose = () => {setPopoverAnchorEl(null);};
+  const handlePopoverClose = () => {
+    setPopoverAnchorEl(null);
+  };
 
   const isPopoverOpen = Boolean(popoverAnchorEl);
   const popoverId = isPopoverOpen ? "simple-popover" : undefined;
 
   // handleBulkAction on popover
   const handleBulkAction = async (action: string) => {
-    const statusMap: Record<string, number> = {Approve: 1,Deny: 0,Delete: 2,};
+    const statusMap: Record<string, number> = {
+      Approve: 1,
+      Deny: 0,
+      Delete: 2,
+    };
 
     const statusCode = statusMap[action];
 
@@ -229,14 +326,20 @@ const formatedData = Array.isArray(data)
   };
 
   useEffect(() => {
-    if (selectedRows.length === 0) {handlePopoverClose();
-    }}, [selectedRows]);
+    if (selectedRows.length === 0) {
+      handlePopoverClose();
+    }
+  }, [selectedRows]);
 
   return (
     <>
       <div
         ref={containerRef}
-        style={{height: hideHeader ? "450px" : "315px",overflowY: "auto",marginBottom: "50px",}}
+        style={{
+          height: hideHeader ? "450px" : "315px",
+          overflowY: "auto",
+          marginBottom: "50px",
+        }}
       >
         <div className="container table-responsive">
           <table>
@@ -598,21 +701,21 @@ const formatedData = Array.isArray(data)
                 onClick={() => {
                   if (!selectedItem?._id || !selectedAction) return;
 
-                  const statusMap: Record<string, number> = {
-                    Approve: 1,
-                    Deny: 0,
-                    Delete: 2,
-                  };
+                  if (selectedAction === "Delete") {
+                    handleDelete(selectedItem._id, selectedItem._source);
+                  } else {
+                    const statusMap: Record<"Approve" | "Deny", number> = {
+                      Approve: 1,
+                      Deny: 0,
+                    };
+                    handleAction(selectedItem._id, statusMap[selectedAction]);
+                  }
 
-                  const statusCode = statusMap[selectedAction];
-                  handleConfirmAction(selectedItem._id, statusCode);
+                  handleCloseModal();
                 }}
                 sx={{ mr: 1 }}
               >
                 Confirm
-              </Button>
-              <Button variant="outlined" onClick={handleCloseModal}>
-                Cancel
               </Button>
             </Box>
           </Modal>
