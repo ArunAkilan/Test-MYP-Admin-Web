@@ -91,8 +91,16 @@ function Table({ data, properties, onScrollChange }: TableProps) {
       const response = await axios.put(
         `${
           import.meta.env.VITE_BackEndUrl
-        }/api/adminpermission/${singularProperty}/${id}`,
-        { status: `${status}` }
+        }/api/adminpermission`,
+        {
+          status: status.toString(),
+          properties: [
+            {
+              "type": singularProperty,
+              id: id,
+            },
+          ],
+        },
       );
       console.log("Status updated:", response.data);
       console.log("editid", response?.data?._id);
@@ -100,6 +108,38 @@ function Table({ data, properties, onScrollChange }: TableProps) {
       console.error("Failed to update status");
     }
   };
+
+  // const handleAction = async (
+  //   id: string,
+  //   status: number,
+  //   type: "residential" | "commercial" | "plot"
+  // ): Promise<void> => {
+  //   try {
+  //     const response = await axios.put(
+  //       `${import.meta.env.VITE_BackEndUrl}/api/adminpermission`,
+  //       {
+  //         status: status.toString(), // status must be string: "0" | "1" | ...
+  //         properties: [
+  //           {
+  //             "type": "residential",
+  //             id: id,
+  //           },
+  //         ],
+  //       },
+  //       {
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         withCredentials: true, // Only if your backend requires auth
+  //       }
+  //     );
+  
+  //     console.log("Status updated:", response.data);
+  //   } catch (error: any) {
+  //     console.error("Failed to update status:", error?.response?.data || error);
+  //   }
+  // };
+  
 
   const formatedData = Array.isArray(data)
     ? data.map((item: ResidentialProperty) => ({
@@ -186,38 +226,38 @@ function Table({ data, properties, onScrollChange }: TableProps) {
   };
 
   // Delete action:
-  const handleDelete = async (id: string, type: string): Promise<void> => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this property?"
-    );
-    if (!confirmed) return;
+  // const handleDelete = async (id: string, type: string): Promise<void> => {
+  //   const confirmed = window.confirm(
+  //     "Are you sure you want to delete this property?"
+  //   );
+  //   if (!confirmed) return;
 
-    const typeMap: Record<string, string> = {
-      residentials: "residential",
-      commercials: "commercial",
-      plots: "plot",
-    };
+  //   const typeMap: Record<string, string> = {
+  //     residentials: "residential",
+  //     commercials: "commercial",
+  //     plots: "plot",
+  //   };
 
-    const normalizedType = type.toLowerCase().trim();
-    const slug = typeMap[normalizedType] || normalizedType;
-    const endpoint = `${import.meta.env.VITE_BackEndUrl}/api/${slug}/${id}`;
+  //   const normalizedType = type.toLowerCase().trim();
+  //   const slug = typeMap[normalizedType] || normalizedType;
+  //   const endpoint = `${import.meta.env.VITE_BackEndUrl}/api/${slug}/${id}`;
 
-    console.log("DELETE Request:", { id, type, slug, endpoint });
+  //   console.log("DELETE Request:", { id, type, slug, endpoint });
 
-    try {
-      const { data } = await axios.delete(endpoint);
-      console.log("Delete response:", data);
-      toast.success("Property deleted successfully");
-      window.dispatchEvent(new Event("refreshTableData"));
-    } catch (error: unknown) {
-      console.error("Error deleting property:", error);
-      const errorMessage =
-        axios.isAxiosError(error) && error.response?.data?.message
-          ? error.response.data.message
-          : "Failed to delete property. Please try again.";
-      toast.error(errorMessage);
-    }
-  };
+  //   try {
+  //     const { data } = await axios.delete(endpoint);
+  //     console.log("Delete response:", data);
+  //     toast.success("Property deleted successfully");
+  //     window.dispatchEvent(new Event("refreshTableData"));
+  //   } catch (error: unknown) {
+  //     console.error("Error deleting property:", error);
+  //     const errorMessage =
+  //       axios.isAxiosError(error) && error.response?.data?.message
+  //         ? error.response.data.message
+  //         : "Failed to delete property. Please try again.";
+  //     toast.error(errorMessage);
+  //   }
+  // };
 
   const handleOpenModal = (action: string, item: ResidentialProperty) => {
     console.log(" Opening modal with action:", action, "on item:", item._id);
@@ -232,6 +272,23 @@ function Table({ data, properties, onScrollChange }: TableProps) {
     setSelectedItem(null);
   };
 
+  // const handleConfirmAction = async (id: string, status: number) => {
+  //   try {
+  //     setIsBackdropLoading(true);
+  //     await handleAction(id, status);
+  //     handleCloseModal();
+  //     window.dispatchEvent(new Event("refreshTableData"));
+
+  //     // Success toast message
+  //     const actionText =
+  //       status === 1 ? "Approved" : status === 0 ? "Denied" : "Deleted";
+  //     toast.success(`Listing successfully ${actionText.toLowerCase()}`);
+  //   } catch (e) {
+  //     console.error("Error performing action:", e);
+  //   } finally {
+  //     setIsBackdropLoading(false);
+  //   }
+  // };
   const handleConfirmAction = async (id: string, status: number) => {
     try {
       setIsBackdropLoading(true);
@@ -699,19 +756,32 @@ function Table({ data, properties, onScrollChange }: TableProps) {
                 variant="contained"
                 color="primary"
                 onClick={() => {
+
                   if (!selectedItem?._id || !selectedAction) return;
 
-                  if (selectedAction === "Delete") {
-                    handleDelete(selectedItem._id, selectedItem._source);
-                  } else {
-                    const statusMap: Record<"Approve" | "Deny", number> = {
-                      Approve: 1,
-                      Deny: 0,
-                    };
-                    handleAction(selectedItem._id, statusMap[selectedAction]);
-                  }
+                  const statusMap: Record<string, number> = {
+                    Approve: 1,
+                    Deny: 0,
+                    Delete: 2,
+                  };
 
-                  handleCloseModal();
+                  const statusCode = statusMap[selectedAction];
+                  handleConfirmAction(selectedItem._id, statusCode);
+
+                  // if (!selectedItem?._id || !selectedAction) return;
+
+
+                  // if (selectedAction === "Delete") {
+                  //   handleDelete(selectedItem._id, selectedItem._source);
+                  // } else {
+                  //   const statusMap: Record<"Approve" | "Deny", number> = {
+                  //     Approve: 1,
+                  //     Deny: 0,
+                  //   };
+                  //   handleAction(selectedItem._id, statusMap[selectedAction]);
+                  // }
+
+                  // handleCloseModal();
                 }}
                 sx={{ mr: 1 }}
               >
