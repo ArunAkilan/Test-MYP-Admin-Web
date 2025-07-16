@@ -22,8 +22,25 @@ import ViewProperty from "./components/Properties/viewProperties/ResidentialView
 import PlotView from "./components/Properties/viewProperties/PlotView/PlotViewProperty";
 import Login from "./components/Login/Login";
 
+
+/*
+//token validation
+import ProtectedRoute from './components/Login/ProtectedRoute';
+import Dashboard from './components/Dashboard/Dashboard';
+<Route
+  path="/dashboard"
+  element={
+    <ProtectedRoute>
+      <Dashboard />
+    </ProtectedRoute>
+  }
+/>
+
+//token validation ends
+*/
+
 function AppRoutes() {
-  // const navigate = useNavigate();
+ //const navigate = useNavigate();     
   const location = useLocation();
 
   // const isLoginRoute = location.pathname === "/admin";
@@ -119,7 +136,9 @@ function LayoutWrapper() {
   const isLoginRoute = location.pathname === "/admin";
 
   return (
+    
       <div className="grid-container">
+        
          {!isLoginRoute && (
         <Header
           MainLogo={navbarLogo}
@@ -131,6 +150,7 @@ function LayoutWrapper() {
         <div className="container body-content-container">
           <AppRoutes />
         </div>
+        
       </div>
   );
 }

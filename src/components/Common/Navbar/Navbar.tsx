@@ -188,7 +188,9 @@ useEffect(() => {
                   onClick={handleSecondClick}
                 >
                   <img src={ProfileLogo} alt="ellipse image"></img>
+          
                   <p>{Title}</p>
+                
                 </div>
                 <Popover
                   anchorReference="anchorPosition"
