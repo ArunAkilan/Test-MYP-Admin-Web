@@ -33,7 +33,7 @@ export default function AutoCompleteWithSelect() {
             if (!value) return;
             setLoading(true);
             try {
-                const response = await axios.get(`http://localhost:3002/api/suggestions?query=${encodeURIComponent(
+                const response = await axios.get(`${import.meta.env.VITE_BackEndUrl}/api/suggestions?query=${encodeURIComponent(
                     value
                 )}&type=${selectValue}`);
 
