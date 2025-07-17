@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import {  useNavigate } from "react-router-dom";
 import { DynamicBreadcrumbs } from "../../../Common/input";
 import type { ResidentialProperty } from "./ResidencialViewProperty.modal";
 import "./ResidentialViewProperty.scss";
@@ -56,7 +56,25 @@ const ViewProperty = () => {
   const { id } = useParams();
   const [property, setProperty] = useState<PropertyResponse | null>(null);
 
-const latitudeRaw = property?.property?.location?.map?.latitude;
+
+    console.log("Component mounted");
+console.log("Params ID:", id);
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    console.log("API call URL:", `${import.meta.env.VITE_BackEndUrl}/api/residential/${id}`);
+    axios
+      .get(
+        `${
+          import.meta.env.VITE_BackEndUrl
+        }/api/residential/${id}`
+      )
+      .then((res) => setProperty(res.data))
+      .catch((err) => console.error("Error fetching property:", err));
+  }, [id]);
+
+  if (!property) return <div>Loading...</div>;
+
+  const latitudeRaw = property?.property?.location?.map?.latitude;
 const longitudeRaw = property?.property?.location?.map?.longitude;
 
 const latitude =
@@ -72,22 +90,6 @@ const longitude =
     : typeof longitudeRaw === "string" && !isNaN(parseFloat(longitudeRaw))
     ? parseFloat(longitudeRaw)
     : undefined;
-
-
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  useEffect(() => {
-    console.log("API call URL:", `${import.meta.env.VITE_BackEndUrl}/api/residential/${id}`);
-    axios
-      .get(
-        `${
-          import.meta.env.VITE_BackEndUrl
-        }/api/residential/${id}`
-      )
-      .then((res) => setProperty(res.data))
-      .catch((err) => console.error("Error fetching property:", err));
-  }, [id]);
-
-  if (!property) return <div>Loading...</div>;
 
 
   return (
