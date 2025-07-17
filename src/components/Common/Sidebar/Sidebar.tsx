@@ -1,6 +1,6 @@
 import "./sidebar.scss";
 import * as React from "react";
-import { useState } from "react";
+// import { useState } from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import { Avatar } from "@mui/material";
@@ -23,7 +23,7 @@ const tabRoutes = ["/dashboard", "/commercial", "/residential", "/plots"];
 export default function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
-   const [activeTab, setActiveTab] = useState('dashboard');
+   /*  const [activeTab, setActiveTab] = useState('dashboard');  */
 
   const currentTabIndex = tabRoutes.findIndex((path) =>
     location.pathname.startsWith(path)
@@ -42,22 +42,27 @@ export default function Sidebar() {
     }
   }, [location.pathname]);
 
+
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     // Prevent navigation if already on the selected tab
     if (newValue !== value) {
       setValue(newValue);
       navigate(tabRoutes[newValue]);
     }
-  };
+  };  
 
-    React.useEffect(() => {
-      const savedTab = localStorage.getItem('activeTab');
-      if (savedTab && tabRoutes.includes(savedTab)) {
-        setActiveTab(savedTab);
-      }
-    }, []);
+   /* React.useEffect(() => {
+  const token = localStorage.getItem('token');
+  console.log(`[Tab Switch] Checking token... Current token: ${token}`);
 
-     // Recheck token on every tab change
+  if (!token) {
+    console.warn('No token found! Redirecting to login...');
+    navigate('/admin');
+  }
+}, [navigate]);
+*/
+
+     /*  // Recheck token on every tab change
       React.useEffect(() => {
         const token = localStorage.getItem('token');
         console.log(`[Tab Switch] Checking token... Current token: ${token}`);
@@ -69,7 +74,10 @@ export default function Sidebar() {
     
         // Save the current tab
         localStorage.setItem('activeTab', activeTab);
-      }, [activeTab, navigate]);
+      }, [activeTab, navigate]);    */
+
+
+
 
   return (
     <div

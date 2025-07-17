@@ -96,6 +96,11 @@
   font-weight: 400;
   line-height: 18px;
   font-family: "Open Sans";
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 100px;
+  text-align: left;
 }
 .bell-image {
   margin-right: 32px;
@@ -108,9 +113,11 @@
     background-color: #00BFA6 !important;
     padding: 0 5px;
     border-radius: 25px;
+    font-family: "Open Sans";
     font-size: 9px;
-    height: 15px;
-    width: 15px;
+    height: 20px;
+    width: 20px;
+    align-items: center;
     text-align: center;
     color: #fff;
     display: flex;
@@ -182,6 +189,7 @@
 }
 
 .admin-btn-popover {
+    cursor:pointer;
     padding: 16px 12px;
     width: 250px;
 }

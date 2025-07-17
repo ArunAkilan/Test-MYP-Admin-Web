@@ -31,6 +31,8 @@ const NextArrow = ({ onClick }: { onClick?: () => void }) => (
 );
 
 const ViewCarousel: React.FC<ViewCarouselProps> = ({ images, price, area }) => {
+  const [nav1, setNav1] = useState<Slider | null>(null);
+  const [nav2, setNav2] = useState<Slider | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const mainSlider = useRef<Slider | null>(null);
   const thumbSlider = useRef<Slider | null>(null);
@@ -48,8 +50,8 @@ const ViewCarousel: React.FC<ViewCarouselProps> = ({ images, price, area }) => {
           {currentIndex + 1}/{images.length}
         </div>
         <Slider
-          asNavFor={thumbSlider.current as Slider}
-          ref={(slider: Slider) => {mainSlider.current = slider}}
+          asNavFor={nav2!}
+          ref={(slider) => setNav1(slider)}
           arrows
           infinite
           fade
@@ -70,10 +72,10 @@ const ViewCarousel: React.FC<ViewCarouselProps> = ({ images, price, area }) => {
       </div>
 
       {/* Thumbnails on Right Side */}
-      <div className="w-1/4 col-md-4 h-full pl-4">
+      <div className="w-1/4 right-slider col-md-4 h-full pl-4">
         <Slider
-          asNavFor={mainSlider.current as Slider}
-          ref={(slider: Slider) => {thumbSlider.current = slider}}
+          asNavFor={nav1!}
+          ref={(slider) => setNav2(slider)}
           slidesToShow={2}
           vertical
           swipeToSlide

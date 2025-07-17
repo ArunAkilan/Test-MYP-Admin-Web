@@ -216,8 +216,7 @@ function Table({ data, properties, onScrollChange }: TableProps) {
   const [selectedAction, setSelectedAction] = React.useState<string | null>(
     null
   );
-  const [selectedItem, setSelectedItem] =
-    React.useState<ResidentialProperty | null>(null);
+const [selectedItem, setSelectedItem] = React.useState<PropertyWithSource | ResidentialProperty | null>(null);
 
   // const handleEdit = (item: ResidentialProperty) => {
   //   console.log("Editing item:", item);
@@ -700,25 +699,25 @@ function Table({ data, properties, onScrollChange }: TableProps) {
                       <img
                         src="/Edit.svg"
                         alt="edit"
-                        onClick={() => handleEdit(item as unknown as ResidentialProperty)}
+                        onClick={() => handleEdit(item)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
                         src="/Approve.svg"
                         alt="Approve"
-                        onClick={() => handleOpenModal("Approve", item as unknown as ResidentialProperty)}
+                        onClick={() => handleOpenModal("Approve", item)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
                         src="/Deny.svg"
                         alt="Deny"
-                        onClick={() => handleOpenModal("Deny", item as unknown as ResidentialProperty)}
+                        onClick={() => handleOpenModal("Deny", item)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
                         src="/Delete.svg"
                         alt="Delete"
-                        onClick={() => handleOpenModal("Delete", item as unknown as ResidentialProperty)}
+                        onClick={() => handleOpenModal("Delete", item)}
                         style={{ cursor: "pointer" }}
                       />
                     </div>

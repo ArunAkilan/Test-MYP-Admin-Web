@@ -1,3 +1,20 @@
+
+export interface Property  {
+  _id: string;
+  
+  location?: {
+    landmark?: string;
+    address?: string;
+  };
+  area?: {
+    totalArea?: string | number;
+  };
+  status?: string;
+  totalFloors?: number;
+  facingDirection?: string;
+  furnishingType?: string;
+  washroom?: number;
+  plotType?: string;
 // Tabs shown in the UI
 export type TabName = 'Overview' | 'Users' | 'Settings' | 'Reports';
 
@@ -100,6 +117,16 @@ export interface PropertyTableData {
   kitchen?: string;
   parking?: string;
   propertyType?: string;
+  images?: string[];
+  title?: string;
+  rooms?: number;
+  owner?: string;
+}
+
+
+export interface PropertyWithSource extends Property  {
+  _source: "residential" | "commercial" | "plot";
+}
   plotSize?: string;
   price: number;
 }

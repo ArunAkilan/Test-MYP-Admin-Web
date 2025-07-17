@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import {  useNavigate } from "react-router-dom";
 import { DynamicBreadcrumbs } from "../../../Common/input";
 import type { ResidentialProperty } from "./ResidencialViewProperty.modal";
 import "./ResidentialViewProperty.scss";
@@ -52,37 +52,45 @@ interface PropertyResponse {
 }
 
 const ViewProperty = () => {
-  const location = useLocation();
   const navigate = useNavigate();
-  const propertyData = location.state?.data as ResidentialProperty;
-
   const { id } = useParams();
   const [property, setProperty] = useState<PropertyResponse | null>(null);
 
-  console.log("mode", propertyData);
-  const latitude = parseFloat(
-    String(property?.property?.location?.map?.latitude || "0")
-  );
-  const longitude = parseFloat(
-    String(property?.property?.location?.map?.longitude || "0")
-  );
 
-  if (!propertyData) {
-    return <p className="mt-5">No property data found</p>;
-  }
+    console.log("Component mounted");
+console.log("Params ID:", id);
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
+    console.log("API call URL:", `${import.meta.env.VITE_BackEndUrl}/api/residential/${id}`);
     axios
       .get(
         `${
           import.meta.env.VITE_BackEndUrl
-        }/api/residential/6874c90efa72db658e7e47f5`
+        }/api/residential/${id}`
       )
       .then((res) => setProperty(res.data))
       .catch((err) => console.error("Error fetching property:", err));
   }, [id]);
 
   if (!property) return <div>Loading...</div>;
+
+  const latitudeRaw = property?.property?.location?.map?.latitude;
+const longitudeRaw = property?.property?.location?.map?.longitude;
+
+const latitude =
+  typeof latitudeRaw === "number"
+    ? latitudeRaw
+    : typeof latitudeRaw === "string" && !isNaN(parseFloat(latitudeRaw))
+    ? parseFloat(latitudeRaw)
+    : undefined;
+
+const longitude =
+  typeof longitudeRaw === "number"
+    ? longitudeRaw
+    : typeof longitudeRaw === "string" && !isNaN(parseFloat(longitudeRaw))
+    ? parseFloat(longitudeRaw)
+    : undefined;
+
 
   return (
     <section className="container pt-4">
@@ -146,8 +154,6 @@ const ViewProperty = () => {
               </h3>
               <p className="text-muted">Sq.Ft</p>
             </div>
-            <div className="area-facing-divider"></div>
-
             <div className="area-facing-divider"></div>
             <div className=" text-center">
               <p className="mb-1">Rent</p>
@@ -576,7 +582,7 @@ const ViewProperty = () => {
       )}
       <section className="propertyDes">
         <h3 className="mb-4">Description</h3>
-        <div className="bg-light rounded">
+        <div>
           <p>
             Discover comfortable urban living in this 2BHK unit located in the
             well-connected Perambalur Green Enclave. Spanning 1,200 sq ft of
@@ -662,58 +668,7 @@ const ViewProperty = () => {
           </div>
         </div>
       </section>
-      <section className="midDetails">
-        <div className="row  data-detail-row">
-          <div className="col-md-6 row-individual-data">
-            <h3>Nearby Services & Essentials</h3>
-            <span className="inline-style">
-              <img src={mage_electricity} alt="mage_electricity" />
-              Separate Electricity Billing
-            </span>
-          </div>
-          <div className="col-md-6 row-individual-data">
-            <h3>Move-In Accessibility</h3>
-            <div className="essential">
-              <span className="inline-style">
-                <img src={ramp_up} alt="ramp_up" />
-                Ramp Access
-              </span>
-              <span className="inline-style">
-                <img src={footStepImg} alt="footStepImg" />
-                Only via Stairs
-              </span>
-            </div>
-          </div>
-        </div>
-      </section>
-      <section className="midDetails">
-        <div className="row  data-detail-row">
-          <div className="col-md-6 row-individual-data">
-            <h3>Infrastructure & Utilities</h3>
-            <div className="Utilities ">
-              <span className="inline-style ">
-                <img src={Icon_Cleaning} alt="Icon_Cleaning" />
-                Regular Maintenance Included
-              </span>
-              <span className="inline-style ">
-                <img src={water_full_outline} alt="footStepImg" />
-                Water Supply Available
-              </span>
-              <span className="inline-style inline-style-3 ">
-                <img src={Icon_restroom} alt="Icon_restroom" />
-                Sewage Connection Available
-              </span>
-            </div>
-          </div>
-          <div className="col-md-6 row-individual-data">
-            <h3>Occupancy Restrictions</h3>
-            <span className="inline-style">
-              <img src={streamline_pets} alt="streamline_pets" />
-              No Pets Allowed
-            </span>
-          </div>
-        </div>
-      </section>
+
       <section className="midDetails">
         <h3>Owner Information</h3>
         <div className="owner-info row">
@@ -740,21 +695,9 @@ const ViewProperty = () => {
         </div>
       </section>
       <section className="midDetails">
-        <div className="area-icon row">
-          <div className="view-area row col-md-6">
-            <div className="text-center col-md-3">
-              <p className="mb-1 caps">Rent</p>
-              <h3 className="mb-1">₹{property?.property?.rent?.rentAmount} </h3>
-              <p className="text-muted">Per Month</p>
-            </div>
-            <div className="text-center col-md-3">
-              <p className="mb-1 caps">Tenure</p>
-              <h3 className="mb-1">
-                {property?.property?.rent?.agreementTiming}
-              </h3>
-            </div>
-          </div>
-          <div className="view-property-icon col-md-6">
+        <div className="area-icon ">
+
+          <div className="view-property-icon ">
             <h3>Action</h3>
             <div className="view-property-icon-inside">
               <button className="btn edit-btn d-flex align-items-center gap-1">

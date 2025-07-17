@@ -1,10 +1,10 @@
 import  { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+//import { useNavigate } from 'react-router-dom';
 
 const tabNames = ['Overview', 'Users', 'Settings', 'Reports'];
 
 const Tabs = () => {
-  const navigate = useNavigate();
+  //const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('Overview');
 
   // Load saved tab on first render
@@ -16,7 +16,7 @@ const Tabs = () => {
   }, []);
 
   // Recheck token on every tab change
-  useEffect(() => {
+  /* useEffect(() => {
     const token = localStorage.getItem('token');
     console.log(`[Tab Switch] Checking token... Current token: ${token}`);
 
@@ -27,7 +27,7 @@ const Tabs = () => {
 
     // Save the current tab
     localStorage.setItem('activeTab', activeTab);
-  }, [activeTab, navigate]);
+  }, [activeTab, navigate]);  */
 
   return (
     <div>
