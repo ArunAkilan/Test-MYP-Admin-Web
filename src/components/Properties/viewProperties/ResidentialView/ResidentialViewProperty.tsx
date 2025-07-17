@@ -1,6 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { DynamicBreadcrumbs } from "../../../Common/input";
-import VIewCarousel from "../../../Common/ViewCarousel/ViewCarousel";
 import type { ResidentialProperty } from "./ResidencialViewProperty.modal";
 import "./ResidentialViewProperty.scss";
 import SqrtImage from "../../../../assets/viewProperty/radix-icons_dimensions.svg";
@@ -11,10 +10,10 @@ import roomImg from "../../../../assets/viewProperty/material-room.svg";
 import furnitureImg from "../../../../assets/viewProperty/streamline-block_shopping-furniture.svg";
 import gamingImg from "../../../../assets/viewProperty/hugeicons_game.svg";
 import mage_electricity from "../../../../assets/viewProperty/mage_electricity.svg";
-import tree_outline from "../../../../assets/viewProperty/tree_outline.svg";
+// import tree_outline from "../../../../assets/viewProperty/tree_outline.svg";
 import weixin_market from "../../../../assets/viewProperty/weixin-market.svg";
 import equipment_gym from "../../../../assets/viewProperty/hugeicons_equipment-gym-03.svg";
-import mingcute_movie_line from "../../../../assets/viewProperty/mingcute_movie-line.svg";
+// import mingcute_movie_line from "../../../../assets/viewProperty/mingcute_movie-line.svg";
 import local_mall from "../../../../assets/viewProperty/local-mall.svg";
 import Icon_Cleaning from "../../../../assets/viewProperty/Icon_Cleaning.svg";
 import water_full_outline from "../../../../assets/viewProperty/water-full-outline.svg";
@@ -42,18 +41,48 @@ import Icon_edit from "../../../../assets/viewProperty/Icon_edit.png";
 import Icon_Tick from "../../../../assets/viewProperty/Icon_Tick.png";
 import Icon_Deny from "../../../../assets/viewProperty/Icon_Deny.png";
 import Icon_Delete from "../../../../assets/viewProperty/Icon_Delete.png";
-import backIcon from "../../../../assets/dashboardtab/icon-park-outline_down.svg"
+import backIcon from "../../../../assets/dashboardtab/icon-park-outline_down.svg";
+import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import ViewCarousel from "../../../Common/ViewCarousel/ViewCarousel";
+
+interface PropertyResponse {
+  property: ResidentialProperty;
+}
 
 const ViewProperty = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const propertyData = location.state?.data as ResidentialProperty;
 
+  const { id } = useParams();
+  const [property, setProperty] = useState<PropertyResponse | null>(null);
+
   console.log("mode", propertyData);
+  const latitude = parseFloat(
+    String(property?.property?.location?.map?.latitude || "0")
+  );
+  const longitude = parseFloat(
+    String(property?.property?.location?.map?.longitude || "0")
+  );
 
   if (!propertyData) {
     return <p className="mt-5">No property data found</p>;
   }
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    axios
+      .get(
+        `${
+          import.meta.env.VITE_BackEndUrl
+        }/api/residential/6874c90efa72db658e7e47f5`
+      )
+      .then((res) => setProperty(res.data))
+      .catch((err) => console.error("Error fetching property:", err));
+  }, [id]);
+
+  if (!property) return <div>Loading...</div>;
 
   return (
     <section className="container pt-4">
@@ -78,58 +107,75 @@ const ViewProperty = () => {
       </section> */}
       <div className="breadcrumb">
         <button onClick={() => navigate(-1)} className="btn btn-secondary">
-          <img src={backIcon} alt="backIcon" />Back
+          <img src={backIcon} alt="backIcon" />
+          Back
         </button>
         <DynamicBreadcrumbs />
       </div>
       <div className="slick-carousel">
-        <VIewCarousel />
+        <ViewCarousel images={property?.property?.images || []} />
       </div>
       <section className="row address-detail">
         <div className="d-flex title-address col-md-6  ">
           <div className="landmark-type">
-            <h3 className="mb-0">{propertyData?.title}</h3>
+            <h3 className="mb-0">{property?.property?.title}</h3>
             <button className="btn detail-type">
-              {propertyData?.propertyType}
+              {property?.property?.propertyType}
             </button>
             <button className="btn detail-status-type">Rented out</button>
           </div>
 
-          <p className="lead mb-3">Shop for {propertyData?.propertyType}</p>
+          <p className="lead mb-3">
+            Property for {property?.property?.propertyType}
+          </p>
           <div className="d-flex align-items-center">
             <img
               src="../../../../../public/ICON_Location.svg"
               alt="Location Icon"
               className="me-2"
             />
-            <p className="mb-0">Address</p>
+            <p className="mb-0">{property?.property?.location?.address}</p>
           </div>
         </div>
         <div className="d-flex col-md-6 align-items-start area-facing-detail flex-wrap gap-4">
           <div className="area-facing-detail-inner-div w-100 mt-2">
             <div className="text-center">
               <p className="mb-1 caps">Area</p>
-              <h3 className="mb-1 user-result-data">1000</h3>
+              <h3 className="mb-1 user-result-data">
+                {property?.property?.area?.totalArea}
+              </h3>
               <p className="text-muted">Sq.Ft</p>
             </div>
             <div className="area-facing-divider"></div>
-            <div className=" text-center">
-              <p className="mb-1">Facing</p>
-              <h3 className="mb-1 user-result-data">
-                {propertyData?.facingDirection}
-              </h3>
-            </div>
+
             <div className="area-facing-divider"></div>
             <div className=" text-center">
               <p className="mb-1">Rent</p>
-              <h3 className="mb-1 user-result-data">Rent</h3>
+              <h3 className="mb-1 user-result-data">
+                {property?.property?.rent?.rentAmount}
+              </h3>
               <p className="text-muted">Per Month</p>
             </div>
             <div className="area-facing-divider"></div>
-            <div className=" text-center">
-              <p className="mb-1">Deposit Amount</p>
-              <h3 className="mb-1 user-result-data">₹1,00,000</h3>
-            </div>
+            {property?.property?.propertyType !== "Rent" &&
+              property?.property?.propertyType !== "Sale" && (
+                <>
+                  <div className=" text-center deposit-amount">
+                    <p className="mb-1">Deposit Amount</p>
+                    <h3 className="mb-1 user-result-data">
+                      {property?.property?.rent?.advanceAmount}
+                    </h3>
+                  </div>
+                </>
+              )}
+            {property?.property?.propertyType === "Rent" && (
+              <div className=" text-center tenure-days ">
+                <p className="mb-1">AGREEMENT</p>
+                <h3 className="mb-1 user-result-data">
+                  {property?.property?.rent?.agreementTiming}
+                </h3>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -139,7 +185,7 @@ const ViewProperty = () => {
         <div className="row gap-4 data-detail-row">
           <div className="col-md-2 row-individual-data">
             <p>PROPERTY TYPE</p>
-            <span>{propertyData?.propertyType}</span>
+            <span>{property?.property?.propertyType}</span>
           </div>
           <div className="col-md-2 row-individual-data">
             <p>Residential TYPE</p>
@@ -147,259 +193,387 @@ const ViewProperty = () => {
           </div>
           <div className="col-md-2 row-individual-data">
             <p>Negotiable</p>
-            <span>Yes</span>
+            <span>{property?.property?.rent?.negotiable}</span>
           </div>
         </div>
       </section>
-      <section className="midDetails">
-        <h3>Property Dimension & Layout</h3>
-        <div className="row gap-4 data-detail-row">
-          <div className="col-md-2 row-individual-data">
-            <p>TOTAL AREA</p>
-            <span>
-              <img src={SqrtImage} alt="dimention" />
-              1400 Sq.Ft
-            </span>
-          </div>
-          <div className="col-md-2 row-individual-data">
-            <p>BUILTUP AREA</p>
-            <span>
-              <img src={SqrtImage} alt="dimention" />
-              1400 Sq.Ft
-            </span>
-          </div>
-          <div className="col-md-2 row-individual-data">
-            <p>CARPET AREA</p>
-            <span>
-              <img src={SqrtImage} alt="dimention" />
-              1400 Sq.Ft
-            </span>
-          </div>
-          <div className="col-md-2 row-individual-data">
-            <p>FACING</p>
-            <span>
-              <img src={facingImage} alt="Facing" />
-              East
-            </span>
-          </div>
-          <div className="col-md-2 row-individual-data">
-            <p>POSTED ON</p>
-            <span>
-              <img src={dateImage} alt="date" />
-              15 Aug 2025
-            </span>
-          </div>
-          <div className="col-md-2 row-individual-data">
-            <p>TOTAL FLOORS</p>
-            <span>
-              <img src={footStepImg} alt="Facing" />2
-            </span>
-          </div>
-          <div className="col-md-2 row-individual-data">
-            <p>PROPERTY ON</p>
-            <span>
-              <img src={footStepImg} alt="Facing" />2
-            </span>
-          </div>
-          <div className="col-md-2 row-individual-data">
-            <p>FUSRNISH TYPE</p>
-            <span>
-              <img src={furnitureImg} alt="Facing" />
-              1400 Sq.Ft
-            </span>
-          </div>
-          <div className="col-md-2 row-individual-data">
-            <p>ROOMS</p>
-            <span>
-              <img src={roomImg} alt="Facing" />
-              East
-            </span>
-          </div>
-        </div>
-      </section>
-      <section className="midDetails">
-        <h3>Nearby Services & Essentials</h3>
-        <div className="row gap-4 data-detail-row">
-          <div className="col-md-2 row-individual-data">
-            <p>ELECTRICITY</p>
-            <span>
-              <img src={mage_electricity} alt="mage_electricity" />
-              Available
-            </span>
-          </div>
-          <div className="col-md-2 row-individual-data">
-            <p>PARK</p>
-            <span>
-              <img src={tree_outline} alt="tree_outline" />
-              Available
-            </span>
-          </div>
-          <div className="col-md-2 row-individual-data">
-            <p>MARKET</p>
-            <span>
-              <img src={weixin_market} alt="weixin_market" />
-              Available
-            </span>
-          </div>
-          <div className="col-md-2 row-individual-data">
-            <p>GYM</p>
-            <span>
-              <img src={equipment_gym} alt="equipment_gym" />
-              Available
-            </span>
-          </div>
-          <div className="col-md-2 row-individual-data">
-            <p>MOVIE THEATRE</p>
-            <span>
-              <img src={mingcute_movie_line} alt="mingcute_movie_line" />
-              Available
-            </span>
-          </div>
-          <div className="col-md-2 row-individual-data">
-            <p>SHOPING MALL</p>
-            <span>
-              <img src={local_mall} alt="local_mall" />
-              Available
-            </span>
-          </div>
-          <div className="col-md-2 row-individual-data">
-            <p>TURF</p>
-            <span>
-              <img src={tabler_cricket} alt="tabler_cricket" />
-              Available
-            </span>
-          </div>
-          <div className="col-md-2 row-individual-data">
-            <p>ARENA</p>
-            <span>
-              <img src={gamingImg} alt="gamingImg" />
-              Available
-            </span>
-          </div>
-        </div>
-      </section>
-      <section className="midDetails">
-        <h3>Infrastructure & Utilities</h3>
-        <div className="row gap-4 data-detail-row">
-          <div className="col-md-2 row-individual-data">
-            <p>MAINTENANCE</p>
-            <span>
-              <img src={Icon_Cleaning} alt="Icon_Cleaning" />
-              Available
-            </span>
-          </div>
-          <div className="col-md-2 row-individual-data">
-            <p>WATER SUPPLY</p>
-            <span>
-              <img src={water_full_outline} alt="water_full_outline" />
-              Available
-            </span>
-          </div>
-          <div className="col-md-2 row-individual-data">
-            <p>ROAD ACCESS</p>
-            <span>
-              <img src={Icon_Road} alt="Icon_Road" />
-              Available
-            </span>
-          </div>
-          <div className="col-md-2 row-individual-data">
-            <p>DRINAGE</p>
-            <span>
-              <img src={Icon_restroom} alt="Icon_restroom" />
-              Available
-            </span>
-          </div>
-          <div className="col-md-2 row-individual-data">
-            <p>PARKING</p>
-            <span>
-              <img src={Icon_Parking} alt="Icon_Parking" />
-              Available
-            </span>
-          </div>
-          <div className="col-md-2 row-individual-data">
-            <p>BALCONY</p>
-            <span>
-              <img src={Icon_Balcony} alt="Icon_Balcony" />
-              Available
-            </span>
-          </div>
-          <div className="col-md-2 row-individual-data">
-            <p>TERRACE</p>
-            <span>
-              <img src={icon_park_terrace} alt="icon_park_terrace" />
-              Available
-            </span>
-          </div>
-        </div>
-      </section>
-      <section className="midDetails">
-        <h3>Occupancy Restrictions</h3>
-        <div className="row gap-4 data-detail-row">
-          <div className="col-md-2 row-individual-data">
-            <p>GUESTS</p>
-            <span>
-              <img src={solar_user} alt="solar_user" />
-              Allowed
-            </span>
-          </div>
-          <div className="col-md-2 row-individual-data">
-            <p>PETS</p>
-            <span>
-              <img src={streamline_pets} alt="streamline_pets" />
-              Allowed
-            </span>
-          </div>
-          <div className="col-md-2 row-individual-data">
-            <p>BACHELORS</p>
-            <span>
-              <img src={Icon_Lift} alt="Icon_Lift" />
-              Allowed
-            </span>
-          </div>
-        </div>
-      </section>
-      <section className="midDetails">
-        <h3>Connectivity & Security Features</h3>
-        <div className="row gap-4 data-detail-row">
-          <div className="col-md-2 row-individual-data">
-            <p>ELECTRICITY</p>
-            <span>
-              <img
-                src={streamline_flex_network}
-                alt="streamline_flex_network"
-              />
-              Private
-            </span>
-          </div>
-          <div className="col-md-2 row-individual-data">
-            <p>SECURITY</p>
-            <span>
-              <img src={user_security} alt="user_security" />
-              15 Feet
-            </span>
-          </div>
-        </div>
-      </section>
-      <section className="midDetails">
-        <h3>Move-In Accessibility</h3>
-        <div className="row gap-4 data-detail-row">
-          <div className="col-md-2 row-individual-data">
-            <p>RAMP ACCESS</p>
-            <span>
-              <img src={ramp_up} alt="ramp_up" />
-              {propertyData?.propertyType}
-            </span>
-          </div>
-          <div className="col-md-2 row-individual-data">
-            <p>STAIR ACCESS</p>
-            <span>
-              <img src={footStepImg} alt="footStepImg" />
-              Shop
-            </span>
-          </div>
-        </div>
-      </section>
+      {(property?.property?.area?.totalArea ||
+        property?.property?.area?.buitUpArea ||
+        property?.property?.area?.carpetArea ||
+        property?.property?.facingDirection ||
+        property?.property?.createdAt ||
+        property?.property?.totalFloors ||
+        property?.property?.propertyFloor ||
+        property?.property?.furnishingType ||
+        property?.property?.rooms) && (
+        <section className="midDetails">
+          <h3>Property Dimension & Layout</h3>
+          <div className="row gap-4 data-detail-row">
+            {property?.property?.area?.totalArea && (
+              <div className="col-md-2 row-individual-data">
+                <p>TOTAL AREA</p>
+                <span>
+                  <img src={SqrtImage} alt="dimention" />
+                  {property.property.area.totalArea}
+                </span>
+              </div>
+            )}
 
+            {property?.property?.area?.buitUpArea && (
+              <div className="col-md-2 row-individual-data">
+                <p>BUILTUP AREA</p>
+                <span>
+                  <img src={SqrtImage} alt="dimention" />
+                  {property.property.area.buitUpArea}
+                </span>
+              </div>
+            )}
+
+            {property?.property?.area?.carpetArea && (
+              <div className="col-md-2 row-individual-data">
+                <p>CARPET AREA</p>
+                <span>
+                  <img src={SqrtImage} alt="dimention" />
+                  {property.property.area.carpetArea}
+                </span>
+              </div>
+            )}
+
+            {property?.property?.facingDirection && (
+              <div className="col-md-2 row-individual-data">
+                <p>FACING</p>
+                <span>
+                  <img src={facingImage} alt="Facing" />
+                  {property.property.facingDirection}
+                </span>
+              </div>
+            )}
+
+            {property?.property?.createdAt && (
+              <div className="col-md-2 row-individual-data">
+                <p>POSTED ON</p>
+                <span>
+                  <img src={dateImage} alt="date" />
+                  {property.property.createdAt}
+                </span>
+              </div>
+            )}
+
+            {property?.property?.totalFloors && (
+              <div className="col-md-2 row-individual-data">
+                <p>TOTAL FLOORS</p>
+                <span>
+                  <img src={footStepImg} alt="Facing" />
+                  {property.property.totalFloors}
+                </span>
+              </div>
+            )}
+
+            {property?.property?.propertyFloor && (
+              <div className="col-md-2 row-individual-data">
+                <p>PROPERTY ON</p>
+                <span>
+                  <img src={footStepImg} alt="Facing" />
+                  {property.property.propertyFloor}
+                </span>
+              </div>
+            )}
+
+            {property?.property?.furnishingType && (
+              <div className="col-md-2 row-individual-data">
+                <p>FURNISH TYPE</p>
+                <span>
+                  <img src={furnitureImg} alt="Facing" />
+                  {property.property.furnishingType}
+                </span>
+              </div>
+            )}
+
+            {property?.property?.rooms && (
+              <div className="col-md-2 row-individual-data">
+                <p>ROOMS</p>
+                <span>
+                  <img src={roomImg} alt="room" />
+                  {property.property.rooms}
+                </span>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+      {(property?.property?.amenities?.separateEBConnection ||
+        property?.property?.amenities?.nearbyMarket ||
+        property?.property?.amenities?.nearbyGym ||
+        property?.property?.amenities?.nearbyMall ||
+        property?.property?.amenities?.nearbyTurf ||
+        property?.property?.amenities?.nearbyArena) && (
+        <section className="midDetails">
+          <h3>Nearby Services & Essentials</h3>
+          <div className="row gap-4 data-detail-row">
+            {property?.property?.amenities?.separateEBConnection && (
+              <div className="col-md-2 row-individual-data">
+                <p>SEPARATE EB CONNECTION</p>
+                <span>
+                  <img src={mage_electricity} alt="mage_electricity" />
+                  {property.property.amenities.separateEBConnection}
+                </span>
+              </div>
+            )}
+
+            {property?.property?.amenities?.nearbyMarket && (
+              <div className="col-md-2 row-individual-data">
+                <p>MARKET</p>
+                <span>
+                  <img src={weixin_market} alt="weixin_market" />
+                  {property.property.amenities.nearbyMarket}
+                </span>
+              </div>
+            )}
+
+            {property?.property?.amenities?.nearbyGym && (
+              <div className="col-md-2 row-individual-data">
+                <p>GYM</p>
+                <span>
+                  <img src={equipment_gym} alt="equipment_gym" />
+                  {property.property.amenities.nearbyGym}
+                </span>
+              </div>
+            )}
+
+            {property?.property?.amenities?.nearbyMall && (
+              <div className="col-md-2 row-individual-data">
+                <p>SHOPPING MALL</p>
+                <span>
+                  <img src={local_mall} alt="local_mall" />
+                  {property.property.amenities.nearbyMall}
+                </span>
+              </div>
+            )}
+
+            {property?.property?.amenities?.nearbyTurf && (
+              <div className="col-md-2 row-individual-data">
+                <p>TURF</p>
+                <span>
+                  <img src={tabler_cricket} alt="tabler_cricket" />
+                  {property.property.amenities.nearbyTurf}
+                </span>
+              </div>
+            )}
+
+            {property?.property?.amenities?.nearbyArena && (
+              <div className="col-md-2 row-individual-data">
+                <p>ARENA</p>
+                <span>
+                  <img src={gamingImg} alt="gamingImg" />
+                  {property.property.amenities.nearbyArena}
+                </span>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {(property?.property?.facility?.maintenance ||
+        property?.property?.facility?.waterFacility ||
+        property?.property?.facility?.roadFacility ||
+        property?.property?.facility?.drainage ||
+        property?.property?.facility?.parking ||
+        property?.property?.facility?.balcony ||
+        property?.property?.facility?.terrace) && (
+        <section className="midDetails">
+          <h3>Infrastructure & Utilities</h3>
+          <div className="row gap-4 data-detail-row">
+            {/* MAINTENANCE */}
+            {property?.property?.facility?.maintenance && (
+              <div className="col-md-2 row-individual-data">
+                <p>MAINTENANCE</p>
+                <span>
+                  <img src={Icon_Cleaning} alt="Icon_Cleaning" />
+                  {property.property.facility.maintenance}
+                </span>
+              </div>
+            )}
+
+            {/* WATER SUPPLY */}
+            {property?.property?.facility?.waterFacility && (
+              <div className="col-md-2 row-individual-data">
+                <p>WATER SUPPLY</p>
+                <span>
+                  <img src={water_full_outline} alt="water_full_outline" />
+                  {property.property.facility.waterFacility}
+                </span>
+              </div>
+            )}
+
+            {/* ROAD ACCESS */}
+            {property?.property?.facility?.roadFacility && (
+              <div className="col-md-2 row-individual-data">
+                <p>ROAD ACCESS</p>
+                <span>
+                  <img src={Icon_Road} alt="Icon_Road" />
+                  {property.property.facility.roadFacility}
+                </span>
+              </div>
+            )}
+
+            {/* DRAINAGE */}
+            {property?.property?.facility?.drainage && (
+              <div className="col-md-2 row-individual-data">
+                <p>DRAINAGE</p>
+                <span>
+                  <img src={Icon_restroom} alt="Icon_restroom" />
+                  {property.property.facility.drainage}
+                </span>
+              </div>
+            )}
+
+            {/* PARKING */}
+            {property?.property?.facility?.parking && (
+              <div className="col-md-2 row-individual-data">
+                <p>PARKING</p>
+                <span>
+                  <img src={Icon_Parking} alt="Icon_Parking" />
+                  {property.property.facility.parking}
+                </span>
+              </div>
+            )}
+
+            {/* BALCONY */}
+            {property?.property?.facility?.balcony && (
+              <div className="col-md-2 row-individual-data">
+                <p>BALCONY</p>
+                <span>
+                  <img src={Icon_Balcony} alt="Icon_Balcony" />
+                  {property.property.facility.balcony}
+                </span>
+              </div>
+            )}
+
+            {/* TERRACE */}
+            {property?.property?.facility?.terrace && (
+              <div className="col-md-2 row-individual-data">
+                <p>TERRACE</p>
+                <span>
+                  <img src={icon_park_terrace} alt="icon_park_terrace" />
+                  {property.property.facility.terrace}
+                </span>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {(property?.property?.restrictions?.guestAllowed ||
+        property?.property?.restrictions?.petsAllowed ||
+        property?.property?.restrictions?.bachelorsAllowed) && (
+        <section className="midDetails">
+          <h3>Occupancy Restrictions</h3>
+          <div className="row gap-4 data-detail-row">
+            {property?.property?.restrictions?.guestAllowed && (
+              <div className="col-md-2 row-individual-data">
+                <p>GUESTS</p>
+                <span>
+                  <img src={solar_user} alt="solar_user" />
+                  {property.property.restrictions.guestAllowed}
+                </span>
+              </div>
+            )}
+
+            {property?.property?.restrictions?.petsAllowed && (
+              <div className="col-md-2 row-individual-data">
+                <p>PETS</p>
+                <span>
+                  <img src={streamline_pets} alt="streamline_pets" />
+                  {property.property.restrictions.petsAllowed}
+                </span>
+              </div>
+            )}
+
+            {property?.property?.restrictions?.bachelorsAllowed && (
+              <div className="col-md-2 row-individual-data">
+                <p>BACHELORS</p>
+                <span>
+                  <img src={Icon_Lift} alt="Icon_Lift" />
+                  {property.property.restrictions.bachelorsAllowed}
+                </span>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+      {(property?.property?.amenities?.separateEBConnection ||
+        property?.property?.availability?.securities) && (
+        <section className="midDetails">
+          <h3>Connectivity & Security Features</h3>
+          <div className="row gap-4 data-detail-row">
+            {/* ELECTRICITY */}
+            {property?.property?.amenities?.separateEBConnection && (
+              <div className="col-md-2 row-individual-data">
+                <p>ELECTRICITY</p>
+                <span>
+                  <img
+                    src={streamline_flex_network}
+                    alt="streamline_flex_network"
+                  />
+                  {property.property.amenities.separateEBConnection}
+                </span>
+              </div>
+            )}
+
+            {/* SECURITY */}
+            {property?.property?.availability?.securities && (
+              <div className="col-md-2 row-individual-data">
+                <p>SECURITY</p>
+                <span>
+                  <img src={user_security} alt="user_security" />
+                  {property.property.availability.securities}
+                </span>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+      {(property?.property?.accessibility?.ramp ||
+        property?.property?.accessibility?.steps ||
+        property?.property?.accessibility?.lift) && (
+        <section className="midDetails">
+          <h3>Move-In Accessibility</h3>
+          <div className="row gap-4 data-detail-row">
+            {/* RAMP ACCESS */}
+            {property?.property?.accessibility?.ramp && (
+              <div className="col-md-2 row-individual-data">
+                <p>RAMP ACCESS</p>
+                <span>
+                  <img src={ramp_up} alt="ramp_up" />
+                  {property.property.accessibility.ramp}
+                </span>
+              </div>
+            )}
+
+            {/* STAIR ACCESS */}
+            {property?.property?.accessibility?.steps && (
+              <div className="col-md-2 row-individual-data">
+                <p>STAIR ACCESS</p>
+                <span>
+                  <img src={footStepImg} alt="footStepImg" />
+                  {property.property.accessibility.steps}
+                </span>
+              </div>
+            )}
+
+            {/* LIFT */}
+            {property?.property?.accessibility?.lift && (
+              <div className="col-md-2 row-individual-data">
+                <p>LIFT</p>
+                <span>
+                  <img src={footStepImg} alt="footStepImg" />
+                  {property.property.accessibility.lift}
+                </span>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
       <section className="propertyDes">
         <h3 className="mb-4">Description</h3>
         <div className="bg-light rounded">
@@ -425,23 +599,23 @@ const ViewProperty = () => {
         <div className="map-row row">
           <div className="map-location col-md-6">
             <h3>Location</h3>
-              <GoogleMapsWrapper>
-                <MapComponent />
-              </GoogleMapsWrapper>
+            <GoogleMapsWrapper>
+              <MapComponent latitude={latitude} longitude={longitude} />
+            </GoogleMapsWrapper>
           </div>
           <div className="location-detail col-md-6">
             <div className="address">
               <h3>Full Address</h3>
-              <p>321-B Valluvar Street, Vellapalayam, Perambalur</p>
+              <p>{property?.property?.location?.address}</p>
             </div>
             <div className="lat-long row">
               <div className="lat col-md-6">
-                <h3>Latitude</h3>
-                <p>11.4323242</p>
+                <h3>latitude</h3>
+                <p>{property?.property?.location?.map?.latitude}</p>
               </div>
               <div className="long col-md-6">
-                <h3>Longitude</h3>
-                <p>19.4323242</p>
+                <h3>longitude</h3>
+                <p>{property?.property?.location?.map?.longitude}</p>
               </div>
             </div>
             <div className="transport ">
@@ -452,28 +626,36 @@ const ViewProperty = () => {
                     <img src={Icon_Bus} alt="Icon_Bus" />
                     Bus Stand
                   </h3>
-                  <p>2 Kms</p>
+                  <p>
+                    {property?.property?.availability?.transport?.nearbyBusStop}
+                  </p>
                 </div>
                 <div className="Airport col-md-3">
                   <h3>
                     <img src={ph_airplane} alt="ph_airplane" />
                     Airport
                   </h3>
-                  <p>34 Kms</p>
+                  <p>
+                    {property?.property?.availability?.transport?.nearbyAirport}
+                  </p>
                 </div>
                 <div className="Metro col-md-3">
                   <h3>
                     <img src={metro} alt="" />
                     Metro
                   </h3>
-                  <p>125 Kms</p>
+                  <p>
+                    {property?.property?.availability?.transport?.nearbyPort}
+                  </p>
                 </div>
                 <div className="Railway col-md-3">
                   <h3>
                     <img src={light_train} alt="light_train" />
                     Railway
                   </h3>
-                  <p>34 Kms</p>
+                  <p>
+                    {property?.property?.availability?.transport?.nearbyBusStop}
+                  </p>
                 </div>
               </div>
             </div>
@@ -538,19 +720,22 @@ const ViewProperty = () => {
           <div className="name inner-div col-md-4">
             <img src={solar_user} alt="solar_user" />
             <p>Name</p>
-            <h6>Naveen raj R</h6>
+            <h6>
+              {property?.property?.owner?.firstName} &nbsp;
+              {property?.property?.owner?.lastName}
+            </h6>
           </div>
           <div className="number-outer col-md-4">
             <div className="number inner-div  col-md-4">
               <img src={solar_phone} alt="solar_phone" />
               <p>Phone number</p>
-              <h6>9876543210</h6>
+              <h6>{property?.property?.owner?.contact?.phone1}</h6>
             </div>
           </div>
           <div className="email inner-div col-md-4">
             <img src={proicons_mail} alt="proicons_mail" />
             <p>Email</p>
-            <h6>Naveenraj.st@gmail.com</h6>
+            <h6>{property?.property?.owner?.contact?.email}</h6>
           </div>
         </div>
       </section>
@@ -559,12 +744,14 @@ const ViewProperty = () => {
           <div className="view-area row col-md-6">
             <div className="text-center col-md-3">
               <p className="mb-1 caps">Rent</p>
-              <h3 className="mb-1">₹20,000 </h3>
+              <h3 className="mb-1">₹{property?.property?.rent?.rentAmount} </h3>
               <p className="text-muted">Per Month</p>
             </div>
             <div className="text-center col-md-3">
               <p className="mb-1 caps">Tenure</p>
-              <h3 className="mb-1">4 Years</h3>
+              <h3 className="mb-1">
+                {property?.property?.rent?.agreementTiming}
+              </h3>
             </div>
           </div>
           <div className="view-property-icon col-md-6">
@@ -589,10 +776,6 @@ const ViewProperty = () => {
             </div>
           </div>
         </div>
-        
-        
-
-        
       </section>
     </section>
   );

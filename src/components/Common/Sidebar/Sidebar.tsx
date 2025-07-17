@@ -74,8 +74,8 @@ export default function Sidebar() {
   return (
     <div
       id="nav-common-tab"
-      className="col-md-3 fixed-col nav-tabs"
-      style={{ height: "100vh" }}
+      // className="col-md-3 fixed-col nav-tabs"
+      style={{ height: "100vh"}}
     >
       <Tabs
         orientation="vertical"
@@ -117,7 +117,7 @@ export default function Sidebar() {
     </div>
   );
 }
-function setActiveTab(savedTab: string) {
-  throw new Error("Function not implemented.");
-}
+// function setActiveTab(savedTab: string) {
+//   throw new Error("Function not implemented.");
+// }
 

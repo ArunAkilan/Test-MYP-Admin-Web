@@ -23,14 +23,14 @@ interface TableProps {
   //data: ResidentialProperty[];
   data: PropertyDataResponse | ResidentialProperty[];
   properties?:
-    | "all"
-    | "residential"
-    | "residentials"
-    | "commercial"
-    | "commercials"
-    | "plot"
-    | "plots"
-    | undefined;
+  | "all"
+  | "residential"
+  | "residentials"
+  | "commercial"
+  | "commercials"
+  | "plot"
+  | "plots"
+  | undefined;
   onScrollChange: (scrollTop: number) => void;
   handleOpenModal: (
     action: "Approve" | "Deny" | "Delete",
@@ -72,6 +72,37 @@ function Table({ data, properties, onScrollChange }: TableProps) {
   const location = useLocation();
   const propertyData = location.state?.data;
   console.log("propertyData", propertyData);
+
+  const containerRef = React.useRef<HTMLDivElement | null>(null);
+  // const [hideHeader, setHideHeader] = React.useState(false);
+  const [lastScrollY, setLastScrollY] = React.useState(0);
+  React.useEffect(() => {
+    const container = containerRef.current;
+
+    const handleScroll = () => {
+      if (container) {
+        onScrollChange(container.scrollTop);
+      }
+
+      // Show header when scrolling up
+      const currentScrollY = container?.scrollTop || 0;
+      if (currentScrollY < lastScrollY || currentScrollY < 50) {
+       // setHideHeader(false);
+      } else {
+       // setHideHeader(true);
+      }
+      setLastScrollY(currentScrollY);
+    };
+
+    container?.addEventListener("scroll", handleScroll);
+    return () => container?.removeEventListener("scroll", handleScroll);
+  }, [onScrollChange, lastScrollY]);
+
+  useEffect(() => {
+    if (selectedRows.length === 0) {
+      handlePopoverClose();
+    }
+  }, [selectedRows]);
 
   const getSingularProperty = () => {
     switch (properties) {
@@ -212,7 +243,12 @@ function Table({ data, properties, onScrollChange }: TableProps) {
       alert("Property not found");
       return;
     }
+    if (!selectedItem) {
+      alert("Property not found");
+      return;
+    }
 
+    const routeBase = selectedItem._source;
     const routeBase = selectedItem._source;
 
     if (!routeBase) {
@@ -304,12 +340,13 @@ function Table({ data, properties, onScrollChange }: TableProps) {
       console.error("Error performing action:", e);
     } finally {
       setIsBackdropLoading(false);
+      setIsBackdropLoading(false);
     }
   };
 
   if (!Array.isArray(data)) {
     const fallback =
-      data?.residential || data?.commercial || data?.plot || data?.data;
+      data?.residential || data?.commercial || data?.plot;
 
     if (Array.isArray(fallback)) {
       data = fallback;
@@ -318,31 +355,6 @@ function Table({ data, properties, onScrollChange }: TableProps) {
       return <p>Error: Invalid data format</p>;
     }
   }
-
-  const containerRef = React.useRef<HTMLDivElement | null>(null);
-  const [hideHeader, setHideHeader] = React.useState(false);
-  const [lastScrollY, setLastScrollY] = React.useState(0);
-  React.useEffect(() => {
-    const container = containerRef.current;
-
-    const handleScroll = () => {
-      if (container) {
-        onScrollChange(container.scrollTop);
-      }
-
-      // Show header when scrolling up
-      const currentScrollY = container?.scrollTop || 0;
-      if (currentScrollY < lastScrollY || currentScrollY < 50) {
-        setHideHeader(false);
-      } else {
-        setHideHeader(true);
-      }
-      setLastScrollY(currentScrollY);
-    };
-
-    container?.addEventListener("scroll", handleScroll);
-    return () => container?.removeEventListener("scroll", handleScroll);
-  }, [onScrollChange]);
 
   // popover
   const handlePopoverClick = (event: React.MouseEvent<HTMLInputElement>) => {
@@ -378,28 +390,73 @@ function Table({ data, properties, onScrollChange }: TableProps) {
       handlePopoverClose(); // Close popover
       window.dispatchEvent(new Event("refreshTableData")); // Refresh table
     } catch {
+    } catch {
       console.error(`Failed to ${action.toLowerCase()} selected properties`);
     }
   };
 
+  const truncateWords = (text: string = "", wordLimit: number): string => {
+    const words = text.trim().split(/\s+/);
+    return words.length > wordLimit ? words.slice(0, wordLimit).join(" ") + "..." : text;
+  };
+
+  const scrollRef = React.useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const checkScroll = () => {
+    const el:any = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 0);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth);
+  };
+
+  const scroll = (direction:any) => {
+    const el:any = scrollRef.current;
+    if (!el) return;
+    const scrollAmount = 300;
+    el.scrollBy({
+      left: direction === "left" ? -scrollAmount : scrollAmount,
+      behavior: "smooth",
+    });
+  };
+
   useEffect(() => {
-    if (selectedRows.length === 0) {
-      handlePopoverClose();
+    checkScroll();
+    const el:any = scrollRef.current;
+    if (el) {
+      el.addEventListener("scroll", checkScroll);
+      window.addEventListener("resize", checkScroll);
     }
-  }, [selectedRows]);
+    return () => {
+      el?.removeEventListener("scroll", checkScroll);
+      window.removeEventListener("resize", checkScroll);
+    };
+  }, []);
 
   return (
     <>
       <div
         ref={containerRef}
         style={{
-          height: hideHeader ? "450px" : "315px",
-          overflowY: "auto",
-          marginBottom: "50px",
+          // height: hideHeader ? "450px" : "315px",
+          // overflowY: "auto",
+          // marginBottom: "50px",
         }}
       >
-        <div className="container table-responsive">
-          <table>
+        <div className="container table-wrapper" style={{position:"relative"}}>
+
+
+          {canScrollLeft && (
+            <button className="scroll-button left" onClick={() => scroll("left")}>
+              ◀
+            </button>
+          )}
+
+        <div
+          ref={scrollRef}
+          className="table-scroll">
+          <table className="horizontal-table">
             <thead>
               <tr>
                 <th className="checkbox-align chechbox-cmn">
@@ -548,8 +605,8 @@ function Table({ data, properties, onScrollChange }: TableProps) {
               </tr>
             </thead>
             <tbody>
-              {formatedData.map((item, index) => (
-                <tr key={index}>
+              {formatedData.map((item) => (
+                <tr key={item._id}>
                   <td className="checkbox-align chechbox-align-inside">
                     <input
                       type="checkbox"
@@ -557,28 +614,21 @@ function Table({ data, properties, onScrollChange }: TableProps) {
                       onClick={handlePopoverClick}
                       checked={selectedRows.includes(item._id)}
                       onChange={(e) => {
-                        if (e.target.checked) {
-                          setSelectedRows((prev) => [...prev, item._id]);
-                        } else {
-                          setSelectedRows((prev) =>
-                            prev.filter((id) => id !== item._id)
-                          );
-                        }
+                        setSelectedRows((prev) =>
+                          e.target.checked
+                            ? [...prev, item._id]
+                            : prev.filter((id) => id !== item._id)
+                        );
                       }}
                     />
                   </td>
                   <td className="company-name">
                     <h3>
-                      <span className="truncate-text">
-                        {(() => {
-                          const landmark = item?.location?.landmark;
-                          if (!landmark) return null;
-
-                          const words = landmark.trim().split(/\s+/);
-                          return words.length > 12
-                            ? words.slice(0, 12).join(" ") + "..."
-                            : landmark;
-                        })()}
+                      {/* <span className="truncate-text">
+                         {truncateWords(item?.location?.landmark, 12)}
+                      </span> */}
+                      <span>
+                        {item?.title}
                       </span>
                     </h3>
                     <p
@@ -586,33 +636,23 @@ function Table({ data, properties, onScrollChange }: TableProps) {
                       data-bs-placement="bottom"
                       title={item?.location?.address}
                     >
-                      <img src="ICON_Location.svg" alt="location png" />
-
+                      <img src="ICON_Location.svg" alt="location" />
                       <span className="truncate-text">
-                        {(() => {
-                          const address = item?.location?.address;
-                          if (!address) return null;
-
-                          const words = address.trim().split(/\s+/);
-                          return words.length > 9
-                            ? words.slice(0, 9).join(" ") + "..."
-                            : address;
-                        })()}
+                        {truncateWords(item?.location?.address, 9)}
                       </span>
                     </p>
                   </td>
                   <td>{item?.area?.totalArea}</td>
                   <td>{item.status}</td>
+
                   {(properties === "commercials" ||
-                    properties === "all" ||
-                    properties === "residentials") && (
-                    <td>{item?.totalFloors}</td>
-                  )}
-                  {(properties === "commercials" ||
-                    properties === "all" ||
-                    properties === "residentials") && (
-                    <td>{item?.facingDirection}</td>
-                  )}
+                    properties === "residentials" ||
+                    properties === "all") && (
+                      <>
+                        <td>{item?.totalFloors}</td>
+                        <td>{item?.facingDirection}</td>
+                      </>
+                    )}
 
                   {(properties === "residentials" || properties === "all") && (
                     <td
@@ -621,20 +661,12 @@ function Table({ data, properties, onScrollChange }: TableProps) {
                       data-bs-placement="bottom"
                       title={item?.furnishingType}
                     >
-                      {}
                       <span className="truncate-text">
-                        {(() => {
-                          const furnishing = item?.furnishingType;
-                          if (!furnishing) return null;
-
-                          const words = furnishing.trim().split(/\s+/);
-                          return words.length > 12
-                            ? words.slice(0, 12).join(" ") + "..."
-                            : furnishing;
-                        })()}
+                        {truncateWords(item?.furnishingType, 12)}
                       </span>
                     </td>
                   )}
+
                   {(properties === "commercials" || properties === "all") && (
                     <td className="washroom">{item?.washroom}</td>
                   )}
@@ -652,33 +684,28 @@ function Table({ data, properties, onScrollChange }: TableProps) {
                         onClick={() => item._id && handleView(item._id)}
                         style={{ cursor: "pointer" }}
                       />
-
                       <img
-                        src="Edit.svg"
+                        src="/Edit.svg"
                         alt="edit"
-                        onClick={() => handleEdit(item)}
-                        style={{ cursor: "pointer" }}
-                      />
-
-                      <img
-                        src="Approve.svg"
-                        alt="Approve svg"
-                        // onClick={() => item._id && handleAction(item._id,0)}
-                        onClick={() => handleOpenModal("Approve", item)}
+                        onClick={() => handleEdit(item as unknown as ResidentialProperty)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
-                        src="Deny.svg"
-                        alt="Deny svg"
-                        // onClick={() => item._id && handleAction(item._id, 1)}
-                        onClick={() => handleOpenModal("Deny", item)}
+                        src="/Approve.svg"
+                        alt="Approve"
+                        onClick={() => handleOpenModal("Approve", item as unknown as ResidentialProperty)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
-                        src="Delete.svg"
-                        alt="Delete img"
-                        // onClick={() => item._id && handleAction(item._id, 2)}
-                        onClick={() => handleOpenModal("Delete", item)}
+                        src="/Deny.svg"
+                        alt="Deny"
+                        onClick={() => handleOpenModal("Deny", item as unknown as ResidentialProperty)}
+                        style={{ cursor: "pointer" }}
+                      />
+                      <img
+                        src="/Delete.svg"
+                        alt="Delete"
+                        onClick={() => handleOpenModal("Delete", item as unknown as ResidentialProperty)}
                         style={{ cursor: "pointer" }}
                       />
                     </div>
@@ -686,6 +713,7 @@ function Table({ data, properties, onScrollChange }: TableProps) {
                 </tr>
               ))}
             </tbody>
+
             <Popover
               className="checkbox-popover"
               id={popoverId}
@@ -726,6 +754,13 @@ function Table({ data, properties, onScrollChange }: TableProps) {
               </div>
             </Popover>
           </table>
+          </div>
+
+          {canScrollRight && (
+            <button className="scroll-button right" onClick={() => scroll("right")}>
+              ▶
+            </button>
+          )}
 
           {/* Modal */}
           <Modal

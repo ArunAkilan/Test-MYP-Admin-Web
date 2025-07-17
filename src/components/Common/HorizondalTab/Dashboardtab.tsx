@@ -808,7 +808,7 @@ export default function Dashboardtab({
                         onClick={toggleDrawer(true)}
                       >
                         <img
-                          src="majesticons_filter-line.svg"
+                          src="/majesticons_filter-line.svg"
                           alt="filter img"
                         />
                         Filter {checkListCount}
@@ -818,7 +818,7 @@ export default function Dashboardtab({
                       <div className="sort-link color-edit">
                         <Button className="filter-text" aria-describedby={id}>
                           <img
-                            src="material-symbols_sort-rounded.svg"
+                            src="/material-symbols_sort-rounded.svg"
                             alt="filter img"
                           />
                           Sort
@@ -849,7 +849,7 @@ export default function Dashboardtab({
                       className={`search ${isExpanded ? "active" : ""}`}
                     >
                       <input type="search" placeholder="Search Properties" />
-                      <img src="Search-1.svg" alt="search svg" />
+                      <img src="/Search-1.svg" alt="search svg" />
                     </div>
                     <div className="list-card-toggle">
                       <ToggleButtonGroup
@@ -883,7 +883,7 @@ export default function Dashboardtab({
                         onClick={toggleDrawer(true)}
                       >
                         <img
-                          src="majesticons_filter-line.svg"
+                          src="/majesticons_filter-line.svg"
                           alt="filter img"
                         />
                         Filter {checkListCount}
@@ -924,7 +924,7 @@ export default function Dashboardtab({
                       className={`search ${isExpanded ? "active" : ""}`}
                     >
                       <input type="search" placeholder="Search Properties" />
-                      <img src="Search-1.svg" alt="search svg" />
+                      <img src="/Search-1.svg" alt="search svg" />
                     </div>
                     <div className="list-card-toggle">
                       <ToggleButtonGroup
@@ -958,7 +958,7 @@ export default function Dashboardtab({
                         onClick={toggleDrawer(true)}
                       >
                         <img
-                          src="majesticons_filter-line.svg"
+                          src="/majesticons_filter-line.svg"
                           alt="filter img"
                         />
                         Filter {checkListCount}
@@ -1033,7 +1033,7 @@ export default function Dashboardtab({
                         onClick={toggleDrawer(true)}
                       >
                         <img
-                          src="majesticons_filter-line.svg"
+                          src="/majesticons_filter-line.svg"
                           alt="filter img"
                         />
                         Filter {checkListCount}
@@ -1043,7 +1043,7 @@ export default function Dashboardtab({
                       <div className="sort-link color-edit">
                         <Button className="filter-text" aria-describedby={id}>
                           <img
-                            src="material-symbols_sort-rounded.svg"
+                            src="/material-symbols_sort-rounded.svg"
                             alt="filter img"
                           />
                           Sort
@@ -1098,6 +1098,7 @@ export default function Dashboardtab({
       <CustomTabPanel value={value} index={0}>
         {!cardView ? (
           <Table
+          //@ts-ignore
             data={tableValues}
             properties={properties}
             onScrollChange={handleChildScroll}
@@ -1116,6 +1117,7 @@ export default function Dashboardtab({
       <CustomTabPanel value={value} index={1}>
         {!cardView ? (
           <Table
+          //@ts-ignore
             data={tableValues}
             properties={properties}
             onScrollChange={handleChildScroll}
@@ -1134,6 +1136,7 @@ export default function Dashboardtab({
       <CustomTabPanel value={value} index={2}>
         {!cardView ? (
           <Table
+          //@ts-ignore
             data={tableValues}
             properties={properties}
             onScrollChange={handleChildScroll}
@@ -1152,6 +1155,7 @@ export default function Dashboardtab({
       <CustomTabPanel value={value} index={3}>
         {!cardView ? (
           <Table
+          //@ts-ignore
             data={tableValues}
             properties={properties}
             onScrollChange={handleChildScroll}
@@ -1314,7 +1318,7 @@ const PropertyCardList = ({
   }, [onScrollChange]);
 
   //change height of card container
-  const [hideHeader, setHideHeader] = React.useState(false);
+  // const [hideHeader, setHideHeader] = React.useState(false);
   const [lastScrollY, setLastScrollY] = React.useState(0);
   React.useEffect(() => {
     const container = containerRef.current;
@@ -1326,9 +1330,9 @@ const PropertyCardList = ({
       // Show header when scrolling up
       const currentScrollY = container?.scrollTop || 0;
       if (currentScrollY < lastScrollY || currentScrollY < 50) {
-        setHideHeader(false);
+       // setHideHeader(false);
       } else {
-        setHideHeader(true);
+       // setHideHeader(true);
       }
       setLastScrollY(currentScrollY);
     };
@@ -1415,9 +1419,9 @@ const PropertyCardList = ({
         <Box
           ref={containerRef}
           sx={{
-            height: hideHeader ? "450px" : "315px",
-            overflowY: "auto",
-            marginBottom: "50px",
+            // height: hideHeader ? "450px" : "315px",
+            // overflowY: "auto",
+            // marginBottom: "50px",
           }}
         >
           {formatedData.slice(0, 5).map((item: PropertyItem) => (

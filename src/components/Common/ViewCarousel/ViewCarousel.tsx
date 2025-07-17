@@ -3,10 +3,14 @@ import Slider from "react-slick";
 import { ChevronLeft, ChevronRight, Camera } from "lucide-react";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import viewImage from "../../../assets/viewProperty/carousel-image.svg";
-import "./ViewCarousel.scss"
+import "./ViewCarousel.scss";
 import ImageCarouselModal from "../Carousel/imagecarousel";
-const images = [viewImage, viewImage, viewImage, viewImage];
+
+interface ViewCarouselProps {
+  images: string[];
+  price?: string;
+  area?: string;
+}
 
 const PrevArrow = ({ onClick }: { onClick?: () => void }) => (
   <div
@@ -26,22 +30,22 @@ const NextArrow = ({ onClick }: { onClick?: () => void }) => (
   </div>
 );
 
-const ViewCarousel: React.FC = () => {
+const ViewCarousel: React.FC<ViewCarouselProps> = ({ images, price, area }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const mainSlider = useRef<Slider | null>(null);
   const thumbSlider = useRef<Slider | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  if (!images || images.length === 0) return null;
+
   return (
-    <div className="flex relative row  bg-white rounded-lg shadow-lg max-w-[1000px] mx-auto h-[400px]">
-      
+    <div className="flex relative row bg-white rounded-lg shadow-lg max-w-[1000px] mx-auto h-[400px]">
       {/* Main Image (Left side) */}
       <div className="relative large-image-wrapper col-md-8 w-[500px] h-full">
-
         {/* Image count */}
-        <div className="absolute slide-counter  top-4 left-4 bg-black text-white px-3 py-1 rounded-full text-sm flex items-center gap-1">
-            <Camera size={16} />
-            {currentIndex + 1}/{images.length}
+        <div className="absolute slide-counter top-4 left-4 bg-black text-white px-3 py-1 rounded-full text-sm flex items-center gap-1">
+          <Camera size={16} />
+          {currentIndex + 1}/{images.length}
         </div>
         <Slider
           asNavFor={thumbSlider.current as Slider}
@@ -63,8 +67,6 @@ const ViewCarousel: React.FC = () => {
             </div>
           ))}
         </Slider>
-
-        
       </div>
 
       {/* Thumbnails on Right Side */}
@@ -80,11 +82,11 @@ const ViewCarousel: React.FC = () => {
           infinite
         >
           {images.map((src, index) => (
-            <div key={index} className="py-2">
+            <div key={index} className="px-2 py-1">
               <img
                 src={src}
                 alt={`Thumb ${index + 1}`}
-                className={`w-full h-[180px] object-cover rounded-md border-2 ${
+                className={`w-full h-[120px] object-cover rounded-md border-2 ${
                   index === currentIndex ? "border-pink-500" : "border-transparent"
                 }`}
               />
@@ -92,13 +94,15 @@ const ViewCarousel: React.FC = () => {
           ))}
         </Slider>
       </div>
+
+      {/* Fullscreen Modal */}
       <ImageCarouselModal
-  open={modalOpen}
-  onClose={() => setModalOpen(false)}
-  images={images}
-  price="₹20,000"
-  area="2 BHK, 1200 sqft"
-/>
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        images={images}
+        price={price}
+        area={area}
+      />
     </div>
   );
 };

@@ -12,102 +12,98 @@ export type Owner = {
 };
 
 //Main ts.
-export type ResidentialProperty = {
-  id?: string;
-  owner: Owner;
-  propertyType: "Rent" | "Lease" | "Sale";
-  location?: {
-    landmark?: string;
-  };
-  images: string[];
+export interface ResidentialProperty {
   title: string;
-  rentAmount?: number;
-  advanceAmount?: number;
-  leaseAmount?: number;
-  leaseYears?: number;
-  saleAmount?: number;
-  negotiable?: boolean;
-  residentialType?: "Apartment" | "House" | "Villa";
-  facingDirection?: "North" | "East" | "West" | "South";
-  rooms: string;
-  totalFloors?: number;
-  rentPropertyFloor?: number;
-  furnishingType?: "Furnished" | "Semi Furnished" | "Unfurnished";
-  features?: string[];
-  restrictions?: restrictions;
-};
-export type availability = {
-  broadband?: boolean;
-  securities?: boolean;
-};
-export type transport = {
-  nearbyBusStop?: boolean;
-  nearbyAirport?: boolean;
-  nearbyPort?: boolean;
-};
-export type facility = {
-  maintainance?: boolean;
-  waterFacility?: boolean;
-  roadFacility?: boolean;
-  drinage?: boolean;
-  parking?: boolean;
-  balcony?: boolean;
-  terrace?: boolean;
-};
-export type accesibility = {
-  ramp?: boolean;
-  steps?: boolean;
-  lift?: boolean;
-};
-export type amenities = {
-  separateEBConnection?: boolean;
-  nearbyMarket?: boolean;
-  nearbyGym?: boolean;
-  nearbyTurf?: boolean;
-  nearbyArena?: boolean;
-  nearbyMall?: boolean;
-};
-export type restrictions = {
-  guestAllowed?: boolean;
-  petsAllowed?: boolean;
-  numberOfPeoplesAllowed?: number;
-  bachelorsAllowed?: boolean;
-};
-export type description = {
-  description?: string;
-};
-export type UploadedImage = {
-  name: string;
-  previewUrl?: string;
-  url?: string; // for preview
-  file: File; // actual file for upload
-};
-
-export type ResidentialFormState = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone1: string;
   propertyType: string;
-  title: string;
-  rent: string;
-  advanceAmount: string;
-  leaseTenure: string;
-  residentialType: string;
-  address: string;
-  latitude: string;
-  longitude: string;
-  images: UploadedImage[];
-  totalArea: string;
-  builtUpArea: string;
-  carpetArea: string;
+  rent: {
+    rentAmount: number;
+    negotiable: boolean;
+    advanceAmount: number;
+    agreementTiming: string;
+  };
+  lease: {
+    leaseAmount: number;
+    negotiable: boolean;
+    leaseTenure: string;
+  };
+  sale: {
+    saleAmount: number;
+    negotiable: boolean;
+  };
+  location: {
+    landmark: string;
+    address: string;
+    map: {
+      latitude: number;
+      longitude: number;
+    }
+  };
+  area: {
+    totalArea: string;
+    buitUpArea: string;
+    carpetArea: string;
+  };
+  // availability: {
+  //   broadband: boolean;
+  //   securities: boolean;
+  // };
+  facility: {
+    maintenance: boolean;
+    waterFacility: boolean;
+    roadFacility: boolean;
+    drainage: boolean;
+    parking: boolean;
+    terrace: boolean;
+    balcony: boolean;
+  };
+  accessibility: {
+    steps: boolean;
+    lift: boolean;
+    ramp: boolean;
+  };
+  amenities: {
+    separateEBConnection: boolean;
+    nearbyArena: boolean;
+    nearbyGym: boolean;
+    nearbyMall: boolean;
+    nearbyMarket: boolean;
+    nearbyTurf: boolean;
+  };
+  restrictions: {
+    petsAllowed: boolean;
+    guestAllowed: boolean;
+    bachelorsAllowed: boolean;
+      };
+  owner: {
+    contact: {
+      getUpdates: boolean;
+      phone1: string;
+      email: string;
+    }
+    _id: string;
+    firstName:  string;
+    lastName: string;
+  }
+  availability : {
+    transport: {
+      nearbyBusStop: boolean;
+      nearbyAirport: boolean;
+      nearbyPort: boolean;
+      broadband: boolean;
+    }
+    broadband: boolean;
+    securities: boolean;
+  }
+  images: string[];
+    residentialType: string;
   facingDirection: string;
   totalFloors: string;
   propertyFloor: string;
   furnishingType: string;
-  rooms: string;
-  description: string;
-  selectedChips: string[];
-  negotiable?: boolean;
+ status: string;
+  isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string;
+  rooms : string;
 };
 export type PlainObject = Record<string, unknown>;

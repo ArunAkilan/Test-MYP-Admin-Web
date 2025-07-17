@@ -86,7 +86,7 @@ Props) {
         { status: `${status}` }
       );
       console.log("Status updated:", response.data);
-    } catch (err) {
+    } catch  {
       console.error("Failed to update status");
     }
   };
@@ -109,7 +109,7 @@ Props) {
       setSelectedRows([]); // Clear selection
       handlePopoverClose(); // Close popover
       window.dispatchEvent(new Event("refreshTableData")); // Refresh table
-    } catch (err) {
+    } catch  {
       console.error(`Failed to ${action.toLowerCase()} selected properties`);
     }
   };
@@ -259,7 +259,7 @@ Props) {
                   maxHeight: "90%",
                   maxWidth: "90%",
                   width: "100%",
-                  height: "100%",
+                  height: "500px",
                   objectFit: "contain",
                 }}
               />
