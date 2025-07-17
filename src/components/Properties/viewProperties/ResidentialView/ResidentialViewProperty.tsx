@@ -52,10 +52,7 @@ interface PropertyResponse {
 }
 
 const ViewProperty = () => {
-  const location = useLocation();
   const navigate = useNavigate();
-  const propertyData = location.state?.data as ResidentialProperty;
-
   const { id } = useParams();
   const [property, setProperty] = useState<PropertyResponse | null>(null);
 
@@ -77,11 +74,9 @@ const longitude =
     : undefined;
 
 
-  if (!propertyData) {
-    return <p className="mt-5">No property data found</p>;
-  }
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
+    console.log("API call URL:", `${import.meta.env.VITE_BackEndUrl}/api/residential/${id}`);
     axios
       .get(
         `${
@@ -93,6 +88,7 @@ const longitude =
   }, [id]);
 
   if (!property) return <div>Loading...</div>;
+
 
   return (
     <section className="container pt-4">
