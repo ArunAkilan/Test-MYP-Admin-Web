@@ -21,23 +21,10 @@ import CommercialView from "../src/components/Properties/viewProperties/Commerci
 import ViewProperty from "./components/Properties/viewProperties/ResidentialView/ResidentialViewProperty";
 import PlotView from "./components/Properties/viewProperties/PlotView/PlotViewProperty";
 import Login from "./components/Login/Login";
-
-
-/*
-//token validation
-import ProtectedRoute from './components/Login/ProtectedRoute';
-import Dashboard from './components/Dashboard/Dashboard';
-<Route
-  path="/dashboard"
-  element={
-    <ProtectedRoute>
-      <Dashboard />
-    </ProtectedRoute>
-  }
-/>
-
-//token validation ends
-*/
+import { IconButton, styled, useTheme, type CSSObject, type Theme } from "@mui/material";
+import MuiDrawer from '@mui/material/Drawer';
+import React from "react";
+import { ChevronLeftIcon, ChevronRightIcon, MenuIcon } from "lucide-react";
 
 function AppRoutes() {
  //const navigate = useNavigate();     
@@ -59,15 +46,15 @@ function AppRoutes() {
   // ];
 
   useEffect(() => {
-    const noScrollRoutes = [
-      "/dashboard",
-      "/commercial",
-      "/residential",
-      "/plots",
-    ];
+    // const noScrollRoutes = [
+    //   "/dashboard",
+    //   "/commercial",
+    //   "/residential",
+    //   "/plots",
+    // ];
 
-    const shouldHideScroll = noScrollRoutes.includes(location.pathname);
-    document.body.style.overflow = shouldHideScroll ? "hidden" : "auto";
+    //const shouldHideScroll = noScrollRoutes.includes(location.pathname);
+    // document.body.style.overflow = shouldHideScroll ? "hidden" : "auto";
   }, [location.pathname]);
   // const location = useLocation();
 
@@ -85,19 +72,109 @@ function AppRoutes() {
     location.pathname.startsWith(route)
   );
 
+  /***Drawer Component */
+  const locationIsAdmin = location.pathname === "/admin";
+  locationIsAdmin ? document.body.style.background = '#F0F5FC' :
+  document.body.style.background = '#FFFFFF';
+  const theme = useTheme();
+  const [open, setOpen] = React.useState(true);
+
+  const handleDrawerOpen = () => {
+    setOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setOpen(false);
+  };
+  const drawerWidth = 230;
+
+  const openedMixin = (theme: Theme): CSSObject => ({
+    width: drawerWidth,
+    transition: theme.transitions.create('width', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+    overflowX: 'hidden',
+    marginTop: "61px"
+  });
+
+  const closedMixin = (theme: Theme): CSSObject => ({
+    transition: theme.transitions.create('width', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    overflowX: 'hidden',
+    width: `calc(${theme.spacing(7)} + 1px)`,
+    [theme.breakpoints.up('sm')]: {
+      width: `calc(${theme.spacing(8)} + 1px)`,
+    },
+    marginTop: "61px"
+  });
+
+ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
+    ({ theme }) => ({
+      width: drawerWidth,
+      flexShrink: 0,
+      whiteSpace: 'nowrap',
+      boxSizing: 'border-box',
+      variants: [
+        {
+          props: ({ open }) => open,
+          style: {
+            ...openedMixin(theme),
+            '& .MuiDrawer-paper': openedMixin(theme),
+          },
+        },
+        {
+          props: ({ open }) => !open,
+          style: {
+            ...closedMixin(theme),
+            '& .MuiDrawer-paper': closedMixin(theme),
+          },
+        },
+      ],
+    }),
+  );
+  /****Drawer Component */
+
   return (
     <div className="app-container row">
-  {!shouldHideSidebar && <Sidebar />}
+
+      {!locationIsAdmin && <Drawer variant="permanent" open={open} >
+        <IconButton
+          color="inherit"
+          aria-label="open drawer"
+          onClick={handleDrawerOpen}
+          edge="start"
+          sx={[
+            {
+              justifyContent:"end",
+              "&:hover":{
+                backgroundColor: "transparent !important"
+              }
+            },
+            open && { display: 'none' },
+          ]}
+        >
+          <MenuIcon />
+        </IconButton>
+        {open && <IconButton onClick={handleDrawerClose} sx={{justifyContent:"end","&:hover":{
+                backgroundColor: "transparent !important"
+              }}}>
+          {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+        </IconButton>}
+        {!shouldHideSidebar && <Sidebar />}
+      </Drawer>}
       <div
-        className={`content-area ${
-           !shouldHideSidebar? "col-md-9 offset-md-3" : "col-md-12"
-        }`}
+        // className={`content-area ${!shouldHideSidebar ? "col-md-9 offset-md-3" : "col-md-12"
+        //   }`}
+        className={`content-area`}
         style={{ flex: 1, overflowY: "auto" }}
       >
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" />} />
           <Route path="/dashboard" element={<Home properties="all" />} />
-          
+
                    <Route path="/admin" element={<Login />} /> <Route
             path="/commercial"
             element={<Home properties="commercials" />}
@@ -125,7 +202,7 @@ function AppRoutes() {
 function App() {
   return (
     <Router>
-        <LayoutWrapper />
+      <LayoutWrapper />
     </Router>
   );
 }
@@ -136,22 +213,19 @@ function LayoutWrapper() {
   const isLoginRoute = location.pathname === "/admin";
 
   return (
-    
-      <div className="grid-container">
-        
-         {!isLoginRoute && (
+    <div className="grid-container">
+      {!isLoginRoute && (
         <Header
           MainLogo={navbarLogo}
           Title="Admin"
-          ProfileLogo="Ellipse 1.svg"
+          ProfileLogo="/Ellipse 1.svg"
           Profile={false}
         />
       )}
-        <div className="container body-content-container">
-          <AppRoutes />
-        </div>
-        
+      <div className="container body-content-container">
+        <AppRoutes />
       </div>
+    </div>
   );
 }
 

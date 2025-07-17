@@ -15,20 +15,32 @@ import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import type { PropertyWithSource } from "./table.model";
+import type { Property } from "./table.model"
+
+interface PropertyDataMap {
+  residentials?: PropertyWithSource[];
+  commercials?: PropertyWithSource[];
+  plots?: PropertyWithSource[];
+  residential?: PropertyWithSource[];
+  commercial?: PropertyWithSource[];
+  plot?: PropertyWithSource[];
+}
+
 interface TableProps {
   //data: ResidentialProperty[];
-  data: any;
+  data: PropertyWithSource[] | PropertyDataMap;
   properties?:
-    | "all"
-    | "residential"
-    | "residentials"
-    | "commercial"
-    | "commercials"
-    | "plot"
-    | "plots"
-    | undefined;
+  | "all"
+  | "residential"
+  | "residentials"
+  | "commercial"
+  | "commercials"
+  | "plot"
+  | "plots"
+  | undefined;
   onScrollChange: (scrollTop: number) => void;
-  handleOpenModal: (action: "Approve" | "Deny" | "Delete", item: any) => void;
+  handleOpenModal: (action: "Approve" | "Deny" | "Delete", item: PropertyWithSource) => void;
 }
 
 const modalStyle = {
@@ -55,6 +67,37 @@ function Table({ data, properties, onScrollChange }: TableProps) {
   const propertyData = location.state?.data;
   console.log("propertyData", propertyData);
 
+  const containerRef = React.useRef<HTMLDivElement | null>(null);
+  // const [hideHeader, setHideHeader] = React.useState(false);
+  const [lastScrollY, setLastScrollY] = React.useState(0);
+  React.useEffect(() => {
+    const container = containerRef.current;
+
+    const handleScroll = () => {
+      if (container) {
+        onScrollChange(container.scrollTop);
+      }
+
+      // Show header when scrolling up
+      const currentScrollY = container?.scrollTop || 0;
+      if (currentScrollY < lastScrollY || currentScrollY < 50) {
+       // setHideHeader(false);
+      } else {
+       // setHideHeader(true);
+      }
+      setLastScrollY(currentScrollY);
+    };
+
+    container?.addEventListener("scroll", handleScroll);
+    return () => container?.removeEventListener("scroll", handleScroll);
+  }, [onScrollChange, lastScrollY]);
+
+  useEffect(() => {
+    if (selectedRows.length === 0) {
+      handlePopoverClose();
+    }
+  }, [selectedRows]);
+
   const getSingularProperty = () => {
     switch (properties) {
       case "residentials":
@@ -72,56 +115,56 @@ function Table({ data, properties, onScrollChange }: TableProps) {
     const singularProperty = getSingularProperty();
     try {
       const response = await axios.put(
-        `${
-          import.meta.env.VITE_BackEndUrl
+        `${import.meta.env.VITE_BackEndUrl
         }/api/adminpermission/${singularProperty}/${id}`,
         { status: `${status}` }
       );
       console.log("Status updated:", response.data);
-    } catch (err) {
+    } catch {
       console.error("Failed to update status");
     }
   };
 
-const formatedData = Array.isArray(data)
-  ? data.map((item: any) => ({
+  const formatedData: PropertyWithSource[] = Array.isArray(data)
+    ? data.map((item: Property) => ({
       ...item,
       _source:
         properties === "residentials"
           ? "residential"
           : properties === "commercials"
-          ? "commercial"
-          : properties === "plots"
-          ? "plots"
-          : "unknown",
+            ? "commercial"
+            : properties === "plots"
+              ? "plot"
+              : "plot", // default fallback to valid type
     }))
-  : [
-      ...(data?.residentials?.map((item: any) => ({
+    : [
+      ...(data.residentials?.map((item) => ({
         ...item,
-        _source: "residential",
+        _source: "residential" as const,
       })) ?? []),
-      ...(data?.commercials?.map((item: any) => ({
+      ...(data.commercials?.map((item) => ({
         ...item,
-        _source: "commercial",
+        _source: "commercial" as const,
       })) ?? []),
-      ...(data?.plots?.map((item: any) => ({
+      ...(data.plots?.map((item) => ({
         ...item,
-        _source: "plots",
+        _source: "plot" as const,
       })) ?? []),
-      ...(data?.residential?.map((item: any) => ({
+      ...(data.residential?.map((item) => ({
         ...item,
-        _source: "residential",
+        _source: "residential" as const,
       })) ?? []),
-      ...(data?.commercial?.map((item: any) => ({
+      ...(data.commercial?.map((item) => ({
         ...item,
-        _source: "commercial",
+        _source: "commercial" as const,
       })) ?? []),
-      ...(data?.plot?.map((item: any) => ({
+      ...(data.plot?.map((item) => ({
         ...item,
-        _source: "plots",
+        _source: "plot" as const,
       })) ?? []),
     ];
-    
+
+
   // Modal state
   const [open, setOpen] = React.useState(false);
   const [selectedAction, setSelectedAction] = React.useState<string | null>(
@@ -135,25 +178,24 @@ const formatedData = Array.isArray(data)
   };
 
   const handleView = (id: string | number) => {
-    
-  const selectedItem = formatedData.find((item: any) => item._id === id);
+    const selectedItem = formatedData.find((item: PropertyWithSource) => item._id === id);
 
-  if (!selectedItem) {
-    alert("Property not found");
-    return;
-  }
+    if (!selectedItem) {
+      alert("Property not found");
+      return;
+    }
 
-  const routeBase = selectedItem._source;
+    const routeBase = selectedItem._source;
 
-  if (!routeBase) {
-    alert("Unknown property type");
-    console.log("Missing _source in selectedItem", selectedItem);
-    return;
-  }
-  navigate(`/${routeBase}/view/${id}`, {
-    state: { data: selectedItem, mode: "view" },
-  });
-};
+    if (!routeBase) {
+      alert("Unknown property type");
+      console.log("Missing _source in selectedItem", selectedItem);
+      return;
+    }
+    navigate(`/${routeBase}/view/${id}`, {
+      state: { data: selectedItem, mode: "view" },
+    });
+  };
 
   const handleOpenModal = (action: string, item: ResidentialProperty) => {
     console.log(" Opening modal with action:", action, "on item:", item._id);
@@ -182,13 +224,13 @@ const formatedData = Array.isArray(data)
     } catch (e) {
       console.error("Error performing action:", e);
     } finally {
-      setIsBackdropLoading(false); 
+      setIsBackdropLoading(false);
     }
   };
 
   if (!Array.isArray(data)) {
     const fallback =
-      data?.residential || data?.commercial || data?.plot || data?.data;
+      data?.residential || data?.commercial || data?.plot;
 
     if (Array.isArray(fallback)) {
       data = fallback;
@@ -197,31 +239,6 @@ const formatedData = Array.isArray(data)
       return <p>Error: Invalid data format</p>;
     }
   }
-
-  const containerRef = React.useRef<HTMLDivElement | null>(null);
-  const [hideHeader, setHideHeader] = React.useState(false);
-  const [lastScrollY, setLastScrollY] = React.useState(0);
-  React.useEffect(() => {
-    const container = containerRef.current;
-
-    const handleScroll = () => {
-      if (container) {
-        onScrollChange(container.scrollTop);
-      }
-
-      // Show header when scrolling up
-      const currentScrollY = container?.scrollTop || 0;
-      if (currentScrollY < lastScrollY || currentScrollY < 50) {
-        setHideHeader(false);
-      } else {
-        setHideHeader(true);
-      }
-      setLastScrollY(currentScrollY);
-    };
-
-    container?.addEventListener("scroll", handleScroll);
-    return () => container?.removeEventListener("scroll", handleScroll);
-  }, [onScrollChange]);
 
   // popover
   const handlePopoverClick = (event: React.MouseEvent<HTMLInputElement>) => {
@@ -256,29 +273,73 @@ const formatedData = Array.isArray(data)
       setSelectedRows([]); // Clear selection
       handlePopoverClose(); // Close popover
       window.dispatchEvent(new Event("refreshTableData")); // Refresh table
-    } catch (err) {
+    } catch {
       console.error(`Failed to ${action.toLowerCase()} selected properties`);
     }
   };
 
+  const truncateWords = (text: string = "", wordLimit: number): string => {
+    const words = text.trim().split(/\s+/);
+    return words.length > wordLimit ? words.slice(0, wordLimit).join(" ") + "..." : text;
+  };
+
+  const scrollRef = React.useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const checkScroll = () => {
+    const el:any = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 0);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth);
+  };
+
+  const scroll = (direction:any) => {
+    const el:any = scrollRef.current;
+    if (!el) return;
+    const scrollAmount = 300;
+    el.scrollBy({
+      left: direction === "left" ? -scrollAmount : scrollAmount,
+      behavior: "smooth",
+    });
+  };
+
   useEffect(() => {
-    if (selectedRows.length === 0) {
-      handlePopoverClose();
+    checkScroll();
+    const el:any = scrollRef.current;
+    if (el) {
+      el.addEventListener("scroll", checkScroll);
+      window.addEventListener("resize", checkScroll);
     }
-  }, [selectedRows]);
+    return () => {
+      el?.removeEventListener("scroll", checkScroll);
+      window.removeEventListener("resize", checkScroll);
+    };
+  }, []);
 
   return (
     <>
       <div
         ref={containerRef}
         style={{
-          height: hideHeader ? "450px" : "315px",
-          overflowY: "auto",
-          marginBottom: "50px",
+          // height: hideHeader ? "450px" : "315px",
+          // overflowY: "auto",
+          // marginBottom: "50px",
         }}
       >
-        <div className="container table-responsive">
-          <table>
+        <div className="container table-wrapper" style={{position:"relative"}}>
+
+
+          {canScrollLeft && (
+            <button className="scroll-button left" onClick={() => scroll("left")}>
+              ◀
+            </button>
+          )}
+
+        <div
+          ref={scrollRef}
+          className="table-scroll">
+          <table className="horizontal-table">
             <thead>
               <tr>
                 <th className="checkbox-align chechbox-cmn">
@@ -427,8 +488,8 @@ const formatedData = Array.isArray(data)
               </tr>
             </thead>
             <tbody>
-              {formatedData.map((item, index) => (
-                <tr key={index}>
+              {formatedData.map((item) => (
+                <tr key={item._id}>
                   <td className="checkbox-align chechbox-align-inside">
                     <input
                       type="checkbox"
@@ -436,28 +497,21 @@ const formatedData = Array.isArray(data)
                       onClick={handlePopoverClick}
                       checked={selectedRows.includes(item._id)}
                       onChange={(e) => {
-                        if (e.target.checked) {
-                          setSelectedRows((prev) => [...prev, item._id]);
-                        } else {
-                          setSelectedRows((prev) =>
-                            prev.filter((id) => id !== item._id)
-                          );
-                        }
+                        setSelectedRows((prev) =>
+                          e.target.checked
+                            ? [...prev, item._id]
+                            : prev.filter((id) => id !== item._id)
+                        );
                       }}
                     />
                   </td>
                   <td className="company-name">
                     <h3>
-                      <span className="truncate-text">
-                        {(() => {
-                          const landmark = item?.location?.landmark;
-                          if (!landmark) return null;
-
-                          const words = landmark.trim().split(/\s+/);
-                          return words.length > 12
-                            ? words.slice(0, 12).join(" ") + "..."
-                            : landmark;
-                        })()}
+                      {/* <span className="truncate-text">
+                         {truncateWords(item?.location?.landmark, 12)}
+                      </span> */}
+                      <span>
+                        {item?.title}
                       </span>
                     </h3>
                     <p
@@ -465,33 +519,23 @@ const formatedData = Array.isArray(data)
                       data-bs-placement="bottom"
                       title={item?.location?.address}
                     >
-                      <img src="ICON_Location.svg" alt="location png" />
-
+                      <img src="ICON_Location.svg" alt="location" />
                       <span className="truncate-text">
-                        {(() => {
-                          const address = item?.location?.address;
-                          if (!address) return null;
-
-                          const words = address.trim().split(/\s+/);
-                          return words.length > 9
-                            ? words.slice(0, 9).join(" ") + "..."
-                            : address;
-                        })()}
+                        {truncateWords(item?.location?.address, 9)}
                       </span>
                     </p>
                   </td>
                   <td>{item?.area?.totalArea}</td>
                   <td>{item.status}</td>
+
                   {(properties === "commercials" ||
-                    properties === "all" ||
-                    properties === "residentials") && (
-                    <td>{item?.totalFloors}</td>
-                  )}
-                  {(properties === "commercials" ||
-                    properties === "all" ||
-                    properties === "residentials") && (
-                    <td>{item?.facingDirection}</td>
-                  )}
+                    properties === "residentials" ||
+                    properties === "all") && (
+                      <>
+                        <td>{item?.totalFloors}</td>
+                        <td>{item?.facingDirection}</td>
+                      </>
+                    )}
 
                   {(properties === "residentials" || properties === "all") && (
                     <td
@@ -500,20 +544,12 @@ const formatedData = Array.isArray(data)
                       data-bs-placement="bottom"
                       title={item?.furnishingType}
                     >
-                      {}
                       <span className="truncate-text">
-                        {(() => {
-                          const furnishing = item?.furnishingType;
-                          if (!furnishing) return null;
-
-                          const words = furnishing.trim().split(/\s+/);
-                          return words.length > 12
-                            ? words.slice(0, 12).join(" ") + "..."
-                            : furnishing;
-                        })()}
+                        {truncateWords(item?.furnishingType, 12)}
                       </span>
                     </td>
                   )}
+
                   {(properties === "commercials" || properties === "all") && (
                     <td className="washroom">{item?.washroom}</td>
                   )}
@@ -531,33 +567,28 @@ const formatedData = Array.isArray(data)
                         onClick={() => item._id && handleView(item._id)}
                         style={{ cursor: "pointer" }}
                       />
-
                       <img
-                        src="Edit.svg"
+                        src="/Edit.svg"
                         alt="edit"
-                        onClick={() => handleEdit(item)}
-                        style={{ cursor: "pointer" }}
-                      />
-
-                      <img
-                        src="Approve.svg"
-                        alt="Approve svg"
-                        // onClick={() => item._id && handleAction(item._id,0)}
-                        onClick={() => handleOpenModal("Approve", item)}
+                        onClick={() => handleEdit(item as unknown as ResidentialProperty)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
-                        src="Deny.svg"
-                        alt="Deny svg"
-                        // onClick={() => item._id && handleAction(item._id, 1)}
-                        onClick={() => handleOpenModal("Deny", item)}
+                        src="/Approve.svg"
+                        alt="Approve"
+                        onClick={() => handleOpenModal("Approve", item as unknown as ResidentialProperty)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
-                        src="Delete.svg"
-                        alt="Delete img"
-                        // onClick={() => item._id && handleAction(item._id, 2)}
-                        onClick={() => handleOpenModal("Delete", item)}
+                        src="/Deny.svg"
+                        alt="Deny"
+                        onClick={() => handleOpenModal("Deny", item as unknown as ResidentialProperty)}
+                        style={{ cursor: "pointer" }}
+                      />
+                      <img
+                        src="/Delete.svg"
+                        alt="Delete"
+                        onClick={() => handleOpenModal("Delete", item as unknown as ResidentialProperty)}
                         style={{ cursor: "pointer" }}
                       />
                     </div>
@@ -565,6 +596,7 @@ const formatedData = Array.isArray(data)
                 </tr>
               ))}
             </tbody>
+
             <Popover
               className="checkbox-popover"
               id={popoverId}
@@ -605,6 +637,13 @@ const formatedData = Array.isArray(data)
               </div>
             </Popover>
           </table>
+          </div>
+
+          {canScrollRight && (
+            <button className="scroll-button right" onClick={() => scroll("right")}>
+              ▶
+            </button>
+          )}
 
           {/* Modal */}
           <Modal

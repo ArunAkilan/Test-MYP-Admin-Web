@@ -209,6 +209,9 @@ span.inline-style {
 
 .owner-info img {
     width: max-content;
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
 }
 .owner-info p {
     font-size: 12px ;

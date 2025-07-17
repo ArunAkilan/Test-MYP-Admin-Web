@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { GoogleMap, Marker } from "@react-google-maps/api";
 
 const wrapperStyle = {
@@ -19,9 +19,19 @@ const center = {
   lat: 13.0827,
   lng: 80.2707,
 };
+interface MapComponentProps {
+  latitude: number;
+  longitude: number;
+}
 
-function MapComponent() {
-  const [markerPosition, setMarkerPosition] = useState<google.maps.LatLngLiteral | null>(null);
+const MapComponent: React.FC<MapComponentProps> = ({ latitude, longitude }) => {
+  const initialCenter = { lat: latitude, lng: longitude };
+  const [markerPosition, setMarkerPosition] =
+    useState<google.maps.LatLngLiteral | null>(null);
+
+  useEffect(() => {
+    setMarkerPosition(initialCenter); // Update when latitude/longitude prop changes
+  }, [latitude, longitude]);
 
   const handleMapClick = (e: google.maps.MapMouseEvent) => {
     if (e.latLng) {
@@ -40,12 +50,14 @@ function MapComponent() {
         {markerPosition && (
           <Marker
             position={markerPosition}
-            icon={{ url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png" }}
+            icon={{
+              url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
+            }}
           />
         )}
       </GoogleMap>
     </div>
   );
-}
+};
 
 export default MapComponent;
