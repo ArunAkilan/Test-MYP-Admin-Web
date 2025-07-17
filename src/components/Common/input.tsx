@@ -306,8 +306,8 @@ const InputField: React.FC<InputFieldProps> = ({
             onChange={(e) => {
               const newValue = e.target.value;
               const digitsOnly = newValue.replace(/\D/g, "");
-              if (digitsOnly.length <= 12 && onPhoneChange) {
-                onPhoneChange(newValue);
+              if (digitsOnly.length <= 10 && onPhoneChange) {
+                onPhoneChange(digitsOnly);
               }
             }}
             className={`form-control ${error ? "is-invalid" : ""} ${

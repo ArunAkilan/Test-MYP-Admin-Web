@@ -249,7 +249,7 @@ function Table({ data, properties, onScrollChange }: TableProps) {
     }
 
     const routeBase = selectedItem._source;
-    const routeBase = selectedItem._source;
+    // const routeBase = selectedItem._source;
 
     if (!routeBase) {
       alert("Unknown property type");
@@ -335,12 +335,19 @@ function Table({ data, properties, onScrollChange }: TableProps) {
       // Success toast message
       const actionText =
         status === 1 ? "Approved" : status === 0 ? "Denied" : "Deleted";
+      
+         //Delay toast slightly to avoid UI interference
+    setTimeout(() => {
       toast.success(`Listing successfully ${actionText.toLowerCase()}`);
+    }, 300);
+
     } catch (e) {
       console.error("Error performing action:", e);
+      toast.error("Something went wrong");
+
     } finally {
       setIsBackdropLoading(false);
-      setIsBackdropLoading(false);
+      // setIsBackdropLoading(false);
     }
   };
 
@@ -389,9 +396,15 @@ function Table({ data, properties, onScrollChange }: TableProps) {
       setSelectedRows([]); // Clear selection
       handlePopoverClose(); // Close popover
       window.dispatchEvent(new Event("refreshTableData")); // Refresh table
+
+      // Success toast
+      const actionText = action === "Delete" ? "Delete completed" : `${action} completed`;
+      toast.success(actionText);
     } catch {
-    } catch {
+
       console.error(`Failed to ${action.toLowerCase()} selected properties`);
+      toast.error(`Failed to ${action.toLowerCase()} selected properties`);
+
     }
   };
 
@@ -801,6 +814,13 @@ function Table({ data, properties, onScrollChange }: TableProps) {
                   };
 
                   const statusCode = statusMap[selectedAction];
+
+                  // Show toast immediately for Delete
+                  if (selectedAction === "Delete") {
+                    toast.success("Listing successfully deleted", {
+                      autoClose: 500000, 
+                    });
+                  }
                   handleConfirmAction(selectedItem._id, statusCode);
 
                   // if (!selectedItem?._id || !selectedAction) return;

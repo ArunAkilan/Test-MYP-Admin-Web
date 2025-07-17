@@ -354,7 +354,12 @@ export const CreatePlotProperty = () => {
     // Owner Information Validation
     if (!firstName.trim()) newErrors.firstName = "First name is required";
     if (!lastName.trim()) newErrors.lastName = "Last name is required";
-    if (!phone1.trim()) newErrors.phone1 = "Phone number is required";
+    if (!phone1.trim()) {
+      newErrors.phone1 = "Phone number is required";
+    } else if (!/^\d{10}$/.test(phone1)) {
+      newErrors.phone1 = "Please enter a 10-digit phone number";
+    }
+
     if (!propertyType.trim())
       newErrors.propertyType = "Property type is required";
     if (!address.trim()) newErrors.address = "Address is required";
@@ -385,15 +390,16 @@ export const CreatePlotProperty = () => {
     setErrors(validationErrors);
     
     if (Object.keys(validationErrors).length > 0) {
+      setLoading(false);        
+      setEditable(true);        
+    
       toast.error("Please fix the errors in the form.", {
         autoClose: false,
-        onClose: () => {
-          setLoading(false);
-          setEditable(true);
-        },
       });
+    
       return;
     }
+    
 
     // Form is valid, proceed with submission
     const formState: PlotFormState = {
