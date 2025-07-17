@@ -334,7 +334,7 @@ const handleOpenModal = (action: "Approve" | "Deny" | "Delete", item: PropertyWi
                 </th>
                 <th>
                   <div className="th-content">
-                    Listing Name
+                    Property Name
                     <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
                   </div>
                 </th>
