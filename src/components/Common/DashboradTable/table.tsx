@@ -16,6 +16,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import type { Property, PropertyWithSource } from "./table.model";
+import EmptyState from "../../EmptyState/EmptyState";
 
 interface PropertyDataMap {
   residentials?: PropertyWithSource[];
@@ -26,6 +27,10 @@ interface PropertyDataMap {
   plot?: PropertyWithSource[];
 }
 
+type EmptyStateProps = {
+  tabType: 'pending' | 'approved' | 'rejected' | 'deleted';
+  onAction?: () => void;  // Optional click handler
+};
 interface TableProps {
   data: Property[] | PropertyWithSource[] | PropertyDataMap;
   properties?: 
@@ -39,6 +44,7 @@ interface TableProps {
     | undefined;
   onScrollChange: (scrollTop: number) => void;
   handleOpenModal: (action: "Approve" | "Deny" | "Delete", item: PropertyWithSource) => void;
+  tabType: EmptyStateProps['tabType'];
 }
 
 const modalStyle = {
@@ -53,7 +59,7 @@ const modalStyle = {
   p: 4,
 };
 
-function Table({ data, properties, onScrollChange }: TableProps) {
+function Table({ data, properties, onScrollChange,tabType }: TableProps) {
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [isBackdropLoading, setIsBackdropLoading] = useState(false);
   const [popoverAnchorEl, setPopoverAnchorEl] = useState<HTMLElement | null>(
@@ -307,7 +313,9 @@ const handleOpenModal = (action: "Approve" | "Deny" | "Delete", item: PropertyWi
               ◀
             </button>
           )}
-
+         {formatedData.length === 0 ? (
+             <EmptyState tabType={tabType} />
+          ) : (
         <div
           ref={scrollRef}
           className="table-scroll">
@@ -610,7 +618,7 @@ const handleOpenModal = (action: "Approve" | "Deny" | "Delete", item: PropertyWi
             </Popover>
           </table>
           </div>
-
+          )}
           {canScrollRight && (
             <button className="scroll-button right" onClick={() => scroll("right")}>
               ▶

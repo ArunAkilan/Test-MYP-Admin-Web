@@ -60,7 +60,16 @@ export interface PlotProperty {
     lift: boolean;
     ramp: boolean;
   };
-
+  availability : {
+    transport: {
+      nearbyBusStop: boolean;
+      nearbyAirport: boolean;
+      nearbyPort: boolean;
+      broadband: boolean;
+    }
+    broadband: boolean;
+    securities: boolean;
+  }
   owner: {
     _id: string;
     firstName: string;

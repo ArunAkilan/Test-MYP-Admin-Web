@@ -36,10 +36,10 @@ import { Modal } from "@mui/material";
 import ApproveIcon from "../../../assets/Dashboard modal img/Confirm.svg";
 import DenyIcon from "../../../assets/Dashboard modal img/reject.svg";
 import DeleteIcon from "../../../assets/Dashboard modal img/dlt.svg";
-import img1 from "../../../assets/dashboardtab/card-image.svg";
-import img2 from "../../../assets/Container_ImageHolder (2).png";
-import img3 from "../../../assets/Container_ImageHolder (1).png";
-import img4 from "../../../assets/Container_ImageHolder (3).png";
+// import img1 from "../../../assets/dashboardtab/card-image.svg";
+// import img2 from "../../../assets/Container_ImageHolder (2).png";
+// import img3 from "../../../assets/Container_ImageHolder (1).png";
+// import img4 from "../../../assets/Container_ImageHolder (3).png";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 
@@ -50,9 +50,8 @@ type Property = {
     landmark?: string;
     address?: string;
   };
-  [key: string]: any;
 };
-const images = [img1, img2, img3, img4];
+// const images = [img1, img2, img3, img4];
 type PropertyData = {
   residential: Property[];
   commercial: Property[];
@@ -82,6 +81,7 @@ type PropertyItem = {
   rent?: {
     rentAmount?: string;
   };
+  images?: string;
 };
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -622,7 +622,7 @@ export default function Dashboardtab({
         { status: `${status}` }
       );
       console.log("Status updated:", response.data);
-    } catch  {
+    } catch {
       console.error("Failed to update status");
     }
   };
@@ -642,15 +642,15 @@ export default function Dashboardtab({
     } catch (e) {
       console.error("Error performing action:", e);
     } finally {
-    setIsBackdropLoading(false); // ✅ hide loading
-  }
+      setIsBackdropLoading(false); // ✅ hide loading
+    }
   };
 
-  const handleConfirmButtonClick =  () => {
+  const handleConfirmButtonClick = () => {
     if (!selectedItem?._id || !selectedAction) return;
     const statusCode = { Approve: 1, Deny: 0, Delete: 2 }[selectedAction];
     handleConfirmAction(selectedItem._id, statusCode);
-    };
+  };
   return (
     <div id="pending-approval-tab">
       <div>
@@ -811,7 +811,10 @@ export default function Dashboardtab({
                           src="/majesticons_filter-line.svg"
                           alt="filter img"
                         />
-                        Filter {checkListCount}
+                        Filter{" "}
+                        {checkListCount > 0 && (
+                          <span className="count-badge">{checkListCount}</span>
+                        )}
                       </Button>
                     </div>
                     {alignment === "Card View" && (
@@ -886,7 +889,10 @@ export default function Dashboardtab({
                           src="/majesticons_filter-line.svg"
                           alt="filter img"
                         />
-                        Filter {checkListCount}
+                        Filter{" "}
+                        {checkListCount > 0 && (
+                          <span className="count-badge">{checkListCount}</span>
+                        )}
                       </Button>
                     </div>
                     {alignment === "Card View" && (
@@ -961,7 +967,10 @@ export default function Dashboardtab({
                           src="/majesticons_filter-line.svg"
                           alt="filter img"
                         />
-                        Filter {checkListCount}
+                        Filter{" "}
+                        {checkListCount > 0 && (
+                          <span className="count-badge">{checkListCount}</span>
+                        )}
                       </Button>
                     </div>
                     {alignment === "Card View" && (
@@ -1036,7 +1045,10 @@ export default function Dashboardtab({
                           src="/majesticons_filter-line.svg"
                           alt="filter img"
                         />
-                        Filter {checkListCount}
+                        Filter{" "}
+                        {checkListCount > 0 && (
+                          <span className="count-badge">{checkListCount}</span>
+                        )}
                       </Button>
                     </div>
                     {alignment === "Card View" && (
@@ -1098,11 +1110,12 @@ export default function Dashboardtab({
       <CustomTabPanel value={value} index={0}>
         {!cardView ? (
           <Table
-          //@ts-ignore
+            //@ts-ignore
             data={tableValues}
             properties={properties}
             onScrollChange={handleChildScroll}
             handleOpenModal={handleOpenModal}
+            tabType="pending"
           />
         ) : (
           <PropertyCardList
@@ -1117,11 +1130,12 @@ export default function Dashboardtab({
       <CustomTabPanel value={value} index={1}>
         {!cardView ? (
           <Table
-          //@ts-ignore
+            //@ts-ignore
             data={tableValues}
             properties={properties}
             onScrollChange={handleChildScroll}
             handleOpenModal={handleOpenModal}
+            tabType="approved"
           />
         ) : (
           <PropertyCardList
@@ -1136,11 +1150,12 @@ export default function Dashboardtab({
       <CustomTabPanel value={value} index={2}>
         {!cardView ? (
           <Table
-          //@ts-ignore
+            //@ts-ignore
             data={tableValues}
             properties={properties}
             onScrollChange={handleChildScroll}
             handleOpenModal={handleOpenModal}
+            tabType="rejected"
           />
         ) : (
           <PropertyCardList
@@ -1155,11 +1170,12 @@ export default function Dashboardtab({
       <CustomTabPanel value={value} index={3}>
         {!cardView ? (
           <Table
-          //@ts-ignore
+            //@ts-ignore
             data={tableValues}
             properties={properties}
             onScrollChange={handleChildScroll}
             handleOpenModal={handleOpenModal}
+            tabType="deleted"
           />
         ) : (
           <PropertyCardList
@@ -1184,7 +1200,10 @@ export default function Dashboardtab({
               &nbsp; Filter By
             </p>
             <p className="filtercount">
-              ({checkListCount}) Filter{checkListCount !== 1 ? "s" : ""}
+              {checkListCount > 0 && (
+                <span className="count-badge">{checkListCount}</span>
+              )}
+              Filter{checkListCount !== 1 ? "s" : ""}
             </p>
           </div>
           <div className="checklist-content row">
@@ -1281,7 +1300,7 @@ const PropertyCardList = ({
   );
 
   const formatedData: PropertyItem[] = properties;
-  const allIds = formatedData.map((data: PropertyItem) => data._id);
+  // const allIds = formatedData.map((data: PropertyItem) => data._id);
   const [visibleCount, setVisibleCount] = useState<number>(5);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -1318,7 +1337,6 @@ const PropertyCardList = ({
   }, [onScrollChange]);
 
   //change height of card container
-  // const [hideHeader, setHideHeader] = React.useState(false);
   const [lastScrollY, setLastScrollY] = React.useState(0);
   React.useEffect(() => {
     const container = containerRef.current;
@@ -1330,9 +1348,9 @@ const PropertyCardList = ({
       // Show header when scrolling up
       const currentScrollY = container?.scrollTop || 0;
       if (currentScrollY < lastScrollY || currentScrollY < 50) {
-       // setHideHeader(false);
+        // setHideHeader(false);
       } else {
-       // setHideHeader(true);
+        // setHideHeader(true);
       }
       setLastScrollY(currentScrollY);
     };
@@ -1379,7 +1397,7 @@ const PropertyCardList = ({
         { status: `${status}` }
       );
       console.log("Status updated:", response.data);
-    } catch  {
+    } catch {
       console.error("Failed to update status");
     }
   };
@@ -1402,7 +1420,7 @@ const PropertyCardList = ({
       setSelectedRows([]); // Clear selection
       handlePopoverClose(); // Close popover
       window.dispatchEvent(new Event("refreshTableData")); // Refresh table
-    } catch  {
+    } catch {
       console.error(`Failed to ${action.toLowerCase()} selected properties`);
     }
   };
@@ -1419,17 +1437,17 @@ const PropertyCardList = ({
         <Box
           ref={containerRef}
           sx={{
-            // height: hideHeader ? "450px" : "315px",
+            // height: "400px",
             // overflowY: "auto",
             // marginBottom: "50px",
           }}
         >
-          {formatedData.slice(0, 5).map((item: PropertyItem) => (
+          {formatedData.map((item: PropertyItem) => (
             <Grid item xs={12} sm={12} md={12} key={item._id}>
               <div className="card-view-wrapper row" key={item._id}>
                 <div className="card-view-img col-md-6">
                   <Carousel
-                    images={images}
+                    images={Array.isArray(item?.images) ? item.images : []}
                     price="£15,000 pcm"
                     area="485,700 sq. ft."
                   />
