@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { GoogleMap, Marker } from "@react-google-maps/api";
+import { GoogleMap, MarkerF } from "@react-google-maps/api"; // use MarkerF, not Marker
 
 const wrapperStyle = {
   width: "558px",
@@ -15,46 +15,31 @@ const containerStyle = {
   height: "100%",
 };
 
-const center = {
-  lat: 13.0827,
-  lng: 80.2707,
-};
+const DEFAULT_POSITION = { lat: 13.0827, lng: 80.2707 }; // Chennai
+
 interface MapComponentProps {
-  latitude: number;
-  longitude: number;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 const MapComponent: React.FC<MapComponentProps> = ({ latitude, longitude }) => {
-  const initialCenter = { lat: latitude, lng: longitude };
-  const [markerPosition, setMarkerPosition] =
-    useState<google.maps.LatLngLiteral | null>(null);
+  const safeLat = typeof latitude === "number" && !isNaN(latitude) ? latitude : DEFAULT_POSITION.lat;
+  const safeLng = typeof longitude === "number" && !isNaN(longitude) ? longitude : DEFAULT_POSITION.lng;
+
+  const [markerPosition, setMarkerPosition] = useState({ lat: safeLat, lng: safeLng });
 
   useEffect(() => {
-    setMarkerPosition(initialCenter); // Update when latitude/longitude prop changes
+    setMarkerPosition({ lat: safeLat, lng: safeLng });
   }, [latitude, longitude]);
-
-  const handleMapClick = (e: google.maps.MapMouseEvent) => {
-    if (e.latLng) {
-      setMarkerPosition({ lat: e.latLng.lat(), lng: e.latLng.lng() });
-    }
-  };
 
   return (
     <div style={wrapperStyle}>
       <GoogleMap
         mapContainerStyle={containerStyle}
-        center={markerPosition || center}
+        center={markerPosition}
         zoom={14}
-        onClick={handleMapClick}
       >
-        {markerPosition && (
-          <Marker
-            position={markerPosition}
-            icon={{
-              url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
-            }}
-          />
-        )}
+        <MarkerF position={markerPosition} />
       </GoogleMap>
     </div>
   );

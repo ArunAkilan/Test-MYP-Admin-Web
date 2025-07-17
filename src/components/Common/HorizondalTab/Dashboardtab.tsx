@@ -24,7 +24,7 @@ import Accordion from "@mui/material/Accordion";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
-// import { debounce } from "lodash";
+import { debounce } from "lodash";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 
@@ -622,7 +622,7 @@ export default function Dashboardtab({
         { status: `${status}` }
       );
       console.log("Status updated:", response.data);
-    } catch (err) {
+    } catch  {
       console.error("Failed to update status");
     }
   };
@@ -1281,29 +1281,29 @@ const PropertyCardList = ({
   );
 
   const formatedData: PropertyItem[] = properties;
-  // const allIds = formatedData.map((data: PropertyItem) => data._id);
-  // const [visibleCount, setVisibleCount] = useState<number>(5);
+  const allIds = formatedData.map((data: PropertyItem) => data._id);
+  const [visibleCount, setVisibleCount] = useState<number>(5);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  // // Debounced scroll handler
-  // const handleScroll = debounce(() => {
-  //   const container = containerRef.current;
-  //   if (!container) return;
+  // Debounced scroll handler
+  const handleScroll = debounce(() => {
+    const container = containerRef.current;
+    if (!container) return;
 
-  //   const { scrollTop, scrollHeight, clientHeight } = container;
+    const { scrollTop, scrollHeight, clientHeight } = container;
 
-  //   if (scrollTop + clientHeight >= scrollHeight - 50) {
-  //     setVisibleCount((prev) => Math.min(prev + 5, formatedData.length));
-  //   }
-  // }, 200);
+    if (scrollTop + clientHeight >= scrollHeight - 50) {
+      setVisibleCount((prev) => Math.min(prev + 5, formatedData.length));
+    }
+  }, 200);
 
-  // useEffect(() => {
-  //   const container = containerRef.current;
-  //   if (!container) return;
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
 
-  //   container.addEventListener("scroll", handleScroll);
-  //   //return () => container.removeEventListener('scroll', handleScroll);
-  // }, []);
+    container.addEventListener("scroll", handleScroll);
+    //return () => container.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -1339,7 +1339,7 @@ const PropertyCardList = ({
 
     container?.addEventListener("scroll", handleScroll);
     return () => container?.removeEventListener("scroll", handleScroll);
-  }, [onScrollChange]);
+  }, [onScrollChange, lastScrollY, formatedData.length]);
 
   // popover
   const handlePopoverClick = (event: React.MouseEvent<HTMLInputElement>) => {
@@ -1379,7 +1379,7 @@ const PropertyCardList = ({
         { status: `${status}` }
       );
       console.log("Status updated:", response.data);
-    } catch (err) {
+    } catch  {
       console.error("Failed to update status");
     }
   };
@@ -1402,7 +1402,7 @@ const PropertyCardList = ({
       setSelectedRows([]); // Clear selection
       handlePopoverClose(); // Close popover
       window.dispatchEvent(new Event("refreshTableData")); // Refresh table
-    } catch (err) {
+    } catch  {
       console.error(`Failed to ${action.toLowerCase()} selected properties`);
     }
   };
