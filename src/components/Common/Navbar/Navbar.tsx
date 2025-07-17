@@ -52,7 +52,8 @@ const Header: React.FC<HeaderProps> = ({
 
   const adminLogout = () => {
     localStorage.removeItem('token');
-    navigate('/admin');
+    localStorage.removeItem('user');
+    navigate('/login');
   }
 
   // const handleClose = () => {
@@ -187,7 +188,9 @@ const Header: React.FC<HeaderProps> = ({
                   onClick={handleSecondClick}
                 >
                   <img src={ProfileLogo} alt="ellipse image"></img>
+          
                   <p>{Title}</p>
+                
                 </div>
                 <Popover
                   anchorReference="anchorPosition"

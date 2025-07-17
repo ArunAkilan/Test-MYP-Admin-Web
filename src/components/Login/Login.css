@@ -1,5 +1,4 @@
 body {
-  /*background-color: #F0F5FC; */
   margin: 0;
   padding: 0;
   font-family: 'archivo' !important;
@@ -20,7 +19,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0 16px;
+    padding: 0 16px 32px 16px;
     border-radius: 16px;
 }
 .image {
@@ -49,14 +48,15 @@ body {
   top: 10px;
   left: 16px;
 }
-.adminreset{
+
+/* .adminreset{
   color:#2E2E2F;
-}
+} */
+
 .input-cmn input:focus {
-  border: 1px solid #66afe9;
+  border: 1px solid #2E2E2F;
   outline: none;              
 }
-
 
 .input-cmn input {
   font-family: 'Open Sans';
@@ -88,12 +88,12 @@ body {
   line-height: 18px;
   font-family: 'Raleway';
 }
-.forget.container {
+/* .forget.container {
   display: flex;
   justify-content: center;
   padding: 32px;
   flex-shrink: 0;
-}
+}  
 .forget.container p {
   margin-bottom: 0;
   color: #6D7074;
@@ -117,4 +117,4 @@ body {
   text-underline-offset: auto;
   text-underline-position: from-font;
   border: none;
-}
+} */

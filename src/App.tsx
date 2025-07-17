@@ -25,9 +25,10 @@ import { IconButton, styled, useTheme, type CSSObject, type Theme } from "@mui/m
 import MuiDrawer from '@mui/material/Drawer';
 import React from "react";
 import { ChevronLeftIcon, ChevronRightIcon, MenuIcon } from "lucide-react";
+import ProtectedRoute from "./components/Login/ProtectedRoute";
 
 function AppRoutes() {
-  // const navigate = useNavigate();
+  //const navigate = useNavigate();     
   const location = useLocation();
 
   // const isLoginRoute = location.pathname === "/admin";
@@ -64,7 +65,7 @@ function AppRoutes() {
     "/commercial/view",
     "/plots/view",
     "/login",
-    "/admin"
+    "/login"
   ];
 
   // Check if the current pathname starts with any of the routes
@@ -73,9 +74,9 @@ function AppRoutes() {
   );
 
   /***Drawer Component */
-  const locationIsAdmin = location.pathname === "/admin";
+  const locationIsAdmin = location.pathname === "/login";
   locationIsAdmin ? document.body.style.background = '#F0F5FC' :
-  document.body.style.background = '#FFFFFF';
+    document.body.style.background = '#FFFFFF';
   const theme = useTheme();
   const [open, setOpen] = React.useState(true);
 
@@ -111,7 +112,7 @@ function AppRoutes() {
     marginTop: "61px"
   });
 
- const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
+  const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
     ({ theme }) => ({
       width: drawerWidth,
       flexShrink: 0,
@@ -148,8 +149,8 @@ function AppRoutes() {
           edge="start"
           sx={[
             {
-              justifyContent:"end",
-              "&:hover":{
+              justifyContent: "end",
+              "&:hover": {
                 backgroundColor: "transparent !important"
               }
             },
@@ -158,9 +159,11 @@ function AppRoutes() {
         >
           <MenuIcon />
         </IconButton>
-        {open && <IconButton onClick={handleDrawerClose} sx={{justifyContent:"end","&:hover":{
-                backgroundColor: "transparent !important"
-              }}}>
+        {open && <IconButton onClick={handleDrawerClose} sx={{
+          justifyContent: "end", "&:hover": {
+            backgroundColor: "transparent !important"
+          }
+        }}>
           {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
         </IconButton>}
         {!shouldHideSidebar && <Sidebar />}
@@ -172,28 +175,33 @@ function AppRoutes() {
         style={{ flex: 1, overflowY: "auto" }}
       >
         <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" />} />
-          <Route path="/dashboard" element={<Home properties="all" />} />
+        
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Navigate to="/login" />} />
+          <Route element={<ProtectedRoute />}>
+              <Route path="/dashboard" element={<Home properties="all" />} />
 
-                   <Route path="/admin" element={<Login />} /> <Route
-            path="/commercial"
-            element={<Home properties="commercials" />}
-          />
-          <Route
-            path="/residential"
-            element={<Home properties="residentials" />}
-          />
-          <Route path="/plots" element={<Home properties="plots" />} />
-          <Route
-            path="/commercial/create"
-            element={<CreateCommercialProperty />}
-          />
-          <Route path="/plots/create" element={<CreatePlotProperty />} />
-          <Route path="/residential/create" element={<CreateProperty />} />
-          <Route path="/plots/view/:id" element={<PlotView />} />
-          <Route path="/residential/view/:id" element={<ViewProperty />} />
-          <Route path="/commercial/view/:id" element={<CommercialView />} />
+              <Route
+                path="/commercial"
+                element={<Home properties="commercials" />}
+              />
+              <Route
+                path="/residential"
+                element={<Home properties="residentials" />}
+              />
+              <Route path="/plots" element={<Home properties="plots" />} />
+              <Route
+                path="/commercial/create"
+                element={<CreateCommercialProperty />}
+              />
+              <Route path="/plots/create" element={<CreatePlotProperty />} />
+              <Route path="/residential/create" element={<CreateProperty />} />
+              <Route path="/plots/view/:id" element={<PlotView />} />
+              <Route path="/residential/view/:id" element={<ViewProperty />} />
+              <Route path="/commercial/view/:id" element={<CommercialView />} />
+          </Route>
         </Routes>
+
       </div>
     </div>
   );
@@ -210,14 +218,17 @@ function App() {
 
 function LayoutWrapper() {
   const location = useLocation();
-  const isLoginRoute = location.pathname === "/admin";
+  const isLoginRoute = location.pathname === "/login";
+
+  const getLoggedInUserName:any = localStorage.getItem("user");
+  const parsedLoggedInUserName = JSON.parse(getLoggedInUserName);
 
   return (
     <div className="grid-container">
       {!isLoginRoute && (
         <Header
           MainLogo={navbarLogo}
-          Title="Admin"
+          Title={parsedLoggedInUserName?.profileInformation?.firstName ?? ""}
           ProfileLogo="/Ellipse 1.svg"
           Profile={false}
         />
