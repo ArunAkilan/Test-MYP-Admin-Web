@@ -1,25 +1,14 @@
-import React from "react";
+// GoogleMapsWrapper.tsx
 import { useJsApiLoader } from "@react-google-maps/api";
 
-// 👇 Declare libraries array once at module level (outside component)
-const libraries: (
-  | "places"
-  | "geometry"
-  | "drawing"
-  | "visualization"
-  | "maps"
-)[] = ["places", "geometry", "maps"];
-
 const GoogleMapsWrapper = ({ children }: { children: React.ReactNode }) => {
-  const { isLoaded } = useJsApiLoader({
-    id: "google-map-script",
+  const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "",
-    libraries, // use the constant here
+    libraries: ["places"], // or ["marker"] if needed
   });
 
-  if (!isLoaded) {
-    return <div>Loading Google Maps...</div>;
-  }
+  if (loadError) return <div>Error loading Google Maps</div>;
+  if (!isLoaded) return <div>Loading...</div>;
 
   return <>{children}</>;
 };
