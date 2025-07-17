@@ -25,9 +25,10 @@ import { IconButton, styled, useTheme, type CSSObject, type Theme } from "@mui/m
 import MuiDrawer from '@mui/material/Drawer';
 import React from "react";
 import { ChevronLeftIcon, ChevronRightIcon, MenuIcon } from "lucide-react";
+import ProtectedRoute from "./components/Login/ProtectedRoute";
 
 function AppRoutes() {
- //const navigate = useNavigate();     
+  //const navigate = useNavigate();     
   const location = useLocation();
 
   // const isLoginRoute = location.pathname === "/admin";
@@ -75,7 +76,7 @@ function AppRoutes() {
   /***Drawer Component */
   const locationIsAdmin = location.pathname === "/admin";
   locationIsAdmin ? document.body.style.background = '#F0F5FC' :
-  document.body.style.background = '#FFFFFF';
+    document.body.style.background = '#FFFFFF';
   const theme = useTheme();
   const [open, setOpen] = React.useState(true);
 
@@ -111,7 +112,7 @@ function AppRoutes() {
     marginTop: "61px"
   });
 
- const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
+  const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
     ({ theme }) => ({
       width: drawerWidth,
       flexShrink: 0,
@@ -148,8 +149,8 @@ function AppRoutes() {
           edge="start"
           sx={[
             {
-              justifyContent:"end",
-              "&:hover":{
+              justifyContent: "end",
+              "&:hover": {
                 backgroundColor: "transparent !important"
               }
             },
@@ -158,9 +159,11 @@ function AppRoutes() {
         >
           <MenuIcon />
         </IconButton>
-        {open && <IconButton onClick={handleDrawerClose} sx={{justifyContent:"end","&:hover":{
-                backgroundColor: "transparent !important"
-              }}}>
+        {open && <IconButton onClick={handleDrawerClose} sx={{
+          justifyContent: "end", "&:hover": {
+            backgroundColor: "transparent !important"
+          }
+        }}>
           {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
         </IconButton>}
         {!shouldHideSidebar && <Sidebar />}
@@ -172,28 +175,33 @@ function AppRoutes() {
         style={{ flex: 1, overflowY: "auto" }}
       >
         <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" />} />
-          <Route path="/dashboard" element={<Home properties="all" />} />
+        
+          <Route path="/admin" element={<Login />} />
+          <Route path="/" element={<Navigate to="/admin" />} />
+          
+          <Route path="/dashboard" element={<ProtectedRoute><Home properties="all" /></ProtectedRoute>} />
 
-                   <Route path="/admin" element={<Login />} /> <Route
+          <Route
             path="/commercial"
-            element={<Home properties="commercials" />}
+            element={<ProtectedRoute><Home properties="commercials" /></ProtectedRoute>}
           />
           <Route
             path="/residential"
-            element={<Home properties="residentials" />}
+            element={<ProtectedRoute><Home properties="residentials" /></ProtectedRoute>}
           />
-          <Route path="/plots" element={<Home properties="plots" />} />
+          <Route path="/plots" element={<ProtectedRoute><Home properties="plots" /></ProtectedRoute>} />
           <Route
             path="/commercial/create"
-            element={<CreateCommercialProperty />}
+            element={<ProtectedRoute><CreateCommercialProperty /></ProtectedRoute>}
           />
           <Route path="/plots/create" element={<CreatePlotProperty />} />
           <Route path="/residential/create" element={<CreateProperty />} />
           <Route path="/plots/view/:id" element={<PlotView />} />
           <Route path="/residential/view/:id" element={<ViewProperty />} />
           <Route path="/commercial/view/:id" element={<CommercialView />} />
+          
         </Routes>
+
       </div>
     </div>
   );

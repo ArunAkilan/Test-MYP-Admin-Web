@@ -20,20 +20,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
         setLoading(false);
         return;
       }
-      try {
-        const response = await axios.get('http://13.203.171.5:3001/api/verify-token', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (response.status === 200) {
-          setIsAuthenticated(true);
-        } else {
-          setIsAuthenticated(false);
-        }
-      } catch {
-        setIsAuthenticated(false);
-      } finally {
-        setLoading(false);
-      }
+    
     };
 
     setLoading(true);
