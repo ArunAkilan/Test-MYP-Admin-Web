@@ -6,6 +6,7 @@ import Notificationtab from "../../NotificationTab/Notificationtab";
 import { io } from 'socket.io-client';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
+import AutoCompleteWithSelect from "./autoComplete/autoCompleteApi";
 
 interface HeaderProps {
   Title: string;
@@ -49,8 +50,8 @@ const Header: React.FC<HeaderProps> = ({
 
   const navigate = useNavigate()
 
-  const adminLogout = ()=>{
-        localStorage.removeItem('token');
+  const adminLogout = () => {
+    localStorage.removeItem('token');
     navigate('/admin');
   }
 
@@ -96,23 +97,23 @@ const Header: React.FC<HeaderProps> = ({
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
 
-useEffect(() => {
-  axios.get<{ notifications: Notification[] }>(`${ENDPOINT}/api/notifications`)
-    .then((res) => setNotifications(res.data.notifications));
+  useEffect(() => {
+    axios.get<{ notifications: Notification[] }>(`${ENDPOINT}/api/notifications`)
+      .then((res) => setNotifications(res.data.notifications));
 
-  const sock = io(ENDPOINT);
+    const sock = io(ENDPOINT);
 
-  sock.on('notification', (data: Notification) => {
-    setNotifications((prev) => [data, ...prev]);
-  });
+    sock.on('notification', (data: Notification) => {
+      setNotifications((prev) => [data, ...prev]);
+    });
 
-  return () => {
-    sock.disconnect(); // Clean up on unmount
-  };
-}, []);
+    return () => {
+      sock.disconnect(); // Clean up on unmount
+    };
+  }, []);
 
   //Socket IO
-
+  
   return (
     <div
       className={`navbar navbar-expand-lg navbar-light header-wrap ${hideHeader ? "hide" : ""
@@ -142,22 +143,20 @@ useEffect(() => {
               className={`admin collapse navbar-collapse ${isCollapsed ? "show" : ""
                 }`}
             >
-              <div className="h-search">
-                <img src="Search.svg" alt="Search img" />
-
-                <input type="search" placeholder="Search Anything..." />
+              <div className="col-9">
+                 <AutoCompleteWithSelect/>
               </div>
-              <div className="bell">
+              <div className="col-4 bell">
                 <img
-                  src="Vector.svg"
+                  src="/Vector.svg"
                   alt="setting svg"
                   className="setting-image"
                 />
                 <div className="bell-image">
                   <button aria-describedby={idFirst} onClick={handleFirstClick}>
-                    <img src="BTN_Notification.svg" alt="Notification svg" />
-                   
-                  <div className="notifyround">{notifications?.length}</div>
+                    <img src="/BTN_Notification.svg" alt="Notification svg" />
+
+                    <div className="notifyround">{notifications?.length}</div>
                   </button>
                   {/* <BellIcon count={notifications.length} /> */}
                   <Popover

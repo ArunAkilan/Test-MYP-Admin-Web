@@ -152,3 +152,54 @@ td  {
   gap: 6px; /* Space between text and arrow */
   white-space: nowrap; /* Prevents wrapping */
 }
+
+
+
+////New
+.table-wrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.table-scroll {
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  white-space: nowrap;
+  border-radius: 6px;
+}
+
+.horizontal-table {
+  border-collapse: collapse;
+  min-width: max-content;
+  width: 100%;
+}
+
+.scroll-button:hover {
+  background: #f9f9f9;
+}
+
+.scroll-button {
+  position: fixed;
+  top: 70%;
+  transform: translateY(-50%);
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 6px 10px;
+  margin: 4px;
+  z-index: 9999;
+  cursor: pointer;
+  border-radius: 50%;
+  font-size: 16px;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+}
+
+.scroll-button.left {
+  left: 0;
+}
+
+.scroll-button.right {
+  float: right;
+  right: 0;
+}
+
