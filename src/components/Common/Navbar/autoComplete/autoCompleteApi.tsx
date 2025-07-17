@@ -14,19 +14,28 @@ import axios from 'axios';
 //@ts-ignore
 import debounce from 'lodash.debounce';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useAppDispatch } from '../../../../hook';
+import { setActiveTab } from '../../../../slicers/tabsSlice';
+import { TabStatus, type TabStatusKey, type TabStatusValue } from '../../HorizondalTab/Dashboardtab.model';
 
 interface OptionType {
     id: string | number;
     title: string | null;
     category: string;
+    status:string;
 
 }
+
+export const getTabValueStrict = (status: TabStatusKey): TabStatusValue => {
+  return TabStatus[status];
+};
 
 export default function AutoCompleteWithSelect() {
     const [inputValue, setInputValue] = useState<any>(null);
     const [options, setOptions] = useState<OptionType[]>([]);
     const [loading, setLoading] = useState(false);
     const [selectValue, setSelectValue] = useState('all');
+    const dispatch = useAppDispatch();
 
     const fetchOptions = useMemo(() => {
         return debounce(async (value: string) => {
@@ -54,6 +63,7 @@ export default function AutoCompleteWithSelect() {
                     title: item.title,
                     category: item.propertyCategory,
                     id: item.id,
+                    status: item.status
                 }));
                 console.log("resultsssssss", results);
                 setOptions([...results]);
@@ -83,9 +93,14 @@ export default function AutoCompleteWithSelect() {
         if((newValue !== null && (`/${newValue?.category}`) !== routeName.pathname)){
           navigate(`/${newValue?.category}`);
         }
+       // dispatch(setActiveTab(newValue?.status as TabStatus))
+        const numericTab = getTabValueStrict(newValue?.status);
+        dispatch(setActiveTab(numericTab));
         setInputValue(newValue);
         if (reason === 'clear') {
             setOptions([]); // ✅ clear suggestions manually
+            dispatch(setActiveTab(0));
+            navigate("/dashboard");
         }
 
     };

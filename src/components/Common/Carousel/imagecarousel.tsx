@@ -20,7 +20,7 @@ const properties: PropertyType = "all";
 interface Props {
   open: boolean;
   onClose: () => void;
-  images: string[];
+  images?: string[];
   price?: string;
   area?: string;
 }
@@ -41,11 +41,13 @@ Props) {
   console.log("showThumbnails", showThumbnails);
 
   const handlePrev = () => {
-    setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    //@ts-ignore
+    setCurrentIndex((prev) => (prev === 0 ? images?.length - 1 : prev - 1));
   };
 
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    //@ts-ignore
+    setCurrentIndex((prev) => (prev === images?.length - 1 ? 0 : prev + 1));
   };
 
   // popover
@@ -79,11 +81,16 @@ Props) {
   const handleAction = async (id: string, status: number) => {
     const singularProperty = getSingularProperty();
     try {
-      const response = await axios.put(
+      const response = await axios.put( 
         `${
           import.meta.env.VITE_BackEndUrl
         }/api/adminpermission/${singularProperty}/${id}`,
-        { status: `${status}` }
+        { status: `${status}` },
+        {
+          headers: {
+            "Authorization":`Bearer ${localStorage.getItem("token")}`
+          },
+        }
       );
       console.log("Status updated:", response.data);
     } catch  {
@@ -150,7 +157,7 @@ Props) {
               sx={{ overflowY: "auto" }}
               className="left-thumbnail-image"
             >
-              {images.map((img, idx) => (
+              {images && images.map((img, idx) => (
                 <Box
                   key={idx}
                   onClick={() => setCurrentIndex(idx)}
@@ -253,6 +260,7 @@ Props) {
               }}
             >
               <img
+              //@ts-ignore
                 src={images[currentIndex]}
                 alt={`Image ${currentIndex + 1}`}
                 style={{
@@ -282,7 +290,7 @@ Props) {
             >
               <CameraAltIcon fontSize="small" sx={{ mr: 1 }} />
               <Typography variant="caption">
-                {`${currentIndex + 1}/${images.length}`} Images
+                {`${currentIndex + 1}/${images?.length}`} Images
               </Typography>
             </Box>
           </Grid>
