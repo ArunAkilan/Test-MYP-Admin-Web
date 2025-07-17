@@ -52,7 +52,8 @@ const Header: React.FC<HeaderProps> = ({
 
   const adminLogout = () => {
     localStorage.removeItem('token');
-    navigate('/admin');
+    localStorage.removeItem('user');
+    navigate('/login');
   }
 
   // const handleClose = () => {

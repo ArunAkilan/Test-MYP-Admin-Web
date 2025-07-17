@@ -65,7 +65,7 @@ function AppRoutes() {
     "/commercial/view",
     "/plots/view",
     "/login",
-    "/admin"
+    "/login"
   ];
 
   // Check if the current pathname starts with any of the routes
@@ -74,7 +74,7 @@ function AppRoutes() {
   );
 
   /***Drawer Component */
-  const locationIsAdmin = location.pathname === "/admin";
+  const locationIsAdmin = location.pathname === "/login";
   locationIsAdmin ? document.body.style.background = '#F0F5FC' :
     document.body.style.background = '#FFFFFF';
   const theme = useTheme();
@@ -176,30 +176,30 @@ function AppRoutes() {
       >
         <Routes>
         
-          <Route path="/admin" element={<Login />} />
-          <Route path="/" element={<Navigate to="/admin" />} />
-          
-          <Route path="/dashboard" element={<ProtectedRoute><Home properties="all" /></ProtectedRoute>} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Navigate to="/login" />} />
+          <Route element={<ProtectedRoute />}>
+              <Route path="/dashboard" element={<Home properties="all" />} />
 
-          <Route
-            path="/commercial"
-            element={<ProtectedRoute><Home properties="commercials" /></ProtectedRoute>}
-          />
-          <Route
-            path="/residential"
-            element={<ProtectedRoute><Home properties="residentials" /></ProtectedRoute>}
-          />
-          <Route path="/plots" element={<ProtectedRoute><Home properties="plots" /></ProtectedRoute>} />
-          <Route
-            path="/commercial/create"
-            element={<ProtectedRoute><CreateCommercialProperty /></ProtectedRoute>}
-          />
-          <Route path="/plots/create" element={<CreatePlotProperty />} />
-          <Route path="/residential/create" element={<CreateProperty />} />
-          <Route path="/plots/view/:id" element={<PlotView />} />
-          <Route path="/residential/view/:id" element={<ViewProperty />} />
-          <Route path="/commercial/view/:id" element={<CommercialView />} />
-          
+              <Route
+                path="/commercial"
+                element={<Home properties="commercials" />}
+              />
+              <Route
+                path="/residential"
+                element={<Home properties="residentials" />}
+              />
+              <Route path="/plots" element={<Home properties="plots" />} />
+              <Route
+                path="/commercial/create"
+                element={<CreateCommercialProperty />}
+              />
+              <Route path="/plots/create" element={<CreatePlotProperty />} />
+              <Route path="/residential/create" element={<CreateProperty />} />
+              <Route path="/plots/view/:id" element={<PlotView />} />
+              <Route path="/residential/view/:id" element={<ViewProperty />} />
+              <Route path="/commercial/view/:id" element={<CommercialView />} />
+          </Route>
         </Routes>
 
       </div>
@@ -218,14 +218,17 @@ function App() {
 
 function LayoutWrapper() {
   const location = useLocation();
-  const isLoginRoute = location.pathname === "/admin";
+  const isLoginRoute = location.pathname === "/login";
+
+  const getLoggedInUserName:any = localStorage.getItem("user");
+  const parsedLoggedInUserName = JSON.parse(getLoggedInUserName);
 
   return (
     <div className="grid-container">
       {!isLoginRoute && (
         <Header
           MainLogo={navbarLogo}
-          Title="Admin"
+          Title={parsedLoggedInUserName?.profileInformation?.firstName ?? ""}
           ProfileLogo="/Ellipse 1.svg"
           Profile={false}
         />
