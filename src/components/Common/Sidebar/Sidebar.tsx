@@ -74,8 +74,8 @@ export default function Sidebar() {
   return (
     <div
       id="nav-common-tab"
-      className="col-md-3 fixed-col nav-tabs"
-      style={{ height: "100vh" }}
+      // className="col-md-3 fixed-col nav-tabs"
+      style={{ height: "100vh"}}
     >
       <Tabs
         orientation="vertical"

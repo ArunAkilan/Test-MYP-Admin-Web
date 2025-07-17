@@ -1,4 +1,5 @@
 body {
+  /*background-color: #F0F5FC; */
   margin: 0;
   padding: 0;
   font-family: 'archivo' !important;
@@ -20,12 +21,14 @@ body {
     flex-direction: column;
     align-items: center;
     padding: 0 16px;
+    border-radius: 16px;
 }
 .image {
   padding: 32px;
 }
 
 .heading p {
+  font-family: Raleway;
   color: #46494C;
   text-align: center;
   font-size: 22px;
@@ -46,21 +49,32 @@ body {
   top: 10px;
   left: 16px;
 }
+.adminreset{
+  color:#2E2E2F;
+}
+.input-cmn input:focus {
+  border: 1px solid #66afe9;
+  outline: none;              
+}
+
+
 .input-cmn input {
-  width: 100%;
+  font-family: 'Open Sans';
+  width: 496px;
+  height:40px;
   padding: 10px 0 10px 44px;
-  color: #6D7074;
+  color: #2E2E2F;
   font-size: 16px;
   font-style: normal;
   font-weight: 500;
   line-height: 18px;
-  border-radius: 2px;
-  border: 0.5px solid #C5CEE0;
+  border-radius: 6px;
+  border: 1px solid #D3DDE7;
 }
 
 .signin {
-  border-radius: 2px;
-  background: var(--most-used-colors-30-royal-depths-90, #1F3B73);
+  border-radius: 6px;
+  background: #214999;
   box-shadow: 4px 8px 16px 0px rgba(229, 229, 229, 0.24), 2px 4px 8px 0px rgba(107, 131, 178, 0.16), 1px 2px 4px 0px rgba(41, 61, 102, 0.16), 0px 1px 2px 0px rgba(41, 44, 51, 0.24);
 
   padding: 16px 0px 14px 0px;
@@ -72,6 +86,7 @@ body {
   font-style: normal;
   font-weight: 700;
   line-height: 18px;
+  font-family: 'Raleway';
 }
 .forget.container {
   display: flex;
@@ -87,6 +102,7 @@ body {
   font-style: normal;
   font-weight: 500;
   line-height: 18px; 
+  font-family: 'Open Sans';
 }
 .forget.container p button {
   color: #46494C;

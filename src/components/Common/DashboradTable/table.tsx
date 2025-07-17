@@ -66,7 +66,7 @@ function Table({ data, properties, onScrollChange }: TableProps) {
   console.log("propertyData", propertyData);
 
   const containerRef = React.useRef<HTMLDivElement | null>(null);
-  const [hideHeader, setHideHeader] = React.useState(false);
+  // const [hideHeader, setHideHeader] = React.useState(false);
   const [lastScrollY, setLastScrollY] = React.useState(0);
   React.useEffect(() => {
     const container = containerRef.current;
@@ -79,9 +79,9 @@ function Table({ data, properties, onScrollChange }: TableProps) {
       // Show header when scrolling up
       const currentScrollY = container?.scrollTop || 0;
       if (currentScrollY < lastScrollY || currentScrollY < 50) {
-        setHideHeader(false);
+       // setHideHeader(false);
       } else {
-        setHideHeader(true);
+       // setHideHeader(true);
       }
       setLastScrollY(currentScrollY);
     };
@@ -113,13 +113,12 @@ function Table({ data, properties, onScrollChange }: TableProps) {
     const singularProperty = getSingularProperty();
     try {
       const response = await axios.put(
-        `${
-          import.meta.env.VITE_BackEndUrl
+        `${import.meta.env.VITE_BackEndUrl
         }/api/adminpermission/${singularProperty}/${id}`,
         { status: `${status}` }
       );
       console.log("Status updated:", response.data);
-    } catch  {
+    } catch {
       console.error("Failed to update status");
     }
   };
@@ -252,22 +251,67 @@ const handleOpenModal = (action: "Approve" | "Deny" | "Delete", item: PropertyWi
   };
 
   const truncateWords = (text: string = "", wordLimit: number): string => {
-  const words = text.trim().split(/\s+/);
-  return words.length > wordLimit ? words.slice(0, wordLimit).join(" ") + "..." : text;
-};
+    const words = text.trim().split(/\s+/);
+    return words.length > wordLimit ? words.slice(0, wordLimit).join(" ") + "..." : text;
+  };
+
+  const scrollRef = React.useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const checkScroll = () => {
+    const el:any = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 0);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth);
+  };
+
+  const scroll = (direction:any) => {
+    const el:any = scrollRef.current;
+    if (!el) return;
+    const scrollAmount = 300;
+    el.scrollBy({
+      left: direction === "left" ? -scrollAmount : scrollAmount,
+      behavior: "smooth",
+    });
+  };
+
+  useEffect(() => {
+    checkScroll();
+    const el:any = scrollRef.current;
+    if (el) {
+      el.addEventListener("scroll", checkScroll);
+      window.addEventListener("resize", checkScroll);
+    }
+    return () => {
+      el?.removeEventListener("scroll", checkScroll);
+      window.removeEventListener("resize", checkScroll);
+    };
+  }, []);
 
   return (
     <>
       <div
         ref={containerRef}
         style={{
-          height: hideHeader ? "450px" : "315px",
-          overflowY: "auto",
-          marginBottom: "50px",
+          // height: hideHeader ? "450px" : "315px",
+          // overflowY: "auto",
+          // marginBottom: "50px",
         }}
       >
-        <div className="container table-responsive">
-          <table>
+        <div className="container table-wrapper" style={{position:"relative"}}>
+
+
+          {canScrollLeft && (
+            <button className="scroll-button left" onClick={() => scroll("left")}>
+              ◀
+            </button>
+          )}
+
+        <div
+          ref={scrollRef}
+          className="table-scroll">
+          <table className="horizontal-table">
             <thead>
               <tr>
                 <th className="checkbox-align chechbox-cmn">
@@ -435,8 +479,11 @@ const handleOpenModal = (action: "Approve" | "Deny" | "Delete", item: PropertyWi
                   </td>
                   <td className="company-name">
                     <h3>
-                      <span className="truncate-text">
-                        {truncateWords(item?.location?.landmark, 12)}
+                      {/* <span className="truncate-text">
+                         {truncateWords(item?.location?.landmark, 12)}
+                      </span> */}
+                      <span>
+                        {item?.title}
                       </span>
                     </h3>
                     <p
@@ -456,11 +503,11 @@ const handleOpenModal = (action: "Approve" | "Deny" | "Delete", item: PropertyWi
                   {(properties === "commercials" ||
                     properties === "residentials" ||
                     properties === "all") && (
-                    <>
-                      <td>{item?.totalFloors}</td>
-                      <td>{item?.facingDirection}</td>
-                    </>
-                  )}
+                      <>
+                        <td>{item?.totalFloors}</td>
+                        <td>{item?.facingDirection}</td>
+                      </>
+                    )}
 
                   {(properties === "residentials" || properties === "all") && (
                     <td
@@ -493,25 +540,25 @@ const handleOpenModal = (action: "Approve" | "Deny" | "Delete", item: PropertyWi
                         style={{ cursor: "pointer" }}
                       />
                       <img
-                        src="Edit.svg"
+                        src="/Edit.svg"
                         alt="edit"
                         onClick={() => handleEdit(item)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
-                        src="Approve.svg"
+                        src="/Approve.svg"
                         alt="Approve"
                         onClick={() => handleOpenModal("Approve", item)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
-                        src="Deny.svg"
+                        src="/Deny.svg"
                         alt="Deny"
                         onClick={() => handleOpenModal("Deny", item)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
-                        src="Delete.svg"
+                        src="/Delete.svg"
                         alt="Delete"
                         onClick={() => handleOpenModal("Delete", item)}
                         style={{ cursor: "pointer" }}
@@ -562,6 +609,13 @@ const handleOpenModal = (action: "Approve" | "Deny" | "Delete", item: PropertyWi
               </div>
             </Popover>
           </table>
+          </div>
+
+          {canScrollRight && (
+            <button className="scroll-button right" onClick={() => scroll("right")}>
+              ▶
+            </button>
+          )}
 
           {/* Modal */}
           <Modal
