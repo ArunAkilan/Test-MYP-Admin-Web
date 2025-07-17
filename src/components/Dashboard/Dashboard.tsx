@@ -58,7 +58,8 @@ const style = {
  
  
 // function Home({ properties, onAddNew }: HomeProps)
-function Home({ properties }: HomeProps) {
+function Home({ properties="all" }: HomeProps) {
+  console.log("properties",properties)
   const [dashboardData, setDashboardData] = useState<PropertyData>({
     residential: [],
     commercial: [],

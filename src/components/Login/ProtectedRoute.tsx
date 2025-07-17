@@ -1,13 +1,17 @@
-import type { ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
+// components/ProtectedRoute.tsx
+import React from "react";
+import { Navigate, Outlet } from "react-router-dom";
 
-interface ProtectedRouteProps {
-  children: ReactNode;
-}
+// Simulate a token check. Replace this with actual token validation logic.
+const isTokenValid = (): boolean => {
+  const token = localStorage.getItem("token");
+  return !!token; // add real validation if needed (e.g. decode & check expiry)
+};
 
-const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const token = localStorage.getItem('token');
-  return token === 'demo-token' ? children : <Navigate to="/login" replace />;
+const ProtectedRoute: React.FC = () => {
+  const isAuthenticated = isTokenValid();
+
+  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
 };
 
 export default ProtectedRoute;
