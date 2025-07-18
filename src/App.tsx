@@ -26,10 +26,20 @@ import MuiDrawer from '@mui/material/Drawer';
 import React from "react";
 import { ChevronLeftIcon, ChevronRightIcon, MenuIcon } from "lucide-react";
 import ProtectedRoute from "./components/Login/ProtectedRoute";
+import { useMediaQuery } from '@mui/material';
 
 function AppRoutes() {
   //const navigate = useNavigate();     
-  const location = useLocation();
+ const location = useLocation();
+  const isMobile = useMediaQuery('(max-width:992px)');
+  const [open, setOpen] = React.useState(true);
+
+  useEffect(() => {
+  if (isMobile) {
+    setOpen(false);
+  }
+}, [isMobile]);
+
 
   // const isLoginRoute = location.pathname === "/admin";
 
@@ -78,7 +88,6 @@ function AppRoutes() {
   locationIsAdmin ? document.body.style.background = '#F0F5FC' :
     document.body.style.background = '#FFFFFF';
   const theme = useTheme();
-  const [open, setOpen] = React.useState(true);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -196,7 +205,7 @@ function AppRoutes() {
               />
               <Route path="/plots/create" element={<CreatePlotProperty />} />
               <Route path="/residential/create" element={<CreateProperty />} />
-              <Route path="/plots/view/:id" element={<PlotView />} />
+              <Route path="/plot/view/:id" element={<PlotView />} />
               <Route path="/residential/view/:id" element={<ViewProperty />} />
               <Route path="/commercial/view/:id" element={<CommercialView />} />
           </Route>

@@ -100,12 +100,10 @@
 .apply-reset-btn {
   display: flex;
   justify-content: space-between;
-  position: absolute;
+  position: fixed;
   bottom: 0;
   background: #fff;
-  padding: 24px 24px;
-  width: 100%;
-  right: 0;
+  padding: 24px 0px;
 }
 
 .genericFilterApplyStyles,.clear-btn {
@@ -367,4 +365,19 @@
   border-radius: 4px;
   cursor: pointer;
 }
-
+@media only screen and (max-width:992px) {
+  .new-listing-wrap-list h3 {
+     padding-bottom: 10px;
+  }
+}
+@media only screen and (max-width:792px) {
+  #pending-approval-tabs-wrap button:not(:last-child), .new-listing-wrap button {
+     margin-right: 16px;
+     padding: 6px 0;
+  }
+}
+@media only screen and (max-width:600px) {
+  #pending-approval-tabs-wrap button, .new-listing-wrap button {
+     font-size: 15px;
+  }
+}

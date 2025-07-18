@@ -44,6 +44,10 @@ import { TabStatus } from "./Dashboardtab.model";
 
 type Property = {
   _id?: string;
+  createdAt?: string;
+  postOwner?: {
+    userName?: string;
+  }
   rent?: {
     rentAmount?: string;
     advanceAmount?: string;
@@ -53,12 +57,17 @@ type Property = {
   status?: string;
   propertyType?: string;
   title?: string;
+  plotType?: string;
+  furnishingType?: string;
+  facingDirection?: string;
+  totalFloors?: string;
+  washroom?: string;
+   area?: string;
   type?: string;
   location?: {
     landmark?: string;
     address?: string;
   };
-  [key: string]: any;
 };
 type PropertyData = {
   residential?: Property[];
@@ -82,6 +91,11 @@ interface DashboardtabProps {
 
 type PropertyItem = {
   _id: string;
+   createdAt?: string;
+  postOwner?: {
+    userName?: string;
+  }
+  title?: string;
   propertyType: string;
   location?: {
     landmark?: string;
@@ -97,11 +111,6 @@ interface TabPanelProps {
   value: number;
   index: number;
 }
-
-const getImages = (item: Property): string[] => {
-  if (!item.images) return [];
-  return Array.isArray(item.images) ? item.images : [item.images];
-};
 
 function CustomTabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
@@ -695,6 +704,9 @@ export default function Dashboardtab({
             sx={{
               paddingBottom: hideHeader ? "0" : "24px",
               display: hideHeader ? "block" : "true",
+              '& .MuiTabs-flexContainer': {
+                flexWrap: 'wrap',
+              },
             }}
             id="pending-approval-tabs-wrap"
           >
@@ -1331,7 +1343,7 @@ const PropertyCardList = ({
   // const allIds = formatedData.map((data: PropertyItem) => data._id);
   // const [visibleCount, setVisibleCount] = useState<number>(5);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  console.log("visibleCount",visibleCount)
+
   // Debounced scroll handler
   const handleScroll = debounce(() => {
     const container = containerRef.current;
@@ -1509,7 +1521,7 @@ const PropertyCardList = ({
                 <div className="card-view-content col-md-6">
                   <div className="card-view-address-bar">
                     <div className="cardview-address-detail">
-                      <h6>{item?.location?.landmark || "No Landmark"}</h6>
+                      <h6>{item?.title || "No Landmark"}</h6>
                       <p>{item?.location?.address}</p>
                     </div>
                     <div className="cardview-rent">
@@ -1526,7 +1538,7 @@ const PropertyCardList = ({
 
                   <div className="cardview-posted-detail">
                     <span className="posted-span">
-                      Posted by TestUser | 6 hours ago
+                      {item?.postOwner?.userName } | {item?.createdAt}
                     </span>
                   </div>
                   <div className="card-view-icon-wrapper">

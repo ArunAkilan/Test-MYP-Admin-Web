@@ -80,7 +80,13 @@ const longitude =
       .get(
         `${
           import.meta.env.VITE_BackEndUrl
-        }/api/plot/${id}`
+        }/api/plot/${id}`,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            "Authorization":`Bearer ${localStorage.getItem("token")}`
+          },
+        }
       )
       .then((res) => setProperty(res.data))
       .catch((err) => console.error("Error fetching property:", err));
@@ -424,7 +430,7 @@ const longitude =
 
       <section className="midDetails">
         <h3>Owner Information</h3>
-        <div className="owner-info row">
+        <div className="owner-info gap-2 row">
           <div className="name inner-div col-md-4">
             <img src={solar_user} alt="solar_user" />
             <p>Name</p>
