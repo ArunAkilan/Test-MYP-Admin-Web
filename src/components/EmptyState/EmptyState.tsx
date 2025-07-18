@@ -4,7 +4,7 @@ interface EmptyStateProps {
   onAction?: () => void;
 }
 
-const EmptyState = ({ tabType, onAction }: EmptyStateProps) => {
+const EmptyState = ({ tabType }: EmptyStateProps) => {
   const config = {
     pending: {
       icon: '../../assets/dashboardtab/pending.png',
@@ -33,14 +33,6 @@ const EmptyState = ({ tabType, onAction }: EmptyStateProps) => {
       <img src={config.icon} alt={`Empty ${tabType}`} className="empty-icon" />
       <h3>{config.title}</h3>
       <p>{config.description}</p>
-      {onAction && (
-        <button 
-          onClick={onAction}
-          className={`empty-state-btn ${tabType}-btn`}
-        >
-          {config.buttonText}
-        </button>
-      )}
     </div>
   );
 };

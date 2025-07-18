@@ -36,26 +36,96 @@ import { Modal } from "@mui/material";
 import ApproveIcon from "../../../assets/Dashboard modal img/Confirm.svg";
 import DenyIcon from "../../../assets/Dashboard modal img/reject.svg";
 import DeleteIcon from "../../../assets/Dashboard modal img/dlt.svg";
-// import img1 from "../../../assets/dashboardtab/card-image.svg";
-// import img2 from "../../../assets/Container_ImageHolder (2).png";
-// import img3 from "../../../assets/Container_ImageHolder (1).png";
-// import img4 from "../../../assets/Container_ImageHolder (3).png";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 
 type Property = {
   _id?: string;
+  rent?: {
+    rentAmount?: string;
+    advanceAmount?: string;
+    agreementTiming?: string;
+    negotiable?: boolean;
+  };
+  status?: string;
   propertyType?: string;
+  title?: string;
+  type?: string;
   location?: {
     landmark?: string;
     address?: string;
+    map?: {
+      latitude?: string;
+      longitude?: string;
+    };
   };
+  area?: {
+    totalArea?: string | number;
+    buitUpArea?: string | number;
+    carpetArea?: string | number;
+  };
+  facingDirection?: string; // Add this
+  totalFloors?: number;
+  propertyFloor?: string;
+  furnishingType?: string;
+  rooms?: string;
+  washroom?: string;
+  commercialType?: string;
+  plotType?: string;
+  amenities?: {
+    separateEBConnection?: boolean;
+    nearbyMarket?: boolean;
+    nearbyGym?: boolean;
+    nearbyMall?: boolean;
+    nearbyTurf?: boolean;
+    nearbyArena?: boolean;
+  };
+  facility?: {
+    maintenance?: string;
+    waterFacility?: string;
+    roadFacility?: string;
+    drainage?: string;
+    parking?: string;
+    balcony?: string;
+    terrace?: string;
+  };
+  restrictions?: {
+    guestAllowed?: boolean;
+    petsAllowed?: boolean;
+    bachelorsAllowed?: boolean;
+  };
+  accessibility?: {
+    ramp?: boolean;
+    steps?: boolean;
+    lift?: boolean;
+  };
+  availability?: {
+    securities?: string;
+    transport?: {
+      nearbyBusStop?: string;
+      nearbyAirport?: string;
+      nearbyPort?: string;
+    };
+  };
+  owner?: {
+    firstName?: string;
+    lastName?: string;
+    contact?: {
+      phone1?: string;
+      email?: string;
+    };
+  };
+  images?: string[];
+  createdAt?: string;
 };
+
+
 // const images = [img1, img2, img3, img4];
+
 type PropertyData = {
-  residential: Property[];
-  commercial: Property[];
-  plot: Property[];
+  residential?: Property[];
+  commercial?: Property[];
+  plot?: Property[];
   properties?:
     | "all"
     | "residential"
@@ -88,6 +158,11 @@ interface TabPanelProps {
   value: number;
   index: number;
 }
+
+const getImages = (item: Property): string[] => {
+  if (!item.images) return [];
+  return Array.isArray(item.images) ? item.images : [item.images];
+};
 
 function CustomTabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
@@ -397,7 +472,7 @@ export default function Dashboardtab({
     if (!isFiltered) {
       const status = statusByTab[value];
       let filtered = allItems.filter(
-        (item: any) =>
+        (item: Property) =>
           item.status?.toString().trim().toLowerCase() ===
           status.trim().toLowerCase()
       );
@@ -1303,7 +1378,7 @@ const PropertyCardList = ({
   // const allIds = formatedData.map((data: PropertyItem) => data._id);
   const [visibleCount, setVisibleCount] = useState<number>(5);
   const containerRef = useRef<HTMLDivElement | null>(null);
-
+  console.log("visibleCount",visibleCount)
   // Debounced scroll handler
   const handleScroll = debounce(() => {
     const container = containerRef.current;
@@ -1447,7 +1522,7 @@ const PropertyCardList = ({
               <div className="card-view-wrapper row" key={item._id}>
                 <div className="card-view-img col-md-6">
                   <Carousel
-                    images={Array.isArray(item?.images) ? item.images : []}
+                    images={getImages(item)}
                     price="£15,000 pcm"
                     area="485,700 sq. ft."
                   />
