@@ -45,12 +45,12 @@ function AppRoutes() {
     //   "/residential",
     //   "/plots",
     // ];
-
+ 
     //const shouldHideScroll = noScrollRoutes.includes(location.pathname);
     // document.body.style.overflow = shouldHideScroll ? "hidden" : "auto";
   }, [location.pathname]);
   // const location = useLocation();
-
+ 
   // Define routes where sidebar should be hidden
   const hideSidebarRoutes = [
     "/residential/view",
@@ -59,12 +59,12 @@ function AppRoutes() {
     "/login",
     "/login"
   ];
-
+ 
   // Check if the current pathname starts with any of the routes
   const shouldHideSidebar = hideSidebarRoutes.some((route) =>
     location.pathname.startsWith(route)
   );
-
+ 
   /***Drawer Component */
   const locationIsAdmin = location.pathname === "/login";
   locationIsAdmin ? document.body.style.background = '#F0F5FC' :
@@ -72,16 +72,16 @@ function AppRoutes() {
 
   const theme = useTheme();
   const [open, setOpen] = React.useState(true);
-
+ 
   const handleDrawerOpen = () => {
     setOpen(true);
   };
-
+ 
   const handleDrawerClose = () => {
     setOpen(false);
   };
   const drawerWidth = 230;
-
+ 
   const openedMixin = (theme: Theme): CSSObject => ({
     width: drawerWidth,
     transition: theme.transitions.create('width', {
@@ -91,7 +91,7 @@ function AppRoutes() {
     overflowX: 'hidden',
     marginTop: "61px"
   });
-
+ 
   const closedMixin = (theme: Theme): CSSObject => ({
     transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
@@ -209,7 +209,7 @@ function AppRoutes() {
     </div>
   );
 }
-
+ 
 function App() {
   return (
     <Router>
@@ -217,8 +217,8 @@ function App() {
     </Router>
   );
 }
-
-
+ 
+ 
 function LayoutWrapper() {
   const location = useLocation();
   const isLoginRoute = location.pathname === "/login";
@@ -242,5 +242,5 @@ function LayoutWrapper() {
     </div>
   );
 }
-
+ 
 export default App;

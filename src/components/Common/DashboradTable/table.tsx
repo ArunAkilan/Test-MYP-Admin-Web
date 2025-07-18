@@ -1,44 +1,58 @@
 import "./table.scss";
-import type { ResidentialProperty } from "../../AdminResidencial/AdminResidencial.model";
-import { useNavigate } from "react-router-dom";
-import { Box, Typography, Modal } from "@mui/material";
-import * as React from "react";
-import "./table.scss";
-import Button from "@mui/material/Button";
-import { useLocation } from "react-router-dom";
+import {
+  Box,
+  Typography,
+  Modal,
+  Popover,
+  Button,
+  Backdrop,
+  CircularProgress,
+} from "@mui/material";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useState, useEffect } from "react";
-import Popover from "@mui/material/Popover";
-import tickIcon from "../../../assets/table/Icon_Tick.svg";
-import denyIcon from "../../../assets/table/Icon_Deny.svg";
-import Backdrop from "@mui/material/Backdrop";
-import CircularProgress from "@mui/material/CircularProgress";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import type { Property, PropertyWithSource } from "./table.model";
-
-interface PropertyDataMap {
-  residentials?: PropertyWithSource[];
-  commercials?: PropertyWithSource[];
-  plots?: PropertyWithSource[];
-  residential?: PropertyWithSource[];
-  commercial?: PropertyWithSource[];
-  plot?: PropertyWithSource[];
-}
+import tickIcon from "../../../assets/table/Icon_Tick.svg";
+import denyIcon from "../../../assets/table/Icon_Deny.svg";
+import { useLocation, useNavigate } from "react-router-dom";
+// import type { CommercialProperty, PlotProperty} from "./table.model";
+import type {
+  PropertyDataResponse,
+  ResidentialProperty,
+  // CommercialProperty,
+  // PlotProperty
+  PropertyViewWithSource
+} from "./table.model"; // or "./table.model"
 
 interface TableProps {
-  data: Property[] | PropertyWithSource[] | PropertyDataMap;
-  properties?: 
-    | "all"
-    | "residential"
-    | "residentials"
-    | "commercial"
-    | "commercials"
-    | "plot"
-    | "plots"
-    | undefined;
+  //data: ResidentialProperty[];
+  data: PropertyDataResponse | ResidentialProperty[];
+  properties?:
+  | "all"
+  | "residential"
+  | "residentials"
+  | "commercial"
+  | "commercials"
+  | "plot"
+  | "plots"
+  | undefined;
   onScrollChange: (scrollTop: number) => void;
-  handleOpenModal: (action: "Approve" | "Deny" | "Delete", item: PropertyWithSource) => void;
+  handleOpenModal: (
+    action: "Approve" | "Deny" | "Delete",
+    item: ResidentialProperty
+  ) => void;
+}
+
+export interface Property {
+  _id: string; // use string for MongoDB IDs
+  name: string;
+  address: string;
+  size: string;
+  floor: string;
+  facing: string;
+  furnishing: string;
+  type: string;
+  washroom: string;
 }
 
 const modalStyle = {
@@ -60,7 +74,6 @@ function Table({ data, properties, onScrollChange }: TableProps) {
     null
   );
   const navigate = useNavigate();
-
   const location = useLocation();
   const propertyData = location.state?.data;
   console.log("propertyData", propertyData);
@@ -108,69 +121,153 @@ function Table({ data, properties, onScrollChange }: TableProps) {
         return "residential";
     }
   };
-
   const handleAction = async (id: string, status: number) => {
+    
     const singularProperty = getSingularProperty();
     try {
+      const token = localStorage.getItem("token"); // Safely retrieve the auth token
+
       const response = await axios.put(
-        `${import.meta.env.VITE_BackEndUrl
-        }/api/adminpermission/${singularProperty}/${id}`,
-        { status: `${status}` }
+        `${
+          import.meta.env.VITE_BackEndUrl
+        }/api/adminpermission`,
+        {
+          status: status.toString(),
+          properties: [
+            {
+              "type": singularProperty,
+              id: id,
+            },
+          ],
+        },
+        
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // Add token here
+          },
+        }
       );
       console.log("Status updated:", response.data);
+      console.log("editid", response?.data?._id);
     } catch {
       console.error("Failed to update status");
     }
   };
-function isArrayOfObjects(data: unknown): data is (Property | PropertyWithSource)[] {
-  return Array.isArray(data) && data.every((item) => typeof item === "object" && item !== null);
-}
 
-const formatedData: PropertyWithSource[] = isArrayOfObjects(data)
-  ? data.map((item: Property | PropertyWithSource): PropertyWithSource =>
-      "_source" in item
-        ? item
-        : {
-            ...item,
-            _source:
-              properties === "residentials"
-                ? "residential"
-                : properties === "commercials"
-                ? "commercial"
-                : properties === "plots"
-                ? "plot"
-                : "plot",
-          }
-    )
+  // const handleAction = async (
+  //   id: string,
+  //   status: number,
+  //   type: "residential" | "commercial" | "plot"
+  // ): Promise<void> => {
+  //   try {
+  //     const response = await axios.put(
+  //       `${import.meta.env.VITE_BackEndUrl}/api/adminpermission`,
+  //       {
+  //         status: status.toString(), // status must be string: "0" | "1" | ...
+  //         properties: [
+  //           {
+  //             "type": "residential",
+  //             id: id,
+  //           },
+  //         ],
+  //       },
+  //       {
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         withCredentials: true, // Only if your backend requires auth
+  //       }
+  //     );
+  
+  //     console.log("Status updated:", response.data);
+  //   } catch (error: any) {
+  //     console.error("Failed to update status:", error?.response?.data || error);
+  //   }
+  // };
+  
+//@ts-ignore
+  const formatedData: PropertyViewWithSource[] = Array.isArray(data)
+  ? data.map((item) => ({
+      ...item,
+      _source:
+        properties === "residentials"
+          ? "residential"
+          : properties === "commercials"
+          ? "commercial"
+          : properties === "plots"
+          ? "plot" // singular and valid
+          : "residential", // default to valid value
+    }))
   : [
-      ...(data.residentials ?? []),
-      ...(data.commercials ?? []),
-      ...(data.plots ?? []),
-      ...(data.residential ?? []),
-      ...(data.commercial ?? []),
-      ...(data.plot ?? []),
+      ...(data?.residentials?.map((item) => ({
+        ...item,
+        _source: "residential",
+      })) ?? []),
+      ...(data?.commercials?.map((item) => ({
+        ...item,
+        _source: "commercial",
+      })) ?? []),
+      ...(data?.plots?.map((item) => ({
+        ...item,
+        _source: "plot", 
+      })) ?? []),
+      ...(data?.residential?.map((item) => ({
+        ...item,
+        _source: "residential",
+      })) ?? []),
+      ...(data?.commercial?.map((item) => ({
+        ...item,
+        _source: "commercial",
+      })) ?? []),
+      ...(data?.plot?.map((item) => ({
+        ...item,
+        _source: "plot", 
+      })) ?? []),
     ];
+
+
+
 
   // Modal state
   const [open, setOpen] = React.useState(false);
   const [selectedAction, setSelectedAction] = React.useState<string | null>(
     null
   );
-const [selectedItem, setSelectedItem] = React.useState<PropertyWithSource | ResidentialProperty | null>(null);
+  const [selectedItem, setSelectedItem] =
+    React.useState<ResidentialProperty | null>(null);
 
-  const handleEdit = (item: PropertyWithSource) => {
-    navigate("/createResidential", { state: { data: item, mode: "edit" } });
+  // const handleEdit = (item: ResidentialProperty) => {
+  //   console.log("Editing item:", item);
+  //   navigate(`/commercial/create`, { state: { data: item, mode: "edit" } });};
+
+  const handleEdit = (item: any) => {
+    console.log("item._source =", item._source);
+
+    // If _source is an object with a type field:
+    const propertyType =
+      typeof item._source === "string"
+        ? item._source
+        : item._source?.type || "residential";
+
+    navigate(`/${propertyType}/create`, {
+      state: { data: item, mode: "edit" },
+    });
   };
-
   const handleView = (id: string | number) => {
-    const selectedItem = formatedData.find((item: PropertyWithSource) => item._id === id);
+    const selectedItem = formatedData.find((item: any) => item._id === id);
 
+    if (!selectedItem) {
+      alert("Property not found");
+      return;
+    }
     if (!selectedItem) {
       alert("Property not found");
       return;
     }
 
     const routeBase = selectedItem._source;
+    // const routeBase = selectedItem._source;
 
     if (!routeBase) {
       alert("Unknown property type");
@@ -182,18 +279,70 @@ const [selectedItem, setSelectedItem] = React.useState<PropertyWithSource | Resi
     });
   };
 
-const handleOpenModal = (action: "Approve" | "Deny" | "Delete", item: PropertyWithSource) => {
-  console.log("Opening modal with action:", action, "on item:", item._id);
-  setSelectedAction(action);
-  setSelectedItem(item);
-  setOpen(true);
-};
+  // Delete action:
+  // const handleDelete = async (id: string, type: string): Promise<void> => {
+  //   const confirmed = window.confirm(
+  //     "Are you sure you want to delete this property?"
+  //   );
+  //   if (!confirmed) return;
+
+  //   const typeMap: Record<string, string> = {
+  //     residentials: "residential",
+  //     commercials: "commercial",
+  //     plots: "plot",
+  //   };
+
+  //   const normalizedType = type.toLowerCase().trim();
+  //   const slug = typeMap[normalizedType] || normalizedType;
+  //   const endpoint = `${import.meta.env.VITE_BackEndUrl}/api/${slug}/${id}`;
+
+  //   console.log("DELETE Request:", { id, type, slug, endpoint });
+
+  //   try {
+  //     const { data } = await axios.delete(endpoint);
+  //     console.log("Delete response:", data);
+  //     toast.success("Property deleted successfully");
+  //     window.dispatchEvent(new Event("refreshTableData"));
+  //   } catch (error: unknown) {
+  //     console.error("Error deleting property:", error);
+  //     const errorMessage =
+  //       axios.isAxiosError(error) && error.response?.data?.message
+  //         ? error.response.data.message
+  //         : "Failed to delete property. Please try again.";
+  //     toast.error(errorMessage);
+  //   }
+  // };
+
+  const handleOpenModal = (action: string, item: ResidentialProperty) => {
+    console.log(" Opening modal with action:", action, "on item:", item._id);
+    setSelectedAction(action);
+    setSelectedItem(item);
+    setOpen(true);
+  };
+
   const handleCloseModal = () => {
     setOpen(false);
     setSelectedAction(null);
     setSelectedItem(null);
   };
 
+  // const handleConfirmAction = async (id: string, status: number) => {
+  //   try {
+  //     setIsBackdropLoading(true);
+  //     await handleAction(id, status);
+  //     handleCloseModal();
+  //     window.dispatchEvent(new Event("refreshTableData"));
+
+  //     // Success toast message
+  //     const actionText =
+  //       status === 1 ? "Approved" : status === 0 ? "Denied" : "Deleted";
+  //     toast.success(`Listing successfully ${actionText.toLowerCase()}`);
+  //   } catch (e) {
+  //     console.error("Error performing action:", e);
+  //   } finally {
+  //     setIsBackdropLoading(false);
+  //   }
+  // };
   const handleConfirmAction = async (id: string, status: number) => {
     try {
       setIsBackdropLoading(true);
@@ -204,13 +353,33 @@ const handleOpenModal = (action: "Approve" | "Deny" | "Delete", item: PropertyWi
       // Success toast message
       const actionText =
         status === 1 ? "Approved" : status === 0 ? "Denied" : "Deleted";
+      
+         //Delay toast slightly to avoid UI interference
+    setTimeout(() => {
       toast.success(`Listing successfully ${actionText.toLowerCase()}`);
+    }, 300);
+
     } catch (e) {
       console.error("Error performing action:", e);
+      toast.error("Something went wrong");
+
     } finally {
       setIsBackdropLoading(false);
+      // setIsBackdropLoading(false);
     }
   };
+
+  if (!Array.isArray(data)) {
+    const fallback =
+      data?.residential || data?.commercial || data?.plot;
+
+    if (Array.isArray(fallback)) {
+      data = fallback;
+    } else {
+      console.error("Expected 'data' to be an array but got:", data);
+      return <p>Error: Invalid data format</p>;
+    }
+  }
 
   // popover
   const handlePopoverClick = (event: React.MouseEvent<HTMLInputElement>) => {
@@ -234,21 +403,61 @@ const handleOpenModal = (action: "Approve" | "Deny" | "Delete", item: PropertyWi
       Deny: 0,
       Delete: 2,
     };
-
+  
     const statusCode = statusMap[action];
-
+  
     try {
       for (const id of selectedRows) {
-        await handleAction(id, statusCode); // Your API call
+        try {
+          await handleAction(id, statusCode); // API call for each property
+  
+          const actionText = action === "Delete" ? "Deleted" : `${action}d`;
+          toast.success(`Property ${id} ${actionText.toLowerCase()}`);
+        } catch (err) {
+          console.error(`Failed to ${action.toLowerCase()} property ${id}`, err);
+          toast.error(`Failed to ${action.toLowerCase()} property ${id}`);
+        }
       }
-
+  
       setSelectedRows([]); // Clear selection
       handlePopoverClose(); // Close popover
       window.dispatchEvent(new Event("refreshTableData")); // Refresh table
-    } catch {
-      console.error(`Failed to ${action.toLowerCase()} selected properties`);
+    } catch (e) {
+      console.error(`Bulk ${action.toLowerCase()} failed`, e);
+      toast.error(`Bulk ${action.toLowerCase()} failed`);
     }
   };
+  
+
+
+  // const handleBulkAction = async (action: string) => {
+  //   const statusMap: Record<string, number> = {
+  //     Approve: 1,
+  //     Deny: 0,
+  //     Delete: 2,
+  //   };
+
+  //   const statusCode = statusMap[action];
+
+  //   try {
+  //     for (const id of selectedRows) {
+  //       await handleAction(id, statusCode); // API call
+  //     }
+
+  //     setSelectedRows([]); // Clear selection
+  //     handlePopoverClose(); // Close popover
+  //     window.dispatchEvent(new Event("refreshTableData")); // Refresh table
+
+  //     // Success toast
+  //     const actionText = action === "Delete" ? "Delete completed" : `${action} completed`;
+  //     toast.success(actionText);
+  //   } catch {
+
+  //     console.error(`Failed to ${action.toLowerCase()} selected properties`);
+  //     toast.error(`Failed to ${action.toLowerCase()} selected properties`);
+
+  //   }
+  // };
 
   const truncateWords = (text: string = "", wordLimit: number): string => {
     const words = text.trim().split(/\s+/);
@@ -545,25 +754,25 @@ const handleOpenModal = (action: "Approve" | "Deny" | "Delete", item: PropertyWi
                       <img
                         src="/Edit.svg"
                         alt="edit"
-                        onClick={() => handleEdit(item)}
+                        onClick={() => handleEdit(item as unknown as ResidentialProperty)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
                         src="/Approve.svg"
                         alt="Approve"
-                        onClick={() => handleOpenModal("Approve", item)}
+                        onClick={() => handleOpenModal("Approve", item as unknown as ResidentialProperty)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
                         src="/Deny.svg"
                         alt="Deny"
-                        onClick={() => handleOpenModal("Deny", item)}
+                        onClick={() => handleOpenModal("Deny", item as unknown as ResidentialProperty)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
                         src="/Delete.svg"
                         alt="Delete"
-                        onClick={() => handleOpenModal("Delete", item)}
+                        onClick={() => handleOpenModal("Delete", item as unknown as ResidentialProperty)}
                         style={{ cursor: "pointer" }}
                       />
                     </div>
@@ -649,6 +858,7 @@ const handleOpenModal = (action: "Approve" | "Deny" | "Delete", item: PropertyWi
                 variant="contained"
                 color="primary"
                 onClick={() => {
+
                   if (!selectedItem?._id || !selectedAction) return;
 
                   const statusMap: Record<string, number> = {
@@ -658,14 +868,33 @@ const handleOpenModal = (action: "Approve" | "Deny" | "Delete", item: PropertyWi
                   };
 
                   const statusCode = statusMap[selectedAction];
+
+                  // Show toast immediately for Delete
+                  if (selectedAction === "Delete") {
+                    toast.success("Listing successfully deleted", {
+                      autoClose: 500000, 
+                    });
+                  }
                   handleConfirmAction(selectedItem._id, statusCode);
+
+                  // if (!selectedItem?._id || !selectedAction) return;
+
+
+                  // if (selectedAction === "Delete") {
+                  //   handleDelete(selectedItem._id, selectedItem._source);
+                  // } else {
+                  //   const statusMap: Record<"Approve" | "Deny", number> = {
+                  //     Approve: 1,
+                  //     Deny: 0,
+                  //   };
+                  //   handleAction(selectedItem._id, statusMap[selectedAction]);
+                  // }
+
+                  // handleCloseModal();
                 }}
                 sx={{ mr: 1 }}
               >
                 Confirm
-              </Button>
-              <Button variant="outlined" onClick={handleCloseModal}>
-                Cancel
               </Button>
             </Box>
           </Modal>

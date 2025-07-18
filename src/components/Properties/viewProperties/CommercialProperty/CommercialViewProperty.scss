@@ -1,308 +1,308 @@
 .breadcrumb {
-    display: flex;
-    align-items: center;
-    gap: 56px;
+  display: flex;
+  align-items: center;
+  gap: 56px;
 }
 .breadcrumb > div {
-    margin-bottom: 0 !important;
+  margin-bottom: 0 !important;
 }
 .breadcrumb button {
-    background: #F2F3F5;
-    color: #2E2E2F;
+  background: #F2F3F5;
+  color: #2E2E2F;
 }
 .breadcrumb button:hover {
-    color: #2E2E2F;
+  color: #2E2E2F;
 }
 
 .breadcrumb {
-    display: flex;
-    align-items: center;
-    gap: 56px;
+  display: flex;
+  align-items: center;
+  gap: 56px;
 }
 .breadcrumb > div {
-    margin-bottom: 0 !important;
+  margin-bottom: 0 !important;
 }
 .breadcrumb button {
-    background: #F2F3F5;
-    color: #2E2E2F;
+  background: #F2F3F5;
+  color: #2E2E2F;
 }
 .breadcrumb button:hover {
-    color: #2E2E2F;
+  color: #2E2E2F;
 }
 .address-detail {
-    padding: 48px 0 0;
+  padding: 48px 0 0;
 }
 .title-address {
-    flex-direction: column;
-    align-items: flex-start;
+  flex-direction: column;
+  align-items: flex-start;
 }
 .title-address h3 {
-    font-size: 22px ;
-    line-height: 27px;
-    letter-spacing: 0px;
-    font-family: "Raleway";
-    font-weight: 700;
-    color: #2E2E2F;
+  font-size: 22px ;
+  line-height: 27px;
+  letter-spacing: 0px;
+  font-family: "Raleway";
+  font-weight: 700;
+  color: #2E2E2F;
 }
 .landmark-type {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 .detail-type {
-    font-size: 12px ;
-    line-height: 18px;
-    letter-spacing: 0px;
-    font-family: "Open Sans";
-    font-weight: 400;
-    color: #53B224;
-    border: 1px solid #53B224;
-    border-radius: 4px;
-    padding: 4px 8px;
-    margin: 0 16px;
+  font-size: 12px ;
+  line-height: 18px;
+  letter-spacing: 0px;
+  font-family: "Open Sans";
+  font-weight: 400;
+  color: #53B224;
+  border: 1px solid #53B224;
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin: 0 16px;
 }
 .detail-status-type {
-    background: #00BFA6;
-    font-size: 12px ;
-    line-height: 18px;
-    letter-spacing: 0px;
-    font-family: "Open Sans";
-    font-weight: 400;
-    color: #fff;
-    padding: 7px 24px;
+  background: #00BFA6;
+  font-size: 12px ;
+  line-height: 18px;
+  letter-spacing: 0px;
+  font-family: "Open Sans";
+  font-weight: 400;
+  color: #fff;
+  padding: 7px 24px;
 }
 .lead {
-    padding: 8px 0;
-    margin-bottom: 0 !important;
-    font-size: 14px ;
-    line-height: 22px;
-    letter-spacing: 0.1px;
-    font-family: "Open Sans";
-    font-weight: 400;
-    color: #757575;
+  padding: 8px 0;
+  margin-bottom: 0 !important;
+  font-size: 14px ;
+  line-height: 22px;
+  letter-spacing: 0.1px;
+  font-family: "Open Sans";
+  font-weight: 400;
+  color: #757575;
 }
 .area-facing-detail-inner-div {
-    display: flex;
-    justify-content: space-between;
+  display: flex;
+  justify-content: space-between;
 
 }
 .area-facing-detail-inner-div p {
-    font-size: 12px ;
-    line-height: 18px;
-    letter-spacing: -0.05px;
-    font-family: "Raleway";
-    font-weight: 700;
-    color: #757575;
+  font-size: 12px ;
+  line-height: 18px;
+  letter-spacing: -0.05px;
+  font-family: "Raleway";
+  font-weight: 700;
+  color: #757575;
 }
 .caps {
-    text-transform: uppercase;
+  text-transform: uppercase;
 }
 .area-facing-detail-inner-div .text-muted {
-    font-size: 14px ;
-    line-height: 22px;
-    letter-spacing: 0.1px;
-    font-family: "Open Sans";
-    font-weight: 600;
+  font-size: 14px ;
+  line-height: 22px;
+  letter-spacing: 0.1px;
+  font-family: "Open Sans";
+  font-weight: 600;
 }
 .area-facing-detail-inner-div .user-result-data {
-    font-size: 22px ;
-    line-height: 27px;
-    letter-spacing: 0px;
-    font-family: "Raleway";
-    font-weight: 700;
-    color: #55565C;
+  font-size: 22px ;
+  line-height: 27px;
+  letter-spacing: 0px;
+  font-family: "Raleway";
+  font-weight: 700;
+  color: #55565C;
 }
 .area-facing-divider {
-    width: 2px;
-    height: 88px;
-    background: #F2F3F5;
-    padding: 0;
+  width: 2px;
+  height: 88px;
+  background: #F2F3F5;
+  padding: 0;
 }
 
 .midDetails h3,.propertyDes h3,.google-top {
-    font-size: 16px ;
-    line-height: 18px;
-    letter-spacing: 0px;
-    font-family: "Raleway";
-    font-weight: 700;
-    color: #2E2E2F;
-    margin-bottom: 32px;
+  font-size: 16px ;
+  line-height: 18px;
+  letter-spacing: 0px;
+  font-family: "Raleway";
+  font-weight: 700;
+  color: #2E2E2F;
+  margin-bottom: 32px;
 }
 .row-individual-data p {
-    margin-bottom: 0;
-    padding-bottom: 8px;
-    text-transform: uppercase;
-    font-size: 12px ;
-    line-height: 18px;
-    letter-spacing: -0.05px;
-    font-family: "Raleway";
-    font-weight: 700;
-    color: #55565C;
+  margin-bottom: 0;
+  padding-bottom: 8px;
+  text-transform: uppercase;
+  font-size: 12px ;
+  line-height: 18px;
+  letter-spacing: -0.05px;
+  font-family: "Raleway";
+  font-weight: 700;
+  color: #55565C;
 }
 .row-individual-data span ,.propertyDes p {
-    font-family: "Open Sans";
-    text-transform: capitalize;
-    font-size: 12px ;
-    line-height: 18px;
-    letter-spacing: 0px;
-    font-weight: 400;
-    display: flex;
-    align-items: center;
-    
+  font-family: "Open Sans";
+  text-transform: capitalize;
+  font-size: 12px ;
+  line-height: 18px;
+  letter-spacing: 0px;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+ 
 }
 .row-individual-data span {
-    padding-bottom: 15px;
-    color: #2E2E2F;
+  padding-bottom: 15px;
+  color: #2E2E2F;
 }
 .propertyDes p {
-    color: #55565C;
+  color: #55565C;
 }
 
 .map-location h3 {
-    padding: 0 16px 14px 14px;
+  padding: 0 16px 14px 14px;
 }
 
 .map-row h3 {
-    font-size: 16px ;
-    line-height: 18px;
-    letter-spacing: 0px;
-    font-weight: 400;
-    color: #2E2E2F;
-    margin-bottom: 0;
-    font-family: "Raleway";
+  font-size: 16px ;
+  line-height: 18px;
+  letter-spacing: 0px;
+  font-weight: 400;
+  color: #2E2E2F;
+  margin-bottom: 0;
+  font-family: "Raleway";
 }
 .map-row p {
-    font-size: 14px ;
-    line-height: 22px;
-    letter-spacing: 0.1px;
-    font-weight: 400;
-    color: #55565C;
-    margin-bottom: 0;
-    font-family: "Open Sans";
-    padding: 13px 16px ;
+  font-size: 14px ;
+  line-height: 22px;
+  letter-spacing: 0.1px;
+  font-weight: 400;
+  color: #55565C;
+  margin-bottom: 0;
+  font-family: "Open Sans";
+  padding: 13px 16px ;
 }
 .location-detail h3 {
-    padding-left: 16px;
+  padding-left: 16px;
 }
 .address,.lat-long {
-    margin-bottom: 32px;
+  margin-bottom: 32px;
 }
 .address h3,.lat-long h3,.Nearby {
-    padding-bottom: 14px;
+  padding-bottom: 14px;
 }
 .transport-row h3 {
-    padding-left: 0;
+  padding-left: 0;
 }
 .transport-row .col-md-3 p {
-    padding-left: 32px;
+  padding-left: 32px;
 }
 .essential {
-    display: flex;
+  display: flex;
 }
 span.inline-style {
-    padding: 5px 12px ;
-    border: 1px solid #D3DDE7;
-    border-radius: 8px;
-    margin-left: 16px;
-    display: inline-block;
+  padding: 5px 12px ;
+  border: 1px solid #D3DDE7;
+  border-radius: 8px;
+  margin-left: 16px;
+  display: inline-block;
 }  
 .inline-style-3 {
-    margin-top: 15px;
+  margin-top: 15px;
 }
 
 .owner-info .inner-div {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 24px 0;
-    border: 1px solid #D3DDE7;
-    border-radius: 6px;
-        max-width: 425px;
-    width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 0;
+  border: 1px solid #D3DDE7;
+  border-radius: 6px;
+      max-width: 425px;
+  width: 100%;
 }
 .number-outer {
-    padding: 0 12px;
+  padding: 0 12px;
 }
 
 .owner-info img {
-    width: max-content;
-    position: relative !important;
-    left: auto !important;
-    top: auto !important;
+  width: max-content;
+  position: relative !important;
+  left: auto !important;
+  top: auto !important;
 }
 .owner-info p {
-    font-size: 12px ;
-    line-height: 18px;
-    letter-spacing: -0.05px;
-    font-weight: 700;
-    font-family: "Raleway";
-    color: #757575;
-    padding: 8px 0;
-    margin-bottom: 0;
+  font-size: 12px ;
+  line-height: 18px;
+  letter-spacing: -0.05px;
+  font-weight: 700;
+  font-family: "Raleway";
+  color: #757575;
+  padding: 8px 0;
+  margin-bottom: 0;
 }
 .owner-info h6 {
-    font-size: 16px ;
-    line-height: 24px;
-    letter-spacing: 0px;
-    font-weight: 400;
-    font-family: "Open Sans";
-    color: #2E2E2F;
+  font-size: 16px ;
+  line-height: 24px;
+  letter-spacing: 0px;
+  font-weight: 400;
+  font-family: "Open Sans";
+  color: #2E2E2F;
 }
 .view-area p {
-    font-size: 12px;
-    line-height: 18px;
-    letter-spacing: -0.05px;
-    font-family: "Raleway";
-    font-weight: 700;
-    color: #757575;
+  font-size: 12px;
+  line-height: 18px;
+  letter-spacing: -0.05px;
+  font-family: "Raleway";
+  font-weight: 700;
+  color: #757575;
 }
 .view-area h3 {
-        font-size: 22px;
-    line-height: 27px;
-    letter-spacing: 0px;
-    font-family: "Raleway";
-    font-weight: 700;
-    color: #55565C;
+      font-size: 22px;
+  line-height: 27px;
+  letter-spacing: 0px;
+  font-family: "Raleway";
+  font-weight: 700;
+  color: #55565C;
 }
 .view-area .text-muted {
-    font-size: 14px;
-    line-height: 22px;
-    letter-spacing: 0.1px;
-    font-family: "Open Sans";
-    font-weight: 600;
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: 0.1px;
+  font-family: "Open Sans";
+  font-weight: 600;
 }  
 .view-property-icon-inside {
-    display: flex;
-    gap: 16px;
+  display: flex;
+  gap: 16px;
 }
 .view-property-icon .btn {
-    padding: 14px 24px;
-    font-size: 16px;
-    font-weight: 600;
-    letter-spacing: 0;
-    font-family: "Raleway";
-    line-height: 24px;
-    height: 48px;
-    box-shadow: 0 0 2px 0 #B2B2B21A,
-    1px 2px 4px 0 #B2B2B217,
-    2px 3px 5px 0 #B2B2B214,
-    3px 4px 7px 0 #8AB6E51F;
+  padding: 14px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0;
+  font-family: "Raleway";
+  line-height: 24px;
+  height: 48px;
+  box-shadow: 0 0 2px 0 #B2B2B21A,
+  1px 2px 4px 0 #B2B2B217,
+  2px 3px 5px 0 #B2B2B214,
+  3px 4px 7px 0 #8AB6E51F;
 }
 .edit-btn {
-    border: 1px solid #757575;
-    color: #2E2E2F;
+  border: 1px solid #757575;
+  color: #2E2E2F;
 }
 .approve-btn {
-    border: 1px solid #214999;
-    color: #fff;
-    background: #214999;
+  border: 1px solid #214999;
+  color: #fff;
+  background: #214999;
 }
 .deny-btn {
-    border: 1px solid #214999;
-    color: #214999;
-    background: #EBEEF5;
+  border: 1px solid #214999;
+  color: #214999;
+  background: #EBEEF5;
 }
 .delete-btn {
-    border: 1px solid #FE3D3C;
-    color: #FE3D3C;
-    background: #F5E7E4;
+  border: 1px solid #FE3D3C;
+  color: #FE3D3C;
+  background: #F5E7E4;
 }
