@@ -49,13 +49,16 @@ interface PropertyResponse {
 }
 
 const CommercialView = () => {
+  const { id } = useParams();
+  const [property, setProperty] = useState<PropertyResponse | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
   const propertyData = location.state?.data as CommercialProperty;
 
-  const { id } = useParams();
-  const [property, setProperty] = useState<PropertyResponse | null>(null);
-console.log("property",property, )
+console.log("property",property )
+
+
+
 const latitudeRaw = property?.property?.location?.map?.latitude;
 const longitudeRaw = property?.property?.location?.map?.longitude;
 

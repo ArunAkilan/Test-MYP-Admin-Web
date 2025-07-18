@@ -13,6 +13,7 @@ export type Owner = {
 
 //Main ts.
 export interface ResidentialProperty {
+  _id: string; 
   title: string;
   propertyType: string;
   rent: {

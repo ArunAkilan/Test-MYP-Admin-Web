@@ -75,6 +75,7 @@ export interface CommercialProperty {
 }
 
 export interface CommercialProperty {
+  _id: string; 
     title: string;
     propertyType: string;
     commercialType: string;

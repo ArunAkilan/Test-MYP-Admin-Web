@@ -1,7 +1,4 @@
 import "./table.scss";
-
-// import type { PropertyDataResponse } from "./table.model";
-
 import {
   Box,
   Typography,
@@ -22,6 +19,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import type {
   PropertyDataResponse,
   ResidentialProperty,
+  // CommercialProperty,
+  // PlotProperty
   PropertyViewWithSource
 } from "./table.model"; // or "./table.model"
 
@@ -126,6 +125,8 @@ function Table({ data, properties, onScrollChange }: TableProps) {
     
     const singularProperty = getSingularProperty();
     try {
+      const token = localStorage.getItem("token"); // Safely retrieve the auth token
+
       const response = await axios.put(
         `${
           import.meta.env.VITE_BackEndUrl
@@ -139,6 +140,13 @@ function Table({ data, properties, onScrollChange }: TableProps) {
             },
           ],
         },
+        
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // Add token here
+          },
+        }
       );
       console.log("Status updated:", response.data);
       console.log("editid", response?.data?._id);
@@ -178,45 +186,48 @@ function Table({ data, properties, onScrollChange }: TableProps) {
   //   }
   // };
   
-
-  const formatedData = Array.isArray(data)
-    ? data.map((item: ResidentialProperty) => ({
+//@ts-ignore
+  const formatedData: PropertyViewWithSource[] = Array.isArray(data)
+  ? data.map((item) => ({
+      ...item,
+      _source:
+        properties === "residentials"
+          ? "residential"
+          : properties === "commercials"
+          ? "commercial"
+          : properties === "plots"
+          ? "plot" // singular and valid
+          : "residential", // default to valid value
+    }))
+  : [
+      ...(data?.residentials?.map((item) => ({
         ...item,
-        _source:
-          properties === "residentials"
-            ? "residential"
-            : properties === "commercials"
-            ? "commercial"
-            : properties === "plots"
-            ? "plots"
-            : "unknown",
-      }))
-    : [
-        ...(data?.residentials?.map((item: ResidentialProperty) => ({
-          ...item,
-          _source: "residential",
-        })) ?? []),
-        ...(data?.commercials?.map((item: CommercialProperty) => ({
-          ...item,
-          _source: "commercial",
-        })) ?? []),
-        ...(data?.plots?.map((item: PlotProperty) => ({
-          ...item,
-          _source: "plots",
-        })) ?? []),
-        ...(data?.residential?.map((item: ResidentialProperty) => ({
-          ...item,
-          _source: "residential",
-        })) ?? []),
-        ...(data?.commercial?.map((item: CommercialProperty) => ({
-          ...item,
-          _source: "commercial",
-        })) ?? []),
-        ...(data?.plot?.map((item: PlotProperty) => ({
-          ...item,
-          _source: "plots",
-        })) ?? []),
-      ];
+        _source: "residential",
+      })) ?? []),
+      ...(data?.commercials?.map((item) => ({
+        ...item,
+        _source: "commercial",
+      })) ?? []),
+      ...(data?.plots?.map((item) => ({
+        ...item,
+        _source: "plot", 
+      })) ?? []),
+      ...(data?.residential?.map((item) => ({
+        ...item,
+        _source: "residential",
+      })) ?? []),
+      ...(data?.commercial?.map((item) => ({
+        ...item,
+        _source: "commercial",
+      })) ?? []),
+      ...(data?.plot?.map((item) => ({
+        ...item,
+        _source: "plot", 
+      })) ?? []),
+    ];
+
+
+
 
   // Modal state
   const [open, setOpen] = React.useState(false);
