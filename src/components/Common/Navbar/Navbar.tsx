@@ -173,7 +173,7 @@ const Header: React.FC<HeaderProps> = ({
                 </div>
 
                 <div
-                  className="ad-right"
+                  className="prh-ad-right"
                   aria-describedby={idSecond}
                   onClick={handleSecondClick}
                 >

@@ -688,7 +688,7 @@ export default function Dashboardtab({
               value={TabStatus.Pending}
               label={
                 <React.Fragment>
-                 {activeTab}:Pending &nbsp;
+                 Pending &nbsp;
                   {value !== 0 && (
                     <span style={{ fontSize: "smaller" }}>
                       ({handlePendingCount})
