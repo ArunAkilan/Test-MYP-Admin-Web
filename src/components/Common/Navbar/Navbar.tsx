@@ -15,11 +15,6 @@ interface HeaderProps {
   Profile: boolean;
 }
 
-// interface Notification {
-//   _id: string;
-//   message: string;
-//   date: string;
-// }
 
 const ENDPOINT = import.meta.env.VITE_BackEndUrl;
 
@@ -55,11 +50,6 @@ const Header: React.FC<HeaderProps> = ({
     localStorage.removeItem('user');
     navigate('/login');
   }
-
-  // const handleClose = () => {
-  //   setFirstAnchorEl(null);
-  //   setSecondAnchorEl(null);
-  // };
 
   const handleCloseFirst = () => setFirstAnchorEl(null);
   const handleCloseSecond = () => setSecondAnchorEl(null);

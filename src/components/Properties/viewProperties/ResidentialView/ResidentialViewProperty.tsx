@@ -66,7 +66,12 @@ console.log("Params ID:", id);
       .get(
         `${
           import.meta.env.VITE_BackEndUrl
-        }/api/residential/${id}`
+        }/api/residential/${id}`,
+         {
+          headers: {
+            "Authorization":`Bearer ${localStorage.getItem("token")}`
+          },
+        }
       )
       .then((res) => setProperty(res.data))
       .catch((err) => console.error("Error fetching property:", err));

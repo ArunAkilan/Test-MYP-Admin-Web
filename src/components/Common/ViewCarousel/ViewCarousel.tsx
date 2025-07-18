@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import Slider from "react-slick";
 import { ChevronLeft, ChevronRight, Camera } from "lucide-react";
 import "slick-carousel/slick/slick.css";
@@ -34,8 +34,6 @@ const ViewCarousel: React.FC<ViewCarouselProps> = ({ images, price, area }) => {
   const [nav1, setNav1] = useState<Slider | null>(null);
   const [nav2, setNav2] = useState<Slider | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const mainSlider = useRef<Slider | null>(null);
-  const thumbSlider = useRef<Slider | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   if (!images || images.length === 0) return null;

@@ -36,12 +36,11 @@ import { Modal } from "@mui/material";
 import ApproveIcon from "../../../assets/Dashboard modal img/Confirm.svg";
 import DenyIcon from "../../../assets/Dashboard modal img/reject.svg";
 import DeleteIcon from "../../../assets/Dashboard modal img/dlt.svg";
-import img1 from "../../../assets/dashboardtab/card-image.svg";
-import img2 from "../../../assets/Container_ImageHolder (2).png";
-import img3 from "../../../assets/Container_ImageHolder (1).png";
-import img4 from "../../../assets/Container_ImageHolder (3).png";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
+import { useAppDispatch, useAppSelector } from "../../../hook";
+import { setActiveTab } from "../../../slicers/tabsSlice";
+import { TabStatus } from "./Dashboardtab.model";
 
 type Property = {
   _id?: string;
@@ -52,7 +51,6 @@ type Property = {
   };
   [key: string]: any;
 };
-const images = [img1, img2, img3, img4];
 type PropertyData = {
   residential: Property[];
   commercial: Property[];
@@ -66,6 +64,7 @@ type PropertyData = {
     | "plot"
     | "plots";
 };
+
 interface DashboardtabProps {
   data: PropertyData;
   properties: "all" | "residentials" | "commercials" | "plots";
@@ -82,6 +81,7 @@ type PropertyItem = {
   rent?: {
     rentAmount?: string;
   };
+  images?:string[];
 };
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -122,6 +122,8 @@ export default function Dashboardtab({
   const [drawerOpen, setDrawerOpen] = useState(false);
   const statusByTab = ["pending", "approved", "rejected", "deleted"];
   const [value, setValue] = useState(0);
+  const dispatch = useAppDispatch();
+  const activeTab = useAppSelector(state => state.tabs.currentTab);
   const [tableValues, setTableValues] = useState<Property[]>([]);
   const [resetCounter, setResetCounter] = useState(0);
   const [alignment, setAlignment] = React.useState("List View");
@@ -299,6 +301,8 @@ export default function Dashboardtab({
   // Handle tab change
   const handleChange = (_: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
+    console.log("newValue",newValue)
+    dispatch(setActiveTab(newValue));
     setIsFiltered(false);
     setCurrentCheckList([]);
 
@@ -554,6 +558,7 @@ export default function Dashboardtab({
   const checkListCount = currentCheckList.length;
 
   //format data
+  //@ts-ignore
   const formatData: PropertyItem[] = Array.isArray(data)
     ? data.map((item) => ({
         _id: item._id ?? "",
@@ -619,7 +624,12 @@ export default function Dashboardtab({
         `${
           import.meta.env.VITE_BackEndUrl
         }/api/adminpermission/${singularProperty}/${id}`,
-        { status: `${status}` }
+        { status: `${status}` },
+         {
+          headers: {
+            "Authorization":`Bearer ${localStorage.getItem("token")}`
+          },
+        }
       );
       console.log("Status updated:", response.data);
     } catch  {
@@ -665,7 +675,7 @@ export default function Dashboardtab({
           }}
         >
           <Tabs
-            value={value}
+            value={activeTab}
             onChange={handleChange}
             aria-label="basic tabs example"
             sx={{
@@ -675,9 +685,10 @@ export default function Dashboardtab({
             id="pending-approval-tabs-wrap"
           >
             <Tab
+              value={TabStatus.Pending}
               label={
                 <React.Fragment>
-                  Pending &nbsp;
+                 {activeTab}:Pending &nbsp;
                   {value !== 0 && (
                     <span style={{ fontSize: "smaller" }}>
                       ({handlePendingCount})
@@ -691,6 +702,7 @@ export default function Dashboardtab({
             />
 
             <Tab
+              value={TabStatus.Rejected}
               label={
                 <React.Fragment>
                   Approved &nbsp;
@@ -707,6 +719,7 @@ export default function Dashboardtab({
             />
 
             <Tab
+              value={TabStatus.Approved}
               label={
                 <React.Fragment>
                   Rejected &nbsp;
@@ -723,6 +736,7 @@ export default function Dashboardtab({
             />
 
             <Tab
+              value={TabStatus.Deleted}
               label={
                 <React.Fragment>
                   Deleted &nbsp;
@@ -1281,8 +1295,8 @@ const PropertyCardList = ({
   );
 
   const formatedData: PropertyItem[] = properties;
-  const allIds = formatedData.map((data: PropertyItem) => data._id);
-  const [visibleCount, setVisibleCount] = useState<number>(5);
+  // const allIds = formatedData.map((data: PropertyItem) => data._id);
+  // const [visibleCount, setVisibleCount] = useState<number>(5);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   // Debounced scroll handler
@@ -1290,11 +1304,10 @@ const PropertyCardList = ({
     const container = containerRef.current;
     if (!container) return;
 
-    const { scrollTop, scrollHeight, clientHeight } = container;
-
-    if (scrollTop + clientHeight >= scrollHeight - 50) {
-      setVisibleCount((prev) => Math.min(prev + 5, formatedData.length));
-    }
+    
+    // if (scrollTop + clientHeight >= scrollHeight - 50) {
+    //   setVisibleCount((prev) => Math.min(prev + 5, formatedData.length));
+    // }
   }, 200);
 
   useEffect(() => {
@@ -1340,6 +1353,7 @@ const PropertyCardList = ({
     container?.addEventListener("scroll", handleScroll);
     return () => container?.removeEventListener("scroll", handleScroll);
   }, [onScrollChange, lastScrollY, formatedData.length]);
+  console.log("formatedData",formatedData)
 
   // popover
   const handlePopoverClick = (event: React.MouseEvent<HTMLInputElement>) => {
@@ -1376,7 +1390,12 @@ const PropertyCardList = ({
         `${
           import.meta.env.VITE_BackEndUrl
         }/api/adminpermission/${singularProperty}/${id}`,
-        { status: `${status}` }
+        { status: `${status}` },
+         {
+          headers: {
+            "Authorization":`Bearer ${localStorage.getItem("token")}`
+          },
+        }
       );
       console.log("Status updated:", response.data);
     } catch  {
@@ -1424,12 +1443,16 @@ const PropertyCardList = ({
             // marginBottom: "50px",
           }}
         >
-          {formatedData.slice(0, 5).map((item: PropertyItem) => (
+          {formatedData.length === 0 && 
+              (<div style={{padding:"20px", margin:"auto",textAlign:"center"}}>No properties available...</div>)
+          }
+          {formatedData.map((item: PropertyItem) => (
             <Grid item xs={12} sm={12} md={12} key={item._id}>
               <div className="card-view-wrapper row" key={item._id}>
                 <div className="card-view-img col-md-6">
                   <Carousel
-                    images={images}
+                   //@ts-ignore
+                    images={item?.images}
                     price="£15,000 pcm"
                     area="485,700 sq. ft."
                   />
