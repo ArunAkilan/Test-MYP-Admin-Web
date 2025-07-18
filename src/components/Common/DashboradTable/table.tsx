@@ -468,7 +468,10 @@ const handleOpenModal = (action: "Approve" | "Deny" | "Delete", item: PropertyWi
               </tr>
             </thead>
             <tbody>
-              {formatedData.map((item) => (
+              {formatedData.length === 0 && 
+              (<div style={{padding:"20px", margin:"auto",textAlign:"center"}}>No properties available...</div>)
+              }
+              {formatedData.length > 0 && formatedData.map((item) => (
                 <tr key={item._id}>
                   <td className="checkbox-align chechbox-align-inside">
                     <input

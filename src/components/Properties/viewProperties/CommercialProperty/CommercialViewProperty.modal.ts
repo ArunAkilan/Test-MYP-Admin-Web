@@ -1,4 +1,5 @@
 export interface CommercialProperty {
+  availability?:any;
   title: string;
   propertyType: string;
   commercialType: string;

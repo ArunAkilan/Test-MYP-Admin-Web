@@ -15,7 +15,7 @@ import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import ImageCarouselModal from "./imagecarousel";
 
 interface CarouselProps {
-  images: string[];
+  images?: string[];
   price?: string;
   area?: string;
 }
@@ -48,12 +48,12 @@ const Carousel: React.FC<CarouselProps> = ({ images}) => {
   console.log("direction",direction)
 
   const handlePrev = () => {
-    setDirection("left");
-    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1));
+    setDirection("left");//@ts-ignore
+    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images?.length - 1));
   };
 
   const handleNext = () => {
-    setDirection("right");
+    setDirection("right");//@ts-ignore
     setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0));
   };
 
@@ -85,15 +85,15 @@ const Carousel: React.FC<CarouselProps> = ({ images}) => {
         >
           <Box
             sx={{
-              display: "flex",
-              width: `${images.length * 100}%`,
-              transform: `translateX(-${
-                currentIndex * (100 / images.length)
+              display: "flex",//@ts-ignore
+              width: `${images?.length * 100}%`,
+              transform: `translateX(-${//@ts-ignore
+                currentIndex * (100 / images?.length)
               }%)`,
               transition: "transform 0.5s ease-in-out",
             }}
           >
-            {images.map((img, index) => (
+            {images && images.map((img, index) => (
               <Box
                 key={index}
                 sx={{
@@ -117,7 +117,7 @@ const Carousel: React.FC<CarouselProps> = ({ images}) => {
                 {/* Badge for image count */}
                 {index === currentIndex && (
                   <ImageCountBadge
-                    badgeContent={`${currentIndex + 1}/${images.length}`}
+                    badgeContent={`${currentIndex + 1}/${images?.length}`}
                     anchorOrigin={{ vertical: "top", horizontal: "left" }}
                     sx={{
                       position: "absolute",
@@ -142,7 +142,7 @@ const Carousel: React.FC<CarouselProps> = ({ images}) => {
           </Box>
 
           {/* Navigation Buttons */}
-          {images.length > 1 && (
+          {images && images?.length > 1 && (
             <>
               <IconButton
                 onClick={(e) => {
@@ -197,6 +197,7 @@ const Carousel: React.FC<CarouselProps> = ({ images}) => {
  <ImageCarouselModal
   open={open}
   onClose={() => setOpen(false)}
+  //@ts-ignore
   images={images}
 
 />
