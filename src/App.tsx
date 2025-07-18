@@ -7,6 +7,7 @@ import {
   Navigate,
   // useNavigate,
   useLocation,
+  useMatch,
 } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
@@ -63,12 +64,12 @@ function AppRoutes() {
     //   "/residential",
     //   "/plots",
     // ];
-
+ 
     //const shouldHideScroll = noScrollRoutes.includes(location.pathname);
     // document.body.style.overflow = shouldHideScroll ? "hidden" : "auto";
   }, [location.pathname]);
   // const location = useLocation();
-
+ 
   // Define routes where sidebar should be hidden
   const hideSidebarRoutes = [
     "/residential/view",
@@ -77,27 +78,28 @@ function AppRoutes() {
     "/login",
     "/login"
   ];
-
+ 
   // Check if the current pathname starts with any of the routes
   const shouldHideSidebar = hideSidebarRoutes.some((route) =>
     location.pathname.startsWith(route)
   );
-
+ 
   /***Drawer Component */
   const locationIsAdmin = location.pathname === "/login";
   locationIsAdmin ? document.body.style.background = '#F0F5FC' :
     document.body.style.background = '#FFFFFF';
+
   const theme = useTheme();
 
   const handleDrawerOpen = () => {
     setOpen(true);
   };
-
+ 
   const handleDrawerClose = () => {
     setOpen(false);
   };
   const drawerWidth = 230;
-
+ 
   const openedMixin = (theme: Theme): CSSObject => ({
     width: drawerWidth,
     transition: theme.transitions.create('width', {
@@ -107,7 +109,7 @@ function AppRoutes() {
     overflowX: 'hidden',
     marginTop: "61px"
   });
-
+ 
   const closedMixin = (theme: Theme): CSSObject => ({
     transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
@@ -147,36 +149,46 @@ function AppRoutes() {
   );
   /****Drawer Component */
 
+
+
+
   return (
     <div className="app-container row">
 
-      {!locationIsAdmin && <Drawer variant="permanent" open={open} >
-        <IconButton
-          color="inherit"
-          aria-label="open drawer"
-          onClick={handleDrawerOpen}
-          edge="start"
-          sx={[
-            {
-              justifyContent: "end",
-              "&:hover": {
-                backgroundColor: "transparent !important"
-              }
-            },
-            open && { display: 'none' },
-          ]}
-        >
-          <MenuIcon />
-        </IconButton>
-        {open && <IconButton onClick={handleDrawerClose} sx={{
-          justifyContent: "end", "&:hover": {
-            backgroundColor: "transparent !important"
-          }
-        }}>
-          {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-        </IconButton>}
-        {!shouldHideSidebar && <Sidebar />}
-      </Drawer>}
+      {
+        !shouldHideInResidentialView &&
+        !shouldHideInCommercialView &&
+        !shouldHideInPlotView &&
+        !shouldHideInResidentialCreate &&
+        !shouldHideInCommercialCreate &&
+        !shouldHideInPlotCreate &&
+        !locationIsAdmin && <Drawer variant="permanent" open={open} >
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={handleDrawerOpen}
+            edge="start"
+            sx={[
+              {
+                justifyContent: "end",
+                "&:hover": {
+                  backgroundColor: "transparent !important"
+                }
+              },
+              open && { display: 'none' },
+            ]}
+          >
+            <MenuIcon />
+          </IconButton>
+          {open && <IconButton onClick={handleDrawerClose} sx={{
+            justifyContent: "end", "&:hover": {
+              backgroundColor: "transparent !important"
+            }
+          }}>
+            {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+          </IconButton>}
+          {!shouldHideSidebar && <Sidebar />}
+        </Drawer>}
       <div
         // className={`content-area ${!shouldHideSidebar ? "col-md-9 offset-md-3" : "col-md-12"
         //   }`}
@@ -184,11 +196,11 @@ function AppRoutes() {
         style={{ flex: 1, overflowY: "auto" }}
       >
         <Routes>
-        
+
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Navigate to="/login" />} />
           <Route element={<ProtectedRoute />}>
-              <Route path="/dashboard" element={<Home properties="all" />} />
+            <Route path="/dashboard" element={<Home properties="all" />} />
 
               <Route
                 path="/commercial"
@@ -215,7 +227,7 @@ function AppRoutes() {
     </div>
   );
 }
-
+ 
 function App() {
   return (
     <Router>
@@ -223,13 +235,13 @@ function App() {
     </Router>
   );
 }
-
-
+ 
+ 
 function LayoutWrapper() {
   const location = useLocation();
   const isLoginRoute = location.pathname === "/login";
 
-  const getLoggedInUserName:any = localStorage.getItem("user");
+  const getLoggedInUserName: any = localStorage.getItem("user");
   const parsedLoggedInUserName = JSON.parse(getLoggedInUserName);
 
   return (
@@ -248,5 +260,5 @@ function LayoutWrapper() {
     </div>
   );
 }
-
+ 
 export default App;

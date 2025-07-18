@@ -1,50 +1,60 @@
 import "./table.scss";
-import type { ResidentialProperty } from "../../AdminResidencial/AdminResidencial.model";
-import { useNavigate } from "react-router-dom";
-import { Box, Typography, Modal } from "@mui/material";
-import * as React from "react";
-import "./table.scss";
-import Button from "@mui/material/Button";
-import { useLocation } from "react-router-dom";
+import {
+  Box,
+  Typography,
+  Modal,
+  Popover,
+  Button,
+  Backdrop,
+  CircularProgress,
+} from "@mui/material";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useState, useEffect } from "react";
-import Popover from "@mui/material/Popover";
-import tickIcon from "../../../assets/table/Icon_Tick.svg";
-import denyIcon from "../../../assets/table/Icon_Deny.svg";
-import Backdrop from "@mui/material/Backdrop";
-import CircularProgress from "@mui/material/CircularProgress";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import type { Property, PropertyWithSource } from "./table.model";
-import EmptyState from "../../EmptyState/EmptyState";
-
-interface PropertyDataMap {
-  residentials?: PropertyWithSource[];
-  commercials?: PropertyWithSource[];
-  plots?: PropertyWithSource[];
-  residential?: PropertyWithSource[];
-  commercial?: PropertyWithSource[];
-  plot?: PropertyWithSource[];
-}
+import tickIcon from "../../../assets/table/Icon_Tick.svg";
+import denyIcon from "../../../assets/table/Icon_Deny.svg";
+import { useLocation, useNavigate } from "react-router-dom";
+// import type { CommercialProperty, PlotProperty} from "./table.model";
+import type {
+  PropertyDataResponse,
+  ResidentialProperty,
+  PropertyViewWithSource
+} from "./table.model"; 
 
 type EmptyStateProps = {
   tabType: 'pending' | 'approved' | 'rejected' | 'deleted';
   onAction?: () => void;  // Optional click handler
 };
 interface TableProps {
-  data: Property[] | PropertyWithSource[] | PropertyDataMap;
-  properties?: 
-    | "all"
-    | "residential"
-    | "residentials"
-    | "commercial"
-    | "commercials"
-    | "plot"
-    | "plots"
-    | undefined;
+  //data: ResidentialProperty[];
+  data: PropertyDataResponse | ResidentialProperty[];
+  properties?:
+  | "all"
+  | "residential"
+  | "residentials"
+  | "commercial"
+  | "commercials"
+  | "plot"
+  | "plots"
+  | undefined;
   onScrollChange: (scrollTop: number) => void;
-  handleOpenModal: (action: "Approve" | "Deny" | "Delete", item: PropertyWithSource) => void;
-  tabType: EmptyStateProps['tabType'];
+  handleOpenModal: (
+    action: "Approve" | "Deny" | "Delete",
+    item: ResidentialProperty
+  ) => void;
+}
+
+export interface Property {
+  _id: string; // use string for MongoDB IDs
+  name: string;
+  address: string;
+  size: string;
+  floor: string;
+  facing: string;
+  furnishing: string;
+  type: string;
+  washroom: string;
 }
 
 const modalStyle = {
@@ -66,7 +76,6 @@ function Table({ data, properties, onScrollChange,tabType }: TableProps) {
     null
   );
   const navigate = useNavigate();
-
   const location = useLocation();
   const propertyData = location.state?.data;
   console.log("propertyData", propertyData);
@@ -114,69 +123,120 @@ function Table({ data, properties, onScrollChange,tabType }: TableProps) {
         return "residential";
     }
   };
-
   const handleAction = async (id: string, status: number) => {
+    
     const singularProperty = getSingularProperty();
     try {
+      const token = localStorage.getItem("token"); // Safely retrieve the auth token
+
       const response = await axios.put(
-        `${import.meta.env.VITE_BackEndUrl
-        }/api/adminpermission/${singularProperty}/${id}`,
-        { status: `${status}` }
+        `${
+          import.meta.env.VITE_BackEndUrl
+        }/api/adminpermission`,
+        {
+          status: status.toString(),
+          properties: [
+            {
+              "type": singularProperty,
+              id: id,
+            },
+          ],
+        },
+        
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // Add token here
+          },
+        }
       );
       console.log("Status updated:", response.data);
+      console.log("editid", response?.data?._id);
     } catch {
       console.error("Failed to update status");
     }
   };
-function isArrayOfObjects(data: unknown): data is (Property | PropertyWithSource)[] {
-  return Array.isArray(data) && data.every((item) => typeof item === "object" && item !== null);
-}
-
-const formatedData: PropertyWithSource[] = isArrayOfObjects(data)
-  ? data.map((item: Property | PropertyWithSource): PropertyWithSource =>
-      "_source" in item
-        ? item
-        : {
-            ...item,
-            _source:
-              properties === "residentials"
-                ? "residential"
-                : properties === "commercials"
-                ? "commercial"
-                : properties === "plots"
-                ? "plot"
-                : "plot",
-          }
-    )
+  
+//@ts-ignore
+  const formatedData: PropertyViewWithSource[] = Array.isArray(data)
+  ? data.map((item) => ({
+      ...item,
+      _source:
+        properties === "residentials"
+          ? "residential"
+          : properties === "commercials"
+          ? "commercial"
+          : properties === "plots"
+          ? "plot" // singular and valid
+          : "residential", // default to valid value
+    }))
   : [
-      ...(data.residentials ?? []),
-      ...(data.commercials ?? []),
-      ...(data.plots ?? []),
-      ...(data.residential ?? []),
-      ...(data.commercial ?? []),
-      ...(data.plot ?? []),
+      ...(data?.residentials?.map((item) => ({
+        ...item,
+        _source: "residential",
+      })) ?? []),
+      ...(data?.commercials?.map((item) => ({
+        ...item,
+        _source: "commercial",
+      })) ?? []),
+      ...(data?.plots?.map((item) => ({
+        ...item,
+        _source: "plot", 
+      })) ?? []),
+      ...(data?.residential?.map((item) => ({
+        ...item,
+        _source: "residential",
+      })) ?? []),
+      ...(data?.commercial?.map((item) => ({
+        ...item,
+        _source: "commercial",
+      })) ?? []),
+      ...(data?.plot?.map((item) => ({
+        ...item,
+        _source: "plot", 
+      })) ?? []),
     ];
+
 
   // Modal state
   const [open, setOpen] = React.useState(false);
   const [selectedAction, setSelectedAction] = React.useState<string | null>(
     null
   );
-const [selectedItem, setSelectedItem] = React.useState<PropertyWithSource | ResidentialProperty | null>(null);
+  const [selectedItem, setSelectedItem] =
+    React.useState<ResidentialProperty | null>(null);
 
-  const handleEdit = (item: PropertyWithSource) => {
-    navigate("/createResidential", { state: { data: item, mode: "edit" } });
+  // const handleEdit = (item: ResidentialProperty) => {
+  //   console.log("Editing item:", item);
+  //   navigate(`/commercial/create`, { state: { data: item, mode: "edit" } });};
+
+  const handleEdit = (item: any) => {
+    console.log("item._source =", item._source);
+
+    // If _source is an object with a type field:
+    const propertyType =
+      typeof item._source === "string"
+        ? item._source
+        : item._source?.type || "residential";
+
+    navigate(`/${propertyType}/create`, {
+      state: { data: item, mode: "edit" },
+    });
   };
-
   const handleView = (id: string | number) => {
-    const selectedItem = formatedData.find((item: PropertyWithSource) => item._id === id);
+    const selectedItem = formatedData.find((item: any) => item._id === id);
 
+    if (!selectedItem) {
+      alert("Property not found");
+      return;
+    }
     if (!selectedItem) {
       alert("Property not found");
       return;
     }
 
     const routeBase = selectedItem._source;
+    // const routeBase = selectedItem._source;
 
     if (!routeBase) {
       alert("Unknown property type");
@@ -188,12 +248,13 @@ const [selectedItem, setSelectedItem] = React.useState<PropertyWithSource | Resi
     });
   };
 
-const handleOpenModal = (action: "Approve" | "Deny" | "Delete", item: PropertyWithSource) => {
-  console.log("Opening modal with action:", action, "on item:", item._id);
-  setSelectedAction(action);
-  setSelectedItem(item);
-  setOpen(true);
-};
+  const handleOpenModal = (action: string, item: ResidentialProperty) => {
+    console.log(" Opening modal with action:", action, "on item:", item._id);
+    setSelectedAction(action);
+    setSelectedItem(item);
+    setOpen(true);
+  };
+
   const handleCloseModal = () => {
     setOpen(false);
     setSelectedAction(null);
@@ -210,13 +271,33 @@ const handleOpenModal = (action: "Approve" | "Deny" | "Delete", item: PropertyWi
       // Success toast message
       const actionText =
         status === 1 ? "Approved" : status === 0 ? "Denied" : "Deleted";
+      
+         //Delay toast slightly to avoid UI interference
+    setTimeout(() => {
       toast.success(`Listing successfully ${actionText.toLowerCase()}`);
+    }, 300);
+
     } catch (e) {
       console.error("Error performing action:", e);
+      toast.error("Something went wrong");
+
     } finally {
       setIsBackdropLoading(false);
+      // setIsBackdropLoading(false);
     }
   };
+
+  if (!Array.isArray(data)) {
+    const fallback =
+      data?.residential || data?.commercial || data?.plot;
+
+    if (Array.isArray(fallback)) {
+      data = fallback;
+    } else {
+      console.error("Expected 'data' to be an array but got:", data);
+      return <p>Error: Invalid data format</p>;
+    }
+  }
 
   // popover
   const handlePopoverClick = (event: React.MouseEvent<HTMLInputElement>) => {
@@ -239,22 +320,50 @@ const handleOpenModal = (action: "Approve" | "Deny" | "Delete", item: PropertyWi
       Approve: 1,
       Deny: 0,
       Delete: 2,
+      Sold: 3,
     };
-
+  
     const statusCode = statusMap[action];
-
+  
+    // Prepare properties array for API payload
+    const properties = selectedRows.map((id) => {
+      const item = formatedData.find((itm) => itm._id === id);
+      return {
+        id,
+        type: item?._source || "residential",  
+      };
+    });
+  
     try {
-      for (const id of selectedRows) {
-        await handleAction(id, statusCode); // Your API call
-      }
-
-      setSelectedRows([]); // Clear selection
-      handlePopoverClose(); // Close popover
-      window.dispatchEvent(new Event("refreshTableData")); // Refresh table
-    } catch {
-      console.error(`Failed to ${action.toLowerCase()} selected properties`);
+      setIsBackdropLoading(true); // Show loading
+      const token = localStorage.getItem("token");
+      await axios.put(
+        `${import.meta.env.VITE_BackEndUrl}/api/adminpermission`,
+        {
+          status: statusCode.toString(),
+          properties,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
+      toast.success(`Properties successfully ${action.toLowerCase()}d`);
+      setSelectedRows([]);
+      handlePopoverClose();
+      window.dispatchEvent(new Event("refreshTableData"));
+    } catch (error) {
+      console.error(`Bulk ${action.toLowerCase()} failed`, error);
+      toast.error(`Bulk ${action.toLowerCase()} failed`);
+    }
+    finally {
+      setIsBackdropLoading(false); //Hide loading
     }
   };
+  
 
   const truncateWords = (text: string = "", wordLimit: number): string => {
     const words = text.trim().split(/\s+/);
@@ -553,25 +662,25 @@ const handleOpenModal = (action: "Approve" | "Deny" | "Delete", item: PropertyWi
                       <img
                         src="/Edit.svg"
                         alt="edit"
-                        onClick={() => handleEdit(item)}
+                        onClick={() => handleEdit(item as unknown as ResidentialProperty)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
                         src="/Approve.svg"
                         alt="Approve"
-                        onClick={() => handleOpenModal("Approve", item)}
+                        onClick={() => handleOpenModal("Approve", item as unknown as ResidentialProperty)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
                         src="/Deny.svg"
                         alt="Deny"
-                        onClick={() => handleOpenModal("Deny", item)}
+                        onClick={() => handleOpenModal("Deny", item as unknown as ResidentialProperty)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
                         src="/Delete.svg"
                         alt="Delete"
-                        onClick={() => handleOpenModal("Delete", item)}
+                        onClick={() => handleOpenModal("Delete", item as unknown as ResidentialProperty)}
                         style={{ cursor: "pointer" }}
                       />
                     </div>
@@ -657,6 +766,7 @@ const handleOpenModal = (action: "Approve" | "Deny" | "Delete", item: PropertyWi
                 variant="contained"
                 color="primary"
                 onClick={() => {
+
                   if (!selectedItem?._id || !selectedAction) return;
 
                   const statusMap: Record<string, number> = {
@@ -666,14 +776,19 @@ const handleOpenModal = (action: "Approve" | "Deny" | "Delete", item: PropertyWi
                   };
 
                   const statusCode = statusMap[selectedAction];
+
+                  // Show toast immediately for Delete
+                  if (selectedAction === "Delete") {
+                    toast.success("Listing successfully deleted", {
+                      autoClose: 500000, 
+                    });
+                  }
                   handleConfirmAction(selectedItem._id, statusCode);
+
                 }}
                 sx={{ mr: 1 }}
               >
                 Confirm
-              </Button>
-              <Button variant="outlined" onClick={handleCloseModal}>
-                Cancel
               </Button>
             </Box>
           </Modal>

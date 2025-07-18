@@ -57,7 +57,7 @@ const ViewCarousel: React.FC<ViewCarouselProps> = ({ images, price, area }) => {
           fade
           nextArrow={<NextArrow />}
           prevArrow={<PrevArrow />}
-          beforeChange={(_, next) => setCurrentIndex(next)}
+          beforeChange={(_: number, next: number) => setCurrentIndex(next)}
         >
           {images.map((src, index) => (
             <div key={index} onClick={() => setModalOpen(true)} className="cursor-pointer">

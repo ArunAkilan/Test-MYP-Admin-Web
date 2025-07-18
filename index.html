@@ -15,6 +15,13 @@
   </head>
   <body>
     <div id="root"></div>
+
+    <!-- Google Maps JS (Places + Geometry, weekly release) -->
+    <script async
+      src="https://maps.googleapis.com/maps/api/js?key=%VITE_GOOGLE_MAPS_API_KEY%&libraries=places,geometry&v=weekly">
+    </script>
+
+    <!-- Your React/Vite bundle -->
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

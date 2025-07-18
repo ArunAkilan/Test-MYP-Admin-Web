@@ -1,7 +1,16 @@
-import {  useNavigate } from "react-router-dom";
+import {  useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
 import { DynamicBreadcrumbs } from "../../../Common/input";
+import ViewCarousel from "../../../Common/ViewCarousel/ViewCarousel";
+import GoogleMapsWrapper from "../../../Common/LocationPicker/GoogleMapWrapper";
 import type { ResidentialProperty } from "./ResidencialViewProperty.modal";
 import "./ResidentialViewProperty.scss";
+import Icon_edit from "../../../../assets/viewProperty/Icon_edit.png";
+import Icon_Tick from "../../../../assets/viewProperty/Icon_Tick.png";
+import Icon_Deny from "../../../../assets/viewProperty/Icon_Deny.png";
+import Icon_Delete from "../../../../assets/viewProperty/Icon_Delete.png";
 import SqrtImage from "../../../../assets/viewProperty/radix-icons_dimensions.svg";
 import facingImage from "../../../../assets/viewProperty/Icon_Facing.svg";
 import dateImage from "../../../../assets/viewProperty/solar_calendar-outline.svg";
@@ -35,38 +44,28 @@ import metro from "../../../../assets/viewProperty/hugeicons_metro.png";
 import light_train from "../../../../assets/viewProperty/light_train.png";
 import proicons_mail from "../../../../assets/viewProperty/proicons_mail.png";
 import solar_phone from "../../../../assets/viewProperty/solar_phone.png";
-import GoogleMapsWrapper from "../../../Common/LocationPicker/GoogleMapWrapper";
 import MapComponent from "../../../Common/LocationPicker/LocationPicker";
-import Icon_edit from "../../../../assets/viewProperty/Icon_edit.png";
-import Icon_Tick from "../../../../assets/viewProperty/Icon_Tick.png";
-import Icon_Deny from "../../../../assets/viewProperty/Icon_Deny.png";
-import Icon_Delete from "../../../../assets/viewProperty/Icon_Delete.png";
+
 import backIcon from "../../../../assets/dashboardtab/icon-park-outline_down.svg";
-import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-import axios from "axios";
-import ViewCarousel from "../../../Common/ViewCarousel/ViewCarousel";
+
 
 interface PropertyResponse {
-  property: ResidentialProperty;
+  property: ResidentialProperty ;
 }
 
-const ViewProperty = () => {
-  const navigate = useNavigate();
+const ViewProperty= () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  // const location = useLocation();
+  const token = localStorage.getItem("token");
+
   const [property, setProperty] = useState<PropertyResponse | null>(null);
+  // const propertyData = location.state?.data as ResidentialProperty;
 
-
-    console.log("Component mounted");
-console.log("Params ID:", id);
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     console.log("API call URL:", `${import.meta.env.VITE_BackEndUrl}/api/residential/${id}`);
     axios
-      .get(
-        `${
-          import.meta.env.VITE_BackEndUrl
-        }/api/residential/${id}`,
+      .get(`${import.meta.env.VITE_BackEndUrl}/api/residential/${id}`,
          {
           headers: {
             "Authorization":`Bearer ${localStorage.getItem("token")}`
@@ -75,12 +74,67 @@ console.log("Params ID:", id);
       )
       .then((res) => setProperty(res.data))
       .catch((err) => console.error("Error fetching property:", err));
-  }, [id]);
+      toast.error("Failed to load property");
+  }, [id, token]);
+
+  const handleEdit = () => {
+    navigate(`/edit-residential/${property?.property._id}`, {
+      state: { data: property?.property },
+    });
+  };
+
+  // Unified status update function for approve, deny, delete, sold
+  const updateResidentialPermissionStatus = async (status: "0" | "1" | "2" | "3") => {
+    if (!token) {
+      toast.error("Authentication token missing");
+      return;
+    }
+
+    try {
+      await axios.put(
+        `${import.meta.env.VITE_BackEndUrl}/api/adminpermission`,
+        {
+          status, // 0=Rejected, 1=Approved, 2=Deleted, 3=Sold
+          properties: [
+            {
+              type: "residential",
+              id: property?.property._id,
+            },
+          ],
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const action =
+        status === "1"
+          ? "Approved"
+          : status === "0"
+          ? "Denied"
+          : status === "2"
+          ? "Deleted"
+          : "Sold";
+
+      toast.success(`Property ${action.toLowerCase()} successfully`);
+
+      if (status === "2") {
+        navigate("/property-management"); // Redirect after delete
+      }
+    } catch (error) {
+      toast.error("Action failed");
+      console.error(error);
+    }
+  };
+
 
   if (!property) return <div>Loading...</div>;
 
   const latitudeRaw = property?.property?.location?.map?.latitude;
-const longitudeRaw = property?.property?.location?.map?.longitude;
+  const longitudeRaw = property?.property?.location?.map?.longitude;
 
 const latitude =
   typeof latitudeRaw === "number"
@@ -705,19 +759,23 @@ const longitude =
           <div className="view-property-icon ">
             <h3>Action</h3>
             <div className="view-property-icon-inside">
-              <button className="btn edit-btn d-flex align-items-center gap-1">
+              <button className="btn edit-btn d-flex align-items-center gap-1"
+               onClick={handleEdit}>
                 <img src={Icon_edit} alt="Edit Icon" />
                 <p className="mb-0">Edit</p>
               </button>
-              <button className="btn approve-btn d-flex align-items-center gap-1">
+              <button className="btn approve-btn d-flex align-items-center gap-1"
+              onClick={() => updateResidentialPermissionStatus("1")}>
                 <img src={Icon_Tick} alt="Approve Icon" />
                 <p className="mb-0">Approve</p>
               </button>
-              <button className="btn deny-btn d-flex align-items-center gap-1">
+              <button className="btn deny-btn d-flex align-items-center gap-1"
+              onClick={() => updateResidentialPermissionStatus("0")}>
                 <img src={Icon_Deny} alt="Deny Icon" />
                 <p className="mb-0">Deny</p>
               </button>
-              <button className="btn delete-btn d-flex align-items-center gap-1">
+              <button className="btn delete-btn d-flex align-items-center gap-1"
+              onClick={() => updateResidentialPermissionStatus("2")}>
                 <img src={Icon_Delete} alt="Delete Icon" />
                 <p className="mb-0">Delete</p>
               </button>
