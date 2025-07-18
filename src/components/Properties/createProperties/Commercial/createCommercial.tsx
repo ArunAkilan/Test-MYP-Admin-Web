@@ -503,6 +503,7 @@ useEffect(() => {
     });
 
     try {
+      const token = localStorage.getItem("token"); // Get token
       const url = isEditMode
         ? `${import.meta.env.VITE_BackEndUrl}/api/commercial/${editId}`
         : `${import.meta.env.VITE_BackEndUrl}/api/commercial/create`;
@@ -512,6 +513,7 @@ useEffect(() => {
       const response = await axios[method](url, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
+          ...(token && { Authorization: `Bearer ${token}` }), // Token here
         },
       });
     

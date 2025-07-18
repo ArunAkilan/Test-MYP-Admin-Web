@@ -1,6 +1,7 @@
 import "./table.scss";
-import type { ResidentialProperty } from "../../AdminResidencial/AdminResidencial.model";
-import type { PropertyDataResponse } from "./table.model";
+
+// import type { PropertyDataResponse } from "./table.model";
+
 import {
   Box,
   Typography,
@@ -17,7 +18,12 @@ import "react-toastify/dist/ReactToastify.css";
 import tickIcon from "../../../assets/table/Icon_Tick.svg";
 import denyIcon from "../../../assets/table/Icon_Deny.svg";
 import { useLocation, useNavigate } from "react-router-dom";
-import type { CommercialProperty, PlotProperty } from "./table.model";
+// import type { CommercialProperty, PlotProperty} from "./table.model";
+import type {
+  PropertyDataResponse,
+  ResidentialProperty,
+  PropertyViewWithSource
+} from "./table.model"; // or "./table.model"
 
 interface TableProps {
   //data: ResidentialProperty[];
@@ -117,6 +123,7 @@ function Table({ data, properties, onScrollChange }: TableProps) {
     }
   };
   const handleAction = async (id: string, status: number) => {
+    
     const singularProperty = getSingularProperty();
     try {
       const response = await axios.put(
@@ -216,7 +223,8 @@ function Table({ data, properties, onScrollChange }: TableProps) {
   const [selectedAction, setSelectedAction] = React.useState<string | null>(
     null
   );
-const [selectedItem, setSelectedItem] = React.useState<PropertyWithSource | ResidentialProperty | null>(null);
+  const [selectedItem, setSelectedItem] =
+    React.useState<ResidentialProperty | null>(null);
 
   // const handleEdit = (item: ResidentialProperty) => {
   //   console.log("Editing item:", item);
@@ -384,28 +392,61 @@ const [selectedItem, setSelectedItem] = React.useState<PropertyWithSource | Resi
       Deny: 0,
       Delete: 2,
     };
-
+  
     const statusCode = statusMap[action];
-
+  
     try {
       for (const id of selectedRows) {
-        await handleAction(id, statusCode); // Your API call
+        try {
+          await handleAction(id, statusCode); // API call for each property
+  
+          const actionText = action === "Delete" ? "Deleted" : `${action}d`;
+          toast.success(`Property ${id} ${actionText.toLowerCase()}`);
+        } catch (err) {
+          console.error(`Failed to ${action.toLowerCase()} property ${id}`, err);
+          toast.error(`Failed to ${action.toLowerCase()} property ${id}`);
+        }
       }
-
+  
       setSelectedRows([]); // Clear selection
       handlePopoverClose(); // Close popover
       window.dispatchEvent(new Event("refreshTableData")); // Refresh table
-
-      // Success toast
-      const actionText = action === "Delete" ? "Delete completed" : `${action} completed`;
-      toast.success(actionText);
-    } catch {
-
-      console.error(`Failed to ${action.toLowerCase()} selected properties`);
-      toast.error(`Failed to ${action.toLowerCase()} selected properties`);
-
+    } catch (e) {
+      console.error(`Bulk ${action.toLowerCase()} failed`, e);
+      toast.error(`Bulk ${action.toLowerCase()} failed`);
     }
   };
+  
+
+
+  // const handleBulkAction = async (action: string) => {
+  //   const statusMap: Record<string, number> = {
+  //     Approve: 1,
+  //     Deny: 0,
+  //     Delete: 2,
+  //   };
+
+  //   const statusCode = statusMap[action];
+
+  //   try {
+  //     for (const id of selectedRows) {
+  //       await handleAction(id, statusCode); // API call
+  //     }
+
+  //     setSelectedRows([]); // Clear selection
+  //     handlePopoverClose(); // Close popover
+  //     window.dispatchEvent(new Event("refreshTableData")); // Refresh table
+
+  //     // Success toast
+  //     const actionText = action === "Delete" ? "Delete completed" : `${action} completed`;
+  //     toast.success(actionText);
+  //   } catch {
+
+  //     console.error(`Failed to ${action.toLowerCase()} selected properties`);
+  //     toast.error(`Failed to ${action.toLowerCase()} selected properties`);
+
+  //   }
+  // };
 
   const truncateWords = (text: string = "", wordLimit: number): string => {
     const words = text.trim().split(/\s+/);
@@ -699,25 +740,25 @@ const [selectedItem, setSelectedItem] = React.useState<PropertyWithSource | Resi
                       <img
                         src="/Edit.svg"
                         alt="edit"
-                        onClick={() => handleEdit(item)}
+                        onClick={() => handleEdit(item as unknown as ResidentialProperty)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
                         src="/Approve.svg"
                         alt="Approve"
-                        onClick={() => handleOpenModal("Approve", item)}
+                        onClick={() => handleOpenModal("Approve", item as unknown as ResidentialProperty)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
                         src="/Deny.svg"
                         alt="Deny"
-                        onClick={() => handleOpenModal("Deny", item)}
+                        onClick={() => handleOpenModal("Deny", item as unknown as ResidentialProperty)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
                         src="/Delete.svg"
                         alt="Delete"
-                        onClick={() => handleOpenModal("Delete", item)}
+                        onClick={() => handleOpenModal("Delete", item as unknown as ResidentialProperty)}
                         style={{ cursor: "pointer" }}
                       />
                     </div>

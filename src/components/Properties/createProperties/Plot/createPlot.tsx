@@ -500,6 +500,8 @@ export const CreatePlotProperty = () => {
     });
 
     try {
+      const token = localStorage.getItem("token"); // Retrieve token
+
       const url = isEditMode
         ? `${import.meta.env.VITE_BackEndUrl}/api/plot/${editId}`
         : `${import.meta.env.VITE_BackEndUrl}/api/plot/create`;
@@ -507,6 +509,8 @@ export const CreatePlotProperty = () => {
         const response = await axios[method](url, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`, //  Add token here
+
           },
         });
 

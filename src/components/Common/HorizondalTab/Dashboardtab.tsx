@@ -27,7 +27,7 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import { debounce } from "lodash";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
-
+ 
 import Carousel from "../Carousel/carousel";
 import Popover from "@mui/material/Popover";
 import tickIcon from "../../../assets/table/Icon_Tick.svg";
@@ -42,7 +42,7 @@ import img3 from "../../../assets/Container_ImageHolder (1).png";
 import img4 from "../../../assets/Container_ImageHolder (3).png";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
-
+ 
 type Property = {
   _id?: string;
   propertyType?: string;
@@ -71,7 +71,7 @@ interface DashboardtabProps {
   properties: "all" | "residentials" | "commercials" | "plots";
   onScrollChangeParent: (scrollTop: number) => void;
 }
-
+ 
 type PropertyItem = {
   _id: string;
   propertyType: string;
@@ -88,10 +88,10 @@ interface TabPanelProps {
   value: number;
   index: number;
 }
-
+ 
 function CustomTabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
-
+ 
   return (
     <div
       role="tabpanel"
@@ -104,14 +104,14 @@ function CustomTabPanel(props: TabPanelProps) {
     </div>
   );
 }
-
+ 
 function a11yProps(index: number) {
   return {
     id: `simple-tab-${index}`,
     "aria-controls": `simple-tabpanel-${index}`,
   };
 }
-
+ 
 export default function Dashboardtab({
   data,
   properties,
@@ -133,7 +133,7 @@ export default function Dashboardtab({
   >(null);
   const [selectedItem, setSelectedItem] = useState<PropertyItem | null>(null);
   const [isBackdropLoading, setIsBackdropLoading] = useState(false);
-
+ 
   //const currentStatus = statusByTab[value];
   const filterOptions = {
     all: [
@@ -274,17 +274,17 @@ export default function Dashboardtab({
       },
     ],
   };
-
+ 
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-
+ 
   // const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
   //   setAnchorEl(event.currentTarget);
   // };
-
+ 
   const handleClose = () => {
     setAnchorEl(null);
   };
-
+ 
   const filterOpen = Boolean(anchorEl);
   const id = filterOpen ? "simple-popover" : undefined;
   const allItems = useMemo(
@@ -295,20 +295,20 @@ export default function Dashboardtab({
     ],
     [data]
   );
-
+ 
   // Handle tab change
   const handleChange = (_: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
     setIsFiltered(false);
     setCurrentCheckList([]);
-
+ 
     const newStatus = statusByTab[newValue];
     const filtered = allItems.filter(
       (item) => item.status?.toLowerCase() === newStatus.toLowerCase()
     );
     setTableValues(filtered);
   };
-
+ 
   // handleCheckbox
   const handleCheckboxChange = (option: string) => {
     setCurrentCheckList((prev) => {
@@ -319,15 +319,15 @@ export default function Dashboardtab({
     });
   };
   console.log("currentCheckList:", currentCheckList);
-
+ 
   // filter function
-
+ 
   const fetchFilteredData = async (filters: string[], tabIndex: number) => {
     try {
       const status = statusByTab[tabIndex];
       // Create the dynamic query string
       const queryParts: string[] = [];
-
+ 
       // Mapping UI headings to API keys
       const headingToKey: Record<string, string> = {
         "Property Type": "propertyType",
@@ -337,7 +337,7 @@ export default function Dashboardtab({
         "Plot Type": "plotType",
         Facing: "facing",
       };
-
+ 
       const filterSection =
         filterOptions[properties === "all" ? "all" : properties] || [];
       filterSection.forEach((section) => {
@@ -349,23 +349,23 @@ export default function Dashboardtab({
           queryParts.push(`${key}=${selectedOptions.join(",")}`);
         }
       });
-
+ 
       if (status) {
         queryParts.push(`status=${status}`);
       }
-
+ 
       const baseUrl = `${import.meta.env.VITE_BackEndUrl}/api/${properties}`;
       const queryString =
         queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
       const fullUrl = `${baseUrl}${queryString}`;
-
+ 
       console.log("Final API URL:", fullUrl);
-
+ 
       const response = await axios.get(fullUrl);
-
+ 
       const dataObj = response.data.data;
       let result: Property[] = [];
-
+ 
       if (properties === "residentials") result = dataObj ?? [];
       else if (properties === "commercials") result = dataObj ?? [];
       else if (properties === "plots") result = dataObj ?? [];
@@ -379,20 +379,20 @@ export default function Dashboardtab({
       const filteredByStatus = result.filter(
         (item) => item.status?.toLowerCase() === status.toLowerCase()
       );
-
+ 
       setTableValues(filteredByStatus);
     } catch (error) {
       console.error("Fetch error:", error);
       setTableValues([]);
     }
   };
-
+ 
   const handleApply = () => {
     setIsFiltered(true); // Enable filtered mode
     fetchFilteredData(currentCheckList, value); // Uses correct API and query logic
     handleClose(); // Closes the popover
   };
-
+ 
   useEffect(() => {
     if (!isFiltered) {
       const status = statusByTab[value];
@@ -403,7 +403,7 @@ export default function Dashboardtab({
       );
       if (searchQuery.trim()) {
         const search = searchQuery.toLowerCase();
-
+ 
         filtered = filtered.filter((item) => {
           return (
             item?.location?.address?.toLowerCase().includes(search) ||
@@ -424,7 +424,7 @@ export default function Dashboardtab({
       setTableValues(filtered);
     }
   }, [searchQuery, value, isFiltered, allItems]);
-
+ 
   // filterResetFunction
   const filterResetFunction = () => {
     setCurrentCheckList([]);
@@ -433,7 +433,7 @@ export default function Dashboardtab({
     setDrawerOpen(false);
     setResetCounter((prev) => prev + 1);
   };
-
+ 
   // count function
   const handlePendingCount = useMemo((): number => {
     const allItems = [
@@ -444,7 +444,7 @@ export default function Dashboardtab({
     return allItems.filter((item) => item.status?.toLowerCase() === "pending")
       .length;
   }, [data]);
-
+ 
   const handleApprovedCount = useMemo((): number => {
     const allItems = [
       ...(data.residential || []),
@@ -454,7 +454,7 @@ export default function Dashboardtab({
     return allItems.filter((item) => item.status?.toLowerCase() === "approved")
       .length;
   }, [data]);
-
+ 
   const handleRejectedCount = useMemo((): number => {
     const allItems = [
       ...(data.residential || []),
@@ -464,7 +464,7 @@ export default function Dashboardtab({
     return allItems.filter((item) => item.status?.toLowerCase() === "rejected")
       .length;
   }, [data]);
-
+ 
   const handleDeletedCount = useMemo((): number => {
     const allItems = [
       ...(data.residential || []),
@@ -474,12 +474,12 @@ export default function Dashboardtab({
     return allItems.filter((item) => item.status?.toLowerCase() === "deleted")
       .length;
   }, [data]);
-
+ 
   //resultcount
   const handleFilteredCount = useMemo(() => {
     return tableValues.length;
   }, [tableValues]);
-
+ 
   const getResultCount = useMemo(() => {
     if (isFiltered) return handleFilteredCount;
     switch (value) {
@@ -504,7 +504,7 @@ export default function Dashboardtab({
     handleDeletedCount,
   ]);
   // filter drawer
-
+ 
   const toggleDrawer =
     (drawerOpen: boolean) =>
     (event: React.KeyboardEvent | React.MouseEvent | {}) => {
@@ -517,17 +517,17 @@ export default function Dashboardtab({
       ) {
         return;
       }
-
+ 
       setDrawerOpen(drawerOpen); // ✅ updated
     };
-
+ 
   // card view
   const [cardView, setCardView] = useState(false);
   //const [isFixed, setIsFixed] = useState(false);
   // sticky function
   const [hideHeader, setHideHeader] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
-
+ 
   const handleChangeSwitch = (
     _event: React.MouseEvent<HTMLElement>,
     newAlignment: string
@@ -536,23 +536,23 @@ export default function Dashboardtab({
     setAlignment(newAlignment);
     setCardView(newAlignment === "Card View");
   };
-
+ 
   const handleChildScroll = (scrollTop: number) => {
     //setIsFixed(scrollTop > 50);
     const currentScrollY = scrollTop;
-
+ 
     // Show header when scrolling up
     if (currentScrollY < lastScrollY || currentScrollY < 20) {
       setHideHeader(false);
     } else {
       setHideHeader(true);
     }
-
+ 
     setLastScrollY(currentScrollY);
     onScrollChangeParent(scrollTop);
   };
   const checkListCount = currentCheckList.length;
-
+ 
   //format data
   const formatData: PropertyItem[] = Array.isArray(data)
     ? data.map((item) => ({
@@ -577,7 +577,7 @@ export default function Dashboardtab({
         },
         rent: item.rent ?? {},
       }));
-
+ 
   // handlemodal
   const handleOpenModal = (
     action: "Approve" | "Deny" | "Delete",
@@ -592,13 +592,13 @@ export default function Dashboardtab({
   //   Deny: 0,
   //   Delete: 2,
   // };
-
+ 
   const imageMap: Record<"Approve" | "Deny" | "Delete", string> = {
     Approve: ApproveIcon,
     Deny: DenyIcon,
     Delete: DeleteIcon,
   };
-
+ 
   const getSingularProperty = () => {
     switch (properties) {
       case "residentials":
@@ -611,7 +611,7 @@ export default function Dashboardtab({
         return "residential";
     }
   };
-
+ 
   const handleAction = async (id: string, status: number) => {
     const singularProperty = getSingularProperty();
     try {
@@ -626,13 +626,13 @@ export default function Dashboardtab({
       console.error("Failed to update status");
     }
   };
-
+ 
   const handleCloseModal = () => {
     setOpen(false);
     setSelectedAction(null);
     setSelectedItem(null);
   };
-
+ 
   const handleConfirmAction = async (id: string, status: number) => {
     try {
       setIsBackdropLoading(true);
@@ -645,7 +645,7 @@ export default function Dashboardtab({
     setIsBackdropLoading(false); // ✅ hide loading
   }
   };
-
+ 
   const handleConfirmButtonClick =  () => {
     if (!selectedItem?._id || !selectedAction) return;
     const statusCode = { Approve: 1, Deny: 0, Delete: 2 }[selectedAction];
@@ -689,7 +689,7 @@ export default function Dashboardtab({
               icon={<Avatar alt="test avatar" src="/pending-action.svg" />}
               iconPosition="start"
             />
-
+ 
             <Tab
               label={
                 <React.Fragment>
@@ -705,7 +705,7 @@ export default function Dashboardtab({
               icon={<Avatar alt="test avatar" src="/pending-approval.svg" />}
               iconPosition="start"
             />
-
+ 
             <Tab
               label={
                 <React.Fragment>
@@ -721,7 +721,9 @@ export default function Dashboardtab({
               icon={<Avatar alt="test avatar" src="/pending-reject.svg" />}
               iconPosition="start"
             />
-
+ 
+ 
+ 
             <Tab
               label={
                 <React.Fragment>
@@ -764,7 +766,7 @@ export default function Dashboardtab({
                       </button>
                     )}
                   </div>
-
+ 
                   <div className="list-panel">
                     <div className="search">
                       <input
@@ -842,7 +844,7 @@ export default function Dashboardtab({
                       </h3>
                     )}
                   </div>
-
+ 
                   <div className="list-panel">
                     <div
                       onClick={() => setIsExpanded(true)}
@@ -917,7 +919,7 @@ export default function Dashboardtab({
                       </h3>
                     )}
                   </div>
-
+ 
                   <div className="list-panel">
                     <div
                       onClick={() => setIsExpanded(true)}
@@ -992,7 +994,7 @@ export default function Dashboardtab({
                       </h3>
                     )}
                   </div>
-
+ 
                   <div className="list-panel">
                     <div
                       onClick={() => setIsExpanded(true)}
@@ -1055,7 +1057,7 @@ export default function Dashboardtab({
               </div>
             </div>
           </CustomTabPanel>
-
+ 
           {open && selectedItem && selectedAction && (
             <Modal
               open={open}
@@ -1072,7 +1074,7 @@ export default function Dashboardtab({
                   Are you sure you want to {selectedAction.toLowerCase()} the
                   listing <strong>{selectedItem?.location?.address}</strong>?
                 </Typography>
-
+ 
                 <Button
                   variant="contained"
                   color="primary"
@@ -1094,7 +1096,7 @@ export default function Dashboardtab({
           <CircularProgress color="inherit" />
         </Backdrop>
       </div>
-
+ 
       <CustomTabPanel value={value} index={0}>
         {!cardView ? (
           <Table
@@ -1113,7 +1115,7 @@ export default function Dashboardtab({
           />
         )}
       </CustomTabPanel>
-
+ 
       <CustomTabPanel value={value} index={1}>
         {!cardView ? (
           <Table
@@ -1132,7 +1134,7 @@ export default function Dashboardtab({
           />
         )}
       </CustomTabPanel>
-
+ 
       <CustomTabPanel value={value} index={2}>
         {!cardView ? (
           <Table
@@ -1151,7 +1153,7 @@ export default function Dashboardtab({
           />
         )}
       </CustomTabPanel>
-
+ 
       <CustomTabPanel value={value} index={3}>
         {!cardView ? (
           <Table
@@ -1170,7 +1172,7 @@ export default function Dashboardtab({
           />
         )}
       </CustomTabPanel>
-
+ 
       <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
         <div className="filter-div-wrapper">
           <div className="filter-header">
@@ -1200,7 +1202,7 @@ export default function Dashboardtab({
                   >
                     <Typography variant="h6">{section.heading}</Typography>
                   </AccordionSummary>
-
+ 
                   <AccordionDetails key={resetCounter}>
                     <div className="label-wrapper">
                       {section.options.map((opt: any, i: any) => (
@@ -1251,7 +1253,7 @@ export default function Dashboardtab({
     </div>
   );
 }
-
+ 
 interface ProCardProps {
   properties: any;
   onScrollChange: (scrollTop: number) => void;
@@ -1269,7 +1271,7 @@ const modalStyle = {
   boxShadow: 24,
   p: 4,
 };
-
+ 
 const PropertyCardList = ({
   properties,
   onScrollChange,
@@ -1279,50 +1281,49 @@ const PropertyCardList = ({
   const [popoverAnchorEl, setPopoverAnchorEl] = useState<HTMLElement | null>(
     null
   );
-
+ 
   const formatedData: PropertyItem[] = properties;
-  const allIds = formatedData.map((data: PropertyItem) => data._id);
+  // const allIds = formatedData.map((data: PropertyItem) => data._id);
   const [visibleCount, setVisibleCount] = useState<number>(5);
   const containerRef = useRef<HTMLDivElement | null>(null);
-
+ 
   // Debounced scroll handler
   const handleScroll = debounce(() => {
     const container = containerRef.current;
     if (!container) return;
-
+ 
     const { scrollTop, scrollHeight, clientHeight } = container;
-
+ 
     if (scrollTop + clientHeight >= scrollHeight - 50) {
       setVisibleCount((prev) => Math.min(prev + 5, formatedData.length));
     }
   }, 200);
-
+ 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-
+ 
     container.addEventListener("scroll", handleScroll);
     //return () => container.removeEventListener('scroll', handleScroll);
   }, []);
-
+ 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-
+ 
     const handleScroll = () => {
       onScrollChange(container.scrollTop); // still report scroll to parent
     };
-
+ 
     container.addEventListener("scroll", handleScroll);
     return () => container.removeEventListener("scroll", handleScroll);
   }, [onScrollChange]);
-
+ 
   //change height of card container
-  // const [hideHeader, setHideHeader] = React.useState(false);
   const [lastScrollY, setLastScrollY] = React.useState(0);
   React.useEffect(() => {
     const container = containerRef.current;
-
+ 
     const handleScroll = () => {
       if (container) {
         onScrollChange(container.scrollTop);
@@ -1336,11 +1337,11 @@ const PropertyCardList = ({
       }
       setLastScrollY(currentScrollY);
     };
-
+ 
     container?.addEventListener("scroll", handleScroll);
     return () => container?.removeEventListener("scroll", handleScroll);
   }, [onScrollChange, lastScrollY, formatedData.length]);
-
+ 
   // popover
   const handlePopoverClick = (event: React.MouseEvent<HTMLInputElement>) => {
     if (!selectedRows.includes(event.currentTarget.value)) {
@@ -1348,14 +1349,14 @@ const PropertyCardList = ({
       setPopoverAnchorEl(event.currentTarget);
     }
   };
-
+ 
   const handlePopoverClose = () => {
     setPopoverAnchorEl(null);
   };
-
+ 
   const isPopoverOpen = Boolean(popoverAnchorEl);
   const popoverId = isPopoverOpen ? "simple-popover" : undefined;
-
+ 
   const getSingularProperty = () => {
     switch (properties) {
       case "residentials":
@@ -1368,7 +1369,7 @@ const PropertyCardList = ({
         return "residential";
     }
   };
-
+ 
   const handleAction = async (id: string, status: number) => {
     const singularProperty = getSingularProperty();
     try {
@@ -1383,7 +1384,7 @@ const PropertyCardList = ({
       console.error("Failed to update status");
     }
   };
-
+ 
   // handleBulkAction on popover
   const handleBulkAction = async (action: string) => {
     const statusMap: Record<string, number> = {
@@ -1391,14 +1392,14 @@ const PropertyCardList = ({
       Deny: 0,
       Delete: 2,
     };
-
+ 
     const statusCode = statusMap[action];
-
+ 
     try {
       for (const id of selectedRows) {
         await handleAction(id, statusCode); // Your API call
       }
-
+ 
       setSelectedRows([]); // Clear selection
       handlePopoverClose(); // Close popover
       window.dispatchEvent(new Event("refreshTableData")); // Refresh table
@@ -1406,25 +1407,25 @@ const PropertyCardList = ({
       console.error(`Failed to ${action.toLowerCase()} selected properties`);
     }
   };
-
+ 
   useEffect(() => {
     if (selectedRows.length === 0) {
       handlePopoverClose();
     }
   }, [selectedRows]);
-
+ 
   return (
     <Box sx={{ flexGrow: 1, p: 2 }}>
       <Grid container spacing={2}>
         <Box
           ref={containerRef}
           sx={{
-            // height: hideHeader ? "450px" : "315px",
-            // overflowY: "auto",
-            // marginBottom: "50px",
+            height: "400px",
+            overflowY: "auto",
+            marginBottom: "50px",
           }}
         >
-          {formatedData.slice(0, 5).map((item: PropertyItem) => (
+          {formatedData.slice(0, visibleCount).map((item: PropertyItem) => (
             <Grid item xs={12} sm={12} md={12} key={item._id}>
               <div className="card-view-wrapper row" key={item._id}>
                 <div className="card-view-img col-md-6">
@@ -1450,7 +1451,7 @@ const PropertyCardList = ({
                     }}
                   />
                 </div>
-
+ 
                 <div className="card-view-content col-md-6">
                   <div className="card-view-address-bar">
                     <div className="cardview-address-detail">
@@ -1468,7 +1469,7 @@ const PropertyCardList = ({
                     <br />
                     <span className="month">/Month</span>
                   </div>
-
+ 
                   <div className="cardview-posted-detail">
                     <span className="posted-span">
                       Posted by TestUser | 6 hours ago
@@ -1552,3 +1553,5 @@ const PropertyCardList = ({
     </Box>
   );
 };
+ 
+ 

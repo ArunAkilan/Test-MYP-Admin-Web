@@ -521,6 +521,8 @@ export const CreateProperty = () => {
     });
 
     try {
+      const token = localStorage.getItem("token"); // Safely retrieve the auth token
+
       const url = isEditMode
         ? `${import.meta.env.VITE_BackEndUrl}/api/residential/${editId}`
         : `${import.meta.env.VITE_BackEndUrl}/api/residential/create`;
@@ -530,6 +532,8 @@ export const CreateProperty = () => {
       const response = await axios[method](url, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
+          ...(token && { Authorization: `Bearer ${token}` }), // ✅ Add auth header conditionally
+
         },
       });
 
