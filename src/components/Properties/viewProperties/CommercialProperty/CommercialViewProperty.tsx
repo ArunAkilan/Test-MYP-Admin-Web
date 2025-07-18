@@ -83,7 +83,12 @@ const longitude =
       .get(
         `${
           import.meta.env.VITE_BackEndUrl
-        }/api/commercial/${id}`
+        }/api/commercial/${id}`,
+         {
+          headers: {
+            "Authorization":`Bearer ${localStorage.getItem("token")}`
+          },
+        }
       )
       .then((res) => setProperty(res.data))
       .catch((err) => console.error("Error fetching property:", err));

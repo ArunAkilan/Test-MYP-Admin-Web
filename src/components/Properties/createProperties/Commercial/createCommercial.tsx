@@ -496,29 +496,24 @@ useEffect(() => {
             `Invalid file type: ${img.name}. Only JPEG, PNG, or WEBP allowed.`
           );
         }
-      } else if (typeof img.name === "string") {
-        // Existing image URLs from edit mode, append them so backend knows to keep them
-        formData.append("existingImages", img.name);
       }
-    });
+    );
 
     try {
-      const token = localStorage.getItem("token"); // Get token
-      const url = isEditMode
-        ? `${import.meta.env.VITE_BackEndUrl}/api/commercial/${editId}`
-        : `${import.meta.env.VITE_BackEndUrl}/api/commercial/create`;
-    
-      const method = isEditMode ? "put" : "post";
-    
-      const response = await axios[method](url, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          ...(token && { Authorization: `Bearer ${token}` }), // Token here
-        },
-      });
-    
-      setLoading(false); // Hide Backdrop
-    
+      // Send POST request
+      const response = await axios.post(
+        `${import.meta.env.VITE_BackEndUrl}/api/commercial/create`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            "Authorization":`Bearer ${localStorage.getItem("token")}`
+          },
+        }
+      );
+
+      setLoading(false); // Hide Backdrop FIRST
+
       setTimeout(() => {
         toast.success(isEditMode ? "Property updated successfully!" : "Property created successfully!");
     

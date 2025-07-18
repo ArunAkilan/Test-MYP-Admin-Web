@@ -529,13 +529,16 @@ export const CreateProperty = () => {
 
       const method = isEditMode ? "put" : "post";
       // Send POST request
-      const response = await axios[method](url, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          ...(token && { Authorization: `Bearer ${token}` }), // ✅ Add auth header conditionally
-
-        },
-      });
+      const response = await axios.post(
+        `${import.meta.env.VITE_BackEndUrl}/api/residential/create`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            "Authorization":`Bearer ${localStorage.getItem("token")}`
+          },
+        }
+      );
 
       setLoading(false); // Hide Backdrop FIRST
 
