@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { InputField, DynamicBreadcrumbs } from "../../../Common/input";
 import GenericButton from "../../../Common/Button/button";
 import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
@@ -8,30 +8,18 @@ import CloseIcon from "@mui/icons-material/Close";
 import { Button, Avatar, Alert, IconButton, Backdrop, CircularProgress, } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "../createProperty.scss"; //  Corrected path
-import "./createCommercial.scss"; // This is already correct
+import "./createCommercial.scss"; 
 import axios, { AxiosError } from "axios";
-
 import type {
   PropertyType,
   CommercialType,
   FacingDirection,
   WashroomType,
   RoadFacility,
-  // OwnerContact,
-  // OwnerDetails,
-  // Location,
-  // Area,
-  // RentDetails,
-  // LeaseDetails,
-  // SaleDetails,
-  // Facility,
-  // Accessibility,
   CommercialPropertyForm,
   UploadedImage,
   CommercialFormState,
 } from "./createCommercial.modal";
-
 import type { Restrictions } from "../../../AdminResidencial/AdminResidencial.model";
 import {
   GoogleMap,
@@ -114,16 +102,8 @@ function buildPayloadDynamic(
   // owner
   setNested(payload, "owner.firstName", formState.owner.firstName.trim());
   setNested(payload, "owner.lastName", formState.owner.lastName.trim());
-  setNested(
-    payload,
-    "owner.contact.phone1",
-    formState.owner.contact.phone1.trim()
-  );
-  setNested(
-    payload,
-    "owner.contact.email",
-    formState.owner.contact.email?.trim() ?? ""
-  );
+  setNested(payload, "owner.contact.phone1", formState.owner.contact.phone1.trim());
+  setNested(payload, "owner.contact.email", formState.owner.contact.email?.trim() ?? "");
   setNested(payload, "owner.contact.getUpdates", true);
 
   // property
@@ -145,7 +125,7 @@ function buildPayloadDynamic(
       "rent.advanceAmount",
       Number(formState.rent.advanceAmount) || 0
     );
-    setNested(payload, "rent.agreementTiming", formState.lease.leaseTenure); // optional, rename if needed
+    setNested(payload, "rent.agreementTiming", formState.lease.leaseTenure); 
   } else if (formState.propertyType === "Lease") {
     setNested(
       payload,
@@ -187,8 +167,8 @@ function buildPayloadDynamic(
   setNested(payload, "propertyFloor", Number(formState.propertyFloor) || 0);
 
   // images
-  const imageUrls = formState.uploadedImages.map((img) => img.name);
-  setNested(payload, "images", imageUrls);
+  // const imageUrls = formState.uploadedImages.map((img) => img.name);
+  // setNested(payload, "images", imageUrls);
 
   // accessibility – map selected chips → boolean object
   const restrictions = mapChipsToRestrictions(formState.selectedChips);
@@ -211,6 +191,8 @@ function buildPayloadDynamic(
 export const CreateCommercialProperty = () => {
   // State for form data
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -221,12 +203,10 @@ export const CreateCommercialProperty = () => {
   const [readyToOccupy, setReadyToOccupy] = useState<boolean>(true);
   const [parking, setParking] = useState("");
   const [waterFacility, setWaterFacility] = useState<string>("Available");
-  // or
 
   const [title, setTitle] = useState("");
 
   const [tilesOnFloor, setTilesOnFloor] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   const [rentAmount, setRentAmount] = useState<number>(0);
   const [negotiable, setNegotiable] = useState<boolean>(false);
@@ -249,6 +229,71 @@ export const CreateCommercialProperty = () => {
   const [markerPosition, setMarkerPosition] = useState(defaultCenter);
   const [autocomplete, setAutocomplete] =
     useState<google.maps.places.Autocomplete | null>(null);
+    const location = useLocation();
+const isEditMode = location.state?.mode === "edit";
+const editData = location.state?.data;
+const editId = location.state?.data?._id;
+console.log("editid", editId);
+
+// Update state when in edit mode
+useEffect(() => {
+  if (isEditMode && editData) {
+    setFirstName(editData.owner?.firstName || "");
+    setLastName(editData.owner?.lastName || "");
+    setEmail(editData.owner?.contact?.email || "");
+    setPhone1(editData.owner?.contact?.phone1 || "");
+    setTitle(editData.title || "");
+    setPropertyType(editData.propertyType || "Rent");
+    setAddress(editData.location?.address || "");
+    if (editData.location?.map) {
+      setLatitude(editData.location.map.latitude?.toString() || "");
+      setLongitude(editData.location.map.longitude?.toString() || "");
+    } else {
+      setLatitude("");
+      setLongitude("");
+    }
+    
+    setRentAmount(editData.rent?.rentAmount || 0);
+    setAdvanceAmount(editData.rent?.advanceAmount || "");
+    setLeaseTenure(editData.lease?.leaseTenure || "");
+    setNegotiable(editData.rent?.negotiable || false);
+    setTotalArea(editData.area?.totalArea?.replace(" sqft", "") || "");
+    setFacingDirection(editData.facingDirection || "East");
+    setTotalFloors(editData.totalFloors || "");
+    setPropertyFloor(editData.propertyFloor || "");
+    setPropertyDescription(editData.description || "");
+
+    // Map restrictions booleans back to chips:
+    const chips: string[] = [];
+    if (editData.restrictions) {
+      if (editData.restrictions.guestAllowed === false) chips.push("Guests Not Allowed");
+      if (editData.restrictions.petsAllowed === false) chips.push("No Pets Allowed");
+      if (editData.restrictions.bachelorsAllowed === false) chips.push("No Bachelors Allowed");
+    }
+    setSelectedChips(chips);
+
+    setImages((editData.images || []).map((img: string) => ({ name: img })));
+    setMarkerPosition({
+      lat: editData.location?.map?.latitude || defaultCenter.lat,
+      lng: editData.location?.map?.longitude || defaultCenter.lng,
+    });
+    setWashroom(editData.washroom || "None");
+    setRoadFasicility(editData.roadFacility || "None");
+    setReadyToOccupy(editData.readyToOccupy || true);
+    setParking(editData.facility?.parking ? "Available" : "Not Available");
+    setWaterFacility(editData.facility?.waterFacility ? "Available" : "Not Available");
+    setTilesOnFloor(editData.facility?.tilesOnFloor || false);
+    setCommercialType(editData.commercialType || "Shop");
+    // Set nearby transport if available
+    if (editData.location?.map?.latitude && editData.location?.map?.longitude) {
+      fetchNearbyTransport(
+        editData.location.map.latitude,
+        editData.location.map.longitude
+      );
+    }
+  }
+}, [isEditMode, editData]);
+
 
   const [nearbyTransport, setNearbyTransport] = useState<
     Record<string, string>
@@ -298,6 +343,7 @@ export const CreateCommercialProperty = () => {
     setNearbyTransport(info);
   };
 
+  
   // Handle map click to place marker and update lat/lng inputs
   const onMapClick = useCallback((e: google.maps.MapMouseEvent) => {
     if (e.latLng) {
@@ -342,10 +388,12 @@ export const CreateCommercialProperty = () => {
     setLoading(true); // Backdrop
 
     const validationErrors = validate();
+    console.log("Validation Errors:", validationErrors);
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length > 0) {
         toast.error("Please fix the errors in the form.");
+        setLoading(false);
       return;
     }
 
@@ -426,17 +474,13 @@ export const CreateCommercialProperty = () => {
         formData.append(key, value);
       }
     });
-
-    //Append images with MIME type handling & debug logging
     const MAX_FILE_SIZE_MB = 5;
 
-    images.forEach(
-      (
-        img
-        // index
-      ) => {
+    //Append images with MIME type handling & debug logging
+    images.forEach((img) => {
+      if (img.file instanceof File) {
+         // Append new image files
         if (
-          img.file instanceof File &&
           ["image/jpeg", "image/jpg", "image/png", "image/webp"].includes(
             img.file.type
           )
@@ -444,80 +488,74 @@ export const CreateCommercialProperty = () => {
           if (img.file.size <= MAX_FILE_SIZE_MB * 1024 * 1024) {
             formData.append("images", img.file);
           } else {
-            toast.error(
-              `${img.name} exceeds ${MAX_FILE_SIZE_MB}MB size limit.`
-            );
+            toast.error(`${img.name} exceeds ${MAX_FILE_SIZE_MB}MB size limit.`);
           }
+        } else {
           console.warn(`Skipped invalid image: ${img.name}`);
           toast.error(
             `Invalid file type: ${img.name}. Only JPEG, PNG, or WEBP allowed.`
           );
         }
+      } else if (typeof img.name === "string") {
+        // Existing image URLs from edit mode, append them so backend knows to keep them
+        formData.append("existingImages", img.name);
       }
-    );
+    });
 
     try {
-      // Send POST request
-      const response = await axios.post(
-        `${import.meta.env.VITE_BackEndUrl}/api/commercial/create`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            "Authorization":`Bearer ${localStorage.getItem("token")}`
-          },
-        }
-      );
-
-      setLoading(false); // Hide Backdrop FIRST
-
+      const token = localStorage.getItem("token"); // Get token
+      const url = isEditMode
+        ? `${import.meta.env.VITE_BackEndUrl}/api/commercial/${editId}`
+        : `${import.meta.env.VITE_BackEndUrl}/api/commercial/create`;
+    
+      const method = isEditMode ? "put" : "post";
+    
+      const response = await axios[method](url, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          ...(token && { Authorization: `Bearer ${token}` }), // Token here
+        },
+      });
+    
+      setLoading(false); // Hide Backdrop
+    
       setTimeout(() => {
-        toast.success("Property created successfully!");
-      
-        // Wait until backdrop is gone
+        toast.success(isEditMode ? "Property updated successfully!" : "Property created successfully!");
+    
         setTimeout(() => {
           const plotId = response?.data?._id;
-      
+    
           if (plotId) {
             navigate(`/commercial/view/${plotId}`);
           } else {
-            // fallback in case no ID is returned
             navigate("/commercial", {
               state: { data: response.data, showLoading: true },
             });
           }
         }, 1000);
       }, 100);
-      // // TODO: Send data to backend
-      // // Redirect after a short delay (so toast is visible)
-      // setTimeout(() => {
-      //   navigate("/commercial", {
-      //     state: { data: response.data },
-      //   });
-      // }, 2000);
     } catch (err) {
       const error = err as AxiosError<{ message?: string; error?: string }>;
-
-      console.error("Submission error:", error.response || error);
-
+    
       const errorMessage =
         error.response?.data?.message ||
         error.response?.data?.error ||
         error.message ||
         "Something went wrong!";
-      console.error("Submission Error:", error);
-
-      toast.error(`Failed to create property: ${errorMessage}`);
+        console.error("Submission Error:", error);
+    
+      toast.error(`Failed to ${isEditMode ? "update" : "create"} property: ${errorMessage}`);
     }
-    console.log("check end ");
+    finally {
+      setLoading(false); // <- Hide backdrop on error
+    }
   };
 
   //TopOfCenter MUIAlertToast
   useEffect(() => {
-    // Show only once when the page opens
     setShowTopInfo(true);
-  }, []);
-
+  }, [editData]);
+  
   const isFormReadyToSubmit =
     firstName.trim() &&
     lastName.trim() &&
@@ -1554,15 +1592,12 @@ export const CreateCommercialProperty = () => {
                   <div>
                     {/* Your form and other JSX */}
                     <GenericButton
-                      label="Create New Property"
-                      icon={<DoneIcon />}
+                      label={loading ? "Saving..." : isEditMode ? "Update Property" : "Create New Property"}
+                      icon={loading ? <CircularProgress size={16} color="inherit" /> : <DoneIcon />}
                       className="createNP btn btn-primary"
                       type="submit"
-                      disabled={!isFormReadyToSubmit}
-
-                      // onClick={() => navigate("/createCommercial", { state: { mode: "create" } })}
+                      disabled={loading}
                     />
-
                     {/* This must be rendered */}
                     <ToastContainer />
                   </div>

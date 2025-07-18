@@ -23,6 +23,10 @@ interface Notification {
   role: string;
 }
 
+interface NotificationResponse {
+  notifications: Notification[];
+}
+
 const ENDPOINT = import.meta.env.VITE_BackEndUrl;
 
 function CustomTabPanel(props: TabPanelProps) {
@@ -50,15 +54,15 @@ function a11yProps(index: number) {
 
 export default function Notificationtab() {
   const [value, setValue] = React.useState(0);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
   //Socket IO
-  const [notifications, setNotifications] = useState<Notification[]>([]);
   useEffect(() => {
-    axios.get<any>(`${ENDPOINT}/api/notifications`)
-      .then((res:any) => {
+    axios.get<NotificationResponse>(`${ENDPOINT}/api/notifications`)
+      .then((res) => {
          setNotifications(res.data.notifications);
       });
 
