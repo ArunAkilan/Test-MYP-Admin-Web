@@ -7,6 +7,7 @@ import {
   Navigate,
   // useNavigate,
   useLocation,
+  useMatch,
 } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
@@ -27,25 +28,16 @@ import React from "react";
 import { ChevronLeftIcon, ChevronRightIcon, MenuIcon } from "lucide-react";
 import ProtectedRoute from "./components/Login/ProtectedRoute";
 
+
 function AppRoutes() {
-  //const navigate = useNavigate();     
   const location = useLocation();
- 
-  // const isLoginRoute = location.pathname === "/admin";
- 
-  // const openCreateResidential = () => {
-  //   navigate("/residential/create");
-  // };
-  // const openCreateCommercial = () => navigate("/commercial/create");
-  // const openCreatePlotProperty = () => navigate("/plots/create");
- 
-  // const noScrollRoutes = [
-  //   "/dashboard",
-  //   "/commercial",
-  //   "/residential",
-  //   "/plots"
-  // ];
- 
+  const shouldHideInResidentialView = !!useMatch("/residential/view/:id");
+  const shouldHideInCommercialView = !!useMatch("/commercial/view/:id");
+  const shouldHideInPlotView = !!useMatch("/plot/view/:id");
+  const shouldHideInResidentialCreate = !!useMatch("/residential/create");
+  const shouldHideInCommercialCreate = !!useMatch("/commercial/view");
+  const shouldHideInPlotCreate = !!useMatch("/plott/view");
+
   useEffect(() => {
     // const noScrollRoutes = [
     //   "/dashboard",
@@ -77,6 +69,7 @@ function AppRoutes() {
   const locationIsAdmin = location.pathname === "/login";
   locationIsAdmin ? document.body.style.background = '#F0F5FC' :
     document.body.style.background = '#FFFFFF';
+
   const theme = useTheme();
   const [open, setOpen] = React.useState(true);
  
@@ -137,37 +130,47 @@ function AppRoutes() {
     }),
   );
   /****Drawer Component */
- 
+
+
+
+
   return (
     <div className="app-container row">
- 
-      {!locationIsAdmin && <Drawer variant="permanent" open={open} >
-        <IconButton
-          color="inherit"
-          aria-label="open drawer"
-          onClick={handleDrawerOpen}
-          edge="start"
-          sx={[
-            {
-              justifyContent: "end",
-              "&:hover": {
-                backgroundColor: "transparent !important"
-              }
-            },
-            open && { display: 'none' },
-          ]}
-        >
-          <MenuIcon />
-        </IconButton>
-        {open && <IconButton onClick={handleDrawerClose} sx={{
-          justifyContent: "end", "&:hover": {
-            backgroundColor: "transparent !important"
-          }
-        }}>
-          {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-        </IconButton>}
-        {!shouldHideSidebar && <Sidebar />}
-      </Drawer>}
+
+      {
+        !shouldHideInResidentialView &&
+        !shouldHideInCommercialView &&
+        !shouldHideInPlotView &&
+        !shouldHideInResidentialCreate &&
+        !shouldHideInCommercialCreate &&
+        !shouldHideInPlotCreate &&
+        !locationIsAdmin && <Drawer variant="permanent" open={open} >
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={handleDrawerOpen}
+            edge="start"
+            sx={[
+              {
+                justifyContent: "end",
+                "&:hover": {
+                  backgroundColor: "transparent !important"
+                }
+              },
+              open && { display: 'none' },
+            ]}
+          >
+            <MenuIcon />
+          </IconButton>
+          {open && <IconButton onClick={handleDrawerClose} sx={{
+            justifyContent: "end", "&:hover": {
+              backgroundColor: "transparent !important"
+            }
+          }}>
+            {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+          </IconButton>}
+          {!shouldHideSidebar && <Sidebar />}
+        </Drawer>}
       <div
         // className={`content-area ${!shouldHideSidebar ? "col-md-9 offset-md-3" : "col-md-12"
         //   }`}
@@ -175,30 +178,30 @@ function AppRoutes() {
         style={{ flex: 1, overflowY: "auto" }}
       >
         <Routes>
-        
+
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Navigate to="/login" />} />
           <Route element={<ProtectedRoute />}>
-              <Route path="/dashboard" element={<Home properties="all" />} />
+            <Route path="/dashboard" element={<Home properties="all" />} />
 
-              <Route
-                path="/commercial"
-                element={<Home properties="commercials" />}
-              />
-              <Route
-                path="/residential"
-                element={<Home properties="residentials" />}
-              />
-              <Route path="/plots" element={<Home properties="plots" />} />
-              <Route
-                path="/commercial/create"
-                element={<CreateCommercialProperty />}
-              />
-              <Route path="/plots/create" element={<CreatePlotProperty />} />
-              <Route path="/residential/create" element={<CreateProperty />} />
-              <Route path="/plots/view/:id" element={<PlotView />} />
-              <Route path="/residential/view/:id" element={<ViewProperty />} />
-              <Route path="/commercial/view/:id" element={<CommercialView />} />
+            <Route
+              path="/commercial"
+              element={<Home properties="commercials" />}
+            />
+            <Route
+              path="/residential"
+              element={<Home properties="residentials" />}
+            />
+            <Route path="/plots" element={<Home properties="plots" />} />
+            <Route
+              path="/commercial/create"
+              element={<CreateCommercialProperty />}
+            />
+            <Route path="/plots/create" element={<CreatePlotProperty />} />
+            <Route path="/residential/create" element={<CreateProperty />} />
+            <Route path="/plot/view/:id" element={<PlotView />} />
+            <Route path="/residential/view/:id" element={<ViewProperty />} />
+            <Route path="/commercial/view/:id" element={<CommercialView />} />
           </Route>
         </Routes>
 
@@ -220,7 +223,7 @@ function LayoutWrapper() {
   const location = useLocation();
   const isLoginRoute = location.pathname === "/login";
 
-  const getLoggedInUserName:any = localStorage.getItem("user");
+  const getLoggedInUserName: any = localStorage.getItem("user");
   const parsedLoggedInUserName = JSON.parse(getLoggedInUserName);
 
   return (
