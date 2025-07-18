@@ -99,7 +99,7 @@ const Carousel: React.FC<CarouselProps> = ({ images}) => {
                 sx={{
                   width: `${100 / images.length}%`,
                   flexShrink: 0,
-                  height: "85vh",
+                  // height: "85vh",
                   position: "relative",
                 }}
               >
