@@ -1,5 +1,4 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { useLocation, useNavigate } from "react-router-dom";
 import { DynamicBreadcrumbs } from "../../../Common/input";
 import type { PlotProperty } from "./PlotView.modal";
 import "./PlotViewProperty.scss";
@@ -48,7 +47,6 @@ interface PropertyResponse {
 
 const PlotView = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const navigate = useNavigate();
   const propertyData = location.state?.data as PlotProperty;
 
@@ -427,7 +425,6 @@ const longitude =
               </div>
             </div>
           </div>
-        </div>
         </div>
       </section>
 

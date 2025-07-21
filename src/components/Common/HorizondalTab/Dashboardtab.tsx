@@ -61,13 +61,16 @@ type Property = {
   furnishingType?: string;
   facingDirection?: string;
   totalFloors?: string;
+  commercialType?: string;
   washroom?: string;
-   area?: string;
   type?: string;
   location?: {
     landmark?: string;
     address?: string;
   };
+  area? : {
+    totalArea?: string;
+  }
 };
 type PropertyData = {
   residential?: Property[];
@@ -95,7 +98,11 @@ type PropertyItem = {
   postOwner?: {
     userName?: string;
   }
+  area? : {
+    totalArea?: string;
+  }
   title?: string;
+  commercialType?: string;
   propertyType: string;
   location?: {
     landmark?: string;
@@ -534,9 +541,11 @@ export default function Dashboardtab({
  
   const toggleDrawer =
     (drawerOpen: boolean) =>
-    (event: React.KeyboardEvent | React.MouseEvent | {}) => {
+    (event: React.KeyboardEvent | React.MouseEvent | unknown) => {
       if (
-        event &&
+         event && 
+          typeof event === "object" && 
+        event !== null && 
         "type" in event &&
         event.type === "keydown" &&
         ((event as React.KeyboardEvent).key === "Tab" ||
@@ -678,8 +687,7 @@ export default function Dashboardtab({
       setIsBackdropLoading(false); // ✅ hide loading
     }
   };
- 
-  const handleConfirmButtonClick =  () => {
+
 
   const handleConfirmButtonClick = () => {
     if (!selectedItem?._id || !selectedAction) return;

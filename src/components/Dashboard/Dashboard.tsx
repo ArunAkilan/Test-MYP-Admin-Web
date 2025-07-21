@@ -17,31 +17,25 @@ import FormLabel from "@mui/material/FormLabel";
 import { useNavigate } from "react-router-dom";
 import { CircularProgress, Typography, Alert } from "@mui/material";
 import Skeleton from "@mui/material/Skeleton";
- 
 type PropertyType = "all" | "residentials" | "commercials" | "plots";
- 
 interface HomeProps {
   properties: PropertyType;
   onAddNew?: () => void;
 }
- 
 interface PropertyData {
   residential: ResidentialProperty[];
   commercial: ResidentialProperty[];
   plot: ResidentialProperty[];
 }
- 
 const mapKey: Record<PropertyType, keyof PropertyData> = {
   residentials: "residential",
   commercials: "commercial",
   plots: "plot",
   all: "residential", // not used directly
 };
- 
 interface HomeProps {
   properties: PropertyType;
 }
- 
 const style = {
   position: "absolute",
   top: "50%",
@@ -54,9 +48,7 @@ const style = {
   py: 3,
   borderRadius: 2,
 };
- 
- 
- 
+
 // function Home({ properties, onAddNew }: HomeProps)
 function Home({ properties="all" }: HomeProps) {
   console.log("properties",properties)
@@ -73,7 +65,6 @@ function Home({ properties="all" }: HomeProps) {
     plots: "Manage Plots Properties",
   };
   const heading = headingMap[properties] || "Properties";
- 
   const paragMap: Record<PropertyType, string> = {
     all: "Get a comprehensive view of all the properties",
     residentials: "Review and track residential property entries easily",
@@ -81,7 +72,6 @@ function Home({ properties="all" }: HomeProps) {
     plots: "Review and track plots property entries easily",
   };
   const para = paragMap[properties] || "Properties";
- 
   const [loadingBackdrop, setLoadingBackdrop] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
   console.log("loading",loading)
@@ -89,25 +79,22 @@ function Home({ properties="all" }: HomeProps) {
   const [hideHeader, setHideHeader] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [open, setOpen] = React.useState(false);
- const [isSkeletonLoading, setIsSkeletonLoading] = useState(true);
+const [isSkeletonLoading, setIsSkeletonLoading] = useState(true);
   const location = useLocation();
   const [selectedPropertyType, setSelectedPropertyType] = useState<string | null>(null);
   console.log("loadingBackdrop",loadingBackdrop)
- // NEW: Show Backdrop on successful create redirect
- useEffect(() => {
+// NEW: Show Backdrop on successful create redirect
+useEffect(() => {
   if (location.state?.from === "residentialCreateSuccess") {
     setLoadingBackdrop(true);
- 
      // Clear the state so backdrop doesn't show again on refresh
      window.history.replaceState({}, document.title);
- 
      setTimeout(() => {
       setLoadingBackdrop(false);
       window.dispatchEvent(new Event("refreshTableData")); // ✅ triggers table reload
     }, 2000); // show for 2 seconds
   }
 }, [location.state]);
- 
   const handleOpen = () => {
     if (location?.pathname === "/dashboard") {
       setOpen(true);
@@ -130,34 +117,26 @@ function Home({ properties="all" }: HomeProps) {
   const handleChildScroll = (scrollTop: number) => {
     // setIsFixed(scrollTop > 50);
     const currentScrollY = scrollTop;
- 
     // Show header when scrolling up
     if (currentScrollY < lastScrollY || currentScrollY < 20) {
       setHideHeader(false);
     } else {
       setHideHeader(true);
     }
- 
     setLastScrollY(currentScrollY);
   };
- 
- 
- 
+
   const propertyData = location.state?.data;
   console.log("propertyData", propertyData);
- 
- 
- 
+
   useEffect(() => {
     const fetchAllData = async () => {
       setLoading(true);
       setError(null);
- 
       try {
         const response = await axios.get(
           `${import.meta.env.VITE_BackEndUrl}/api/${properties}`
         );
- 
         if (properties === "all") {
           setDashboardData({
             residential: response.data.data.residential ?? [],
@@ -180,27 +159,20 @@ function Home({ properties="all" }: HomeProps) {
         }
         setLoading(false);
       }
-     
     };
- 
     fetchAllData();
- 
     const handleRefresh = () => fetchAllData(); // refresh handler
- 
     window.addEventListener("refreshTableData", handleRefresh);
     return () => window.removeEventListener("refreshTableData", handleRefresh);
   }, [properties]);
- 
     useEffect(() => {
     // Simulate API delay
     const timeout = setTimeout(() => {
       // Here you should fetch actual data and set it
       setIsSkeletonLoading(false);
     }, 2000);
- 
     return () => clearTimeout(timeout);
   }, []);
- 
   if (loading) {
     return (
       <Box display="flex" alignItems="center" justifyContent="center" p={3}>
@@ -211,7 +183,6 @@ function Home({ properties="all" }: HomeProps) {
       </Box>
     );
   }
- 
   if (error) {
     return (
       <Box p={3}>
@@ -225,11 +196,9 @@ function Home({ properties="all" }: HomeProps) {
     dashboardData.residential.length > 0 ||
     dashboardData.commercial.length > 0 ||
     dashboardData.plot.length > 0;
- 
   if (!hasData) {
     return <p>No data found for {properties}</p>;
   }
- 
   return (
     <div className="home-sec">
       {isSkeletonLoading ? (
@@ -347,7 +316,7 @@ function Home({ properties="all" }: HomeProps) {
               </div>
             </div>
           </div>
- 
+
           <div className="container">
             <div className="pending-approve">
               <Dashboardtab
@@ -362,7 +331,5 @@ function Home({ properties="all" }: HomeProps) {
     </div>
   );
 }
- 
+
 export default Home;
- 
- 
