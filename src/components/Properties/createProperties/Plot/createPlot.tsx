@@ -475,6 +475,7 @@ export const CreatePlotProperty = () => {
 
     //Append images with MIME type handling & debug logging
     const MAX_FILE_SIZE_MB = 5;
+    
     images.forEach((img) => {
       if (img.file instanceof File) {
         if (
@@ -503,8 +504,8 @@ export const CreatePlotProperty = () => {
       const token = localStorage.getItem("token"); // Retrieve token
 
       const url = isEditMode
-        ? `${import.meta.env.VITE_BackEndUrl}/api/plot/${editId}`
-        : `${import.meta.env.VITE_BackEndUrl}/api/plot/create`;
+        ? `${import.meta.env.VITE_BackEndUrl}/api/plots/${editId}`
+        : `${import.meta.env.VITE_BackEndUrl}/api/plots/create`;
         const method = isEditMode ? "put" : "post";
         const response = await axios[method](url, formData, {
           headers: {

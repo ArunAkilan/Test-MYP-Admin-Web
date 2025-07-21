@@ -433,7 +433,7 @@ export default function Dashboardtab({
   const filterResetFunction = () => {
     setCurrentCheckList([]);
     setIsFiltered(false);
-    fetchFilteredData([], value); // ✅ No status
+    fetchFilteredData([], value); 
     setDrawerOpen(false);
     setResetCounter((prev) => prev + 1);
   };
@@ -522,7 +522,7 @@ export default function Dashboardtab({
         return;
       }
  
-      setDrawerOpen(drawerOpen); // ✅ updated
+      setDrawerOpen(drawerOpen); 
     };
  
   // card view
@@ -734,7 +734,7 @@ export default function Dashboardtab({
               icon={<Avatar alt="test avatar" src="/pending-reject.svg" />}
               iconPosition="start"
             />
- 
+
  
  
             <Tab
@@ -971,7 +971,7 @@ export default function Dashboardtab({
                         className="filter-text"
                         aria-describedby={id}
                         // onClick={handleClick}
-                        onClick={toggleDrawer(true)}
+                        onClick={toggleDrawer(true)} 
                       >
                         <img
                           src="/majesticons_filter-line.svg"

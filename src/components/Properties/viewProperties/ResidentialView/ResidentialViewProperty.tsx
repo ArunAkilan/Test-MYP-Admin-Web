@@ -45,46 +45,55 @@ import light_train from "../../../../assets/viewProperty/light_train.png";
 import proicons_mail from "../../../../assets/viewProperty/proicons_mail.png";
 import solar_phone from "../../../../assets/viewProperty/solar_phone.png";
 import MapComponent from "../../../Common/LocationPicker/LocationPicker";
-
 import backIcon from "../../../../assets/dashboardtab/icon-park-outline_down.svg";
 
-
 interface PropertyResponse {
-  property: ResidentialProperty ;
+  property: ResidentialProperty;
 }
 
-const ViewProperty= () => {
+const ViewProperty = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  // const location = useLocation();
   const token = localStorage.getItem("token");
 
   const [property, setProperty] = useState<PropertyResponse | null>(null);
-  // const propertyData = location.state?.data as ResidentialProperty;
 
   useEffect(() => {
-    console.log("API call URL:", `${import.meta.env.VITE_BackEndUrl}/api/residential/${id}`);
+    console.log(
+      "API call URL:",
+      `${import.meta.env.VITE_BackEndUrl}/api/residential/${id}`
+    );
     axios
-      .get(`${import.meta.env.VITE_BackEndUrl}/api/residential/${id}`,
-         {
-          headers: {
-            "Authorization":`Bearer ${localStorage.getItem("token")}`
-          },
-        }
-      )
+      .get(`${import.meta.env.VITE_BackEndUrl}/api/residential/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then((res) => setProperty(res.data))
-      .catch((err) => console.error("Error fetching property:", err));
-      toast.error("Failed to load property");
+      .catch((err) => {
+        console.error("Error fetching property:", err);
+        toast.error("Failed to load property");
+      });
   }, [id, token]);
 
   const handleEdit = () => {
-    navigate(`/edit-residential/${property?.property._id}`, {
-      state: { data: property?.property },
+    if (!property) {
+      toast.error("Property data not available");
+      return;
+    }
+  
+    const cleanItem = JSON.parse(JSON.stringify(property.property)); // sanitize any Date objects
+  
+    navigate(`/residential/create`, {
+      state: { data: cleanItem, mode: "edit" },
     });
   };
+  
 
   // Unified status update function for approve, deny, delete, sold
-  const updateResidentialPermissionStatus = async (status: "0" | "1" | "2" | "3") => {
+  const updateResidentialPermissionStatus = async (
+    status: "0" | "1" | "2" | "3"
+  ) => {
     if (!token) {
       toast.error("Authentication token missing");
       return;
@@ -110,68 +119,45 @@ const ViewProperty= () => {
         }
       );
 
-      const action =
-        status === "1"
-          ? "Approved"
-          : status === "0"
-          ? "Denied"
-          : status === "2"
-          ? "Deleted"
-          : "Sold";
+      const actionMap: Record<string, { label: string; route: string }> = {
+        "0": { label: "Denied", route: "/residential" },
+        "1": { label: "Approved", route: "/residential" },
+        "2": { label: "Deleted", route: "/residential" },
+        "3": { label: "Sold", route: "/residential" },
+      };
+      
+      const { label, route } = actionMap[status] || { label: "Unknown", route: "/" };
+      
+      toast.success(`Property ${label.toLowerCase()} successfully`);
+      navigate(route);
 
-      toast.success(`Property ${action.toLowerCase()} successfully`);
-
-      if (status === "2") {
-        navigate("/property-management"); // Redirect after delete
-      }
     } catch (error) {
       toast.error("Action failed");
       console.error(error);
     }
   };
 
-
   if (!property) return <div>Loading...</div>;
 
   const latitudeRaw = property?.property?.location?.map?.latitude;
   const longitudeRaw = property?.property?.location?.map?.longitude;
 
-const latitude =
-  typeof latitudeRaw === "number"
-    ? latitudeRaw
-    : typeof latitudeRaw === "string" && !isNaN(parseFloat(latitudeRaw))
-    ? parseFloat(latitudeRaw)
-    : undefined;
+  const latitude =
+    typeof latitudeRaw === "number"
+      ? latitudeRaw
+      : typeof latitudeRaw === "string" && !isNaN(parseFloat(latitudeRaw))
+      ? parseFloat(latitudeRaw)
+      : undefined;
 
-const longitude =
-  typeof longitudeRaw === "number"
-    ? longitudeRaw
-    : typeof longitudeRaw === "string" && !isNaN(parseFloat(longitudeRaw))
-    ? parseFloat(longitudeRaw)
-    : undefined;
-
+  const longitude =
+    typeof longitudeRaw === "number"
+      ? longitudeRaw
+      : typeof longitudeRaw === "string" && !isNaN(parseFloat(longitudeRaw))
+      ? parseFloat(longitudeRaw)
+      : undefined;
 
   return (
     <section className="container pt-4">
-      {/* <section className="breadcrumb d-flex flex-row align-items-center gap-2 mb-3">
-        <div className="d-flex align-items-center gap-1">
-          <p className="mb-0">Residential</p>
-          <img
-            src="/src/assets/Propert View Page imgs/ChevronRightFilled.svg"
-            alt="arrow"
-          />
-        </div>
-        <div className="d-flex align-items-center gap-1">
-          <p className="mb-0">{propertyData?.propertyType}</p>
-          <img
-            src="/src/assets/Propert View Page imgs/ChevronRightFilled.svg"
-            alt="arrow"
-          />
-        </div>
-        <div>
-          <p className="mb-0 fw-bold">{propertyData?.title}</p>
-        </div>
-      </section> */}
       <div className="breadcrumb">
         <button onClick={() => navigate(-1)} className="btn btn-secondary">
           <img src={backIcon} alt="backIcon" />
@@ -727,7 +713,6 @@ const longitude =
           </div>
         </div>
       </section>
-
       <section className="midDetails">
         <h3>Owner Information</h3>
         <div className="owner-info row">
@@ -754,28 +739,42 @@ const longitude =
         </div>
       </section>
       <section className="midDetails">
-        <div className="area-icon ">
-
-          <div className="view-property-icon ">
+        <div className="area-icon">
+          <div className="view-property-icon">
             <h3>Action</h3>
             <div className="view-property-icon-inside">
-              <button className="btn edit-btn d-flex align-items-center gap-1"
-               onClick={handleEdit}>
+              <button
+                type="button"
+                className="btn edit-btn d-flex align-items-center gap-1"
+                onClick={handleEdit}
+              >
                 <img src={Icon_edit} alt="Edit Icon" />
                 <p className="mb-0">Edit</p>
               </button>
-              <button className="btn approve-btn d-flex align-items-center gap-1"
-              onClick={() => updateResidentialPermissionStatus("1")}>
+
+              <button
+                type="button"
+                className="btn approve-btn d-flex align-items-center gap-1"
+                onClick={() => updateResidentialPermissionStatus("1")}
+              >
                 <img src={Icon_Tick} alt="Approve Icon" />
                 <p className="mb-0">Approve</p>
               </button>
-              <button className="btn deny-btn d-flex align-items-center gap-1"
-              onClick={() => updateResidentialPermissionStatus("0")}>
+
+              <button
+                type="button"
+                className="btn deny-btn d-flex align-items-center gap-1"
+                onClick={() => updateResidentialPermissionStatus("0")}
+              >
                 <img src={Icon_Deny} alt="Deny Icon" />
                 <p className="mb-0">Deny</p>
               </button>
-              <button className="btn delete-btn d-flex align-items-center gap-1"
-              onClick={() => updateResidentialPermissionStatus("2")}>
+
+              <button
+                type="button"
+                className="btn delete-btn d-flex align-items-center gap-1"
+                onClick={() => updateResidentialPermissionStatus("2")}
+              >
                 <img src={Icon_Delete} alt="Delete Icon" />
                 <p className="mb-0">Delete</p>
               </button>
