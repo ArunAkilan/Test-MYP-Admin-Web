@@ -36,7 +36,7 @@ function AppRoutes() {
   const shouldHideInPlotView = !!useMatch("/plot/view/:id");
   const shouldHideInResidentialCreate = !!useMatch("/residential/create");
   const shouldHideInCommercialCreate = !!useMatch("/commercial/view");
-  const shouldHideInPlotCreate = !!useMatch("/plott/view");
+  const shouldHideInPlotCreate = !!useMatch("/plot/view");
 
   useEffect(() => {
     // const noScrollRoutes = [
@@ -131,9 +131,6 @@ function AppRoutes() {
   );
   /****Drawer Component */
 
-
-
-
   return (
     <div className="app-container row">
 
@@ -197,7 +194,7 @@ function AppRoutes() {
               path="/commercial/create"
               element={<CreateCommercialProperty />}
             />
-            <Route path="/plots/create" element={<CreatePlotProperty />} />
+            <Route path="/plot/create" element={<CreatePlotProperty />} />
             <Route path="/residential/create" element={<CreateProperty />} />
             <Route path="/plot/view/:id" element={<PlotView />} />
             <Route path="/residential/view/:id" element={<ViewProperty />} />

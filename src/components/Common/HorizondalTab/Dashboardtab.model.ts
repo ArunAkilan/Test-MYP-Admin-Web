@@ -7,3 +7,4 @@ export const TabStatus = {
 
 export type TabStatusKey = keyof typeof TabStatus; // "Pending" | "Rejected" | ...
 export type TabStatusValue = typeof TabStatus[TabStatusKey]; // 1 | 2 | 3 | 4
+

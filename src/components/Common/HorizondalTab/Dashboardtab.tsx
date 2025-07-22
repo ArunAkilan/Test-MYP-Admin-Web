@@ -3,6 +3,7 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import Table from "../DashboradTable/table";
+import { useNavigate } from "react-router-dom";
 import {
   Avatar,
   Typography,
@@ -433,7 +434,7 @@ export default function Dashboardtab({
   const filterResetFunction = () => {
     setCurrentCheckList([]);
     setIsFiltered(false);
-    fetchFilteredData([], value); // ✅ No status
+    fetchFilteredData([], value); 
     setDrawerOpen(false);
     setResetCounter((prev) => prev + 1);
   };
@@ -522,7 +523,7 @@ export default function Dashboardtab({
         return;
       }
  
-      setDrawerOpen(drawerOpen); // ✅ updated
+      setDrawerOpen(drawerOpen); 
     };
  
   // card view
@@ -618,24 +619,30 @@ export default function Dashboardtab({
   };
  
   const handleAction = async (id: string, status: number) => {
-    const singularProperty = getSingularProperty();
     try {
       const response = await axios.put(
-        `${
-          import.meta.env.VITE_BackEndUrl
-        }/api/adminpermission/${singularProperty}/${id}`,
-        { status: `${status}` },
-         {
+        `${import.meta.env.VITE_BackEndUrl}/api/adminpermission`,
+        {
+          status: `${status}`,
+          properties: [
+            {
+              type: getSingularProperty(),
+              id: id,
+            },
+          ],
+        },
+        {
           headers: {
-            "Authorization":`Bearer ${localStorage.getItem("token")}`
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
       console.log("Status updated:", response.data);
-    } catch  {
-      console.error("Failed to update status");
+    } catch (err) {
+      console.error("Failed to update status", err);
     }
   };
+  
  
   const handleCloseModal = () => {
     setOpen(false);
@@ -734,7 +741,7 @@ export default function Dashboardtab({
               icon={<Avatar alt="test avatar" src="/pending-reject.svg" />}
               iconPosition="start"
             />
- 
+
  
  
             <Tab
@@ -971,7 +978,7 @@ export default function Dashboardtab({
                         className="filter-text"
                         aria-describedby={id}
                         // onClick={handleClick}
-                        onClick={toggleDrawer(true)}
+                        onClick={toggleDrawer(true)} 
                       >
                         <img
                           src="/majesticons_filter-line.svg"
@@ -1291,6 +1298,8 @@ const PropertyCardList = ({
   onScrollChange,
   handleOpenModal,
 }: ProCardProps) => {
+  const navigate = useNavigate(); 
+  
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [popoverAnchorEl, setPopoverAnchorEl] = useState<HTMLElement | null>(
     null
@@ -1371,7 +1380,7 @@ const PropertyCardList = ({
   const isPopoverOpen = Boolean(popoverAnchorEl);
   const popoverId = isPopoverOpen ? "simple-popover" : undefined;
  
-  const getSingularProperty = () => {
+  const getSingularPropertyType = () => {
     switch (properties) {
       case "residentials":
         return "residential";
@@ -1383,26 +1392,36 @@ const PropertyCardList = ({
         return "residential";
     }
   };
- 
+  
+  const handleEdit = (item: any) => {
+    const type = getSingularPropertyType();
+  
+    navigate(`/${type}/create`, {
+      state: {
+        data: item,
+        mode: "edit",
+      },
+    });
+  };
+  
   const handleAction = async (id: string, status: number) => {
-    const singularProperty = getSingularProperty();
+    const singularProperty = getSingularPropertyType();  // fix here
     try {
       const response = await axios.put(
-        `${
-          import.meta.env.VITE_BackEndUrl
-        }/api/adminpermission/${singularProperty}/${id}`,
+        `${import.meta.env.VITE_BackEndUrl}/api/adminpermission/${singularProperty}/${id}`,
         { status: `${status}` },
-         {
+        {
           headers: {
-            "Authorization":`Bearer ${localStorage.getItem("token")}`
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
       console.log("Status updated:", response.data);
-    } catch  {
+    } catch {
       console.error("Failed to update status");
     }
   };
+  
  
   // handleBulkAction on popover
   const handleBulkAction = async (action: string) => {
@@ -1503,6 +1522,7 @@ const PropertyCardList = ({
                       <img
                         src="../src/assets/dashboardtab/Icon_Edit.svg"
                         alt="icon-edit"
+                        onClick={() => handleEdit(item)}
                       />
                     </div>
                     <div className="card-icon-approve">

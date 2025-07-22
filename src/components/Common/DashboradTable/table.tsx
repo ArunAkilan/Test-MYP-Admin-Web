@@ -205,7 +205,6 @@ function Table({ data, properties, onScrollChange }: TableProps) {
   // const handleEdit = (item: ResidentialProperty) => {
   //   console.log("Editing item:", item);
   //   navigate(`/commercial/create`, { state: { data: item, mode: "edit" } });};
-
   const handleEdit = (item: any) => {
     console.log("item._source =", item._source);
 
@@ -219,6 +218,7 @@ function Table({ data, properties, onScrollChange }: TableProps) {
       state: { data: item, mode: "edit" },
     });
   };
+
   const handleView = (id: string | number) => {
     const selectedItem = formatedData.find((item: any) => item._id === id);
 
