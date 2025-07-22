@@ -247,7 +247,7 @@ export const CreateProperty = () => {
   const isEditMode = location.state?.mode === "edit";
   const editData = location.state?.data;
   const editId = location.state?.data?._id;
-  console.log("editid", location);
+  // console.log("editid", location);
 
   // Update state when in edit mode
   useEffect(() => {

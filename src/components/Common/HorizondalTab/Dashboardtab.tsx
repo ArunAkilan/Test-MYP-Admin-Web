@@ -70,7 +70,7 @@ interface DashboardtabProps {
   data: PropertyData;
   properties: "all" | "residentials" | "commercials" | "plots";
   onScrollChangeParent: (scrollTop: number) => void;
-}
+} 
  
 type PropertyItem = {
   _id: string;
@@ -1306,6 +1306,7 @@ const PropertyCardList = ({
   );
  
   const formatedData: PropertyItem[] = properties;
+  console.log("properties", properties)
   // const allIds = formatedData.map((data: PropertyItem) => data._id);
   // const [visibleCount, setVisibleCount] = useState<number>(5);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -1394,7 +1395,9 @@ const PropertyCardList = ({
   };
   
   const handleEdit = (item: any) => {
+    console.log("start")
     const type = getSingularPropertyType();
+    console.log("type", type)
   
     navigate(`/${type}/create`, {
       state: {
@@ -1402,6 +1405,7 @@ const PropertyCardList = ({
         mode: "edit",
       },
     });
+    console.log("end")
   };
   
   const handleAction = async (id: string, status: number) => {
@@ -1581,7 +1585,8 @@ const PropertyCardList = ({
             Approve
           </p>
           <div className="pop-content-divider"></div>
-          <p className="property-deny" onClick={() => handleBulkAction("Deny")}>
+          <p className="property-deny" 
+          onClick={() => handleBulkAction("Deny")}>
             <img src={denyIcon} alt="Icon_Tick" /> Deny
           </p>
           <div className="pop-content-divider"></div>
