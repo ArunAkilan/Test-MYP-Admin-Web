@@ -1268,6 +1268,7 @@ export const CreateProperty = () => {
                   </div>
                 </div>
               </section>
+              
               {/* Property Layout Section */}
               <section className="PropertyLayoutDetails mb-4">
                 <div className="ownerTitle">
