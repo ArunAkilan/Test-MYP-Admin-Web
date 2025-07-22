@@ -120,7 +120,7 @@ function Home({ properties="all" }: HomeProps) {
         state: { mode: "create" },
       });
     } else if (location?.pathname === "/plots") {
-      navigate("/plots/create", {
+      navigate("/plot/create", {
         state: { mode: "create" },
       });
     }
