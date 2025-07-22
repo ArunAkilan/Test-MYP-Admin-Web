@@ -606,6 +606,7 @@ export default function Dashboardtab({
   };
  
   const getSingularProperty = () => {
+   
     switch (properties) {
       case "residentials":
         return "residential";
@@ -1306,7 +1307,7 @@ const PropertyCardList = ({
   );
  
   const formatedData: PropertyItem[] = properties;
-  console.log("properties", properties)
+  
   // const allIds = formatedData.map((data: PropertyItem) => data._id);
   // const [visibleCount, setVisibleCount] = useState<number>(5);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -1395,11 +1396,11 @@ const PropertyCardList = ({
   };
   
   const handleEdit = (item: any) => {
-    console.log("start")
-    const type = getSingularPropertyType();
-    console.log("type", type)
+    console.log(item,"start")
+    const singularProperty = getSingularPropertyType();
+    console.log("type",properties, singularProperty)
   
-    navigate(`/${type}/create`, {
+    navigate(`/${singularProperty}/create`, {
       state: {
         data: item,
         mode: "edit",
