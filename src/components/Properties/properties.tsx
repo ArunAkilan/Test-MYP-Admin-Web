@@ -532,7 +532,7 @@ export const CreateProperty = () => {
       const response = await axios[method](url, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
-          ...(token && { Authorization: `Bearer ${token}` }), // ✅ Add auth header conditionally
+          ...(token && { Authorization: `Bearer ${token}` }),
 
         },
       });
@@ -1268,6 +1268,7 @@ export const CreateProperty = () => {
                   </div>
                 </div>
               </section>
+              
               {/* Property Layout Section */}
               <section className="PropertyLayoutDetails mb-4">
                 <div className="ownerTitle">

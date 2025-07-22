@@ -1,4 +1,5 @@
 export interface PlotProperty {
+  _id: string;
   title: string;
   propertyType: string;
   commercialType: string;

@@ -201,7 +201,6 @@ useEffect(() => {
   // const handleEdit = (item: ResidentialProperty) => {
   //   console.log("Editing item:", item);
   //   navigate(`/commercial/create`, { state: { data: item, mode: "edit" } });};
-
   const handleEdit = (item: any) => {
     console.log("item._source =", item._source);
 
@@ -215,6 +214,7 @@ useEffect(() => {
       state: { data: item, mode: "edit" },
     });
   };
+
   const handleView = (id: string | number) => {
     const selectedItem = formatedData.find((item: any) => item._id === id);
 

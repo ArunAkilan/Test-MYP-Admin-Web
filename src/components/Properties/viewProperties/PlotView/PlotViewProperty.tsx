@@ -1,5 +1,6 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import {  useNavigate } from "react-router-dom";
 import { DynamicBreadcrumbs } from "../../../Common/input";
+import { toast } from "react-toastify";
 import type { PlotProperty } from "./PlotView.modal";
 import "./PlotViewProperty.scss";
 import SqrtImage from "../../../../assets/viewProperty/radix-icons_dimensions.svg";
@@ -39,6 +40,7 @@ import backIcon from "../../../../assets/dashboardtab/icon-park-outline_down.svg
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
+
 import ViewCarousel from "../../../Common/ViewCarousel/ViewCarousel";
 
 interface PropertyResponse {
@@ -46,11 +48,13 @@ interface PropertyResponse {
 }
 
 const PlotView = () => {
-  const location = useLocation();
+  const { id } = useParams();
   const navigate = useNavigate();
   const propertyData = location.state?.data as PlotProperty;
 
   const { id } = useParams();
+  const token = localStorage.getItem("token");
+
   const [property, setProperty] = useState<PropertyResponse | null>(null);
 console.log("property",property)
 const latitudeRaw = property?.property?.location?.map?.latitude;
@@ -94,6 +98,108 @@ const longitude =
 
   if (!property) return <div>Loading...</div>;
 
+
+  useEffect(() => {
+    console.log(
+      "API call URL:",
+      `${import.meta.env.VITE_BackEndUrl}/api/plot/${id}`
+    );
+    axios
+      .get(`${import.meta.env.VITE_BackEndUrl}/api/plot/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => setProperty(res.data))
+      .catch((err) => {
+        console.error("Error fetching property:", err);
+        toast.error("Failed to load property");
+      });
+  }, [id, token]);
+
+  const handleEdit = () => {
+    if (!property) {
+      toast.error("Property data not available");
+      return;
+    }
+  
+    const cleanItem = JSON.parse(JSON.stringify(property.property)); 
+  
+    navigate(`/plot/create`, {
+      state: { data: cleanItem, mode: "edit" },
+    });
+  };
+  
+
+  // Unified status update function for approve, deny, delete, sold
+  const updatePlotPermissionStatus = async (
+    status: "0" | "1" | "2" | "3"
+  ) => {
+    if (!token) {
+      toast.error("Authentication token missing");
+      return;
+    }
+
+    try {
+      await axios.put(
+        `${import.meta.env.VITE_BackEndUrl}/api/adminpermission`, 
+        {
+          status, // 0=Rejected, 1=Approved, 2=Deleted, 3=Sold
+          properties: [
+            {
+              type: "plot",
+              id: property?.property._id,
+            },
+          ],
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+    // Define both the toast message and the route for each status
+    const actionMap: Record<string, { toastMessage: string; route: string }> = {
+      "0": { toastMessage: "Plot has been denied.", route: "/plots" },
+      "1": { toastMessage: "Plot approved successfully!", route: "/plots" },
+      "2": { toastMessage: "Plot deleted from listings.", route: "/plots" },
+      "3": { toastMessage: "Plot marked as sold.", route: "/plots" },
+    };
+
+    const { toastMessage, route } = actionMap[status] || { toastMessage: "Action completed.", route: "/plots" };
+
+    toast.success(toastMessage);
+    navigate(route);
+
+    } catch (error) {
+      toast.error("Action failed");
+      console.error(error);
+    }
+  };
+
+
+if (!property) return <div>Loading...</div>;
+
+  const latitudeRaw = property?.property?.location?.map?.latitude;
+  const longitudeRaw = property?.property?.location?.map?.longitude;
+
+  const latitude =
+    typeof latitudeRaw === "number"
+      ? latitudeRaw
+      : typeof latitudeRaw === "string" && !isNaN(parseFloat(latitudeRaw))
+      ? parseFloat(latitudeRaw)
+      : undefined;
+
+  const longitude =
+    typeof longitudeRaw === "number"
+      ? longitudeRaw
+      : typeof longitudeRaw === "string" && !isNaN(parseFloat(longitudeRaw))
+      ? parseFloat(longitudeRaw)
+      : undefined;
+
+ 
   return (
     <section className="container pt-4">
       <div className="breadcrumb">
@@ -459,19 +565,27 @@ const longitude =
           <div className="view-property-icon ">
             <h3>Action</h3>
             <div className="view-property-icon-inside">
-              <button className="btn edit-btn d-flex align-items-center gap-1">
+              <button className="btn edit-btn d-flex align-items-center gap-1"
+              onClick={handleEdit}
+              >
                 <img src={Icon_edit} alt="Edit Icon" />
                 <p className="mb-0">Edit</p>
               </button>
-              <button className="btn approve-btn d-flex align-items-center gap-1">
+              <button className="btn approve-btn d-flex align-items-center gap-1"
+              onClick={() => updatePlotPermissionStatus("1")}
+              >
                 <img src={Icon_Tick} alt="Approve Icon" />
                 <p className="mb-0">Approve</p>
               </button>
-              <button className="btn deny-btn d-flex align-items-center gap-1">
+              <button className="btn deny-btn d-flex align-items-center gap-1"
+              onClick={() => updatePlotPermissionStatus("0")}
+              >
                 <img src={Icon_Deny} alt="Deny Icon" />
                 <p className="mb-0">Deny</p>
               </button>
-              <button className="btn delete-btn d-flex align-items-center gap-1">
+              <button className="btn delete-btn d-flex align-items-center gap-1"
+              onClick={() => updatePlotPermissionStatus("2")}
+                >
                 <img src={Icon_Delete} alt="Delete Icon" />
                 <p className="mb-0">Delete</p>
               </button>

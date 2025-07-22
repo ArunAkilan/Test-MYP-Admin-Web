@@ -12,7 +12,7 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@mui/material": "^5.17.1",
+    "@mui/material": "^5.18.0",
     "@react-google-maps/api": "^2.20.7",
     "@react-oauth/google": "^0.12.2",
     "@reduxjs/toolkit": "^2.8.2",
@@ -30,6 +30,7 @@
     "react": "^18.3.1",
     "react-carousel-mui": "^1.0.0",
     "react-dom": "^18.3.1",
+    "react-easy-crop": "^5.5.0",
     "react-icons": "^5.5.0",
     "react-loading-skeleton": "^3.5.0",
     "react-material-ui-carousel": "^3.4.2",

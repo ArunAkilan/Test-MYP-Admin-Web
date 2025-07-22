@@ -200,7 +200,7 @@ if (locationIsAdmin) {
               path="/commercial/create"
               element={<CreateCommercialProperty />}
             />
-            <Route path="/plots/create" element={<CreatePlotProperty />} />
+            <Route path="/plot/create" element={<CreatePlotProperty />} />
             <Route path="/residential/create" element={<CreateProperty />} />
             <Route path="/plot/view/:id" element={<PlotView />} />
             <Route path="/residential/view/:id" element={<ViewProperty />} />
