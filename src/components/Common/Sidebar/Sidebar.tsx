@@ -128,4 +128,3 @@ export default function Sidebar() {
 // function setActiveTab(savedTab: string) {
 //   throw new Error("Function not implemented.");
 // }
-

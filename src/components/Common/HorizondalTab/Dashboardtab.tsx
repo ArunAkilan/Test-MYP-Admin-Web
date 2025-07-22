@@ -27,7 +27,7 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import { debounce } from "lodash";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
- 
+  import  {useNavigate } from "react-router-dom";
 import Carousel from "../Carousel/carousel";
 import Popover from "@mui/material/Popover";
 import tickIcon from "../../../assets/table/Icon_Tick.svg";
@@ -41,59 +41,65 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { useAppDispatch, useAppSelector } from "../../../hook";
 import { setActiveTab } from "../../../slicers/tabsSlice";
 import { TabStatus } from "./Dashboardtab.model";
+import type { ResidentialProperty } from "../../AdminResidencial/AdminResidencial.model";
+import type { Property } from "../../AdminResidencial/AdminResidencial.model";
+import type {
+  PropertyViewWithSource
+} from "../DashboradTable/table.model";
 
-type Property = {
-  _id?: string;
-  createdAt?: string;
-  postOwner?: {
-    userName?: string;
-  }
-  rent?: {
-    rentAmount?: string;
-    advanceAmount?: string;
-    agreementTiming?: string;
-    negotiable?: boolean;
-  };
-  status?: string;
-  propertyType?: string;
-  title?: string;
-  plotType?: string;
-  furnishingType?: string;
-  facingDirection?: string;
-  totalFloors?: string;
-  commercialType?: string;
-  washroom?: string;
-  type?: string;
-  location?: {
-    landmark?: string;
-    address?: string;
-  };
-  area? : {
-    totalArea?: string;
-  }
-};
-type PropertyData = {
-  residential?: Property[];
-  commercial?: Property[];
-  plot?: Property[];
-  properties?:
-    | "all"
-    | "residential"
-    | "residentials"
-    | "commercial"
-    | "commercials"
-    | "plot"
-    | "plots";
-};
-
+// type Property = {
+//   _id?: string;
+//   createdAt?: string;
+//   postOwner?: {
+//     userName?: string;
+//   }
+//   rent?: {
+//     rentAmount?: string;
+//     advanceAmount?: string;
+//     agreementTiming?: string;
+//     negotiable?: boolean;
+//   };
+//   status?: string;
+//   propertyType?: string;
+//   title?: string;
+//   plotType?: string;
+//   furnishingType?: string;
+//   facingDirection?: string;
+//   totalFloors?: string;
+//   commercialType?: string;
+//   washroom?: string;
+//   type?: string;
+//   location?: {
+//     landmark?: string;
+//     address?: string;
+//   };
+//   area? : {
+//     totalArea?: string;
+//   }
+// };
+interface PropertyData {
+  residential: ResidentialProperty[];
+  commercial: ResidentialProperty[];
+  plot: ResidentialProperty[];
+}
+type PropertyType = "all" | "residentials" | "commercials" | "plots";
 interface DashboardtabProps {
-  data: PropertyData;
-  properties: "all" | "residentials" | "commercials" | "plots";
-  onScrollChangeParent: (scrollTop: number) => void;
+  data: PropertyData; // should now match
+  properties: PropertyType;
+   onScrollChangeParent: (scrollTop: number) => void;
 }
  
 type PropertyItem = {
   _id: string;
+   createdAt?: string;
+  postOwner?: {
+    userName?: string;
+  }
+  area? : {
+    totalArea?: string;
+  }
+  title?: string;
+  commercialType?: string;
    createdAt?: string;
   postOwner?: {
     userName?: string;
@@ -154,7 +160,9 @@ export default function Dashboardtab({
   const [value, setValue] = useState(0);
   const dispatch = useAppDispatch();
   const activeTab = useAppSelector(state => state.tabs.currentTab);
+  console.log("activeTab",activeTab)
   const [tableValues, setTableValues] = useState<Property[]>([]);
+  console.log("setTableValues",setTableValues)
   const [resetCounter, setResetCounter] = useState(0);
   const [alignment, setAlignment] = React.useState("List View");
   const [isExpanded, setIsExpanded] = useState(false);
@@ -319,7 +327,7 @@ export default function Dashboardtab({
  
   const filterOpen = Boolean(anchorEl);
   const id = filterOpen ? "simple-popover" : undefined;
-  const allItems = useMemo(
+  const allItems: Property[]  = useMemo(
     () => [
       ...(data?.residential || []),
       ...(data?.commercial || []),
@@ -331,7 +339,6 @@ export default function Dashboardtab({
   // Handle tab change
   const handleChange = (_: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
-    console.log("newValue",newValue)
     dispatch(setActiveTab(newValue));
     setIsFiltered(false);
     setCurrentCheckList([]);
@@ -341,6 +348,7 @@ export default function Dashboardtab({
       (item) => item.status?.toLowerCase() === newStatus.toLowerCase()
     );
     setTableValues(filtered);
+    console.log("setTableValues",setTableValues)
   };
  
   // handleCheckbox
@@ -418,6 +426,7 @@ export default function Dashboardtab({
     } catch (error) {
       console.error("Fetch error:", error);
       setTableValues([]);
+      console.log("setTableValues",setTableValues)
     }
   };
  
@@ -428,36 +437,41 @@ export default function Dashboardtab({
   };
  
   useEffect(() => {
-    if (!isFiltered) {
-      const status = statusByTab[value];
-      let filtered = allItems.filter(
-        (item: Property) =>
-          item.status?.toString().trim().toLowerCase() ===
-          status.trim().toLowerCase()
+  if (!isFiltered) {
+    const status = statusByTab[value];
+    let filtered = allItems.filter(
+      (item) =>
+        item.status?.toLowerCase() === status.toLowerCase()
+    );
+
+    if (searchQuery.trim()) {
+      const search = searchQuery.toLowerCase();
+      filtered = filtered.filter((item) =>
+        [
+          item?.location?.address,
+          item?.location?.landmark,
+          item?.title,
+          item?.type,
+          item?.propertyType,
+          item?.commercialType,
+          item?.plotType,
+          item?.furnishingType,
+          item?.facingDirection,
+          item?.totalFloors?.toString(),
+          item?.washroom?.toString(),
+          item?.area?.totalArea?.toString(),
+        ]
+          .filter(Boolean)
+          .some((field) => typeof field === "string" && field.toLowerCase().includes(search))
       );
-      if (searchQuery.trim()) {
-        const search = searchQuery.toLowerCase();
- 
-        filtered = filtered.filter((item) => {
-          return (
-            item?.location?.address?.toLowerCase().includes(search) ||
-            item?.location?.landmark?.toLowerCase().includes(search) ||
-            item?.title?.toLowerCase().includes(search) ||
-            item?.type?.toLowerCase().includes(search) ||
-            item?.propertyType?.toLowerCase().includes(search) ||
-            item?.commercialType?.toLowerCase().includes(search) ||
-            item?.plotType?.toLowerCase().includes(search) ||
-            item?.furnishingType?.toLowerCase().includes(search) ||
-            item?.facingDirection?.toLowerCase().includes(search) ||
-            item?.totalFloors?.toString().toLowerCase().includes(search) ||
-            item?.washroom?.toString().toLowerCase().includes(search) ||
-            item?.area?.totalArea?.toString().toLowerCase().includes(search)
-          );
-        });
-      }
-      setTableValues(filtered);
     }
-  }, [searchQuery, value, isFiltered, allItems]);
+
+    setTableValues(filtered);
+    console.log("setTableValues",setTableValues)
+  }
+}, []);
+
+  
  
   // filterResetFunction
   const filterResetFunction = () => {
@@ -470,7 +484,7 @@ export default function Dashboardtab({
  
   // count function
   const handlePendingCount = useMemo((): number => {
-    const allItems = [
+    const allItems: Property[] = [
       ...(data.residential || []),
       ...(data.commercial || []),
       ...(data.plot || []),
@@ -542,7 +556,11 @@ export default function Dashboardtab({
   const toggleDrawer =
     (drawerOpen: boolean) =>
     (event: React.KeyboardEvent | React.MouseEvent | unknown) => {
+    (event: React.KeyboardEvent | React.MouseEvent | unknown) => {
       if (
+         event && 
+          typeof event === "object" && 
+        event !== null && 
          event && 
           typeof event === "object" && 
         event !== null && 
@@ -665,6 +683,7 @@ export default function Dashboardtab({
       );
       console.log("Status updated:", response.data);
     } catch {
+    } catch {
       console.error("Failed to update status");
     }
   };
@@ -686,13 +705,19 @@ export default function Dashboardtab({
     } finally {
       setIsBackdropLoading(false); // ✅ hide loading
     }
+      setIsBackdropLoading(false); // ✅ hide loading
+    }
   };
+
+
+  const handleConfirmButtonClick = () => {
 
 
   const handleConfirmButtonClick = () => {
     if (!selectedItem?._id || !selectedAction) return;
     const statusCode = { Approve: 1, Deny: 0, Delete: 2 }[selectedAction];
     handleConfirmAction(selectedItem._id, statusCode);
+  };
   };
   return (
     <div id="pending-approval-tab">
@@ -714,6 +739,9 @@ export default function Dashboardtab({
             sx={{
               paddingBottom: hideHeader ? "0" : "24px",
               display: hideHeader ? "block" : "true",
+              '& .MuiTabs-flexContainer': {
+                flexWrap: 'wrap',
+              },
               '& .MuiTabs-flexContainer': {
                 flexWrap: 'wrap',
               },
@@ -867,6 +895,10 @@ export default function Dashboardtab({
                         {checkListCount > 0 && (
                           <span className="count-badge">{checkListCount}</span>
                         )}
+                        Filter{" "}
+                        {checkListCount > 0 && (
+                          <span className="count-badge">{checkListCount}</span>
+                        )}
                       </Button>
                     </div>
                     {alignment === "Card View" && (
@@ -941,6 +973,10 @@ export default function Dashboardtab({
                           src="/majesticons_filter-line.svg"
                           alt="filter img"
                         />
+                        Filter{" "}
+                        {checkListCount > 0 && (
+                          <span className="count-badge">{checkListCount}</span>
+                        )}
                         Filter{" "}
                         {checkListCount > 0 && (
                           <span className="count-badge">{checkListCount}</span>
@@ -1023,6 +1059,10 @@ export default function Dashboardtab({
                         {checkListCount > 0 && (
                           <span className="count-badge">{checkListCount}</span>
                         )}
+                        Filter{" "}
+                        {checkListCount > 0 && (
+                          <span className="count-badge">{checkListCount}</span>
+                        )}
                       </Button>
                     </div>
                     {alignment === "Card View" && (
@@ -1101,6 +1141,10 @@ export default function Dashboardtab({
                         {checkListCount > 0 && (
                           <span className="count-badge">{checkListCount}</span>
                         )}
+                        Filter{" "}
+                        {checkListCount > 0 && (
+                          <span className="count-badge">{checkListCount}</span>
+                        )}
                       </Button>
                     </div>
                     {alignment === "Card View" && (
@@ -1163,10 +1207,12 @@ export default function Dashboardtab({
         {!cardView ? (
           <Table
             //@ts-ignore
+            //@ts-ignore
             data={tableValues}
             properties={properties}
             onScrollChange={handleChildScroll}
             handleOpenModal={handleOpenModal}
+            tabType="pending"
             tabType="pending"
           />
         ) : (
@@ -1183,10 +1229,12 @@ export default function Dashboardtab({
         {!cardView ? (
           <Table
             //@ts-ignore
+            //@ts-ignore
             data={tableValues}
             properties={properties}
             onScrollChange={handleChildScroll}
             handleOpenModal={handleOpenModal}
+            tabType="approved"
             tabType="approved"
           />
         ) : (
@@ -1203,10 +1251,12 @@ export default function Dashboardtab({
         {!cardView ? (
           <Table
             //@ts-ignore
+            //@ts-ignore
             data={tableValues}
             properties={properties}
             onScrollChange={handleChildScroll}
             handleOpenModal={handleOpenModal}
+            tabType="rejected"
             tabType="rejected"
           />
         ) : (
@@ -1223,10 +1273,12 @@ export default function Dashboardtab({
         {!cardView ? (
           <Table
             //@ts-ignore
+            //@ts-ignore
             data={tableValues}
             properties={properties}
             onScrollChange={handleChildScroll}
             handleOpenModal={handleOpenModal}
+            tabType="deleted"
             tabType="deleted"
           />
         ) : (
@@ -1252,6 +1304,10 @@ export default function Dashboardtab({
               &nbsp; Filter By
             </p>
             <p className="filtercount">
+              {checkListCount > 0 && (
+                <span className="count-badge">{checkListCount}</span>
+              )}
+              Filter{checkListCount !== 1 ? "s" : ""}
               {checkListCount > 0 && (
                 <span className="count-badge">{checkListCount}</span>
               )}
@@ -1350,12 +1406,12 @@ const PropertyCardList = ({
   const [popoverAnchorEl, setPopoverAnchorEl] = useState<HTMLElement | null>(
     null
   );
- 
-  const formatedData: PropertyItem[] = properties;
+
+const formatedData: (PropertyItem & PropertyViewWithSource)[] = properties;
   // const allIds = formatedData.map((data: PropertyItem) => data._id);
   // const [visibleCount, setVisibleCount] = useState<number>(5);
   const containerRef = useRef<HTMLDivElement | null>(null);
- 
+ const navigate = useNavigate();
   // Debounced scroll handler
   const handleScroll = debounce(() => {
     const container = containerRef.current;
@@ -1400,7 +1456,9 @@ const PropertyCardList = ({
       const currentScrollY = container?.scrollTop || 0;
       if (currentScrollY < lastScrollY || currentScrollY < 50) {
         // setHideHeader(false);
+        // setHideHeader(false);
       } else {
+        // setHideHeader(true);
         // setHideHeader(true);
       }
       setLastScrollY(currentScrollY);
@@ -1438,7 +1496,29 @@ const PropertyCardList = ({
         return "residential";
     }
   };
- 
+
+const cardHandleView = (id: string | number) => {
+  const selectedItem = formatedData.find((item) => item._id === id) as PropertyViewWithSource | undefined;
+
+  if (!selectedItem) {
+    alert("Property not found");
+    return;
+  }
+
+  const routeBase = selectedItem._source;
+
+  if (!routeBase) {
+    alert("Unknown property type");
+    console.log("Missing _source in selectedItem", selectedItem);
+    return;
+  }
+
+  navigate(`/${routeBase}/view/${id}`, {
+    state: { data: selectedItem, mode: "view" },
+  });
+};
+
+
   const handleAction = async (id: string, status: number) => {
     const singularProperty = getSingularProperty();
     try {
@@ -1454,6 +1534,7 @@ const PropertyCardList = ({
         }
       );
       console.log("Status updated:", response.data);
+    } catch {
     } catch {
       console.error("Failed to update status");
     }
@@ -1478,6 +1559,7 @@ const PropertyCardList = ({
       handlePopoverClose(); // Close popover
       window.dispatchEvent(new Event("refreshTableData")); // Refresh table
     } catch {
+    } catch {
       console.error(`Failed to ${action.toLowerCase()} selected properties`);
     }
   };
@@ -1497,6 +1579,9 @@ const PropertyCardList = ({
             height: "400px",
             overflowY: "auto",
             marginBottom: "50px",
+            // height: "400px",
+            // overflowY: "auto",
+            // marginBottom: "50px",
             // height: "400px",
             // overflowY: "auto",
             // marginBottom: "50px",
@@ -1537,6 +1622,7 @@ const PropertyCardList = ({
                   <div className="card-view-address-bar">
                     <div className="cardview-address-detail">
                       <h6>{item?.title || "No Landmark"}</h6>
+                      <h6>{item?.title || "No Landmark"}</h6>
                       <p>{item?.location?.address}</p>
                     </div>
                     <div className="cardview-rent">
@@ -1554,9 +1640,18 @@ const PropertyCardList = ({
                   <div className="cardview-posted-detail">
                     <span className="posted-span">
                       {item?.postOwner?.userName } | {item?.createdAt}
+                      {item?.postOwner?.userName } | {item?.createdAt}
                     </span>
                   </div>
                   <div className="card-view-icon-wrapper">
+                    <div className="card-icon-view">
+                      <img
+                        src="../src/assets/dashboardtab/view-card.png"
+                        alt="icon-edit"
+                        onClick={() => item._id && cardHandleView(item._id)}
+                        style={{ cursor: "pointer" }}
+                      />
+                    </div>
                     <div className="card-icon-edit">
                       <img
                         src="../src/assets/dashboardtab/Icon_Edit.svg"

@@ -1,0 +1,53 @@
+.empty-state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+  height: 400px; // Match your table height
+
+  .empty-icon {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 20px;
+    opacity: 0.7;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+  }
+
+  p {
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+  }
+
+  .empty-state-btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    
+    &.pending-btn {
+      background-color: var(--warning-light);
+      color: var(--warning-dark);
+    }
+    
+    &.approved-btn {
+      background-color: var(--success-light);
+      color: var(--success-dark);
+    }
+    
+    &.rejected-btn {
+      background-color: var(--error-light);
+      color: var(--error-dark);
+    }
+    
+    &.deleted-btn {
+      background-color: var(--gray-light);
+      color: var(--gray-dark);
+    }
+  }
+}

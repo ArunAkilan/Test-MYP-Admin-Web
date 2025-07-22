@@ -27,7 +27,7 @@ import MuiDrawer from '@mui/material/Drawer';
 import React from "react";
 import { ChevronLeftIcon, ChevronRightIcon, MenuIcon } from "lucide-react";
 import ProtectedRoute from "./components/Login/ProtectedRoute";
-
+import { useMediaQuery } from "@mui/material";
 
 function AppRoutes() {
   const location = useLocation();
@@ -37,6 +37,9 @@ function AppRoutes() {
   const shouldHideInResidentialCreate = !!useMatch("/residential/create");
   const shouldHideInCommercialCreate = !!useMatch("/commercial/view");
   const shouldHideInPlotCreate = !!useMatch("/plott/view");
+  const theme = useTheme();
+  const [open, setOpen] = React.useState(true);
+  const isMobile = useMediaQuery("(max-width:992px)");
 
   useEffect(() => {
     // const noScrollRoutes = [
@@ -59,7 +62,10 @@ function AppRoutes() {
     "/login",
     "/login"
   ];
-
+  useEffect(() => {
+  setOpen(!isMobile); // 👈 automatically toggle drawer based on screen width
+}, [isMobile]);
+ 
   // Check if the current pathname starts with any of the routes
   const shouldHideSidebar = hideSidebarRoutes.some((route) =>
     location.pathname.startsWith(route)
@@ -72,10 +78,7 @@ if (locationIsAdmin) {
 } else {
   document.body.style.background = "#FFFFFF";
 }
-
-  const theme = useTheme();
-  const [open, setOpen] = React.useState(true);
-
+ 
   const handleDrawerOpen = () => {
     setOpen(true);
   };
