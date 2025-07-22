@@ -31,6 +31,7 @@ import backIcon from "../../../../assets/dashboardtab/icon-park-outline_down.svg
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
+
 import ViewCarousel from "../../../Common/ViewCarousel/ViewCarousel";
  
 interface PropertyResponse {
@@ -87,7 +88,7 @@ const PlotView = () => {
 
     try {
       await axios.put(
-        `${import.meta.env.VITE_BackEndUrl}/api/adminpermission`,
+        `${import.meta.env.VITE_BackEndUrl}/api/adminpermission`, 
         {
           status, // 0=Rejected, 1=Approved, 2=Deleted, 3=Sold
           properties: [
