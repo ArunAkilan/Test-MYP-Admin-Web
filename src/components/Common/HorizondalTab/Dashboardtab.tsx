@@ -41,20 +41,47 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { useAppDispatch, useAppSelector } from "../../../hook";
 import { setActiveTab } from "../../../slicers/tabsSlice";
 import { TabStatus } from "./Dashboardtab.model";
+import type { Property } from "../../AdminResidencial/AdminResidencial.model";
+import type {
+  PropertyViewWithSource
+} from "../DashboradTable/table.model";
 
-type Property = {
-  _id?: string;
-  propertyType?: string;
-  location?: {
-    landmark?: string;
-    address?: string;
-  };
-  [key: string]: any;
-};
+  import  {useNavigate } from "react-router-dom";
+
+// type Property = {
+//   _id?: string;
+//   createdAt?: string;
+//   postOwner?: {
+//     userName?: string;
+//   }
+//   rent?: {
+//     rentAmount?: string;
+//     advanceAmount?: string;
+//     agreementTiming?: string;
+//     negotiable?: boolean;
+//   };
+//   status?: string;
+//   propertyType?: string;
+//   title?: string;
+//   plotType?: string;
+//   furnishingType?: string;
+//   facingDirection?: string;
+//   totalFloors?: string;
+//   commercialType?: string;
+//   washroom?: string;
+//   type?: string;
+//   location?: {
+//     landmark?: string;
+//     address?: string;
+//   };
+//   area? : {
+//     totalArea?: string;
+//   }
+// };
 type PropertyData = {
-  residential: Property[];
-  commercial: Property[];
-  plot: Property[];
+  residential?: Property[];
+  commercial?: Property[];
+  plot?: Property[];
   properties?:
     | "all"
     | "residential"
@@ -69,10 +96,19 @@ interface DashboardtabProps {
   data: PropertyData;
   properties: "all" | "residentials" | "commercials" | "plots";
   onScrollChangeParent: (scrollTop: number) => void;
-}
+} 
  
 type PropertyItem = {
   _id: string;
+   createdAt?: string;
+  postOwner?: {
+    userName?: string;
+  }
+  area? : {
+    totalArea?: string;
+  }
+  title?: string;
+  commercialType?: string;
   propertyType: string;
   location?: {
     landmark?: string;
@@ -401,7 +437,7 @@ export default function Dashboardtab({
     if (!isFiltered) {
       const status = statusByTab[value];
       let filtered = allItems.filter(
-        (item: any) =>
+        (item: Property) =>
           item.status?.toString().trim().toLowerCase() ===
           status.trim().toLowerCase()
       );
@@ -433,7 +469,7 @@ export default function Dashboardtab({
   const filterResetFunction = () => {
     setCurrentCheckList([]);
     setIsFiltered(false);
-    fetchFilteredData([], value); // ✅ No status
+    fetchFilteredData([], value); 
     setDrawerOpen(false);
     setResetCounter((prev) => prev + 1);
   };
@@ -511,9 +547,11 @@ export default function Dashboardtab({
  
   const toggleDrawer =
     (drawerOpen: boolean) =>
-    (event: React.KeyboardEvent | React.MouseEvent | {}) => {
+    (event: React.KeyboardEvent | React.MouseEvent | unknown) => {
       if (
-        event &&
+         event && 
+          typeof event === "object" && 
+        event !== null && 
         "type" in event &&
         event.type === "keydown" &&
         ((event as React.KeyboardEvent).key === "Tab" ||
@@ -522,7 +560,7 @@ export default function Dashboardtab({
         return;
       }
  
-      setDrawerOpen(drawerOpen); // ✅ updated
+      setDrawerOpen(drawerOpen); 
     };
  
   // card view
@@ -605,6 +643,7 @@ export default function Dashboardtab({
   };
  
   const getSingularProperty = () => {
+   
     switch (properties) {
       case "residentials":
         return "residential";
@@ -618,24 +657,30 @@ export default function Dashboardtab({
   };
  
   const handleAction = async (id: string, status: number) => {
-    const singularProperty = getSingularProperty();
     try {
       const response = await axios.put(
-        `${
-          import.meta.env.VITE_BackEndUrl
-        }/api/adminpermission/${singularProperty}/${id}`,
-        { status: `${status}` },
-         {
+        `${import.meta.env.VITE_BackEndUrl}/api/adminpermission`,
+        {
+          status: `${status}`,
+          properties: [
+            {
+              type: getSingularProperty(),
+              id: id,
+            },
+          ],
+        },
+        {
           headers: {
-            "Authorization":`Bearer ${localStorage.getItem("token")}`
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
       console.log("Status updated:", response.data);
-    } catch  {
-      console.error("Failed to update status");
-    }
+    } catch (err) {
+      console.error("Failed to update status", err);
+    } 
   };
+  
  
   const handleCloseModal = () => {
     setOpen(false);
@@ -652,15 +697,16 @@ export default function Dashboardtab({
     } catch (e) {
       console.error("Error performing action:", e);
     } finally {
-    setIsBackdropLoading(false); // ✅ hide loading
-  }
+      setIsBackdropLoading(false); // ✅ hide loading
+    }
   };
- 
-  const handleConfirmButtonClick =  () => {
+
+
+  const handleConfirmButtonClick = () => {
     if (!selectedItem?._id || !selectedAction) return;
     const statusCode = { Approve: 1, Deny: 0, Delete: 2 }[selectedAction];
     handleConfirmAction(selectedItem._id, statusCode);
-    };
+  };
   return (
     <div id="pending-approval-tab">
       <div>
@@ -681,6 +727,9 @@ export default function Dashboardtab({
             sx={{
               paddingBottom: hideHeader ? "0" : "24px",
               display: hideHeader ? "block" : "true",
+              '& .MuiTabs-flexContainer': {
+                flexWrap: 'wrap',
+              },
             }}
             id="pending-approval-tabs-wrap"
           >
@@ -735,7 +784,7 @@ export default function Dashboardtab({
               icon={<Avatar alt="test avatar" src="/pending-reject.svg" />}
               iconPosition="start"
             />
- 
+
  
  
             <Tab
@@ -828,7 +877,10 @@ export default function Dashboardtab({
                           src="/majesticons_filter-line.svg"
                           alt="filter img"
                         />
-                        Filter {checkListCount}
+                        Filter{" "}
+                        {checkListCount > 0 && (
+                          <span className="count-badge">{checkListCount}</span>
+                        )}
                       </Button>
                     </div>
                     {alignment === "Card View" && (
@@ -903,7 +955,10 @@ export default function Dashboardtab({
                           src="/majesticons_filter-line.svg"
                           alt="filter img"
                         />
-                        Filter {checkListCount}
+                        Filter{" "}
+                        {checkListCount > 0 && (
+                          <span className="count-badge">{checkListCount}</span>
+                        )}
                       </Button>
                     </div>
                     {alignment === "Card View" && (
@@ -972,13 +1027,16 @@ export default function Dashboardtab({
                         className="filter-text"
                         aria-describedby={id}
                         // onClick={handleClick}
-                        onClick={toggleDrawer(true)}
+                        onClick={toggleDrawer(true)} 
                       >
                         <img
                           src="/majesticons_filter-line.svg"
                           alt="filter img"
                         />
-                        Filter {checkListCount}
+                        Filter{" "}
+                        {checkListCount > 0 && (
+                          <span className="count-badge">{checkListCount}</span>
+                        )}
                       </Button>
                     </div>
                     {alignment === "Card View" && (
@@ -1053,7 +1111,10 @@ export default function Dashboardtab({
                           src="/majesticons_filter-line.svg"
                           alt="filter img"
                         />
-                        Filter {checkListCount}
+                        Filter{" "}
+                        {checkListCount > 0 && (
+                          <span className="count-badge">{checkListCount}</span>
+                        )}
                       </Button>
                     </div>
                     {alignment === "Card View" && (
@@ -1115,11 +1176,12 @@ export default function Dashboardtab({
       <CustomTabPanel value={value} index={0}>
         {!cardView ? (
           <Table
-          //@ts-ignore
+            //@ts-ignore
             data={tableValues}
             properties={properties}
             onScrollChange={handleChildScroll}
             handleOpenModal={handleOpenModal}
+            tabType="pending"
           />
         ) : (
           <PropertyCardList
@@ -1134,11 +1196,12 @@ export default function Dashboardtab({
       <CustomTabPanel value={value} index={1}>
         {!cardView ? (
           <Table
-          //@ts-ignore
+            //@ts-ignore
             data={tableValues}
             properties={properties}
             onScrollChange={handleChildScroll}
             handleOpenModal={handleOpenModal}
+            tabType="approved"
           />
         ) : (
           <PropertyCardList
@@ -1153,11 +1216,12 @@ export default function Dashboardtab({
       <CustomTabPanel value={value} index={2}>
         {!cardView ? (
           <Table
-          //@ts-ignore
+            //@ts-ignore
             data={tableValues}
             properties={properties}
             onScrollChange={handleChildScroll}
             handleOpenModal={handleOpenModal}
+            tabType="rejected"
           />
         ) : (
           <PropertyCardList
@@ -1172,11 +1236,12 @@ export default function Dashboardtab({
       <CustomTabPanel value={value} index={3}>
         {!cardView ? (
           <Table
-          //@ts-ignore
+            //@ts-ignore
             data={tableValues}
             properties={properties}
             onScrollChange={handleChildScroll}
             handleOpenModal={handleOpenModal}
+            tabType="deleted"
           />
         ) : (
           <PropertyCardList
@@ -1201,7 +1266,10 @@ export default function Dashboardtab({
               &nbsp; Filter By
             </p>
             <p className="filtercount">
-              ({checkListCount}) Filter{checkListCount !== 1 ? "s" : ""}
+              {checkListCount > 0 && (
+                <span className="count-badge">{checkListCount}</span>
+              )}
+              Filter{checkListCount !== 1 ? "s" : ""}
             </p>
           </div>
           <div className="checklist-content row">
@@ -1292,12 +1360,14 @@ const PropertyCardList = ({
   onScrollChange,
   handleOpenModal,
 }: ProCardProps) => {
+  const navigate = useNavigate(); 
+  
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [popoverAnchorEl, setPopoverAnchorEl] = useState<HTMLElement | null>(
     null
   );
- 
-  const formatedData: PropertyItem[] = properties;
+
+const formatedData: (PropertyItem & PropertyViewWithSource)[] = properties;
   // const allIds = formatedData.map((data: PropertyItem) => data._id);
   // const [visibleCount, setVisibleCount] = useState<number>(5);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -1345,9 +1415,9 @@ const PropertyCardList = ({
       // Show header when scrolling up
       const currentScrollY = container?.scrollTop || 0;
       if (currentScrollY < lastScrollY || currentScrollY < 50) {
-       // setHideHeader(false);
+        // setHideHeader(false);
       } else {
-       // setHideHeader(true);
+        // setHideHeader(true);
       }
       setLastScrollY(currentScrollY);
     };
@@ -1372,7 +1442,7 @@ const PropertyCardList = ({
   const isPopoverOpen = Boolean(popoverAnchorEl);
   const popoverId = isPopoverOpen ? "simple-popover" : undefined;
  
-  const getSingularProperty = () => {
+  const getSingularPropertyType = () => {
     switch (properties) {
       case "residentials":
         return "residential";
@@ -1384,26 +1454,64 @@ const PropertyCardList = ({
         return "residential";
     }
   };
+  
+  const handleEdit = (item: any) => {
+    console.log(item,"start")
+    const singularProperty = getSingularPropertyType();
+    console.log("type",properties, singularProperty)
+  
+    navigate(`/${singularProperty}/create`, {
+      state: {
+        data: item,
+        mode: "edit",
+      },
+    });
+    console.log("end")
+  };
+  
  
+  const cardHandleView = (id: string | number) => {
+  const selectedItem = formatedData.find(
+    (item) => String(item._id) === String(id)
+  ) as PropertyViewWithSource | undefined;
+
+  if (!selectedItem) {
+    alert("Property not found");
+    return;
+  }
+
+  const routeBase = selectedItem._source;
+
+  if (!routeBase) {
+    alert("Unknown property type");
+    console.log("Missing _source in selectedItem", selectedItem);
+    return;
+  }
+
+  navigate(`/${routeBase}/view/${selectedItem._id}`, {
+    state: { data: selectedItem, mode: "view" },
+  });
+};
+
+
   const handleAction = async (id: string, status: number) => {
-    const singularProperty = getSingularProperty();
+    const singularProperty = getSingularPropertyType();  // fix here
     try {
       const response = await axios.put(
-        `${
-          import.meta.env.VITE_BackEndUrl
-        }/api/adminpermission/${singularProperty}/${id}`,
+        `${import.meta.env.VITE_BackEndUrl}/api/adminpermission/${singularProperty}/${id}`,
         { status: `${status}` },
-         {
+        {
           headers: {
-            "Authorization":`Bearer ${localStorage.getItem("token")}`
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
       console.log("Status updated:", response.data);
-    } catch  {
+    }  catch {
       console.error("Failed to update status");
     }
   };
+  
  
   // handleBulkAction on popover
   const handleBulkAction = async (action: string) => {
@@ -1423,7 +1531,7 @@ const PropertyCardList = ({
       setSelectedRows([]); // Clear selection
       handlePopoverClose(); // Close popover
       window.dispatchEvent(new Event("refreshTableData")); // Refresh table
-    } catch  {
+    } catch {
       console.error(`Failed to ${action.toLowerCase()} selected properties`);
     }
   };
@@ -1440,9 +1548,9 @@ const PropertyCardList = ({
         <Box
           ref={containerRef}
           sx={{
-            height: "400px",
-            overflowY: "auto",
-            marginBottom: "50px",
+            // height: "400px",
+            // overflowY: "auto",
+            // marginBottom: "50px",
           }}
         >
           {formatedData.length === 0 && 
@@ -1479,7 +1587,7 @@ const PropertyCardList = ({
                 <div className="card-view-content col-md-6">
                   <div className="card-view-address-bar">
                     <div className="cardview-address-detail">
-                      <h6>{item?.location?.landmark || "No Landmark"}</h6>
+                      <h6>{item?.title || "No Landmark"}</h6>
                       <p>{item?.location?.address}</p>
                     </div>
                     <div className="cardview-rent">
@@ -1496,14 +1604,23 @@ const PropertyCardList = ({
  
                   <div className="cardview-posted-detail">
                     <span className="posted-span">
-                      Posted by TestUser | 6 hours ago
+                      {item?.postOwner?.userName } | {item?.createdAt}
                     </span>
                   </div>
                   <div className="card-view-icon-wrapper">
+                    <div className="card-icon-view">
+                      <img
+                        src="../src/assets/dashboardtab/view-card.png"
+                        alt="icon-edit"
+                        onClick={() => item._id && cardHandleView(item._id)}
+                        style={{ cursor: "pointer" }}
+                      />
+                    </div>
                     <div className="card-icon-edit">
                       <img
                         src="../src/assets/dashboardtab/Icon_Edit.svg"
                         alt="icon-edit"
+                        onClick={() => handleEdit(item)}
                       />
                     </div>
                     <div className="card-icon-approve">
@@ -1562,7 +1679,8 @@ const PropertyCardList = ({
             Approve
           </p>
           <div className="pop-content-divider"></div>
-          <p className="property-deny" onClick={() => handleBulkAction("Deny")}>
+          <p className="property-deny" 
+          onClick={() => handleBulkAction("Deny")}>
             <img src={denyIcon} alt="Icon_Tick" /> Deny
           </p>
           <div className="pop-content-divider"></div>

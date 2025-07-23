@@ -1,4 +1,5 @@
 export interface PlotProperty {
+  _id: string;
   title: string;
   propertyType: string;
   commercialType: string;
@@ -60,8 +61,7 @@ export interface PlotProperty {
     lift: boolean;
     ramp: boolean;
   };
-
-    availability : {
+  availability : {
     transport: {
       nearbyBusStop: boolean;
       nearbyAirport: boolean;
@@ -71,8 +71,6 @@ export interface PlotProperty {
     broadband: boolean;
     securities: boolean;
   }
- 
-
   owner: {
     _id: string;
     firstName: string;

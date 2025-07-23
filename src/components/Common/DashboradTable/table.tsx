@@ -8,7 +8,7 @@ import {
   Backdrop,
   CircularProgress,
 } from "@mui/material";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useMemo, useRef } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -19,11 +19,14 @@ import { useLocation, useNavigate } from "react-router-dom";
 import type {
   PropertyDataResponse,
   ResidentialProperty,
-  // CommercialProperty,
-  // PlotProperty
   PropertyViewWithSource
-} from "./table.model"; // or "./table.model"
+} from "./table.model"; 
+import EmptyState from "../Emptystate/EmptyState";
 
+// type EmptyStateProps = {
+//   tabType: 'pending' | 'approved' | 'rejected' | 'deleted';
+//   onAction?: () => void;  // Optional click handler
+// };
 interface TableProps {
   //data: ResidentialProperty[];
   data: PropertyDataResponse | ResidentialProperty[];
@@ -41,6 +44,8 @@ interface TableProps {
     action: "Approve" | "Deny" | "Delete",
     item: ResidentialProperty
   ) => void;
+  tabType: 'pending' | 'approved' | 'rejected' | 'deleted';
+  onAction?: () => void;
 }
 
 export interface Property {
@@ -67,7 +72,7 @@ const modalStyle = {
   p: 4,
 };
 
-function Table({ data, properties, onScrollChange }: TableProps) {
+function Table({ data, properties, onScrollChange,tabType }: TableProps) {
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [isBackdropLoading, setIsBackdropLoading] = useState(false);
   const [popoverAnchorEl, setPopoverAnchorEl] = useState<HTMLElement | null>(
@@ -80,28 +85,22 @@ function Table({ data, properties, onScrollChange }: TableProps) {
 
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   // const [hideHeader, setHideHeader] = React.useState(false);
-  const [lastScrollY, setLastScrollY] = React.useState(0);
-  React.useEffect(() => {
-    const container = containerRef.current;
+  // const [lastScrollY, setLastScrollY] = React.useState(0);
+  const lastScrollYRef = useRef(0);
 
-    const handleScroll = () => {
-      if (container) {
-        onScrollChange(container.scrollTop);
-      }
+useEffect(() => {
+  const container = containerRef.current;
+  const handleScroll = () => {
+    const currentScrollY = container?.scrollTop || 0;
+    onScrollChange(currentScrollY);
 
-      // Show header when scrolling up
-      const currentScrollY = container?.scrollTop || 0;
-      if (currentScrollY < lastScrollY || currentScrollY < 50) {
-       // setHideHeader(false);
-      } else {
-       // setHideHeader(true);
-      }
-      setLastScrollY(currentScrollY);
-    };
+    // Use ref instead of state
+    lastScrollYRef.current = currentScrollY;
+  };
 
-    container?.addEventListener("scroll", handleScroll);
-    return () => container?.removeEventListener("scroll", handleScroll);
-  }, [onScrollChange, lastScrollY]);
+  container?.addEventListener("scroll", handleScroll);
+  return () => container?.removeEventListener("scroll", handleScroll);
+}, [onScrollChange]);
 
   useEffect(() => {
     if (selectedRows.length === 0) {
@@ -127,7 +126,7 @@ function Table({ data, properties, onScrollChange }: TableProps) {
     try {
       const token = localStorage.getItem("token"); // Safely retrieve the auth token
 
-      const response = await axios.put(
+      await axios.put(
         `${
           import.meta.env.VITE_BackEndUrl
         }/api/adminpermission`,
@@ -148,43 +147,10 @@ function Table({ data, properties, onScrollChange }: TableProps) {
           },
         }
       );
-      console.log("Status updated:", response.data);
-      console.log("editid", response?.data?._id);
     } catch {
       console.error("Failed to update status");
     }
   };
-
-  // const handleAction = async (
-  //   id: string,
-  //   status: number,
-  //   type: "residential" | "commercial" | "plot"
-  // ): Promise<void> => {
-  //   try {
-  //     const response = await axios.put(
-  //       `${import.meta.env.VITE_BackEndUrl}/api/adminpermission`,
-  //       {
-  //         status: status.toString(), // status must be string: "0" | "1" | ...
-  //         properties: [
-  //           {
-  //             "type": "residential",
-  //             id: id,
-  //           },
-  //         ],
-  //       },
-  //       {
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //         withCredentials: true, // Only if your backend requires auth
-  //       }
-  //     );
-  
-  //     console.log("Status updated:", response.data);
-  //   } catch (error: any) {
-  //     console.error("Failed to update status:", error?.response?.data || error);
-  //   }
-  // };
   
 //@ts-ignore
   const formatedData: PropertyViewWithSource[] = Array.isArray(data)
@@ -227,8 +193,6 @@ function Table({ data, properties, onScrollChange }: TableProps) {
     ];
 
 
-
-
   // Modal state
   const [open, setOpen] = React.useState(false);
   const [selectedAction, setSelectedAction] = React.useState<string | null>(
@@ -240,7 +204,6 @@ function Table({ data, properties, onScrollChange }: TableProps) {
   // const handleEdit = (item: ResidentialProperty) => {
   //   console.log("Editing item:", item);
   //   navigate(`/commercial/create`, { state: { data: item, mode: "edit" } });};
-
   const handleEdit = (item: any) => {
     console.log("item._source =", item._source);
 
@@ -254,6 +217,7 @@ function Table({ data, properties, onScrollChange }: TableProps) {
       state: { data: item, mode: "edit" },
     });
   };
+
   const handleView = (id: string | number) => {
     const selectedItem = formatedData.find((item: any) => item._id === id);
 
@@ -261,11 +225,6 @@ function Table({ data, properties, onScrollChange }: TableProps) {
       alert("Property not found");
       return;
     }
-    if (!selectedItem) {
-      alert("Property not found");
-      return;
-    }
-
     const routeBase = selectedItem._source;
     // const routeBase = selectedItem._source;
 
@@ -278,40 +237,6 @@ function Table({ data, properties, onScrollChange }: TableProps) {
       state: { data: selectedItem, mode: "view" },
     });
   };
-
-  // Delete action:
-  // const handleDelete = async (id: string, type: string): Promise<void> => {
-  //   const confirmed = window.confirm(
-  //     "Are you sure you want to delete this property?"
-  //   );
-  //   if (!confirmed) return;
-
-  //   const typeMap: Record<string, string> = {
-  //     residentials: "residential",
-  //     commercials: "commercial",
-  //     plots: "plot",
-  //   };
-
-  //   const normalizedType = type.toLowerCase().trim();
-  //   const slug = typeMap[normalizedType] || normalizedType;
-  //   const endpoint = `${import.meta.env.VITE_BackEndUrl}/api/${slug}/${id}`;
-
-  //   console.log("DELETE Request:", { id, type, slug, endpoint });
-
-  //   try {
-  //     const { data } = await axios.delete(endpoint);
-  //     console.log("Delete response:", data);
-  //     toast.success("Property deleted successfully");
-  //     window.dispatchEvent(new Event("refreshTableData"));
-  //   } catch (error: unknown) {
-  //     console.error("Error deleting property:", error);
-  //     const errorMessage =
-  //       axios.isAxiosError(error) && error.response?.data?.message
-  //         ? error.response.data.message
-  //         : "Failed to delete property. Please try again.";
-  //     toast.error(errorMessage);
-  //   }
-  // };
 
   const handleOpenModal = (action: string, item: ResidentialProperty) => {
     console.log(" Opening modal with action:", action, "on item:", item._id);
@@ -326,23 +251,6 @@ function Table({ data, properties, onScrollChange }: TableProps) {
     setSelectedItem(null);
   };
 
-  // const handleConfirmAction = async (id: string, status: number) => {
-  //   try {
-  //     setIsBackdropLoading(true);
-  //     await handleAction(id, status);
-  //     handleCloseModal();
-  //     window.dispatchEvent(new Event("refreshTableData"));
-
-  //     // Success toast message
-  //     const actionText =
-  //       status === 1 ? "Approved" : status === 0 ? "Denied" : "Deleted";
-  //     toast.success(`Listing successfully ${actionText.toLowerCase()}`);
-  //   } catch (e) {
-  //     console.error("Error performing action:", e);
-  //   } finally {
-  //     setIsBackdropLoading(false);
-  //   }
-  // };
   const handleConfirmAction = async (id: string, status: number) => {
     try {
       setIsBackdropLoading(true);
@@ -369,17 +277,7 @@ function Table({ data, properties, onScrollChange }: TableProps) {
     }
   };
 
-  if (!Array.isArray(data)) {
-    const fallback =
-      data?.residential || data?.commercial || data?.plot;
 
-    if (Array.isArray(fallback)) {
-      data = fallback;
-    } else {
-      console.error("Expected 'data' to be an array but got:", data);
-      return <p>Error: Invalid data format</p>;
-    }
-  }
 
   // popover
   const handlePopoverClick = (event: React.MouseEvent<HTMLInputElement>) => {
@@ -402,62 +300,50 @@ function Table({ data, properties, onScrollChange }: TableProps) {
       Approve: 1,
       Deny: 0,
       Delete: 2,
+      Sold: 3,
     };
   
     const statusCode = statusMap[action];
   
+    // Prepare properties array for API payload
+    const properties = selectedRows.map((id) => {
+      const item = formatedData.find((itm) => itm._id === id);
+      return {
+        id,
+        type: item?._source || "residential",  
+      };
+    });
+  
     try {
-      for (const id of selectedRows) {
-        try {
-          await handleAction(id, statusCode); // API call for each property
-  
-          const actionText = action === "Delete" ? "Deleted" : `${action}d`;
-          toast.success(`Property ${id} ${actionText.toLowerCase()}`);
-        } catch (err) {
-          console.error(`Failed to ${action.toLowerCase()} property ${id}`, err);
-          toast.error(`Failed to ${action.toLowerCase()} property ${id}`);
+      setIsBackdropLoading(true); // Show loading
+      const token = localStorage.getItem("token");
+      await axios.put(
+        `${import.meta.env.VITE_BackEndUrl}/api/adminpermission`,
+        {
+          status: statusCode.toString(),
+          properties,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         }
-      }
+      );
   
-      setSelectedRows([]); // Clear selection
-      handlePopoverClose(); // Close popover
-      window.dispatchEvent(new Event("refreshTableData")); // Refresh table
-    } catch (e) {
-      console.error(`Bulk ${action.toLowerCase()} failed`, e);
+      toast.success(`Properties successfully ${action.toLowerCase()}d`);
+      setSelectedRows([]);
+      handlePopoverClose();
+      window.dispatchEvent(new Event("refreshTableData"));
+    } catch (error) {
+      console.error(`Bulk ${action.toLowerCase()} failed`, error);
       toast.error(`Bulk ${action.toLowerCase()} failed`);
+    }
+    finally {
+      setIsBackdropLoading(false); //Hide loading
     }
   };
   
-
-
-  // const handleBulkAction = async (action: string) => {
-  //   const statusMap: Record<string, number> = {
-  //     Approve: 1,
-  //     Deny: 0,
-  //     Delete: 2,
-  //   };
-
-  //   const statusCode = statusMap[action];
-
-  //   try {
-  //     for (const id of selectedRows) {
-  //       await handleAction(id, statusCode); // API call
-  //     }
-
-  //     setSelectedRows([]); // Clear selection
-  //     handlePopoverClose(); // Close popover
-  //     window.dispatchEvent(new Event("refreshTableData")); // Refresh table
-
-  //     // Success toast
-  //     const actionText = action === "Delete" ? "Delete completed" : `${action} completed`;
-  //     toast.success(actionText);
-  //   } catch {
-
-  //     console.error(`Failed to ${action.toLowerCase()} selected properties`);
-  //     toast.error(`Failed to ${action.toLowerCase()} selected properties`);
-
-  //   }
-  // };
 
   const truncateWords = (text: string = "", wordLimit: number): string => {
     const words = text.trim().split(/\s+/);
@@ -485,19 +371,36 @@ function Table({ data, properties, onScrollChange }: TableProps) {
     });
   };
 
-  useEffect(() => {
-    checkScroll();
-    const el:any = scrollRef.current;
-    if (el) {
-      el.addEventListener("scroll", checkScroll);
-      window.addEventListener("resize", checkScroll);
-    }
-    return () => {
-      el?.removeEventListener("scroll", checkScroll);
-      window.removeEventListener("resize", checkScroll);
-    };
-  }, []);
+useEffect(() => {
+  checkScroll();
+  const el = scrollRef.current as HTMLElement | null;
 
+  el?.addEventListener("scroll", checkScroll);
+  window.addEventListener("resize", checkScroll);
+
+  return () => {
+    el?.removeEventListener("scroll", checkScroll);
+    window.removeEventListener("resize", checkScroll);
+  };
+}, []);
+
+  const formattedData = useMemo(() => {
+    if (!Array.isArray(data)) {
+      const fallback = data?.residential || data?.commercial || data?.plot;
+      return Array.isArray(fallback) ? fallback : [];
+    }
+    return data.map(item => ({
+      ...item,
+      _source: properties === "residentials" ? "residential" : 
+              properties === "commercials" ? "commercial" : 
+              properties === "plots" ? "plot" : "residential"
+    }));
+  }, [data, properties]);
+
+  // 3. Then do conditional rendering
+  if (formattedData.length === 0) {
+    return <p>No data available</p>; // Now this is safe
+  }
   return (
     <>
       <div
@@ -516,7 +419,9 @@ function Table({ data, properties, onScrollChange }: TableProps) {
               ◀
             </button>
           )}
-
+         {formatedData.length === 0 ? (
+             <EmptyState tabType={tabType} />
+          ) : (
         <div
           ref={scrollRef}
           className="table-scroll">
@@ -822,7 +727,7 @@ function Table({ data, properties, onScrollChange }: TableProps) {
             </Popover>
           </table>
           </div>
-
+          )}
           {canScrollRight && (
             <button className="scroll-button right" onClick={() => scroll("right")}>
               ▶
@@ -877,20 +782,6 @@ function Table({ data, properties, onScrollChange }: TableProps) {
                   }
                   handleConfirmAction(selectedItem._id, statusCode);
 
-                  // if (!selectedItem?._id || !selectedAction) return;
-
-
-                  // if (selectedAction === "Delete") {
-                  //   handleDelete(selectedItem._id, selectedItem._source);
-                  // } else {
-                  //   const statusMap: Record<"Approve" | "Deny", number> = {
-                  //     Approve: 1,
-                  //     Deny: 0,
-                  //   };
-                  //   handleAction(selectedItem._id, statusMap[selectedAction]);
-                  // }
-
-                  // handleCloseModal();
                 }}
                 sx={{ mr: 1 }}
               >

@@ -475,6 +475,7 @@ export const CreatePlotProperty = () => {
 
     //Append images with MIME type handling & debug logging
     const MAX_FILE_SIZE_MB = 5;
+    
     images.forEach((img) => {
       if (img.file instanceof File) {
         if (
@@ -526,9 +527,9 @@ export const CreatePlotProperty = () => {
       // Navigate after loading hidden and editing enabled
       const plotId = response?.data?._id;
       if (plotId) {
-        navigate(`/plots/view/${plotId}`);
+        navigate(`/plot/view/${plotId}`);
       } else {
-        navigate("/plots", {
+        navigate("/plot", {
           state: { data: response.data, showLoading: true },
         });
       }

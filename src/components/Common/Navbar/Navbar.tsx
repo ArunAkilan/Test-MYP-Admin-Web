@@ -137,7 +137,7 @@ const Header: React.FC<HeaderProps> = ({
               <div className="col-9">
                  <AutoCompleteWithSelect/>
               </div>
-              <div className="col-4 bell">
+              <div className="col-3 bell">
                 <img
                   src={`${import.meta.env.BASE_URL}/Vector.svg`}
                   alt="setting svg"
