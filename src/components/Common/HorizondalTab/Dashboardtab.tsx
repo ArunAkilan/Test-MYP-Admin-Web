@@ -70,7 +70,7 @@ interface DashboardtabProps {
   data: PropertyData;
   properties: "all" | "residentials" | "commercials" | "plots";
   onScrollChangeParent: (scrollTop: number) => void;
-}
+} 
  
 type PropertyItem = {
   _id: string;
@@ -606,6 +606,7 @@ export default function Dashboardtab({
   };
  
   const getSingularProperty = () => {
+   
     switch (properties) {
       case "residentials":
         return "residential";
@@ -1306,6 +1307,7 @@ const PropertyCardList = ({
   );
  
   const formatedData: PropertyItem[] = properties;
+  
   // const allIds = formatedData.map((data: PropertyItem) => data._id);
   // const [visibleCount, setVisibleCount] = useState<number>(5);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -1394,14 +1396,17 @@ const PropertyCardList = ({
   };
   
   const handleEdit = (item: any) => {
-    const type = getSingularPropertyType();
+    console.log(item,"start")
+    const singularProperty = getSingularPropertyType();
+    console.log("type",properties, singularProperty)
   
-    navigate(`/${type}/create`, {
+    navigate(`/${singularProperty}/create`, {
       state: {
         data: item,
         mode: "edit",
       },
     });
+    console.log("end")
   };
   
   const handleAction = async (id: string, status: number) => {
@@ -1581,7 +1586,8 @@ const PropertyCardList = ({
             Approve
           </p>
           <div className="pop-content-divider"></div>
-          <p className="property-deny" onClick={() => handleBulkAction("Deny")}>
+          <p className="property-deny" 
+          onClick={() => handleBulkAction("Deny")}>
             <img src={denyIcon} alt="Icon_Tick" /> Deny
           </p>
           <div className="pop-content-divider"></div>

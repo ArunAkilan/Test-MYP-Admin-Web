@@ -104,11 +104,11 @@ function buildPayloadDynamic(
   const payload: Partial<ResidentialProperty> = {};
 
   // Owner info
-  setNested(payload, "owner.firstName", (formState.firstName ?? "").trim());
-  setNested(payload, "owner.lastName", (formState.lastName ?? "").trim());
-  setNested(payload, "owner.contact.phone1", (formState.phone1 ?? "").trim());
-  setNested(payload, "owner.contact.email", (formState.email ?? "").trim());
-  setNested(payload, "owner.contact.getUpdates", false);
+  setNested(payload, "propertyOwner.firstName", (formState.firstName ?? "").trim());
+  setNested(payload, "propertyOwner.lastName", (formState.lastName ?? "").trim());
+  setNested(payload, "propertyOwner.contact.phone1", (formState.phone1 ?? "").trim());
+  setNested(payload, "propertyOwner.contact.email", (formState.email ?? "").trim());
+  setNested(payload, "propertyOwner.contact.getUpdates", false);
 
   setNested(
     payload,
@@ -364,15 +364,15 @@ const removeImage = (index: number) => {
   const isEditMode = location.state?.mode === "edit";
   const editData = location.state?.data;
   const editId = location.state?.data?._id;
-  console.log("editid", location);
+  // console.log("editid", location);
 
   // Update state when in edit mode
   useEffect(() => {
     if (isEditMode && editData) {
-      setFirstName(editData.owner?.firstName || "");
-      setLastName(editData.owner?.lastName || "");
-      setEmail(editData.owner?.contact?.email || "");
-      setPhone1(editData.owner?.contact?.phone1 || "");
+      setFirstName(editData.propertyOwner?.firstName || "");
+      setLastName(editData.propertyOwner?.lastName || "");
+      setEmail(editData.propertyOwner?.contact?.email || "");
+      setPhone1(editData.propertyOwner?.contact?.phone1 || "");
       setTitle(editData.title || "");
       setPropertyType(editData.propertyType || "Rent");
       setAddress(editData.location?.address || "");

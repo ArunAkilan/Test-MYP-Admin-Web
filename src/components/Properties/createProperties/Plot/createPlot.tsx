@@ -103,11 +103,11 @@ function buildPayloadDynamic(formState: PlotFormState): PlotFormState {
   const payload: Partial<PlotFormState> = {};
 
   // owner
-  setNested(payload, "ownerDetails.firstName", formState.ownerDetails.firstName.trim());
-  setNested(payload, "ownerDetails.lastName", formState.ownerDetails.lastName.trim());
-  setNested(payload, "ownerDetails.contact.phone1", formState.ownerDetails.contact.phone1.trim());
-  setNested(payload, "ownerDetails.contact.email", formState.ownerDetails.contact.email?.trim() ?? "");
-  setNested(payload, "ownerDetails.contact.getUpdates", true);
+  setNested(payload, "propertyOwner.firstName", formState.propertyOwner.firstName.trim());
+  setNested(payload, "propertyOwner.lastName", formState.propertyOwner.lastName.trim());
+  setNested(payload, "propertyOwner.contact.phone1", formState.propertyOwner.contact.phone1.trim());
+  setNested(payload, "propertyOwner.contact.email", formState.propertyOwner.contact.email?.trim() ?? "");
+  setNested(payload, "propertyOwner.contact.getUpdates", true);
 
   // property
   setNested(payload, "propertyType", formState.propertyType);
@@ -366,10 +366,10 @@ const removeImage = (index: number) => {
   // Update state when in edit mode
   useEffect(() => {
     if (isEditMode && editData) {
-      setFirstName(editData?.ownerDetails?.firstName || "");
-      setLastName(editData?.ownerDetails?.lastName || "");
-      setEmail(editData?.ownerDetails?.contact?.email || "");
-      setPhone1(editData?.ownerDetails?.contact?.phone1 || "");
+      setFirstName(editData?.propertyOwner?.firstName || "");
+      setLastName(editData?.propertyOwner?.lastName || "");
+      setEmail(editData?.propertyOwner?.contact?.email || "");
+      setPhone1(editData?.propertyOwner?.contact?.phone1 || "");
       setPropertyType(editData.propertyType || "Rent");
       setTitle(editData.title || "");
       setRentAmount(editData.rent?.rentAmount || 0);
@@ -525,7 +525,7 @@ const removeImage = (index: number) => {
 
     // Form is valid, proceed with submission
     const formState: PlotFormState = {
-      ownerDetails: {
+      propertyOwner: {
         firstName,
         lastName,
         contact: { phone1, email },
@@ -611,10 +611,10 @@ const removeImage = (index: number) => {
             toast.error(`${img.name} exceeds ${MAX_FILE_SIZE_MB}MB size limit.`);
           }
         } else {
-          console.warn(`Skipped invalid image: ${img.name}`);
-          toast.error(
-            `Invalid file type: ${img.name}. Only JPEG, PNG, or WEBP allowed.`
-          );
+          // console.warn(`Skipped invalid image: ${img.name}`);
+          // toast.error(
+          //   `Invalid file type: ${img.name}. Only JPEG, PNG, or WEBP allowed.`
+          // );
         }
       } else if (typeof img.name === "string") {
         // Existing image URLs from edit mode, append them so backend knows to keep them
@@ -626,8 +626,8 @@ const removeImage = (index: number) => {
       const token = localStorage.getItem("token"); // Retrieve token
 
       const url = isEditMode
-        ? `${import.meta.env.VITE_BackEndUrl}/api/plots/${editId}`
-        : `${import.meta.env.VITE_BackEndUrl}/api/plots/create`;
+        ? `${import.meta.env.VITE_BackEndUrl}/api/plot/${editId}`
+        : `${import.meta.env.VITE_BackEndUrl}/api/plot/create`;
         const method = isEditMode ? "put" : "post";
         const response = await axios[method](url, formData, {
           headers: {
