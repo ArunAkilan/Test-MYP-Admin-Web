@@ -9,7 +9,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { Avatar, Alert, IconButton, Backdrop, CircularProgress, } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "./createCommercial.scss"; 
+import "./createCommercial.scss";
 import axios, { AxiosError } from "axios";
 import type {
   PropertyType,
@@ -109,12 +109,12 @@ function buildPayloadDynamic(
 ): CommercialPropertyForm {
   const payload: Partial<CommercialPropertyForm> = {};
 
-  // owner
-  setNested(payload, "owner.firstName", formState.owner.firstName.trim());
-  setNested(payload, "owner.lastName", formState.owner.lastName.trim());
-  setNested(payload, "owner.contact.phone1", formState.owner.contact.phone1.trim());
-  setNested(payload, "owner.contact.email", formState.owner.contact.email?.trim() ?? "");
-  setNested(payload, "owner.contact.getUpdates", true);
+  // propertyowner
+  setNested(payload, "propertyOwner.firstName", formState.propertyOwner.firstName.trim());
+  setNested(payload, "propertyOwner.lastName", formState.propertyOwner.lastName.trim());
+  setNested(payload, "propertyOwner.contact.phone1", formState.propertyOwner.contact.phone1.trim());
+  setNested(payload, "propertyOwner.contact.email", formState.propertyOwner.contact.email?.trim() ?? "");
+  setNested(payload, "propertyOwner.contact.getUpdates", true);
 
   // property
   setNested(payload, "propertyType", formState.propertyType);
@@ -135,7 +135,7 @@ function buildPayloadDynamic(
       "rent.advanceAmount",
       Number(formState.rent.advanceAmount) || 0
     );
-    setNested(payload, "rent.agreementTiming", formState.lease.leaseTenure); 
+    setNested(payload, "rent.agreementTiming", formState.lease.leaseTenure);
   } else if (formState.propertyType === "Lease") {
     setNested(
       payload,
@@ -200,122 +200,122 @@ function buildPayloadDynamic(
 
 export const CreateCommercialProperty = () => {
 
- //cropping code starts here 
+  //cropping code starts here 
   // ===== Cropping & Image Upload State =====
   const MIN_WIDTH = 800;
-const MIN_HEIGHT = 600;
-const MAX_WIDTH = 1024;
-const MAX_HEIGHT = 768;
-const MAX_IMAGES = 12;
+  const MIN_HEIGHT = 600;
+  const MAX_WIDTH = 1024;
+  const MAX_HEIGHT = 768;
+  const MAX_IMAGES = 12;
 
-//const [images, setImages] = useState<UploadedImage[]>([]);
-//const [_errors, setErrors] = useState<{ images?: string }>({});
+  //const [images, setImages] = useState<UploadedImage[]>([]);
+  //const [_errors, setErrors] = useState<{ images?: string }>({});
 
-const [cropModalOpen, setCropModalOpen] = useState(false);
-const [fileToCrop, setFileToCrop] = useState<File | null>(null);
-const [imageSrc, setImageSrc] = useState<string | null>(null);
-const [crop, setCrop] = useState({ x: 0, y: 0 });
-const [zoom, setZoom] = useState(1);
-const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
-const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [cropModalOpen, setCropModalOpen] = useState(false);
+  const [fileToCrop, setFileToCrop] = useState<File | null>(null);
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
-// Handle file input change & open crop modal
-const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+  // // Handle file input change & open crop modal
+  // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0];
+  //   if (!file) return;
 
-  setErrors({});
+  //   setErrors({});
 
-  if (!file.type.startsWith("image/")) {
-    
-    toast.error(`Invalid file type: ${file.name}`);
-    e.target.value = "";
-    return;
-  }
+  //   if (!file.type.startsWith("image/")) {
 
-  if (images.length >= MAX_IMAGES) {
-    setErrors({ images: `Maximum ${MAX_IMAGES} images allowed.` });
-    e.target.value = "";
-    return;
-  }
+  //     toast.error(`Invalid file type: ${file.name}`);
+  //     e.target.value = "";
+  //     return;
+  //   }
 
-  const objectUrl = URL.createObjectURL(file);
-  setFileToCrop(file);
-  setImageSrc(objectUrl);
-  setCropModalOpen(true);
-  e.target.value = "";
-};
+  //   if (images.length >= MAX_IMAGES) {
+  //     setErrors({ images: `Maximum ${MAX_IMAGES} images allowed.` });
+  //     e.target.value = "";
+  //     return;
+  //   }
 
-// Cropper callback to get cropped area pixels
-const onCropComplete = useCallback((_: Area, croppedPixels: Area) => {
-  setCroppedAreaPixels(croppedPixels);
-}, []);
+  //   const objectUrl = URL.createObjectURL(file);
+  //   setFileToCrop(file);
+  //   setImageSrc(objectUrl);
+  //   setCropModalOpen(true);
+  //   e.target.value = "";
+  // };
 
-// Crop the image, generate cropped file & add to images array
-const cropImage = async () => {
-  if (!imageSrc || !croppedAreaPixels || !fileToCrop) return;
+  // Cropper callback to get cropped area pixels
+  const onCropComplete = useCallback((_: Area, croppedPixels: Area) => {
+    setCroppedAreaPixels(croppedPixels);
+  }, []);
 
-  const image = new Image();
-  image.src = imageSrc;
-  await image.decode();
+  // Crop the image, generate cropped file & add to images array
+  const cropImage = async () => {
+    if (!imageSrc || !croppedAreaPixels || !fileToCrop) return;
 
-  const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
+    const image = new Image();
+    image.src = imageSrc;
+    await image.decode();
 
-  const TARGET_WIDTH = 1024;
-  const TARGET_HEIGHT = 768;
-  canvas.width = TARGET_WIDTH;
-  canvas.height = TARGET_HEIGHT;
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
 
-  if (ctx) {
-    ctx.filter = "brightness(1.05) contrast(1.1)";
-    ctx.drawImage(
-      image,
-      croppedAreaPixels.x,
-      croppedAreaPixels.y,
-      croppedAreaPixels.width,
-      croppedAreaPixels.height,
-      0,
-      0,
-      TARGET_WIDTH,
-      TARGET_HEIGHT
-    );
+    const TARGET_WIDTH = 1024;
+    const TARGET_HEIGHT = 768;
+    canvas.width = TARGET_WIDTH;
+    canvas.height = TARGET_HEIGHT;
 
-    canvas.toBlob((blob) => {
-      if (!blob) return;
+    if (ctx) {
+      ctx.filter = "brightness(1.05) contrast(1.1)";
+      ctx.drawImage(
+        image,
+        croppedAreaPixels.x,
+        croppedAreaPixels.y,
+        croppedAreaPixels.width,
+        croppedAreaPixels.height,
+        0,
+        0,
+        TARGET_WIDTH,
+        TARGET_HEIGHT
+      );
 
-      const croppedFile = new File([blob], fileToCrop.name, {
-        type: "image/jpeg",
-      });
-      const previewUrl = URL.createObjectURL(blob);
+      canvas.toBlob((blob) => {
+        if (!blob) return;
 
-      setImages((prev) => [
-        ...prev,
-        { file: croppedFile, url: previewUrl, name: croppedFile.name },
-      ]);
+        const croppedFile = new File([blob], fileToCrop.name, {
+          type: "image/jpeg",
+        });
+        const previewUrl = URL.createObjectURL(blob);
 
-      // Reset crop modal state
-      setCropModalOpen(false);
-      setImageSrc(null);
-      setFileToCrop(null);
-      setCrop({ x: 0, y: 0 });
-      setZoom(1);
-      setCroppedAreaPixels(null);
-    }, "image/jpeg", 0.95);
-  }
-};
+        setImages((prev) => [
+          ...prev,
+          { file: croppedFile, url: previewUrl, name: croppedFile.name },
+        ]);
 
-// Remove image from preview list
-const removeImage = (index: number) => {
-  setImages((prevImages) => prevImages.filter((_, i) => i !== index));
-};
+        // Reset crop modal state
+        setCropModalOpen(false);
+        setImageSrc(null);
+        setFileToCrop(null);
+        setCrop({ x: 0, y: 0 });
+        setZoom(1);
+        setCroppedAreaPixels(null);
+      }, "image/jpeg", 0.95);
+    }
+  };
 
-//cropping code ends here
+  // Remove image from preview list
+  const removeImage = (index: number) => {
+    setImages((prevImages) => prevImages.filter((_, i) => i !== index));
+  };
+
+  //cropping code ends here
 
   // State for form data
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -349,70 +349,70 @@ const removeImage = (index: number) => {
   const [markerPosition, setMarkerPosition] = useState(defaultCenter);
   const [autocomplete, setAutocomplete] =
     useState<google.maps.places.Autocomplete | null>(null);
-    const location = useLocation();
-const isEditMode = location.state?.mode === "edit";
-const editData = location.state?.data;
-const editId = location.state?.data?._id;
-console.log("editid", editId);
+  const location = useLocation();
+  const isEditMode = location.state?.mode === "edit";
+  const editData = location.state?.data;
+  const editId = location.state?.data?._id;
+  console.log("editid", editId);
 
-// Update state when in edit mode
-useEffect(() => {
-  if (isEditMode && editData) {
-    setFirstName(editData.owner?.firstName || "");
-    setLastName(editData.owner?.lastName || "");
-    setEmail(editData.owner?.contact?.email || "");
-    setPhone1(editData.owner?.contact?.phone1 || "");
-    setTitle(editData.title || "");
-    setPropertyType(editData.propertyType || "Rent");
-    setAddress(editData.location?.address || "");
-    if (editData.location?.map) {
-      setLatitude(editData.location.map.latitude?.toString() || "");
-      setLongitude(editData.location.map.longitude?.toString() || "");
-    } else {
-      setLatitude("");
-      setLongitude("");
-    }
-    
-    setRentAmount(editData.rent?.rentAmount || 0);
-    setAdvanceAmount(editData.rent?.advanceAmount || "");
-    setLeaseTenure(editData.lease?.leaseTenure || "");
-    setNegotiable(editData.rent?.negotiable || false);
-    setTotalArea(editData.area?.totalArea?.replace(" sqft", "") || "");
-    setFacingDirection(editData.facingDirection || "East");
-    setTotalFloors(editData.totalFloors || "");
-    setPropertyFloor(editData.propertyFloor || "");
-    setPropertyDescription(editData.description || "");
+  // Update state when in edit mode
+  useEffect(() => {
+    if (isEditMode && editData) {
+      setFirstName(editData.propertyOwner?.firstName || "");
+      setLastName(editData.propertyOwner?.lastName || "");
+      setEmail(editData.propertyOwner?.contact?.email || "");
+      setPhone1(editData.propertyOwner?.contact?.phone1 || "");
+      setTitle(editData.title || "");
+      setPropertyType(editData.propertyType || "Rent");
+      setAddress(editData.location?.address || "");
+      if (editData.location?.map) {
+        setLatitude(editData.location.map.latitude?.toString() || "");
+        setLongitude(editData.location.map.longitude?.toString() || "");
+      } else {
+        setLatitude("");
+        setLongitude("");
+      }
 
-    // Map restrictions booleans back to chips:
-    const chips: string[] = [];
-    if (editData.restrictions) {
-      if (editData.restrictions.guestAllowed === false) chips.push("Guests Not Allowed");
-      if (editData.restrictions.petsAllowed === false) chips.push("No Pets Allowed");
-      if (editData.restrictions.bachelorsAllowed === false) chips.push("No Bachelors Allowed");
-    }
-    setSelectedChips(chips);
+      setRentAmount(editData.rent?.rentAmount || 0);
+      setAdvanceAmount(editData.rent?.advanceAmount || "");
+      setLeaseTenure(editData.lease?.leaseTenure || "");
+      setNegotiable(editData.rent?.negotiable || false);
+      setTotalArea(editData.area?.totalArea?.replace(" sqft", "") || "");
+      setFacingDirection(editData.facingDirection || "East");
+      setTotalFloors(editData.totalFloors || "");
+      setPropertyFloor(editData.propertyFloor || "");
+      setPropertyDescription(editData.description || "");
 
-    setImages((editData.images || []).map((img: string) => ({ name: img })));
-    setMarkerPosition({
-      lat: editData.location?.map?.latitude || defaultCenter.lat,
-      lng: editData.location?.map?.longitude || defaultCenter.lng,
-    });
-    setWashroom(editData.washroom || "None");
-    setRoadFasicility(editData.roadFacility || "None");
-    setReadyToOccupy(editData.readyToOccupy || true);
-    setParking(editData.facility?.parking ? "Available" : "Not Available");
-    setWaterFacility(editData.facility?.waterFacility ? "Available" : "Not Available");
-    setTilesOnFloor(editData.facility?.tilesOnFloor || false);
-    setCommercialType(editData.commercialType || "Shop");
-    // Set nearby transport if available
-    if (editData.location?.map?.latitude && editData.location?.map?.longitude) {
-      fetchNearbyTransport(
-        editData.location.map.latitude,
-        editData.location.map.longitude
-      );
+      // Map restrictions booleans back to chips:
+      const chips: string[] = [];
+      if (editData.restrictions) {
+        if (editData.restrictions.guestAllowed === false) chips.push("Guests Not Allowed");
+        if (editData.restrictions.petsAllowed === false) chips.push("No Pets Allowed");
+        if (editData.restrictions.bachelorsAllowed === false) chips.push("No Bachelors Allowed");
+      }
+      setSelectedChips(chips);
+
+      setImages((editData.images || []).map((img: string) => ({ name: img })));
+      setMarkerPosition({
+        lat: editData.location?.map?.latitude || defaultCenter.lat,
+        lng: editData.location?.map?.longitude || defaultCenter.lng,
+      });
+      setWashroom(editData.washroom || "None");
+      setRoadFasicility(editData.roadFacility || "None");
+      setReadyToOccupy(editData.readyToOccupy || true);
+      setParking(editData.facility?.parking ? "Available" : "Not Available");
+      setWaterFacility(editData.facility?.waterFacility ? "Available" : "Not Available");
+      setTilesOnFloor(editData.facility?.tilesOnFloor || false);
+      setCommercialType(editData.commercialType || "Shop");
+      // Set nearby transport if available
+      if (editData.location?.map?.latitude && editData.location?.map?.longitude) {
+        fetchNearbyTransport(
+          editData.location.map.latitude,
+          editData.location.map.longitude
+        );
+      }
     }
-  }
-}, [isEditMode, editData]);
+  }, [isEditMode, editData]);
 
 
   const [nearbyTransport, setNearbyTransport] = useState<
@@ -436,9 +436,8 @@ useEffect(() => {
     const info: Record<string, string> = {};
     for (const t of types) {
       try {
-        const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=10000&type=${
-          t.type
-        }&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`;
+        const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=10000&type=${t.type
+          }&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`;
         const res = await fetch(url);
         const data = await res.json();
         if (data.results && data.results.length > 0) {
@@ -463,7 +462,7 @@ useEffect(() => {
     setNearbyTransport(info);
   };
 
-  
+
   // Handle map click to place marker and update lat/lng inputs
   const onMapClick = useCallback((e: google.maps.MapMouseEvent) => {
     if (e.latLng) {
@@ -512,14 +511,14 @@ useEffect(() => {
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length > 0) {
-        toast.error("Please fix the errors in the form.");
-        setLoading(false);
+      toast.error("Please fix the errors in the form.");
+      setLoading(false);
       return;
     }
 
     // Form is valid, proceed with submission
     const formState: CommercialFormState = {
-      owner: {
+      propertyOwner: {
         firstName: firstName,
         lastName: lastName,
         contact: {
@@ -599,7 +598,7 @@ useEffect(() => {
     //Append images with MIME type handling & debug logging
     images.forEach((img) => {
       if (img.file instanceof File) {
-         // Append new image files
+        // Append new image files
         if (
           ["image/jpeg", "image/jpg", "image/png", "image/webp"].includes(
             img.file.type
@@ -611,10 +610,10 @@ useEffect(() => {
             toast.error(`${img.name} exceeds ${MAX_FILE_SIZE_MB}MB size limit.`);
           }
         } else {
-          console.warn(`Skipped invalid image: ${img.name}`);
-          toast.error(
-            `Invalid file type: ${img.name}. Only JPEG, PNG, or WEBP allowed.`
-          );
+          // console.warn(`Skipped invalid image: ${img.name}`);
+          // toast.error(
+          //   `Invalid file type: ${img.name}. Only JPEG, PNG, or WEBP allowed.`
+          // );
         }
       } else if (typeof img.name === "string") {
         // Existing image URLs from edit mode, append them so backend knows to keep them
@@ -627,24 +626,24 @@ useEffect(() => {
       const url = isEditMode
         ? `${import.meta.env.VITE_BackEndUrl}/api/commercial/${editId}`
         : `${import.meta.env.VITE_BackEndUrl}/api/commercial/create`;
-    
+
       const method = isEditMode ? "put" : "post";
-    
+
       const response = await axios[method](url, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           ...(token && { Authorization: `Bearer ${token}` }), // Token here
         },
       });
-    
+
       setLoading(false); // Hide Backdrop
-    
+
       setTimeout(() => {
         toast.success(isEditMode ? "Property updated successfully!" : "Property created successfully!");
-    
+
         setTimeout(() => {
           const plotId = response?.data?._id;
-    
+
           if (plotId) {
             navigate(`/commercial/view/${plotId}`);
           } else {
@@ -656,14 +655,14 @@ useEffect(() => {
       }, 100);
     } catch (err) {
       const error = err as AxiosError<{ message?: string; error?: string }>;
-    
+
       const errorMessage =
         error.response?.data?.message ||
         error.response?.data?.error ||
         error.message ||
         "Something went wrong!";
-        console.error("Submission Error:", error);
-    
+      console.error("Submission Error:", error);
+
       toast.error(`Failed to ${isEditMode ? "update" : "create"} property: ${errorMessage}`);
     }
     finally {
@@ -675,7 +674,7 @@ useEffect(() => {
   useEffect(() => {
     setShowTopInfo(true);
   }, [editData]);
-  
+
   const isFormReadyToSubmit =
     firstName.trim() &&
     lastName.trim() &&
@@ -917,8 +916,8 @@ useEffect(() => {
                               placeholder="Enter Deposit"
                               value={advanceAmount}
                               onChange={(e) => setAdvanceAmount(e.target.value)}
-                              // error={!!errors.advanceDeposit}
-                              // helperText={errors.advanceAmount}
+                            // error={!!errors.advanceDeposit}
+                            // helperText={errors.advanceAmount}
                             />
                           </div>
                           <div className="col-6 mb-3">
@@ -975,18 +974,18 @@ useEffect(() => {
                           </div>
                         </div>
 
-                          <div className="col-12">
-                            <label className="TextLabel" htmlFor="tenure">
-                              Lease Tenure (Years)
-                            </label>
-                            <InputField
-                              type="text"
-                              id="tenure"
-                              placeholder="No. of Years"
-                              value={leaseTenure}
-                              onChange={(e) => setLeaseTenure(e.target.value)}
-                            />
-                          </div>
+                        <div className="col-12">
+                          <label className="TextLabel" htmlFor="tenure">
+                            Lease Tenure (Years)
+                          </label>
+                          <InputField
+                            type="text"
+                            id="tenure"
+                            placeholder="No. of Years"
+                            value={leaseTenure}
+                            onChange={(e) => setLeaseTenure(e.target.value)}
+                          />
+                        </div>
                       </div>
                     </>
                   )}
@@ -1029,7 +1028,7 @@ useEffect(() => {
                         </div>
                       </div>
                     </>
-                  )}  
+                  )}
                 </div>
 
               </section>
@@ -1111,7 +1110,7 @@ useEffect(() => {
                           placeholder="Latitude"
                           value={latitude}
                           onChange={(e) => setLatitude(e.target.value)}
-                          // Add error handling if latitude is mandatory
+                        // Add error handling if latitude is mandatory
                         />
                       </div>
                       <div className="col-6 mb-3">
@@ -1124,7 +1123,7 @@ useEffect(() => {
                           placeholder="Longitude"
                           value={longitude}
                           onChange={(e) => setLongitude(e.target.value)}
-                          // Add error handling if longitude is mandatory
+                        // Add error handling if longitude is mandatory
                         />
                       </div>
                     </div>
@@ -1140,7 +1139,7 @@ useEffect(() => {
                             <span className="transportTitles">BUS STAND</span>
                             <div className="transportCard d-flex gap-2">
                               <img
-                                src="/src/assets/createProperty/Icon_Bus.svg"
+                                src={`${import.meta.env.BASE_URL}/createProperty/Icon_Bus.svg`}
                                 alt="Bus"
                                 className="transportImg"
                               />
@@ -1156,7 +1155,7 @@ useEffect(() => {
                             <span className="transportTitles">AIRPORT</span>
                             <div className="transportCard d-flex gap-2">
                               <img
-                                src="/src/assets/createProperty/ph_airplane-in-flight.svg"
+                                src={`${import.meta.env.BASE_URL}/createProperty/ph_airplane-in-flight.svg`}
                                 alt="Bus"
                                 className="transportImg"
                               />
@@ -1174,7 +1173,7 @@ useEffect(() => {
                             <span className="transportTitles">METRO</span>
                             <div className="transportCard d-flex gap-2">
                               <img
-                                src="/src/assets/createProperty/hugeicons_metro.svg"
+                                src={`${import.meta.env.BASE_URL}/createProperty/hugeicons_metro.svg`}
                                 alt="Bus"
                                 className="transportImg"
                               />
@@ -1189,7 +1188,7 @@ useEffect(() => {
                             <span className="transportTitles">RAILWAY</span>
                             <div className="transportCard d-flex gap-2">
                               <img
-                                src="/src/assets/createProperty/material-symbols-light_train-outline.svg"
+                                src={`${import.meta.env.BASE_URL}/createProperty/material-symbols-light_train-outline.svg`}
                                 alt="Bus"
                                 className="transportImg"
                               />
@@ -1205,172 +1204,217 @@ useEffect(() => {
                     </div>
                   </div>
                 </div>
-                </section>
+              </section>
 
-{/*new code for cropping functionalities*/}
-<section>
-  <div className="ResidentialCategory mt-3">
-    <p>
-      Upload Property Images <span className="star">*</span>
-    </p>
-  </div>
+              {/*new code for cropping functionalities*/}
+              <section>
+                <div className="ResidentialCategory mt-3">
+                  <p>
+                    Upload Property Images <span className="star">*</span>
+                  </p>
+                </div>
 
-  <div className={`image-upload-wrapper ${errors.images ? "error-border" : ""}`}>
-    <div className="preview-images d-flex gap-3 mt-2 image-scroll-container">
-      {images.map((img, index) => (
-        <div key={index} className="choosedImages position-relative">
-          <img src={img.url} alt={`preview-${index}`} className="preview-img" style={{ cursor: 'pointer' }}
-  onClick={() => setPreviewImage(img.url)}   />
-          <div
-            className="image-name mt-1 text-truncate"
-            title={img.name}
-            style={{
-              fontSize: "12px",
-              color: "#333",
-              maxWidth: "100%",
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            }}
-          >
-            {img.name}
-          </div>
-          <button type="button" onClick={() => removeImage(index)} className="remove-btn">
-            <img src="/src/assets/createProperty/material-symbols_close-rounded.svg" alt="Remove" />
-          </button>
-        </div>
-      ))}
-    </div>
+                <div className={`image-upload-wrapper ${errors.images ? "error-border" : ""}`}>
+                  <div className="preview-images d-flex gap-3 mt-2 image-scroll-container">
+                    {images.map((img, index) => (
+                      <div key={index} className="choosedImages position-relative">
+                        <img src={img.url} alt={`preview-${index}`} className="preview-img" style={{ cursor: 'pointer' }}
+                          onClick={() => setPreviewImage(img.url)} />
+                        <div
+                          className="image-name mt-1 text-truncate"
+                          title={img.name}
+                          style={{
+                            fontSize: "12px",
+                            color: "#333",
+                            maxWidth: "100%",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {img.name}
+                        </div>
+                        <button type="button" onClick={() => removeImage(index)} className="remove-btn">
+                            <img src={`${import.meta.env.BASE_URL}/createProperty/material-symbols_close-rounded.svg`} alt="Remove" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
 
-    <div
-      className={`BtnFrame d-flex mt-3 mb-2 align-items-start gap-3 ${
-        images.length > 0 ? "with-gap" : ""
-      }`}
-    >
-      <p className="image-p">
-        {images.length > 0
-          ? `${images.length} image${images.length > 1 ? "s" : ""} chosen`
-          : "No image chosen"}
-      </p>
+                  <div
+                    className={`BtnFrame d-flex mt-3 mb-2 align-items-start gap-3 ${images.length > 0 ? "with-gap" : ""
+                      }`}
+                  >
+                    <p className="image-p">
+                      {images.length > 0
+                        ? `${images.length} image${images.length > 1 ? "s" : ""} chosen`
+                        : "No image chosen"}
+                    </p>
 
-      <input
-        type="file"
-        id="propertyImageUpload"
-        style={{ display: "none" }}
-        accept="image/*"
-        
-        onChange={handleFileChange}
-      />
+                    <input
+                      type="file"
+                      id="propertyImageUpload"
+                      style={{ display: "none" }}
+                      accept="image/*"
+                      multiple
+                      onChange={(e) => {
+                        if (!e.target.files) return;
 
-      <MuiButton
-        className="chooseBtn"
-        variant="contained"
-        startIcon={<FileUploadOutlinedIcon />}
-        onClick={() => document.getElementById("propertyImageUpload")?.click()}
-      >
-        <span className="btnC">Choose image</span>
-      </MuiButton>
+                        const allowedMimeTypes = [
+                          "image/jpeg",
+                          "image/jpg",
+                          "image/png",
+                          "image/webp",
+                        ];
 
-      <p className="imageDesc">Max. {MAX_IMAGES} Images</p>
-    </div>
+                        const newFiles = Array.from(e.target.files);
+                        const remainingSlots = 12 - images.length;
 
-    {errors.images && (
-      <div className="text-danger mt-1" style={{ fontSize: "14px" }}>
-        {errors.images}
-      </div>
-    )}
-  </div>
+                        const validImages: UploadedImage[] = newFiles
+                          .filter((file) => {
+                            const isValid = allowedMimeTypes.includes(
+                              file.type
+                            );
 
-  <Modal open={cropModalOpen} onClose={() => setCropModalOpen(false)}>
-    <div
-      style={{
-        background: "#fff",
-        padding: 20,
-        margin: "5% auto",
-        width: "90%",
-        maxWidth: 600,
-      }}
-    >
-      {imageSrc && (
-        <>
-          <div style={{ position: "relative", width: "100%", height: 400 }}>
-            <Cropper
-              image={imageSrc}
-              crop={crop}
-              zoom={zoom}
-              aspect={4 / 3}
-              onCropChange={setCrop}
-              onZoomChange={setZoom}
-              onCropComplete={onCropComplete}
-            />
-          </div>
-          <div style={{ marginTop: 20 }}>
-            <Slider
-              value={zoom}
-              min={1}
-              max={3}
-              step={0.1}
-              onChange={(_, value) => setZoom(value as number)}
-            />
-            <div style={{ marginTop: 10 }}>
-              <button onClick={cropImage}>Crop</button>
-              <button
-                onClick={() => setCropModalOpen(false)}
-                style={{ marginLeft: 10 }}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
+                            // const isValid = file.type.startsWith("image/");
+                            if (!isValid) {
+                              toast.error(`Invalid file type: ${file.name}`);
+                            }
+                            return isValid;
+                          })
+                          .slice(0, remainingSlots)
+                          .map((file) => ({
+                            // file: file as File,
+                            file,
+                            url: URL.createObjectURL(file),
+                            name: file.name,
+                          }));
 
-        </>
-      )}
-      
-    </div>
-  </Modal>
-</section>
+                        if (validImages.length === 0) return;
 
-{previewImage && (
-  <Modal open={true} onClose={() => setPreviewImage(null)}>
-    <div
-      style={{
-        position: 'fixed',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        backgroundColor: '#fff',
-        padding: 20,
-        maxWidth: '90%',
-        maxHeight: '90%',
-        overflow: 'auto',
-        boxShadow: '0 0 10px rgba(0,0,0,0.5)',
-        zIndex: 1300,
-      }}
-    >
-      <img
-        src={previewImage}
-        alt="Preview"
-        style={{maxWidth: `${MAX_WIDTH}px`,
-    maxHeight: `${MAX_HEIGHT}px`,
-    minWidth: `${MIN_WIDTH}px`,
-    minHeight: `${MIN_HEIGHT}px`,
-    objectFit: 'contain'}}
-      />
-      <button onClick={() => setPreviewImage(null)} style={{ marginTop: 10 }}>
-        Close Preview
-      </button>
-    </div>
-  </Modal>
-)}
+                        if (newFiles.length > remainingSlots) {
+                          toast.info(
+                            `Only ${remainingSlots} more image${remainingSlots > 1 ? "s" : ""
+                            } can be added.`
+                          );
+                        }
+
+                        setImages((prev) => [...prev, ...validImages]);
+                        e.target.value = ""; // allow re-selection of same file
+                      }}
+                    />
+
+                    <MuiButton
+                      className="chooseBtn"
+                      variant="contained"
+                      startIcon={<FileUploadOutlinedIcon />}
+                      onClick={() => document.getElementById("propertyImageUpload")?.click()}
+                    >
+                      <span className="btnC">Choose image</span>
+                    </MuiButton>
+
+                    <p className="imageDesc">Max. {MAX_IMAGES} Images</p>
+                  </div>
+
+                  {errors.images && (
+                    <div className="text-danger mt-1" style={{ fontSize: "14px" }}>
+                      {errors.images}
+                    </div>
+                  )}
+                </div>
+
+                <Modal open={cropModalOpen} onClose={() => setCropModalOpen(false)}>
+                  <div
+                    style={{
+                      background: "#fff",
+                      padding: 20,
+                      margin: "5% auto",
+                      width: "90%",
+                      maxWidth: 600,
+                    }}
+                  >
+                    {imageSrc && (
+                      <>
+                        <div style={{ position: "relative", width: "100%", height: 400 }}>
+                          <Cropper
+                            image={imageSrc}
+                            crop={crop}
+                            zoom={zoom}
+                            aspect={4 / 3}
+                            onCropChange={setCrop}
+                            onZoomChange={setZoom}
+                            onCropComplete={onCropComplete}
+                          />
+                        </div>
+                        <div style={{ marginTop: 20 }}>
+                          <Slider
+                            value={zoom}
+                            min={1}
+                            max={3}
+                            step={0.1}
+                            onChange={(_, value) => setZoom(value as number)}
+                          />
+                          <div style={{ marginTop: 10 }}>
+                            <button onClick={cropImage}>Crop</button>
+                            <button
+                              onClick={() => setCropModalOpen(false)}
+                              style={{ marginLeft: 10 }}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+
+                      </>
+                    )}
+
+                  </div>
+                </Modal>
+              </section>
+
+              {previewImage && (
+                <Modal open={true} onClose={() => setPreviewImage(null)}>
+                  <div
+                    style={{
+                      position: 'fixed',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      backgroundColor: '#fff',
+                      padding: 20,
+                      maxWidth: '90%',
+                      maxHeight: '90%',
+                      overflow: 'auto',
+                      boxShadow: '0 0 10px rgba(0,0,0,0.5)',
+                      zIndex: 1300,
+                    }}
+                  >
+                    <img
+                      src={previewImage}
+                      alt="Preview"
+                      style={{
+                        maxWidth: `${MAX_WIDTH}px`,
+                        maxHeight: `${MAX_HEIGHT}px`,
+                        minWidth: `${MIN_WIDTH}px`,
+                        minHeight: `${MIN_HEIGHT}px`,
+                        objectFit: 'contain'
+                      }}
+                    />
+                    <button onClick={() => setPreviewImage(null)} style={{ marginTop: 10 }}>
+                      Close Preview
+                    </button>
+                  </div>
+                </Modal>
+              )}
 
 
-{/*new code for cropping functionalities ends here */}
+              {/*new code for cropping functionalities ends here */}
 
 
-{/*old code without cropping functionality here */}
- 
+              {/*old code without cropping functionality here */}
 
-    
+
+
               {/* Property Layout Section */}
               <section className="PropertyLayoutDetails mb-4">
                 <div className="ownerTitle">
@@ -1389,8 +1433,8 @@ useEffect(() => {
                       placeholder="Enter Total Area (sq.ft)"
                       value={totalArea}
                       onChange={(e) => setTotalArea(e.target.value)}
-                      // error={!!errors.totalArea}
-                      // helperText={errors.totalArea}
+                    // error={!!errors.totalArea}
+                    // helperText={errors.totalArea}
                     />
                   </div>
                   <div className="col-12 col-md-6 mb-3">

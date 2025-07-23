@@ -26,16 +26,16 @@ export type WashroomType = "None" | "Private" | "Common";
 
 export type RoadFacility = "None" | "15 Feet" | "20 Feet" | "30 Feet";
 
-export interface OwnerContact {
+export interface contact {
   phone1: string;
   email?: string;
   getUpdates?: boolean;
 }
 
-export interface OwnerDetails {
+export interface PropertyOwner {
   firstName: string;
   lastName: string;
-  contact: OwnerContact;
+  contact: contact;
 }
 
 export interface Location {
@@ -96,7 +96,7 @@ export type AccessibilityChip =
   export type PlainObject = { [key: string]: unknown };
 
 export interface CommercialPropertyForm {
-  owner: OwnerDetails;
+  propertyOwner: PropertyOwner;
   propertyType: PropertyType;
   rent: RentDetails;
   lease: LeaseDetails;

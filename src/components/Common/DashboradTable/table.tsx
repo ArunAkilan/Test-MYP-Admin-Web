@@ -625,7 +625,7 @@ const requestSort = (key: SortableColumn) => {
                 </th>
                 <th className="link-h">
                   Link &nbsp;{" "}
-                  <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                  <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                 </th>
               </tr>
             </thead>
@@ -707,31 +707,31 @@ const requestSort = (key: SortableColumn) => {
                   <td className="Links">
                     <div className="link-wrap">
                       <img
-                        src="/src/assets/tabelimg/Eye view.svg"
+                        src={`${import.meta.env.BASE_URL}/tabelimg/Eye view.svg`}
                         alt="view"
                         onClick={() => item._id && handleView(item._id)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
-                        src="/Edit.svg"
+                        src={`${import.meta.env.BASE_URL}/Edit.svg`}
                         alt="edit"
                         onClick={() => handleEdit(item as unknown as ResidentialProperty)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
-                        src="/Approve.svg"
+                        src={`${import.meta.env.BASE_URL}/Approve.svg`}
                         alt="Approve"
                         onClick={() => handleOpenModal("Approve", item as unknown as ResidentialProperty)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
-                        src="/Deny.svg"
+                        src={`${import.meta.env.BASE_URL}/Deny.svg`}
                         alt="Deny"
                         onClick={() => handleOpenModal("Deny", item as unknown as ResidentialProperty)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
-                        src="/Delete.svg"
+                        src={`${import.meta.env.BASE_URL}/Delete.svg`}
                         alt="Delete"
                         onClick={() => handleOpenModal("Delete", item as unknown as ResidentialProperty)}
                         style={{ cursor: "pointer" }}
