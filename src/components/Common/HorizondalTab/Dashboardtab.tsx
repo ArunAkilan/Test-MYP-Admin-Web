@@ -1396,8 +1396,6 @@ const PropertyCardList = ({
     }
   };
 
-  
-
   const handleEdit = (item: any) => {
     console.log("Editing item:", tabValue, item);
     const singularProperty = getSingularPropertyType(); 
