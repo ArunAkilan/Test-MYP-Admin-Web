@@ -143,7 +143,7 @@ useEffect(() => {
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // Add token here
+             Authorization: `Bearer ${token}`, // Add token here
           },
         }
       );

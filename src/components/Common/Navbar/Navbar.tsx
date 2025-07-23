@@ -104,6 +104,10 @@ const Header: React.FC<HeaderProps> = ({
   }, []);
 
   //Socket IO
+
+  const gotoProfile = () => {
+   navigate('/profile');
+  }
   
   return (
     <div
@@ -195,7 +199,7 @@ const Header: React.FC<HeaderProps> = ({
                   }}
                 >
                   <div className="admin-btn-popover">
-                    <div className="row admin-btn-popup-top admin-popup-cmn-div">
+                    <div  onClick={gotoProfile} className="row admin-btn-popup-top admin-popup-cmn-div">
                       <img
                         src="../src/assets/navbar/iconamoon_profile-bold.svg"
                         alt="profile"
