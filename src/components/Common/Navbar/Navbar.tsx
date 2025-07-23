@@ -134,10 +134,10 @@ const Header: React.FC<HeaderProps> = ({
                 isCollapsed ? "show" : ""
               }`}
             >
-              <div className="col-9">
+              <div className="col-8">
                 <AutoCompleteWithSelect />
               </div>
-              <div className="col-3 bell">
+              <div className="col-4 bell">
                 <img
                   src={`${import.meta.env.BASE_URL}/Vector.svg`}
                   alt="setting svg"
