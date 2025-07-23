@@ -196,10 +196,12 @@ td  {
 
 .scroll-button.left {
   left: 0;
+  z-index: 1;
 }
 
 .scroll-button.right {
   float: right;
   right: 0;
+  z-index: 1;
 }
 

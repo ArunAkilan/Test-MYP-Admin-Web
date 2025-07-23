@@ -169,6 +169,7 @@ const DynamicBreadcrumbs = () => {
               to={to}
               key={to}
               sx={{ textTransform: "capitalize" }}
+              onClick={(e) =>  index === 1 ? e.preventDefault():""}
             >
               {label}
             </Link>

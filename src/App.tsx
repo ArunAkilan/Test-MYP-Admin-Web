@@ -27,7 +27,7 @@ import MuiDrawer from '@mui/material/Drawer';
 import React from "react";
 import { ChevronLeftIcon, ChevronRightIcon, MenuIcon } from "lucide-react";
 import ProtectedRoute from "./components/Login/ProtectedRoute";
-
+import { useMediaQuery } from "@mui/material";
 
 function AppRoutes() {
   const location = useLocation();
@@ -37,51 +37,44 @@ function AppRoutes() {
   const shouldHideInResidentialCreate = !!useMatch("/residential/create");
   const shouldHideInCommercialCreate = !!useMatch("/commercial/view");
   const shouldHideInPlotCreate = !!useMatch("/plot/view");
+  const theme = useTheme();
+  const [open, setOpen] = React.useState(true);
+  const isMobile = useMediaQuery("(max-width:992px)");
 
-  useEffect(() => {
-    // const noScrollRoutes = [
-    //   "/dashboard",
-    //   "/commercial",
-    //   "/residential",
-    //   "/plots",
-    // ];
- 
-    //const shouldHideScroll = noScrollRoutes.includes(location.pathname);
-    // document.body.style.overflow = shouldHideScroll ? "hidden" : "auto";
-  }, [location.pathname]);
-  // const location = useLocation();
- 
   // Define routes where sidebar should be hidden
   const hideSidebarRoutes = [
     "/residential/view",
     "/commercial/view",
-    "/plots/view",
+    "/plot/view",
     "/login",
     "/login"
   ];
+  useEffect(() => {
+  setOpen(!isMobile); // 👈 automatically toggle drawer based on screen width
+}, [isMobile]);
  
   // Check if the current pathname starts with any of the routes
   const shouldHideSidebar = hideSidebarRoutes.some((route) =>
     location.pathname.startsWith(route)
   );
- 
-  /***Drawer Component */
-  const locationIsAdmin = location.pathname === "/login";
-  locationIsAdmin ? document.body.style.background = '#F0F5FC' :
-    document.body.style.background = '#FFFFFF';
 
-  const theme = useTheme();
-  const [open, setOpen] = React.useState(true);
+  /***Drawer Component */
+const locationIsAdmin = location.pathname === "/login";
+if (locationIsAdmin) {
+  document.body.style.background = "#F0F5FC";
+} else {
+  document.body.style.background = "#FFFFFF";
+}
  
   const handleDrawerOpen = () => {
     setOpen(true);
   };
- 
+
   const handleDrawerClose = () => {
     setOpen(false);
   };
   const drawerWidth = 230;
- 
+
   const openedMixin = (theme: Theme): CSSObject => ({
     width: drawerWidth,
     transition: theme.transitions.create('width', {
@@ -91,7 +84,7 @@ function AppRoutes() {
     overflowX: 'hidden',
     marginTop: "61px"
   });
- 
+
   const closedMixin = (theme: Theme): CSSObject => ({
     transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
@@ -189,7 +182,7 @@ function AppRoutes() {
               path="/residential"
               element={<Home properties="residentials" />}
             />
-            <Route path="/plots" element={<Home properties="plots" />} />
+            <Route path="/plot" element={<Home properties="plots" />} />
             <Route
               path="/commercial/create"
               element={<CreateCommercialProperty />}
@@ -206,7 +199,7 @@ function AppRoutes() {
     </div>
   );
 }
- 
+
 function App() {
   return (
     <Router>
@@ -214,8 +207,8 @@ function App() {
     </Router>
   );
 }
- 
- 
+
+
 function LayoutWrapper() {
   const location = useLocation();
   const isLoginRoute = location.pathname === "/login";
@@ -239,5 +232,5 @@ function LayoutWrapper() {
     </div>
   );
 }
- 
+
 export default App;

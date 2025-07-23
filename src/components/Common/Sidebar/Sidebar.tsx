@@ -18,7 +18,7 @@ const styles = {
   lineHeight: "18px",
 };
 
-const tabRoutes = ["/dashboard", "/commercial", "/residential", "/plots"];
+const tabRoutes = ["/dashboard", "/commercial", "/residential", "/plot"];
 
 export default function Sidebar() {
   const navigate = useNavigate();
@@ -128,4 +128,3 @@ export default function Sidebar() {
 // function setActiveTab(savedTab: string) {
 //   throw new Error("Function not implemented.");
 // }
-
