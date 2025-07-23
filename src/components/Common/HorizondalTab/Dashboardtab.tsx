@@ -44,7 +44,7 @@ import { TabStatus } from "./Dashboardtab.model";
 import type { Property } from "../../AdminResidencial/AdminResidencial.model";
 import type {
   PropertyViewWithSource
-} from "../DashboradTable/table.model";
+} from "./Dashboardtab.model";
 
   import  {useNavigate } from "react-router-dom";
 
@@ -1470,29 +1470,21 @@ const formatedData: (PropertyItem & PropertyViewWithSource)[] = properties;
   };
   
  
-  const cardHandleView = (id: string | number) => {
+ const handleView = (id: string | number) => {
   const selectedItem = formatedData.find(
     (item) => String(item._id) === String(id)
-  ) as PropertyViewWithSource | undefined;
+  );
 
   if (!selectedItem) {
     alert("Property not found");
     return;
   }
 
-  const routeBase = selectedItem._source;
-
-  if (!routeBase) {
-    alert("Unknown property type");
-    console.log("Missing _source in selectedItem", selectedItem);
-    return;
-  }
-
-  navigate(`/${routeBase}/view/${selectedItem._id}`, {
+  const routeBase = getSingularPropertyType();
+  navigate(`/${routeBase}/view/${id}`, {
     state: { data: selectedItem, mode: "view" },
   });
 };
-
 
   const handleAction = async (id: string, status: number) => {
     const singularProperty = getSingularPropertyType();  // fix here
@@ -1612,7 +1604,7 @@ const formatedData: (PropertyItem & PropertyViewWithSource)[] = properties;
                       <img
                         src={`${import.meta.env.BASE_URL}/dashboardtab/view-card.png`}
                         alt="icon-edit"
-                        onClick={() => item._id && cardHandleView(item._id)}
+                        onClick={() => item._id && handleView(item._id)}
                         style={{ cursor: "pointer" }}
                       />
                     </div>
