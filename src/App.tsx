@@ -11,7 +11,6 @@ import {
 } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import navbarLogo from "../src/assets/navbar/PRH_Admin-resize.svg";
 import Home from "./components/Dashboard/Dashboard";
 import "./App.scss";
 import { useEffect } from "react";
@@ -212,9 +211,9 @@ function AppRoutes() {
  
 function App() {
   return (
-    <Router>
+    // <Router>
       <LayoutWrapper />
-    </Router>
+    // </Router>
   );
 }
  
@@ -230,9 +229,9 @@ function LayoutWrapper() {
     <div className="grid-container">
       {!isLoginRoute && (
         <Header
-          MainLogo={navbarLogo}
+          MainLogo={`${import.meta.env.BASE_URL}/navbar/PRH_Admin-resize.svg`}
           Title={parsedLoggedInUserName?.profileInformation?.firstName ?? ""}
-          ProfileLogo="/Ellipse 1.svg"
+          ProfileLogo={`${import.meta.env.BASE_URL}/Ellipse1.svg`}
           Profile={false}
         />
       )}

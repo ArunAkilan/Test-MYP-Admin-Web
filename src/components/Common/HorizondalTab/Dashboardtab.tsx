@@ -697,7 +697,8 @@ export default function Dashboardtab({
                 </React.Fragment>
               }
               {...a11yProps(0)}
-              icon={<Avatar alt="test avatar" src="/pending-action.svg" />}
+              icon={<Avatar alt="test avatar"
+                src={`${import.meta.env.BASE_URL}/pending-action.svg`} />}
               iconPosition="start"
             />
  

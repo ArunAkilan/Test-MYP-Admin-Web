@@ -544,7 +544,7 @@ function Table({ data, properties, onScrollChange }: TableProps) {
                 <th>
                   <div className="th-content">
                     Listing Name
-                    <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                    <img src={`${import.meta.env.BASE_URL}assets/table/arrow-up.svg`} alt="arrow" />
                   </div>
                 </th>
                 <th>
