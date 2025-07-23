@@ -2,11 +2,12 @@
 import { configureStore } from '@reduxjs/toolkit';
 import counterReducer  from './slicers/commonSlicers';
 import tabReducer from './slicers/tabsSlice';
-
+import SidebarTab from './slicers/sideBarTab';
 export const store = configureStore({
   reducer: {
     counter: counterReducer,
     tabs: tabReducer,
+    SidebarTab: SidebarTab,
   },
 });
 

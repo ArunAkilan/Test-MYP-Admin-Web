@@ -5,6 +5,9 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import { Avatar } from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useSelector, useDispatch } from 'react-redux';
+import type { RootState, AppDispatch } from '../../../store';
+import { setTabValue } from '../../../slicers/sideBarTab';
 
 
 const styles = {
@@ -24,7 +27,9 @@ export default function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
    /*  const [activeTab, setActiveTab] = useState('dashboard');  */
-
+   const tabValue = useSelector((state: RootState) => state.SidebarTab.value);
+   const dispatch = useDispatch<AppDispatch>();
+  //  const navigate = useNavigate();
   const currentTabIndex = tabRoutes.findIndex((path) =>
     location.pathname.startsWith(path)
   );
@@ -45,8 +50,13 @@ export default function Sidebar() {
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     // Prevent navigation if already on the selected tab
+    console.log(_event,"event");
     if (newValue !== value) {
       setValue(newValue);
+      navigate(tabRoutes[newValue]);
+    }
+    if (newValue !== tabValue) {
+      dispatch(setTabValue(newValue));
       navigate(tabRoutes[newValue]);
     }
   };  
