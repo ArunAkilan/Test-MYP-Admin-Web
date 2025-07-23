@@ -36,29 +36,16 @@ function AppRoutes() {
   const shouldHideInPlotView = !!useMatch("/plot/view/:id");
   const shouldHideInResidentialCreate = !!useMatch("/residential/create");
   const shouldHideInCommercialCreate = !!useMatch("/commercial/view");
-  const shouldHideInPlotCreate = !!useMatch("/plott/view");
+  const shouldHideInPlotCreate = !!useMatch("/plot/view");
   const theme = useTheme();
   const [open, setOpen] = React.useState(true);
   const isMobile = useMediaQuery("(max-width:992px)");
-
-  useEffect(() => {
-    // const noScrollRoutes = [
-    //   "/dashboard",
-    //   "/commercial",
-    //   "/residential",
-    //   "/plots",
-    // ];
-
-    //const shouldHideScroll = noScrollRoutes.includes(location.pathname);
-    // document.body.style.overflow = shouldHideScroll ? "hidden" : "auto";
-  }, [location.pathname]);
-  // const location = useLocation();
 
   // Define routes where sidebar should be hidden
   const hideSidebarRoutes = [
     "/residential/view",
     "/commercial/view",
-    "/plots/view",
+    "/plot/view",
     "/login",
     "/login"
   ];
@@ -195,7 +182,7 @@ if (locationIsAdmin) {
               path="/residential"
               element={<Home properties="residentials" />}
             />
-            <Route path="/plots" element={<Home properties="plots" />} />
+            <Route path="/plot" element={<Home properties="plots" />} />
             <Route
               path="/commercial/create"
               element={<CreateCommercialProperty />}

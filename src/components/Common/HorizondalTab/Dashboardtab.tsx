@@ -1466,7 +1466,9 @@ const formatedData: (PropertyItem & PropertyViewWithSource)[] = properties;
   
  
   const cardHandleView = (id: string | number) => {
-  const selectedItem = formatedData.find((item) => item._id === id) as PropertyViewWithSource | undefined;
+  const selectedItem = formatedData.find(
+    (item) => String(item._id) === String(id)
+  ) as PropertyViewWithSource | undefined;
 
   if (!selectedItem) {
     alert("Property not found");
@@ -1481,7 +1483,7 @@ const formatedData: (PropertyItem & PropertyViewWithSource)[] = properties;
     return;
   }
 
-  navigate(`/${routeBase}/view/${id}`, {
+  navigate(`/${routeBase}/view/${selectedItem._id}`, {
     state: { data: selectedItem, mode: "view" },
   });
 };

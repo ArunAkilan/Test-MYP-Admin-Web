@@ -99,8 +99,8 @@ function Home({ properties  }: HomeProps) {
       navigate("/commercial/create", { state: { mode: "create" } });
     } else if (location.pathname === "/residential") {
       navigate("/residential/create", { state: { mode: "create" } });
-    } else if (location.pathname === "/plots") {
-      navigate("/plots/create", { state: { mode: "create" } });
+    } else if (location.pathname === "/plot") {
+      navigate("/plot/create", { state: { mode: "create" } });
     }
   };
 
@@ -263,7 +263,7 @@ console.log(properties,"propo")
                           } else if (selectedPropertyType === "Commercial") {
                             navigate("/commercial/create", { state: { mode: "create" } });
                           } else if (selectedPropertyType === "other") {
-                            navigate("/plots/create", { state: { mode: "create" } });
+                            navigate("/plot/create", { state: { mode: "create" } });
                           } else {
                             alert("Please select a property type.");
                           }
