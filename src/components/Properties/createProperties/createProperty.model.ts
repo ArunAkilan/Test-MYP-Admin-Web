@@ -5,7 +5,7 @@ export type Contact = {
   receivePromotionalContents?: boolean;
 };
 
-export type Owner = {
+export type PropertyOwner = {
   firstName: string;
   lastName: string;
   contact: Contact;
@@ -14,7 +14,7 @@ export type Owner = {
 //Main ts.
 export type ResidentialProperty = {
   id?: string;
-  owner: Owner;
+  propertyowner: PropertyOwner;
   propertyType: "Rent" | "Lease" | "Sale";
   location?: {
     landmark?: string;

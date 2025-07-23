@@ -94,11 +94,11 @@ function buildPayloadDynamic(formState: PlotFormState): PlotFormState {
   const payload: Partial<PlotFormState> = {};
 
   // owner
-  setNested(payload, "ownerDetails.firstName", formState.ownerDetails.firstName.trim());
-  setNested(payload, "ownerDetails.lastName", formState.ownerDetails.lastName.trim());
-  setNested(payload, "ownerDetails.contact.phone1", formState.ownerDetails.contact.phone1.trim());
-  setNested(payload, "ownerDetails.contact.email", formState.ownerDetails.contact.email?.trim() ?? "");
-  setNested(payload, "ownerDetails.contact.getUpdates", true);
+  setNested(payload, "propertyOwner.firstName", formState.propertyOwner.firstName.trim());
+  setNested(payload, "propertyOwner.lastName", formState.propertyOwner.lastName.trim());
+  setNested(payload, "propertyOwner.contact.phone1", formState.propertyOwner.contact.phone1.trim());
+  setNested(payload, "propertyOwner.contact.email", formState.propertyOwner.contact.email?.trim() ?? "");
+  setNested(payload, "propertyOwner.contact.getUpdates", true);
 
   // property
   setNested(payload, "propertyType", formState.propertyType);
@@ -244,10 +244,10 @@ export const CreatePlotProperty = () => {
   // Update state when in edit mode
   useEffect(() => {
     if (isEditMode && editData) {
-      setFirstName(editData?.ownerDetails?.firstName || "");
-      setLastName(editData?.ownerDetails?.lastName || "");
-      setEmail(editData?.ownerDetails?.contact?.email || "");
-      setPhone1(editData?.ownerDetails?.contact?.phone1 || "");
+      setFirstName(editData?.propertyOwner?.firstName || "");
+      setLastName(editData?.propertyOwner?.lastName || "");
+      setEmail(editData?.propertyOwner?.contact?.email || "");
+      setPhone1(editData?.propertyOwner?.contact?.phone1 || "");
       setPropertyType(editData.propertyType || "Rent");
       setTitle(editData.title || "");
       setRentAmount(editData.rent?.rentAmount || 0);
@@ -262,12 +262,8 @@ export const CreatePlotProperty = () => {
         setLongitude(editData.location.map.longitude?.toString() || "");
       }
   
-      setImages(
-        editData?.uploadedImages?.map((img: UploadedImage) => ({
-          name: img.name,
-          file: img.file,
-        })) || []
-      );
+      setImages((editData.images || []).map((img: string) => ({ name: img })));
+
   
       setTotalArea(editData.location?.area?.totalArea?.replace(" sqft", "") || "");
       setFacingDirection(editData.facingDirection || "East");
@@ -403,7 +399,7 @@ export const CreatePlotProperty = () => {
 
     // Form is valid, proceed with submission
     const formState: PlotFormState = {
-      ownerDetails: {
+      propertyOwner: {
         firstName,
         lastName,
         contact: { phone1, email },
@@ -489,10 +485,10 @@ export const CreatePlotProperty = () => {
             toast.error(`${img.name} exceeds ${MAX_FILE_SIZE_MB}MB size limit.`);
           }
         } else {
-          console.warn(`Skipped invalid image: ${img.name}`);
-          toast.error(
-            `Invalid file type: ${img.name}. Only JPEG, PNG, or WEBP allowed.`
-          );
+          // console.warn(`Skipped invalid image: ${img.name}`);
+          // toast.error(
+          //   `Invalid file type: ${img.name}. Only JPEG, PNG, or WEBP allowed.`
+          // );
         }
       } else if (typeof img.name === "string") {
         // Existing image URLs from edit mode, append them so backend knows to keep them
