@@ -3,8 +3,8 @@ import "./navbar.scss";
 // import GenericButton from "../Button/button";
 import Popover from "@mui/material/Popover";
 import Notificationtab from "../../NotificationTab/Notificationtab";
-import { io } from 'socket.io-client';
-import axios from 'axios';
+import { io } from "socket.io-client";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import AutoCompleteWithSelect from "./autoComplete/autoCompleteApi";
 
@@ -14,7 +14,6 @@ interface HeaderProps {
   MainLogo: string;
   Profile: boolean;
 }
-
 
 const ENDPOINT = import.meta.env.VITE_BackEndUrl;
 
@@ -43,13 +42,13 @@ const Header: React.FC<HeaderProps> = ({
     setFirstAnchorEl(null); // Close first popover if open
   };
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const adminLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    navigate('/login');
-  }
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/login");
+  };
 
   const handleCloseFirst = () => setFirstAnchorEl(null);
   const handleCloseSecond = () => setSecondAnchorEl(null);
@@ -83,18 +82,17 @@ const Header: React.FC<HeaderProps> = ({
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
 
-
   //Socket IO
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
-
   useEffect(() => {
-    axios.get<{ notifications: Notification[] }>(`${ENDPOINT}/api/notifications`)
+    axios
+      .get<{ notifications: Notification[] }>(`${ENDPOINT}/api/notifications`)
       .then((res) => setNotifications(res.data.notifications));
 
     const sock = io(ENDPOINT);
 
-    sock.on('notification', (data: Notification) => {
+    sock.on("notification", (data: Notification) => {
       setNotifications((prev) => [data, ...prev]);
     });
 
@@ -111,8 +109,9 @@ const Header: React.FC<HeaderProps> = ({
   
   return (
     <div
-      className={`navbar navbar-expand-lg navbar-light header-wrap ${hideHeader ? "hide" : ""
-        }`}
+      className={`navbar navbar-expand-lg navbar-light header-wrap ${
+        hideHeader ? "hide" : ""
+      }`}
     >
       <div className="container">
         <header className="header  row">
@@ -135,13 +134,14 @@ const Header: React.FC<HeaderProps> = ({
             </button>
 
             <div
-              className={`admin collapse navbar-collapse ${isCollapsed ? "show" : ""
-                }`}
+              className={`admin collapse navbar-collapse ${
+                isCollapsed ? "show" : ""
+              }`}
             >
-              <div className="col-9">
-                 <AutoCompleteWithSelect/>
+              <div className="col-8">
+                <AutoCompleteWithSelect />
               </div>
-              <div className="col-3 bell">
+              <div className="col-4 bell">
                 <img
                   src={`${import.meta.env.BASE_URL}/Vector.svg`}
                   alt="setting svg"
@@ -155,15 +155,17 @@ const Header: React.FC<HeaderProps> = ({
                   </button>
                   {/* <BellIcon count={notifications.length} /> */}
                   <Popover
-                    anchorReference="anchorPosition"
-                    anchorPosition={{ top: 60, left: 816 }}
                     id={idFirst}
                     open={openFirst}
-                    anchorEl={firstAnchorEl}
+                    anchorEl={firstAnchorEl} // anchor to the clicked element
                     onClose={handleCloseFirst}
                     anchorOrigin={{
-                      vertical: "bottom",
-                      horizontal: "left",
+                      vertical: "bottom", // bottom of the source element
+                      horizontal: "center", // horizontal center of the source element
+                    }}
+                    transformOrigin={{
+                      vertical: "top", // top edge of the popover
+                      horizontal: "right", // right edge of the popover
                     }}
                   >
                     <div className="notification-popover">
@@ -182,20 +184,21 @@ const Header: React.FC<HeaderProps> = ({
                   onClick={handleSecondClick}
                 >
                   <img src={ProfileLogo} alt="ellipse image"></img>
-          
+
                   <p>{Title}</p>
-                
                 </div>
                 <Popover
-                  anchorReference="anchorPosition"
-                  anchorPosition={{ top: 60, left: 941 }}
                   id={idSecond}
                   open={openSecond}
-                  anchorEl={secondAnchorEl}
+                  anchorEl={secondAnchorEl} // the clicked element
                   onClose={handleCloseSecond}
                   anchorOrigin={{
-                    vertical: "bottom",
-                    horizontal: "left",
+                    vertical: "bottom", // bottom of the source element
+                    horizontal: "center", // horizontal center of the source element
+                  }}
+                  transformOrigin={{
+                    vertical: "top", // top edge of the popover
+                    horizontal: "right", // right edge of the popover
                   }}
                 >
                   <div className="admin-btn-popover">
@@ -225,13 +228,16 @@ const Header: React.FC<HeaderProps> = ({
                         className="col-2"
                       />
                     </div>
-                    <div onClick={adminLogout} className="row admin-btn-popup-bottom admin-popup-cmn-div">
+                    <div
+                      onClick={adminLogout}
+                      className="row admin-btn-popup-bottom admin-popup-cmn-div"
+                    >
                       <img
                         src={`${import.meta.env.BASE_URL}/navbar/mynaui_logout.svg`}
                         alt="logout"
                         className="col-2"
                       />
-                      <p className="col-8" >Signout</p>
+                      <p className="col-8">Signout</p>
                     </div>
                   </div>
                 </Popover>
