@@ -7,7 +7,7 @@ function CreateProfile() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState<Partial<Profile>>({
-    profileInformation: { firstName: "", lastName: "", gender: "" },
+    profileInformation: { firstName: "", lastName: "", gender: "Male" },
     contactInformation: { email: "", primaryPhone: "" },
     location: { map: { latitude: 0, longitude: 0 } },
     role: "User",
@@ -70,12 +70,18 @@ function CreateProfile() {
           onChange={handleChange}
           required
         />
-        <input
+        <select
           name="profileInformation.gender"
-          placeholder="Gender"
           onChange={handleChange}
+          value={form.profileInformation?.gender || "Male"}
           required
-        />
+        >
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Others">Others</option>
+          <option value="Prefer not to say">Prefer not to say</option>
+        </select>
+
         <input
           name="contactInformation.email"
           placeholder="Email"
