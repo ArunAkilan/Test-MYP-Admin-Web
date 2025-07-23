@@ -1166,7 +1166,7 @@ const removeImage = (index: number) => {
                             <span className="transportTitles">BUS STAND</span>
                             <div className="transportCard d-flex gap-2">
                               <img
-                                src="/src/assets/createProperty/Icon_Bus.svg"
+                                src={`${import.meta.env.BASE_URL}/createProperty/Icon_Bus.svg`}
                                 alt="Bus"
                                 className="transportImg"
                               />
@@ -1182,7 +1182,7 @@ const removeImage = (index: number) => {
                             <span className="transportTitles">AIRPORT</span>
                             <div className="transportCard d-flex gap-2">
                               <img
-                                src="/src/assets/createProperty/ph_airplane-in-flight.svg"
+                                src={`${import.meta.env.BASE_URL}/createProperty/ph_airplane-in-flight.svg`}
                                 alt="Bus"
                                 className="transportImg"
                               />
@@ -1200,7 +1200,7 @@ const removeImage = (index: number) => {
                             <span className="transportTitles">METRO</span>
                             <div className="transportCard d-flex gap-2">
                               <img
-                                src="/src/assets/createProperty/hugeicons_metro.svg"
+                                src={`${import.meta.env.BASE_URL}/createProperty/hugeicons_metro.svg`}
                                 alt="Bus"
                                 className="transportImg"
                               />
@@ -1215,7 +1215,7 @@ const removeImage = (index: number) => {
                             <span className="transportTitles">RAILWAY</span>
                             <div className="transportCard d-flex gap-2">
                               <img
-                                src="/src/assets/createProperty/material-symbols-light_train-outline.svg"
+                                src={`${import.meta.env.BASE_URL}/createProperty/material-symbols-light_train-outline.svg`}
                                 alt="Bus"
                                 className="transportImg"
                               />
@@ -1262,7 +1262,7 @@ const removeImage = (index: number) => {
             {img.name}
           </div>
           <button type="button" onClick={() => removeImage(index)} className="remove-btn">
-            <img src="/src/assets/createProperty/material-symbols_close-rounded.svg" alt="Remove" />
+            <img src={`${import.meta.env.BASE_URL}/createProperty/material-symbols_close-rounded.svg`} alt="Remove" />
           </button>
         </div>
       ))}

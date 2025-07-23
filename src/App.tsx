@@ -1,11 +1,9 @@
 import Header from "./components/Common/Navbar/Navbar";
 import Sidebar from "./components/Common/Sidebar/Sidebar";
 import {
-  BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
-  // useNavigate,
   useLocation,
   useMatch,
 } from "react-router-dom";
@@ -201,9 +199,7 @@ if (locationIsAdmin) {
 
 function App() {
   return (
-    // <Router>
-      <LayoutWrapper />
-    // </Router>
+  <LayoutWrapper />
   );
 }
 
