@@ -109,12 +109,12 @@ function buildPayloadDynamic(
 ): CommercialPropertyForm {
   const payload: Partial<CommercialPropertyForm> = {};
 
-  // owner
-  setNested(payload, "owner.firstName", formState.owner.firstName.trim());
-  setNested(payload, "owner.lastName", formState.owner.lastName.trim());
-  setNested(payload, "owner.contact.phone1", formState.owner.contact.phone1.trim());
-  setNested(payload, "owner.contact.email", formState.owner.contact.email?.trim() ?? "");
-  setNested(payload, "owner.contact.getUpdates", true);
+  // propertyowner
+  setNested(payload, "propertyOwner.firstName", formState.propertyOwner.firstName.trim());
+  setNested(payload, "propertyOwner.lastName", formState.propertyOwner.lastName.trim());
+  setNested(payload, "propertyOwner.contact.phone1", formState.propertyOwner.contact.phone1.trim());
+  setNested(payload, "propertyOwner.contact.email", formState.propertyOwner.contact.email?.trim() ?? "");
+  setNested(payload, "propertyOwner.contact.getUpdates", true);
 
   // property
   setNested(payload, "propertyType", formState.propertyType);
@@ -358,10 +358,10 @@ console.log("editid", editId);
 // Update state when in edit mode
 useEffect(() => {
   if (isEditMode && editData) {
-    setFirstName(editData.owner?.firstName || "");
-    setLastName(editData.owner?.lastName || "");
-    setEmail(editData.owner?.contact?.email || "");
-    setPhone1(editData.owner?.contact?.phone1 || "");
+    setFirstName(editData.propertyOwner?.firstName || "");
+    setLastName(editData.propertyOwner?.lastName || "");
+    setEmail(editData.propertyOwner?.contact?.email || "");
+    setPhone1(editData.propertyOwner?.contact?.phone1 || "");
     setTitle(editData.title || "");
     setPropertyType(editData.propertyType || "Rent");
     setAddress(editData.location?.address || "");
@@ -519,7 +519,7 @@ useEffect(() => {
 
     // Form is valid, proceed with submission
     const formState: CommercialFormState = {
-      owner: {
+      propertyOwner: {
         firstName: firstName,
         lastName: lastName,
         contact: {
@@ -611,10 +611,10 @@ useEffect(() => {
             toast.error(`${img.name} exceeds ${MAX_FILE_SIZE_MB}MB size limit.`);
           }
         } else {
-          console.warn(`Skipped invalid image: ${img.name}`);
-          toast.error(
-            `Invalid file type: ${img.name}. Only JPEG, PNG, or WEBP allowed.`
-          );
+          // console.warn(`Skipped invalid image: ${img.name}`);
+          // toast.error(
+          //   `Invalid file type: ${img.name}. Only JPEG, PNG, or WEBP allowed.`
+          // );
         }
       } else if (typeof img.name === "string") {
         // Existing image URLs from edit mode, append them so backend knows to keep them

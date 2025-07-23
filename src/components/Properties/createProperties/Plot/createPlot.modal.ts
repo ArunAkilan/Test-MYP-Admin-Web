@@ -34,7 +34,7 @@ export interface OwnerContact {
   getUpdates?: boolean;
 }
 
-export interface OwnerDetails {
+export interface PropertyOwner {
   firstName: string;
   lastName: string;
   contact: OwnerContact;
@@ -83,7 +83,7 @@ export interface UploadedImage {
 export type PlotStatus = "Pending" | "Approved" | "Rejected" | "Deleted" | "Sold";
 
 export interface PlotFormState {
-  ownerDetails: OwnerDetails;
+  propertyOwner: PropertyOwner;
   location: Location;
   propertyType: PropertyType;
   rent: RentDetails;
