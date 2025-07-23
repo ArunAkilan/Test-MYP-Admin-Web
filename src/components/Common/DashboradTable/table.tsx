@@ -19,7 +19,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import type {
   PropertyDataResponse,
   ResidentialProperty,
-  PropertyViewWithSource
+  SortDirection, SortableColumn
 } from "./table.model"; 
 import EmptyState from "../Emptystate/EmptyState";
 
@@ -82,11 +82,14 @@ function Table({ data, properties, onScrollChange,tabType }: TableProps) {
   const location = useLocation();
   const propertyData = location.state?.data;
   console.log("propertyData", propertyData);
-
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   // const [hideHeader, setHideHeader] = React.useState(false);
   // const [lastScrollY, setLastScrollY] = React.useState(0);
   const lastScrollYRef = useRef(0);
+  const [sortConfig, setSortConfig] = useState<{
+  key: SortableColumn;
+  direction: SortDirection;
+} | null>(null);
 
 useEffect(() => {
   const container = containerRef.current;
@@ -219,7 +222,12 @@ useEffect(() => {
   };
 
   const handleView = (id: string | number) => {
-    const selectedItem = formatedData.find((item: any) => item._id === id);
+
+  const selectedItem = formatedData.find(
+    (item) => String(item._id) === String(id)
+  );
+
+  console.log("🔍 selectedItem result:", selectedItem);
 
     if (!selectedItem) {
       alert("Property not found");
@@ -397,10 +405,38 @@ useEffect(() => {
     }));
   }, [data, properties]);
 
+  const sortedData = useMemo(() => {
+  if (!sortConfig) return formatedData;
+  
+  return [...formatedData].sort((a, b) => {
+    // Handle undefined/null values
+    const aValue = a[sortConfig.key] || '';
+    const bValue = b[sortConfig.key] || '';
+    
+    if (aValue < bValue) {
+      return sortConfig.direction === 'asc' ? -1 : 1;
+    }
+    if (aValue > bValue) {
+      return sortConfig.direction === 'asc' ? 1 : -1;
+    }
+    return 0;
+  });
+}, [formatedData, sortConfig]);
+
+const requestSort = (key: SortableColumn) => {
+  let direction: SortDirection = 'asc';
+  if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+    direction = 'desc';
+  }
+  setSortConfig({ key, direction });
+};
+
   // 3. Then do conditional rendering
   if (formattedData.length === 0) {
     return <p>No data available</p>; // Now this is safe
   }
+
+  
   return (
     <>
       <div
@@ -447,124 +483,144 @@ useEffect(() => {
                   />
                 </th>
                 <th>
-                  <div className="th-content">
+                  <div className="th-content"
+                    onClick={() => requestSort('title')}
+                    style={{ cursor: 'pointer' }}>
                     Property Name
-                    <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                    <img src="../src/assets/table/arrow-up.svg" alt="arrow" 
+                    className={sortConfig?.key === 'title' ? `sorted-${sortConfig.direction}` : ''} />
                   </div>
                 </th>
                 <th>
-                  <div className="th-content">
+                  <div className="th-content"
+                  onClick={() => requestSort('totalArea')}>
                     Area
-                    <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                    <img src="../src/assets/table/arrow-up.svg" alt="arrow" 
+                    className={sortConfig?.key === 'totalArea' ? `sorted-${sortConfig.direction}` : ''}/>
                   </div>
                 </th>
                 <th>
-                  <div className="th-content">
+                  <div className="th-content " onClick={() => requestSort('status')}>
                     Status
-                    <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                    <img src="../src/assets/table/arrow-up.svg" alt="arrow" 
+                    className={sortConfig?.key === 'status' ? `sorted-${sortConfig.direction}` : ''}/>
                   </div>
                 </th>
                 {properties === "all" && (
                   <th>
-                    <div className="th-content">
+                    <div className="th-content" 
+                      onClick={() => requestSort('totalFloors')}>
                       Floors
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" 
+                      className={sortConfig?.key === 'totalFloors' ? `sorted-${sortConfig.direction}` : ''}/>
                     </div>
                   </th>
                 )}
                 {properties === "residentials" && (
                   <th>
-                    <div className="th-content">
+                    <div className="th-content"onClick={() => requestSort('totalFloors')}>
                       Floors
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" 
+                      className={sortConfig?.key === 'totalFloors' ? `sorted-${sortConfig.direction}` : ''} />
                     </div>
                   </th>
                 )}
                 {properties === "commercials" && (
                   <th>
-                    <div className="th-content">
+                    <div className="th-content" onClick={() => requestSort('totalFloors')}>
                       Floors
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" 
+                      className={sortConfig?.key === 'totalFloors' ? `sorted-${sortConfig.direction}` : ''}/>
                     </div>
                   </th>
                 )}
                 {properties === "all" && (
                   <th>
-                    <div className="th-content">
+                    <div className="th-content" onClick={() => requestSort('facingDirection')}>
                       Facing
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" 
+                      className={sortConfig?.key === 'facingDirection' ? `sorted-${sortConfig.direction}` : ''}/>
                     </div>
                   </th>
                 )}
                 {properties === "residentials" && (
                   <th>
-                    <div className="th-content">
+                    <div className="th-content" onClick={() => requestSort('facingDirection')}>
                       Facing
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" 
+                      className={sortConfig?.key === 'facingDirection' ? `sorted-${sortConfig.direction}` : ''}/>
                     </div>
                   </th>
                 )}
                 {properties === "commercials" && (
                   <th>
-                    <div className="th-content">
+                    <div className="th-content" onClick={() => requestSort('facingDirection')}>
                       Facing
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" 
+                      className={sortConfig?.key === 'facingDirection' ? `sorted-${sortConfig.direction}` : ''}/>
                     </div>
                   </th>
                 )}
 
                 {properties === "all" && (
                   <th>
-                    <div className="th-content">
+                    <div className="th-content" onClick={() => requestSort('furnishingType')}>
                       Furnish
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" 
+                      className={sortConfig?.key === 'furnishingType' ? `sorted-${sortConfig.direction}` : ''}/>
                     </div>
                   </th>
                 )}
                 {properties === "residentials" && (
                   <th>
-                    <div className="th-content">
+                    <div className="th-content" onClick={() => requestSort('furnishingType')}>
                       Furnish
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" 
+                      className={sortConfig?.key === 'furnishingType' ? `sorted-${sortConfig.direction}` : ''}/>
                     </div>
                   </th>
                 )}
                 {properties === "all" && (
                   <th>
-                    <div className="th-content">
+                    <div className="th-content" onClick={() => requestSort('washroom')}>
                       Wahroom
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" 
+                      className={sortConfig?.key === 'washroom' ? `sorted-${sortConfig.direction}` : ''}/>
                     </div>
                   </th>
                 )}
                 {properties === "commercials" && (
                   <th>
-                    <div className="th-content">
+                    <div className="th-content" onClick={() => requestSort('washroom')}>
                       Wahroom
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" 
+                      className={sortConfig?.key === 'washroom' ? `sorted-${sortConfig.direction}` : ''}/>
                     </div>
                   </th>
                 )}
                 {properties === "all" && (
                   <th>
-                    <div className="th-content">
+                    <div className="th-content" onClick={() => requestSort('plotType')}>
                       Plot Type
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" 
+                      className={sortConfig?.key === 'plotType' ? `sorted-${sortConfig.direction}` : ''}/>
                     </div>
                   </th>
                 )}
                 {properties === "plots" && (
                   <th>
-                    <div className="th-content">
+                    <div className="th-content" onClick={() => requestSort('plotType')}>
                       Plot Type
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" 
+                      className={sortConfig?.key === 'plotType' ? `sorted-${sortConfig.direction}` : ''}/>
                     </div>
                   </th>
                 )}
                 <th>
-                  <div className="th-content">
+                  <div className="th-content" onClick={() => requestSort('propertyType')}>
                     Type
-                    <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                    <img src="../src/assets/table/arrow-up.svg" alt="arrow" 
+                    className={sortConfig?.key === 'propertyType' ? `sorted-${sortConfig.direction}` : ''}/>
                   </div>
                 </th>
                 <th className="link-h">
@@ -574,10 +630,10 @@ useEffect(() => {
               </tr>
             </thead>
             <tbody>
-              {formatedData.length === 0 && 
+              {sortedData.length === 0 && 
               (<div style={{padding:"20px", margin:"auto",textAlign:"center"}}>No properties available...</div>)
               }
-              {formatedData.length > 0 && formatedData.map((item) => (
+              {sortedData.length > 0 && sortedData.map((item) => (
                 <tr key={item._id}>
                   <td className="checkbox-align chechbox-align-inside">
                     <input
