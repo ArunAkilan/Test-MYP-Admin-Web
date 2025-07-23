@@ -203,27 +203,27 @@ const Header: React.FC<HeaderProps> = ({
                       />
                       <p className="col-8">Profile</p>
                       <img
-                        src="../src/assets/navbar/icon-park-outline_down.svg"
+                        src={`${import.meta.env.BASE_URL}/navbar/icon-park-outline_down.svg`}
                         alt="side-arrow"
                         className="col-2"
                       />
                     </div>
                     <div className="row admin-btn-popup-middle admin-popup-cmn-div">
                       <img
-                        src="../src/assets/navbar/propertiesIcon.svg"
+                        src={`${import.meta.env.BASE_URL}/navbar/propertiesIcon.svg`}
                         alt="propertiesIcon"
                         className="col-2"
                       />
                       <p className="col-8">Posted Properties</p>
                       <img
-                        src="../src/assets/navbar/icon-park-outline_down.svg"
+                        src={`${import.meta.env.BASE_URL}/navbar/icon-park-outline_down.svg`}
                         alt="side-arrow"
                         className="col-2"
                       />
                     </div>
                     <div onClick={adminLogout} className="row admin-btn-popup-bottom admin-popup-cmn-div">
                       <img
-                        src="../src/assets/navbar/mynaui_logout.svg"
+                        src={`${import.meta.env.BASE_URL}/navbar/mynaui_logout.svg`}
                         alt="logout"
                         className="col-2"
                       />

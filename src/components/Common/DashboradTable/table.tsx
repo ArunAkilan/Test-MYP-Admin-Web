@@ -449,26 +449,26 @@ useEffect(() => {
                 <th>
                   <div className="th-content">
                     Listing Name
-                    <img src={`${import.meta.env.BASE_URL}assets/table/arrow-up.svg`} alt="arrow" />
+                    <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                   </div>
                 </th>
                 <th>
                   <div className="th-content">
                     Area
-                    <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                    <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                   </div>
                 </th>
                 <th>
                   <div className="th-content">
                     Status
-                    <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                    <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                   </div>
                 </th>
                 {properties === "all" && (
                   <th>
                     <div className="th-content">
                       Floors
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                     </div>
                   </th>
                 )}
@@ -476,7 +476,7 @@ useEffect(() => {
                   <th>
                     <div className="th-content">
                       Floors
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                     </div>
                   </th>
                 )}
@@ -484,7 +484,7 @@ useEffect(() => {
                   <th>
                     <div className="th-content">
                       Floors
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                     </div>
                   </th>
                 )}
@@ -492,7 +492,7 @@ useEffect(() => {
                   <th>
                     <div className="th-content">
                       Facing
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                     </div>
                   </th>
                 )}
@@ -500,7 +500,7 @@ useEffect(() => {
                   <th>
                     <div className="th-content">
                       Facing
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                     </div>
                   </th>
                 )}
@@ -508,7 +508,7 @@ useEffect(() => {
                   <th>
                     <div className="th-content">
                       Facing
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                     </div>
                   </th>
                 )}
@@ -517,7 +517,7 @@ useEffect(() => {
                   <th>
                     <div className="th-content">
                       Furnish
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                     </div>
                   </th>
                 )}
@@ -525,7 +525,7 @@ useEffect(() => {
                   <th>
                     <div className="th-content">
                       Furnish
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                     </div>
                   </th>
                 )}
@@ -533,7 +533,7 @@ useEffect(() => {
                   <th>
                     <div className="th-content">
                       Wahroom
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                     </div>
                   </th>
                 )}
@@ -541,7 +541,7 @@ useEffect(() => {
                   <th>
                     <div className="th-content">
                       Wahroom
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                     </div>
                   </th>
                 )}
@@ -549,7 +549,7 @@ useEffect(() => {
                   <th>
                     <div className="th-content">
                       Plot Type
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                     </div>
                   </th>
                 )}
@@ -557,19 +557,19 @@ useEffect(() => {
                   <th>
                     <div className="th-content">
                       Plot Type
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                     </div>
                   </th>
                 )}
                 <th>
                   <div className="th-content">
                     Type
-                    <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                    <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                   </div>
                 </th>
                 <th className="link-h">
                   Link &nbsp;{" "}
-                  <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                  <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                 </th>
               </tr>
             </thead>
@@ -651,31 +651,31 @@ useEffect(() => {
                   <td className="Links">
                     <div className="link-wrap">
                       <img
-                        src="/src/assets/tabelimg/Eye view.svg"
+                        src={`${import.meta.env.BASE_URL}/tabelimg/Eye view.svg`}
                         alt="view"
                         onClick={() => item._id && handleView(item._id)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
-                        src="/Edit.svg"
+                        src={`${import.meta.env.BASE_URL}/Edit.svg`}
                         alt="edit"
                         onClick={() => handleEdit(item as unknown as ResidentialProperty)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
-                        src="/Approve.svg"
+                        src={`${import.meta.env.BASE_URL}/Approve.svg`}
                         alt="Approve"
                         onClick={() => handleOpenModal("Approve", item as unknown as ResidentialProperty)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
-                        src="/Deny.svg"
+                        src={`${import.meta.env.BASE_URL}/Deny.svg`}
                         alt="Deny"
                         onClick={() => handleOpenModal("Deny", item as unknown as ResidentialProperty)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
-                        src="/Delete.svg"
+                        src={`${import.meta.env.BASE_URL}/Delete.svg`}
                         alt="Delete"
                         onClick={() => handleOpenModal("Delete", item as unknown as ResidentialProperty)}
                         style={{ cursor: "pointer" }}
