@@ -487,7 +487,7 @@ const requestSort = (key: SortableColumn) => {
                     onClick={() => requestSort('title')}
                     style={{ cursor: 'pointer' }}>
                     Property Name
-                    <img src="../src/assets/table/arrow-up.svg" alt="arrow" 
+                    <img src={`${import.meta.env.BASE_URL}src/assets/table/arrow-up.svg`} alt="arrow" 
                     className={sortConfig?.key === 'title' ? `sorted-${sortConfig.direction}` : ''} />
                   </div>
                 </th>
@@ -495,14 +495,14 @@ const requestSort = (key: SortableColumn) => {
                   <div className="th-content"
                   onClick={() => requestSort('totalArea')}>
                     Area
-                    <img src="../src/assets/table/arrow-up.svg" alt="arrow" 
+                    <img src={`${import.meta.env.BASE_URL}src/assets/table/arrow-up.svg`} alt="arrow" 
                     className={sortConfig?.key === 'totalArea' ? `sorted-${sortConfig.direction}` : ''}/>
                   </div>
                 </th>
                 <th>
                   <div className="th-content " onClick={() => requestSort('status')}>
                     Status
-                    <img src="../src/assets/table/arrow-up.svg" alt="arrow" 
+                    <img src={`${import.meta.env.BASE_URL}src/assets/table/arrow-up.svg`} alt="arrow" 
                     className={sortConfig?.key === 'status' ? `sorted-${sortConfig.direction}` : ''}/>
                   </div>
                 </th>
@@ -511,7 +511,7 @@ const requestSort = (key: SortableColumn) => {
                     <div className="th-content" 
                       onClick={() => requestSort('totalFloors')}>
                       Floors
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" 
+                      <img src={`${import.meta.env.BASE_URL}src/assets/table/arrow-up.svg`} alt="arrow" 
                       className={sortConfig?.key === 'totalFloors' ? `sorted-${sortConfig.direction}` : ''}/>
                     </div>
                   </th>
@@ -520,7 +520,7 @@ const requestSort = (key: SortableColumn) => {
                   <th>
                     <div className="th-content"onClick={() => requestSort('totalFloors')}>
                       Floors
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" 
+                      <img src={`${import.meta.env.BASE_URL}src/assets/table/arrow-up.svg`} alt="arrow" 
                       className={sortConfig?.key === 'totalFloors' ? `sorted-${sortConfig.direction}` : ''} />
                     </div>
                   </th>
@@ -529,7 +529,7 @@ const requestSort = (key: SortableColumn) => {
                   <th>
                     <div className="th-content" onClick={() => requestSort('totalFloors')}>
                       Floors
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" 
+                      <img src={`${import.meta.env.BASE_URL}src/assets/table/arrow-up.svg`} alt="arrow" 
                       className={sortConfig?.key === 'totalFloors' ? `sorted-${sortConfig.direction}` : ''}/>
                     </div>
                   </th>
@@ -538,7 +538,7 @@ const requestSort = (key: SortableColumn) => {
                   <th>
                     <div className="th-content" onClick={() => requestSort('facingDirection')}>
                       Facing
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" 
+                      <img src={`${import.meta.env.BASE_URL}src/assets/table/arrow-up.svg`} alt="arrow" 
                       className={sortConfig?.key === 'facingDirection' ? `sorted-${sortConfig.direction}` : ''}/>
                     </div>
                   </th>
@@ -547,7 +547,7 @@ const requestSort = (key: SortableColumn) => {
                   <th>
                     <div className="th-content" onClick={() => requestSort('facingDirection')}>
                       Facing
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" 
+                      <img src={`${import.meta.env.BASE_URL}src/assets/table/arrow-up.svg`} alt="arrow" 
                       className={sortConfig?.key === 'facingDirection' ? `sorted-${sortConfig.direction}` : ''}/>
                     </div>
                   </th>
@@ -556,7 +556,7 @@ const requestSort = (key: SortableColumn) => {
                   <th>
                     <div className="th-content" onClick={() => requestSort('facingDirection')}>
                       Facing
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" 
+                      <img src={`${import.meta.env.BASE_URL}src/assets/table/arrow-up.svg`} alt="arrow" 
                       className={sortConfig?.key === 'facingDirection' ? `sorted-${sortConfig.direction}` : ''}/>
                     </div>
                   </th>
@@ -566,7 +566,7 @@ const requestSort = (key: SortableColumn) => {
                   <th>
                     <div className="th-content" onClick={() => requestSort('furnishingType')}>
                       Furnish
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" 
+                      <img src={`${import.meta.env.BASE_URL}src/assets/table/arrow-up.svg`} alt="arrow" 
                       className={sortConfig?.key === 'furnishingType' ? `sorted-${sortConfig.direction}` : ''}/>
                     </div>
                   </th>
@@ -575,7 +575,7 @@ const requestSort = (key: SortableColumn) => {
                   <th>
                     <div className="th-content" onClick={() => requestSort('furnishingType')}>
                       Furnish
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" 
+                      <img src={`${import.meta.env.BASE_URL}src/assets/table/arrow-up.svg`} alt="arrow" 
                       className={sortConfig?.key === 'furnishingType' ? `sorted-${sortConfig.direction}` : ''}/>
                     </div>
                   </th>
@@ -584,7 +584,7 @@ const requestSort = (key: SortableColumn) => {
                   <th>
                     <div className="th-content" onClick={() => requestSort('washroom')}>
                       Wahroom
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" 
+                      <img src={`${import.meta.env.BASE_URL}src/assets/table/arrow-up.svg`} alt="arrow" 
                       className={sortConfig?.key === 'washroom' ? `sorted-${sortConfig.direction}` : ''}/>
                     </div>
                   </th>
@@ -593,7 +593,7 @@ const requestSort = (key: SortableColumn) => {
                   <th>
                     <div className="th-content" onClick={() => requestSort('washroom')}>
                       Wahroom
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" 
+                      <img src={`${import.meta.env.BASE_URL}src/assets/table/arrow-up.svg`} alt="arrow" 
                       className={sortConfig?.key === 'washroom' ? `sorted-${sortConfig.direction}` : ''}/>
                     </div>
                   </th>
@@ -602,7 +602,7 @@ const requestSort = (key: SortableColumn) => {
                   <th>
                     <div className="th-content" onClick={() => requestSort('plotType')}>
                       Plot Type
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" 
+                      <img src={`${import.meta.env.BASE_URL}src/assets/table/arrow-up.svg`} alt="arrow" 
                       className={sortConfig?.key === 'plotType' ? `sorted-${sortConfig.direction}` : ''}/>
                     </div>
                   </th>
@@ -611,7 +611,7 @@ const requestSort = (key: SortableColumn) => {
                   <th>
                     <div className="th-content" onClick={() => requestSort('plotType')}>
                       Plot Type
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" 
+                      <img src={`${import.meta.env.BASE_URL}src/assets/table/arrow-up.svg`} alt="arrow" 
                       className={sortConfig?.key === 'plotType' ? `sorted-${sortConfig.direction}` : ''}/>
                     </div>
                   </th>
@@ -619,7 +619,7 @@ const requestSort = (key: SortableColumn) => {
                 <th>
                   <div className="th-content" onClick={() => requestSort('propertyType')}>
                     Type
-                    <img src="../src/assets/table/arrow-up.svg" alt="arrow" 
+                    <img src={`${import.meta.env.BASE_URL}src/assets/table/arrow-up.svg`} alt="arrow" 
                     className={sortConfig?.key === 'propertyType' ? `sorted-${sortConfig.direction}` : ''}/>
                   </div>
                 </th>
@@ -664,7 +664,7 @@ const requestSort = (key: SortableColumn) => {
                       data-bs-placement="bottom"
                       title={item?.location?.address}
                     >
-                      <img src="ICON_Location.svg" alt="location" />
+                      <img src={`${import.meta.env.BASE_URL}ICON_Location.svg`} alt="location" />
                       <span className="truncate-text">
                         {truncateWords(item?.location?.address, 9)}
                       </span>
