@@ -1547,9 +1547,6 @@ const formatedData: (PropertyItem & PropertyViewWithSource)[] = properties;
         <Box
           ref={containerRef}
           sx={{
-            height: "400px",
-            overflowY: "auto",
-            marginBottom: "50px",
             // height: "400px",
             // overflowY: "auto",
             // marginBottom: "50px",
