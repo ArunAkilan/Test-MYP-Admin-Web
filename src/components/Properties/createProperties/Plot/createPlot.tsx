@@ -384,12 +384,8 @@ const removeImage = (index: number) => {
         setLongitude(editData.location.map.longitude?.toString() || "");
       }
   
-      setImages(
-        editData?.uploadedImages?.map((img: UploadedImage) => ({
-          name: img.name,
-          file: img.file,
-        })) || []
-      );
+      setImages((editData.images || []).map((img: string) => ({ name: img })));
+
   
       setTotalArea(editData.location?.area?.totalArea?.replace(" sqft", "") || "");
       setFacingDirection(editData.facingDirection || "East");
