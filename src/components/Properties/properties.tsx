@@ -1698,11 +1698,11 @@ const removeImage = (index: number) => {
 
                 <div className="chipField row g-3">
                   <div
-                    className="chipcard d-flex gap-4 col-6 col-md-3 mb-3"
+                    className="chipcard  d-flex flex-nowrap flex-wrap-sm gap-4 col-6 col-md-3 mb-3"
                     style={{ padding: "31px" }}
                   >
                     <InputField
-                      className="col-6 col-sm-4 col-md-3 col-lg-2 d-flex"
+                      className="col-6 input-field col-sm-4 col-md-3 col-lg-2 d-flex"
                       type="chip"
                       label="Separate Electricity Billing"
                       icon={
@@ -1723,7 +1723,7 @@ const removeImage = (index: number) => {
                     />
 
                     <InputField
-                      className="col-6 col-sm-4 col-md-3 col-lg-2 d-flex"
+                      className="col-6 input-field col-sm-4 col-md-3 col-lg-2 d-flex"
                       type="chip"
                       label="Public Park"
                       icon={
@@ -1744,7 +1744,7 @@ const removeImage = (index: number) => {
                     />
 
                     <InputField
-                      className="col-6 col-sm-4 col-md-3 col-lg-2 d-flex"
+                      className="col-6 input-field col-sm-4 col-md-3 col-lg-2 d-flex"
                       type="chip"
                       label="Gym"
                       icon={
@@ -1764,7 +1764,7 @@ const removeImage = (index: number) => {
                       }}
                     />
                     <InputField
-                      className="col-6 col-sm-4 col-md-3 col-lg-2 d-flex"
+                      className="col-6 input-field col-sm-4 col-md-3 col-lg-2 d-flex"
                       type="chip"
                       label="Movie Theater"
                       icon={
@@ -1784,7 +1784,7 @@ const removeImage = (index: number) => {
                       }}
                     />
                     <InputField
-                      className="col-6 col-sm-4 col-md-3 col-lg-2 d-flex"
+                      className="col-6 input-field col-sm-4 col-md-3 col-lg-2 d-flex"
                       type="chip"
                       label="Shopping Mall"
                       icon={
@@ -1823,6 +1823,7 @@ const removeImage = (index: number) => {
                   >
                     <InputField
                       type="chip"
+                      className="input-field"
                       label="Lift Access"
                       icon={
                         <Avatar
@@ -1843,6 +1844,7 @@ const removeImage = (index: number) => {
 
                     <InputField
                       type="chip"
+                      className="input-field"
                       label="Ramp Access"
                       icon={
                         <Avatar
@@ -1862,6 +1864,7 @@ const removeImage = (index: number) => {
                     />
 
                     <InputField
+                      className="input-field"
                       type="chip"
                       label="Only via Stairs"
                       icon={
@@ -1900,6 +1903,7 @@ const removeImage = (index: number) => {
                   >
                     <InputField
                       type="chip"
+                      className="input-field"
                       label="Broadband Connection"
                       icon={
                         <Avatar
@@ -1920,6 +1924,7 @@ const removeImage = (index: number) => {
 
                     <InputField
                       type="chip"
+                      className="input-field"
                       label="Security"
                       icon={
                         <Avatar
@@ -1956,6 +1961,7 @@ const removeImage = (index: number) => {
                     <div className="firstRow d-flex gap-4">
                       <InputField
                         type="chip"
+                        className="input-field"
                         label="Regular Maintenance Included"
                         icon={
                           <Avatar
@@ -1976,6 +1982,7 @@ const removeImage = (index: number) => {
 
                       <InputField
                         type="chip"
+                        className="input-field"
                         label="Water Supply Available"
                         icon={
                           <Avatar
@@ -1996,6 +2003,7 @@ const removeImage = (index: number) => {
 
                       <InputField
                         type="chip"
+                        className="input-field"
                         label="Good Road Access"
                         icon={
                           <Avatar
@@ -2018,6 +2026,7 @@ const removeImage = (index: number) => {
                     <div className="secondRow d-flex gap-4">
                       <InputField
                         type="chip"
+                        className="input-field"
                         label="Sewage Connection Available"
                         icon={
                           <Avatar
@@ -2037,6 +2046,7 @@ const removeImage = (index: number) => {
                       />
                       <InputField
                         type="chip"
+                        className="input-field"
                         label="Dedicated Parking Available"
                         icon={
                           <Avatar
@@ -2056,6 +2066,7 @@ const removeImage = (index: number) => {
                       />
                       <InputField
                         type="chip"
+                        className="input-field"
                         label="Private Balcony Included"
                         icon={
                           <Avatar
@@ -2099,6 +2110,7 @@ const removeImage = (index: number) => {
                   >
                     <InputField
                       type="chip"
+                      className="input-field"
                       label="Guests Not Allowed"
                       icon={
                         <Avatar
@@ -2120,6 +2132,7 @@ const removeImage = (index: number) => {
 
                     <InputField
                       type="chip"
+                      className="input-field"
                       label="No Pets Allowed"
                       icon={
                         <Avatar
@@ -2140,6 +2153,7 @@ const removeImage = (index: number) => {
 
                     <InputField
                       type="chip"
+                      className="input-field"
                       label="No Bachelors Allowed"
                       icon={
                         <Avatar

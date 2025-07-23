@@ -137,15 +137,15 @@ const Header: React.FC<HeaderProps> = ({
               <div className="col-9">
                  <AutoCompleteWithSelect/>
               </div>
-              <div className="col-4 bell">
+              <div className="col-3 bell">
                 <img
-                  src="/Vector.svg"
+                  src={`${import.meta.env.BASE_URL}/Vector.svg`}
                   alt="setting svg"
                   className="setting-image"
                 />
                 <div className="bell-image">
                   <button aria-describedby={idFirst} onClick={handleFirstClick}>
-                    <img src="/BTN_Notification.svg" alt="Notification svg" />
+                    <img src={`${import.meta.env.BASE_URL}/BTN_Notification.svg`} alt="Notification svg" />
 
                     <div className="notifyround">{notifications?.length}</div>
                   </button>
@@ -197,7 +197,7 @@ const Header: React.FC<HeaderProps> = ({
                   <div className="admin-btn-popover">
                     <div className="row admin-btn-popup-top admin-popup-cmn-div">
                       <img
-                        src="../src/assets/navbar/iconamoon_profile-bold.svg"
+                        src={`${import.meta.env.BASE_URL}/navbar/iconamoon_profile-bold.svg`}
                         alt="profile"
                         className="col-2"
                       />

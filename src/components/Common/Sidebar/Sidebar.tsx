@@ -18,7 +18,7 @@ const styles = {
   lineHeight: "18px",
 };
 
-const tabRoutes = ["/dashboard", "/commercial", "/residential", "/plots"];
+const tabRoutes = ["/dashboard", "/commercial", "/residential", "/plot"];
 
 export default function Sidebar() {
   const navigate = useNavigate();
@@ -95,28 +95,28 @@ export default function Sidebar() {
       >
         <Tab
           sx={{ ...styles }}
-          icon={<Avatar alt="Dashboard" src="/Dash.svg" />}
+          icon={<Avatar alt="Dashboard" src={`${import.meta.env.BASE_URL}/Dash.svg`} />}
           iconPosition="start"
           label="Dashboard"
           className="tab-outerlayer-div"
         />
         <Tab
           sx={{ ...styles }}
-          icon={<Avatar alt="Commercial" src="/solar_buildings-linear.svg" />}
+          icon={<Avatar alt="Commercial" src={`${import.meta.env.BASE_URL}/solar_buildings-linear.svg`} />}
           iconPosition="start"
           label="Commercial"
           className="tab-outerlayer-div"
         />
         <Tab
           sx={{ ...styles }}
-          icon={<Avatar alt="Residential" src="/hugeicons_house-02.svg" />}
+          icon={<Avatar alt="Residential" src={`${import.meta.env.BASE_URL}/hugeicons_house-02.svg`} />}
           iconPosition="start"
           label="Residential"
           className="tab-outerlayer-div"
         />
         <Tab
           sx={{ ...styles }}
-          icon={<Avatar alt="Plots" src="/lucide_land-plot.svg" />}
+          icon={<Avatar alt="Plots" src={`${import.meta.env.BASE_URL}/lucide_land-plot.svg`} />}
           iconPosition="start"
           label="Plots"
           className="tab-outerlayer-div"
@@ -128,4 +128,3 @@ export default function Sidebar() {
 // function setActiveTab(savedTab: string) {
 //   throw new Error("Function not implemented.");
 // }
-

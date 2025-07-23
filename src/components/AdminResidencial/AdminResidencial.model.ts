@@ -124,7 +124,6 @@ export interface ResidentialProperty {
   area?: Area;
   images?: string[];
   title?: string;
-  residentialType?: ResidentialType;
   facingDirection?: FacingDirection;
   rooms?: string;
   totalFloors?: number;
@@ -139,6 +138,67 @@ export interface ResidentialProperty {
   createdAt?: string;
   updatedAt?: string;
   _id?: string;
-  washroom?: number | string;
   status?: "Pending" | "Approved" | "Rejected" | "Deleted";
+  commercialType?: string;
+  plotType?: string;
+  type?: string;
+  // Additional commercial/plot/residential-specific fields
+  bhk?: string;
+
+  parking?: "None" | "With Parking";
+  tenantPreference?: "Bachelor" | "Family Only";
+  residentialType?: "House" | "Apartment" | "Villa";
+  washroom?: "None" | "Private" | "Common";
+  rto?: boolean;
+  purpose?: string;
+}
+
+export interface Property {
+  owner?: string;
+  propertyType?: string;
+  rent?: RentDetails;
+  lease?: LeaseDetails;
+  sale?: SaleDetails;
+  location?: Location;
+  builtUpArea?: string;
+  carpetArea?: string;
+  totalArea?: string;
+  area?: Area;
+  images?: string[];
+  title?: string;
+  facingDirection?: FacingDirection;
+  rooms?: string;
+  totalFloors?: number;
+  propertyFloor?: number;
+  furnishingType?: FurnishingType;
+  availability?: Availability;
+  facility?: Facility;
+  accessibility?: Accessibility;
+  amenities?: Amenities;
+  restrictions?: Restrictions;
+  description?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  _id?: string;
+  status?: "Pending" | "Approved" | "Rejected" | "Deleted";
+  commercialType?: string;
+  plotType?: string;
+  type?: string;
+  // Additional commercial/plot/residential-specific fields
+  bhk?: string;
+
+  parking?: "None" | "With Parking";
+  tenantPreference?: "Bachelor" | "Family Only";
+  residentialType?: "House" | "Apartment" | "Villa";
+  washroom?: "None" | "Private" | "Common";
+  rto?: boolean;
+  purpose?: string;
+}
+
+export interface ApiResponse {
+  data: {
+    residential?: ResidentialProperty[];
+    commercial?: ResidentialProperty[];
+    plots?: ResidentialProperty[];
+  };
 }

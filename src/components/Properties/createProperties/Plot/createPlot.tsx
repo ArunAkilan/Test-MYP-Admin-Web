@@ -649,9 +649,9 @@ const removeImage = (index: number) => {
       // Navigate after loading hidden and editing enabled
       const plotId = response?.data?._id;
       if (plotId) {
-        navigate(`/plots/view/${plotId}`);
+        navigate(`/plot/view/${plotId}`);
       } else {
-        navigate("/plots", {
+        navigate("/plot", {
           state: { data: response.data, showLoading: true },
         });
       }

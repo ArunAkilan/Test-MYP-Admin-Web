@@ -1,47 +1,38 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState} from "react";
 import axios from "axios";
-//import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./Dashboard.scss";
 import GenericButton from "../Common/Button/button";
 import iconAdd from "../../../public/ICO_Add-1.svg";
 import Dashboardtab from "../Common/HorizondalTab/Dashboardtab";
-import { useLocation } from "react-router-dom";
 import type { ResidentialProperty } from "../AdminResidencial/AdminResidencial.model";
-import Box from "@mui/material/Box";
-import Modal from "@mui/material/Modal";
-import Radio from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import FormControl from "@mui/material/FormControl";
-import FormLabel from "@mui/material/FormLabel";
-import { useNavigate } from "react-router-dom";
-import { CircularProgress, Typography, Alert } from "@mui/material";
-import Skeleton from "@mui/material/Skeleton";
- 
+import {
+  Box,
+  Modal,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  FormControl,
+  FormLabel,
+  CircularProgress,
+  Typography,
+  Alert,
+  Skeleton,
+} from "@mui/material";
+// import { useAppSelector } from "../../hook";
+
 type PropertyType = "all" | "residentials" | "commercials" | "plots";
- 
+
 interface HomeProps {
   properties: PropertyType;
-  onAddNew?: () => void;
 }
- 
+
 interface PropertyData {
   residential: ResidentialProperty[];
   commercial: ResidentialProperty[];
   plot: ResidentialProperty[];
 }
- 
-const mapKey: Record<PropertyType, keyof PropertyData> = {
-  residentials: "residential",
-  commercials: "commercial",
-  plots: "plot",
-  all: "residential", // not used directly
-};
- 
-interface HomeProps {
-  properties: PropertyType;
-}
- 
+
 const style = {
   position: "absolute",
   top: "50%",
@@ -54,18 +45,26 @@ const style = {
   py: 3,
   borderRadius: 2,
 };
- 
- 
- 
-// function Home({ properties, onAddNew }: HomeProps)
-function Home({ properties="all" }: HomeProps) {
-  console.log("properties",properties)
+
+function Home({ properties  }: HomeProps) {
   const [dashboardData, setDashboardData] = useState<PropertyData>({
     residential: [],
     commercial: [],
     plot: [],
   });
-  //dynamic changing :
+  const [loadingBackdrop, setLoadingBackdrop] = useState(false);
+  //  const activeTab = useAppSelector(state => state.tabs.currentTab);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [hideHeader, setHideHeader] = useState(false);
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const [open, setOpen] = React.useState(false);
+  const [isSkeletonLoading, setIsSkeletonLoading] = useState(true);
+  const [selectedPropertyType, setSelectedPropertyType] = useState<string | null>(null);
+
+  const location = useLocation();
+  const navigate = useNavigate();
+  console.log("loadingBackdrop",loadingBackdrop)
   const headingMap: Record<PropertyType, string> = {
     all: "Dashboard",
     residentials: "Manage Residential Properties",
@@ -73,7 +72,7 @@ function Home({ properties="all" }: HomeProps) {
     plots: "Manage Plots Properties",
   };
   const heading = headingMap[properties] || "Properties";
- 
+
   const paragMap: Record<PropertyType, string> = {
     all: "Get a comprehensive view of all the properties",
     residentials: "Review and track residential property entries easily",
@@ -81,126 +80,98 @@ function Home({ properties="all" }: HomeProps) {
     plots: "Review and track plots property entries easily",
   };
   const para = paragMap[properties] || "Properties";
- 
-  const [loadingBackdrop, setLoadingBackdrop] = useState(false);
-  const [loading, setLoading] = useState<boolean>(true);
-  console.log("loading",loading)
-  const [error, setError] = useState<string | null>(null);
-  const [hideHeader, setHideHeader] = useState(false);
-  const [lastScrollY, setLastScrollY] = useState(0);
-  const [open, setOpen] = React.useState(false);
- const [isSkeletonLoading, setIsSkeletonLoading] = useState(true);
-  const location = useLocation();
-  const [selectedPropertyType, setSelectedPropertyType] = useState<string | null>(null);
-  console.log("loadingBackdrop",loadingBackdrop)
- // NEW: Show Backdrop on successful create redirect
- useEffect(() => {
-  if (location.state?.from === "residentialCreateSuccess") {
-    setLoadingBackdrop(true);
- 
-     // Clear the state so backdrop doesn't show again on refresh
-     window.history.replaceState({}, document.title);
- 
-     setTimeout(() => {
-      setLoadingBackdrop(false);
-      window.dispatchEvent(new Event("refreshTableData")); // ✅ triggers table reload
-    }, 2000); // show for 2 seconds
-  }
-}, [location.state]);
- 
+
+  useEffect(() => {
+    if (location.state?.from === "residentialCreateSuccess") {
+      setLoadingBackdrop(true);
+      window.history.replaceState({}, document.title);
+      setTimeout(() => {
+        setLoadingBackdrop(false);
+        window.dispatchEvent(new Event("refreshTableData"));
+      }, 2000);
+    }
+  }, [location.state]);
+
   const handleOpen = () => {
-    if (location?.pathname === "/dashboard") {
+    if (location.pathname === "/dashboard") {
       setOpen(true);
-    } else if (location?.pathname === "/commercial") {
-      navigate("/commercial/create", {
-        state: { mode: "create" },
-      });
-    } else if (location?.pathname === "/residential") {
-      navigate("/residential/create", {
-        state: { mode: "create" },
-      });
-    } else if (location?.pathname === "/plots") {
-      navigate("/plot/create", {
-        state: { mode: "create" },
-      });
+    } else if (location.pathname === "/commercial") {
+      navigate("/commercial/create", { state: { mode: "create" } });
+    } else if (location.pathname === "/residential") {
+      navigate("/residential/create", { state: { mode: "create" } });
+    } else if (location.pathname === "/plot") {
+      navigate("/plot/create", { state: { mode: "create" } });
     }
   };
+
   const handleClose = () => setOpen(false);
-  const navigate = useNavigate();
+
   const handleChildScroll = (scrollTop: number) => {
-    // setIsFixed(scrollTop > 50);
     const currentScrollY = scrollTop;
- 
-    // Show header when scrolling up
-    if (currentScrollY < lastScrollY || currentScrollY < 20) {
-      setHideHeader(false);
-    } else {
-      setHideHeader(true);
-    }
- 
+    setHideHeader(currentScrollY > lastScrollY && currentScrollY >= 20);
     setLastScrollY(currentScrollY);
   };
- 
- 
- 
-  const propertyData = location.state?.data;
-  console.log("propertyData", propertyData);
- 
- 
- 
+
+  // const pathname = location.pathname;
+
+  // const resolvedProperty = useMemo(() => {
+  //   if (pathname.includes("residential")) return "residentials";
+  //   if (pathname.includes("commercial")) return "commercials";
+  //   if (pathname.includes("plot")) return "plots";
+  //   return "all";
+  // }, [pathname]);
+
   useEffect(() => {
-    const fetchAllData = async () => {
-      setLoading(true);
-      setError(null);
- 
-      try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_BackEndUrl}/api/${properties}`
-        );
- 
-        if (properties === "all") {
-          setDashboardData({
-            residential: response.data.data.residential ?? [],
-            commercial: response.data.data.commercial ?? [],
-            plot: response.data.data.plots ?? [],
-          });
-        } else {
-          setDashboardData((prev) => ({
-            ...prev,
-            [mapKey[properties]]: response.data.data ?? [],
-          }));
-        }
-        console.log("API data cpmmercial:", response.data.data);
-        setLoading(false);
-      } catch (err) {
-        if (axios.isAxiosError(err) && err.message) {
-          setError(err.message);
-        } else {
-          setError("An unexpected error occurred");
-        }
-        setLoading(false);
+  const fetchAllData = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BackEndUrl}/api/${properties === "all" ? "all" : properties}`
+      );
+
+      if (properties === "all") {
+        setDashboardData({
+          residential: response.data.data.residential ?? [],
+          commercial: response.data.data.commercial ?? [],
+          plot: response.data.data.plots ?? [],
+        });
+      } else {
+        const keyMap = {
+          residentials: "residential",
+          commercials: "commercial",
+          plots: "plot",
+        } as const;
+
+        const resolvedKey = keyMap[properties as keyof typeof keyMap];
+
+        setDashboardData((prev) => ({
+          ...prev,
+          [resolvedKey]: response.data.data ?? [],
+        }));
       }
-     
-    };
- 
-    fetchAllData();
- 
-    const handleRefresh = () => fetchAllData(); // refresh handler
- 
-    window.addEventListener("refreshTableData", handleRefresh);
-    return () => window.removeEventListener("refreshTableData", handleRefresh);
-  }, [properties]);
- 
-    useEffect(() => {
-    // Simulate API delay
+
+      setLoading(false);
+    } catch (err) {
+      setError(axios.isAxiosError(err) ? err.message : "Unexpected error");
+      setLoading(false);
+    }
+  };
+
+  fetchAllData();
+
+  const handleRefresh = () => fetchAllData();
+  window.addEventListener("refreshTableData", handleRefresh);
+  return () => window.removeEventListener("refreshTableData", handleRefresh);
+}, [properties]);
+console.log(properties,"propo")
+
+  useEffect(() => {
     const timeout = setTimeout(() => {
-      // Here you should fetch actual data and set it
       setIsSkeletonLoading(false);
     }, 2000);
- 
     return () => clearTimeout(timeout);
   }, []);
- 
+
   if (loading) {
     return (
       <Box display="flex" alignItems="center" justifyContent="center" p={3}>
@@ -211,7 +182,7 @@ function Home({ properties="all" }: HomeProps) {
       </Box>
     );
   }
- 
+
   if (error) {
     return (
       <Box p={3}>
@@ -221,33 +192,23 @@ function Home({ properties="all" }: HomeProps) {
       </Box>
     );
   }
+
   const hasData =
     dashboardData.residential.length > 0 ||
     dashboardData.commercial.length > 0 ||
     dashboardData.plot.length > 0;
- 
+
   if (!hasData) {
     return <p>No data found for {properties}</p>;
   }
- 
+
   return (
     <div className="home-sec">
       {isSkeletonLoading ? (
-        // Entire component skeleton
         <div style={{ padding: "20px" }}>
           <Skeleton variant="rectangular" height={50} width="100%" />
-          <Skeleton
-            variant="text"
-            height={30}
-            width="80%"
-            style={{ marginTop: 16 }}
-          />
-          <Skeleton
-            variant="rectangular"
-            height={300}
-            width="100%"
-            style={{ marginTop: 24 }}
-          />
+          <Skeleton variant="text" height={30} width="80%" style={{ marginTop: 16 }} />
+          <Skeleton variant="rectangular" height={300} width="100%" style={{ marginTop: 24 }} />
           {[...Array(3)].map((_, i) => (
             <div key={i} style={{ marginTop: 20 }}>
               <Skeleton variant="rectangular" width="100%" height={120} />
@@ -272,49 +233,22 @@ function Home({ properties="all" }: HomeProps) {
                     iconPosition="left"
                     label={"Add New Property"}
                     className="genericNewPostStyles"
-                    onClick={() => {
-                      // onAddNew?.();
-                      handleOpen();
-                      // navigate("/createResidential",
-                      //    { state: { mode: "create" } });
-                    }}
+                    onClick={handleOpen}
                   />
-                  <Modal
-                    open={open}
-                    onClose={handleClose}
-                    aria-labelledby="modal-modal-title"
-                    aria-describedby="modal-modal-description"
-                  >
+                  <Modal open={open} onClose={handleClose}>
                     <Box sx={style}>
                       <div className="property-option">
                         <FormControl>
-                          <FormLabel id="demo-row-radio-buttons-group-label">
-                            Add New Property/ Plot
-                          </FormLabel>
+                          <FormLabel>Add New Property/ Plot</FormLabel>
                           <RadioGroup
                             row
-                            aria-labelledby="demo-row-radio-buttons-group-label"
                             name="row-radio-buttons-group"
                             value={selectedPropertyType}
-                            onChange={(e) =>
-                              setSelectedPropertyType(e.target.value)
-                            }
+                            onChange={(e) => setSelectedPropertyType(e.target.value)}
                           >
-                            <FormControlLabel
-                              value="Commercial"
-                              control={<Radio />}
-                              label="Commercial"
-                            />
-                            <FormControlLabel
-                              value="Residential"
-                              control={<Radio />}
-                              label="Residential"
-                            />
-                            <FormControlLabel
-                              value="other"
-                              control={<Radio />}
-                              label="Plot"
-                            />
+                            <FormControlLabel value="Commercial" control={<Radio />} label="Commercial" />
+                            <FormControlLabel value="Residential" control={<Radio />} label="Residential" />
+                            <FormControlLabel value="other" control={<Radio />} label="Plot" />
                           </RadioGroup>
                         </FormControl>
                       </div>
@@ -325,17 +259,11 @@ function Home({ properties="all" }: HomeProps) {
                         className="genericContinueButton"
                         onClick={() => {
                           if (selectedPropertyType === "Residential") {
-                            navigate("/residential/create", {
-                              state: { mode: "create" },
-                            });
+                            navigate("/residential/create", { state: { mode: "create" } });
                           } else if (selectedPropertyType === "Commercial") {
-                            navigate("/commercial/create", {
-                              state: { mode: "create" },
-                            });
+                            navigate("/commercial/create", { state: { mode: "create" } });
                           } else if (selectedPropertyType === "other") {
-                            navigate("/plots/create", {
-                              state: { mode: "create" },
-                            });
+                            navigate("/plot/create", { state: { mode: "create" } });
                           } else {
                             alert("Please select a property type.");
                           }
@@ -347,7 +275,8 @@ function Home({ properties="all" }: HomeProps) {
               </div>
             </div>
           </div>
- 
+
+
           <div className="container">
             <div className="pending-approve">
               <Dashboardtab
@@ -362,7 +291,6 @@ function Home({ properties="all" }: HomeProps) {
     </div>
   );
 }
- 
+
+
 export default Home;
- 
- 
