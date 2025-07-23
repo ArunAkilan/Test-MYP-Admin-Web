@@ -5,7 +5,8 @@ import GenericButton from "../../../Common/Button/button";
 import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
 import DoneIcon from "@mui/icons-material/Done";
 import CloseIcon from "@mui/icons-material/Close";
-import { Button, Avatar, Alert, IconButton, Backdrop, CircularProgress, } from "@mui/material";
+//import { Button, Avatar, Alert, IconButton, Backdrop, CircularProgress, } from "@mui/material";
+import { Avatar, Alert, IconButton, Backdrop, CircularProgress, } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./createPlot.scss";
@@ -26,6 +27,14 @@ import {
 } from "@react-google-maps/api";
 import Tooltip from "@mui/material/Tooltip";
 import type { PlainObject } from "../createProperty.model";
+
+//cropping code starts here
+
+import Cropper from "react-easy-crop";
+import type { Area } from "react-easy-crop";
+import { Button as MuiButton, Modal, Slider } from "@mui/material";
+
+//cropping code ends here
 
 const containerStyle = {
   width: "100%",
@@ -201,6 +210,119 @@ function buildPayloadDynamic(formState: PlotFormState): PlotFormState {
 }
 
 export const CreatePlotProperty = () => {
+
+//cropping code starts here 
+  // ===== Cropping & Image Upload State =====
+  const MIN_WIDTH = 800;
+const MIN_HEIGHT = 600;
+const MAX_WIDTH = 1024;
+const MAX_HEIGHT = 768;
+const MAX_IMAGES = 12;
+
+//const [images, setImages] = useState<UploadedImage[]>([]);
+//const [_errors, setErrors] = useState<{ images?: string }>({});
+
+const [cropModalOpen, setCropModalOpen] = useState(false);
+const [fileToCrop, setFileToCrop] = useState<File | null>(null);
+const [imageSrc, setImageSrc] = useState<string | null>(null);
+const [crop, setCrop] = useState({ x: 0, y: 0 });
+const [zoom, setZoom] = useState(1);
+const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+const [previewImage, setPreviewImage] = useState<string | null>(null);
+
+// Handle file input change & open crop modal
+const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  setErrors({});
+
+  if (!file.type.startsWith("image/")) {
+    
+    toast.error(`Invalid file type: ${file.name}`);
+    e.target.value = "";
+    return;
+  }
+
+  if (images.length >= MAX_IMAGES) {
+    setErrors({ images: `Maximum ${MAX_IMAGES} images allowed.` });
+    e.target.value = "";
+    return;
+  }
+
+  const objectUrl = URL.createObjectURL(file);
+  setFileToCrop(file);
+  setImageSrc(objectUrl);
+  setCropModalOpen(true);
+  e.target.value = "";
+};
+
+// Cropper callback to get cropped area pixels
+const onCropComplete = useCallback((_: Area, croppedPixels: Area) => {
+  setCroppedAreaPixels(croppedPixels);
+}, []);
+
+// Crop the image, generate cropped file & add to images array
+const cropImage = async () => {
+  if (!imageSrc || !croppedAreaPixels || !fileToCrop) return;
+
+  const image = new Image();
+  image.src = imageSrc;
+  await image.decode();
+
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+
+  const TARGET_WIDTH = 1024;
+  const TARGET_HEIGHT = 768;
+  canvas.width = TARGET_WIDTH;
+  canvas.height = TARGET_HEIGHT;
+
+  if (ctx) {
+    ctx.filter = "brightness(1.05) contrast(1.1)";
+    ctx.drawImage(
+      image,
+      croppedAreaPixels.x,
+      croppedAreaPixels.y,
+      croppedAreaPixels.width,
+      croppedAreaPixels.height,
+      0,
+      0,
+      TARGET_WIDTH,
+      TARGET_HEIGHT
+    );
+
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+
+      const croppedFile = new File([blob], fileToCrop.name, {
+        type: "image/jpeg",
+      });
+      const previewUrl = URL.createObjectURL(blob);
+
+      setImages((prev) => [
+        ...prev,
+        { file: croppedFile, url: previewUrl, name: croppedFile.name, imageSize: croppedFile.size, },
+      ]);
+
+      // Reset crop modal state
+      setCropModalOpen(false);
+      setImageSrc(null);
+      setFileToCrop(null);
+      setCrop({ x: 0, y: 0 });
+      setZoom(1);
+      setCroppedAreaPixels(null);
+    }, "image/jpeg", 0.95);
+  }
+};
+
+// Remove image from preview list
+const removeImage = (index: number) => {
+  setImages((prevImages) => prevImages.filter((_, i) => i !== index));
+};
+
+//cropping code ends here
+
   // State for form data
   const navigate = useNavigate();
   const [firstName, setFirstName] = useState("");
@@ -523,9 +645,9 @@ export const CreatePlotProperty = () => {
       // Navigate after loading hidden and editing enabled
       const plotId = response?.data?._id;
       if (plotId) {
-        navigate(`/plots/view/${plotId}`);
+        navigate(`/plot/view/${plotId}`);
       } else {
-        navigate("/plots", {
+        navigate("/plot", {
           state: { data: response.data, showLoading: true },
         });
       }
@@ -1029,7 +1151,7 @@ export const CreatePlotProperty = () => {
                             <span className="transportTitles">BUS STAND</span>
                             <div className="transportCard d-flex gap-2">
                               <img
-                                src="/src/assets/createProperty/Icon_Bus.svg"
+                                src={`${import.meta.env.BASE_URL}/createProperty/Icon_Bus.svg`}
                                 alt="Bus"
                                 className="transportImg"
                               />
@@ -1045,7 +1167,7 @@ export const CreatePlotProperty = () => {
                             <span className="transportTitles">AIRPORT</span>
                             <div className="transportCard d-flex gap-2">
                               <img
-                                src="/src/assets/createProperty/ph_airplane-in-flight.svg"
+                                src={`${import.meta.env.BASE_URL}/createProperty/ph_airplane-in-flight.svg`}
                                 alt="Bus"
                                 className="transportImg"
                               />
@@ -1063,7 +1185,7 @@ export const CreatePlotProperty = () => {
                             <span className="transportTitles">METRO</span>
                             <div className="transportCard d-flex gap-2">
                               <img
-                                src="/src/assets/createProperty/hugeicons_metro.svg"
+                                src={`${import.meta.env.BASE_URL}/createProperty/hugeicons_metro.svg`}
                                 alt="Bus"
                                 className="transportImg"
                               />
@@ -1078,7 +1200,7 @@ export const CreatePlotProperty = () => {
                             <span className="transportTitles">RAILWAY</span>
                             <div className="transportCard d-flex gap-2">
                               <img
-                                src="/src/assets/createProperty/material-symbols-light_train-outline.svg"
+                                src={`${import.meta.env.BASE_URL}/createProperty/material-symbols-light_train-outline.svg`}
                                 alt="Bus"
                                 className="transportImg"
                               />
@@ -1094,14 +1216,175 @@ export const CreatePlotProperty = () => {
                     </div>
                   </div>
                 </div>
+                </section>
 
-                <div>
+                {/*new code for cropping functionalities*/}
+                <section>
                   <div className="ResidentialCategory mt-3">
                     <p>
                       Upload Property Images <span className="star">*</span>
                     </p>
                   </div>
-                  {/* Wrap the entire upload section inside a conditional class for error styling */}
+                
+                  <div className={`image-upload-wrapper ${errors.images ? "error-border" : ""}`}>
+                    <div className="preview-images d-flex gap-3 mt-2 image-scroll-container">
+                      {images.map((img, index) => (
+                        <div key={index} className="choosedImages position-relative">
+                          <img src={img.url} alt={`preview-${index}`} className="preview-img" style={{ cursor: 'pointer' }}
+                  onClick={() => setPreviewImage(img.url)}   />
+                          <div
+                            className="image-name mt-1 text-truncate"
+                            title={img.name}
+                            style={{
+                              fontSize: "12px",
+                              color: "#333",
+                              maxWidth: "100%",
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            }}
+                          >
+                            {img.name}
+                          </div>
+                          <button type="button" onClick={() => removeImage(index)} className="remove-btn">
+                            <img src={`${import.meta.env.BASE_URL}/createProperty/material-symbols_close-rounded.svg`} alt="Remove" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                
+                    <div
+                      className={`BtnFrame d-flex mt-3 mb-2 align-items-start gap-3 ${
+                        images.length > 0 ? "with-gap" : ""
+                      }`}
+                    >
+                      <p className="image-p">
+                        {images.length > 0
+                          ? `${images.length} image${images.length > 1 ? "s" : ""} chosen`
+                          : "No image chosen"}
+                      </p>
+                
+                      <input
+                        type="file"
+                        id="propertyImageUpload"
+                        style={{ display: "none" }}
+                        accept="image/*"
+                        
+                        onChange={handleFileChange}
+                      />
+                
+                      <MuiButton
+                        className="chooseBtn"
+                        variant="contained"
+                        startIcon={<FileUploadOutlinedIcon />}
+                        onClick={() => document.getElementById("propertyImageUpload")?.click()}
+                      >
+                        <span className="btnC">Choose image</span>
+                      </MuiButton>
+                
+                      <p className="imageDesc">Max. {MAX_IMAGES} Images</p>
+                    </div>
+                
+                    {errors.images && (
+                      <div className="text-danger mt-1" style={{ fontSize: "14px" }}>
+                        {errors.images}
+                      </div>
+                    )}
+                  </div>
+                
+                  <Modal open={cropModalOpen} onClose={() => setCropModalOpen(false)}>
+                    <div
+                      style={{
+                        background: "#fff",
+                        padding: 20,
+                        margin: "5% auto",
+                        width: "90%",
+                        maxWidth: 600,
+                      }}
+                    >
+                      {imageSrc && (
+                        <>
+                          <div style={{ position: "relative", width: "100%", height: 400 }}>
+                            <Cropper
+                              image={imageSrc}
+                              crop={crop}
+                              zoom={zoom}
+                              aspect={4 / 3}
+                              onCropChange={setCrop}
+                              onZoomChange={setZoom}
+                              onCropComplete={onCropComplete}
+                            />
+                          </div>
+                          <div style={{ marginTop: 20 }}>
+                            <Slider
+                              value={zoom}
+                              min={1}
+                              max={3}
+                              step={0.1}
+                              onChange={(_, value) => setZoom(value as number)}
+                            />
+                            <div style={{ marginTop: 10 }}>
+                              <button onClick={cropImage}>Crop</button>
+                              <button
+                                onClick={() => setCropModalOpen(false)}
+                                style={{ marginLeft: 10 }}
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                
+                        </>
+                      )}
+                      
+                    </div>
+                  </Modal>
+                </section>
+                
+                {previewImage && (
+                  <Modal open={true} onClose={() => setPreviewImage(null)}>
+                    <div
+                      style={{
+                        position: 'fixed',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        backgroundColor: '#fff',
+                        padding: 20,
+                        maxWidth: '90%',
+                        maxHeight: '90%',
+                        overflow: 'auto',
+                        boxShadow: '0 0 10px rgba(0,0,0,0.5)',
+                        zIndex: 1300,
+                      }}
+                    >
+                      <img
+                        src={previewImage}
+                        alt="Preview"
+                        style={{maxWidth: `${MAX_WIDTH}px`,
+                    maxHeight: `${MAX_HEIGHT}px`,
+                    minWidth: `${MIN_WIDTH}px`,
+                    minHeight: `${MIN_HEIGHT}px`,
+                    objectFit: 'contain'}}
+                      />
+                      <button onClick={() => setPreviewImage(null)} style={{ marginTop: 10 }}>
+                        Close Preview
+                      </button>
+                    </div>
+                  </Modal>
+                )}
+                
+                
+                {/*new code for cropping functionalities ends here */}
+                
+
+                { /* <div>
+                  <div className="ResidentialCategory mt-3">
+                    <p>
+                      Upload Property Images <span className="star">*</span>
+                    </p>
+                  </div>
+                  
                   <div
                     className={`image-upload-wrapper ${
                       errors.images ? "error-border" : ""
@@ -1152,15 +1435,15 @@ export const CreatePlotProperty = () => {
                       ))}
                     </div>
 
-                    {/* Upload Button and Text */}
+                    // {/* Upload Button and Text 
                     <div
                       className={`BtnFrame d-flex mt-3 mb-2 align-items-start gap-3 ${
                         images.length > 0 ? "with-gap" : ""
                       }`}
                     >
                       <p className="image-p">
-                        {/* {propertyImages
-                          ? propertyImages.name : "No image chosen"} */}
+                    //     {propertyImages
+                     //     ? propertyImages.name : "No image chosen"} 
                         {images && images.length > 0
                           ? `${images.length} image${
                               images.length > 1 ? "s" : ""
@@ -1227,7 +1510,7 @@ export const CreatePlotProperty = () => {
                       </Button>
                       <p className="imageDesc">Max. 12 Images</p>
                     </div>
-                    {/* Display validation error below upload block */}
+                    // Display validation error below upload block 
                     {errors.images && (
                       <div
                         className="text-danger mt-1"
@@ -1239,6 +1522,9 @@ export const CreatePlotProperty = () => {
                   </div>
                 </div>
               </section>
+
+              */ }
+
               {/* Property Layout Section */}
               <section className="PropertyLayoutDetails mb-4">
                 <div className="ownerTitle">

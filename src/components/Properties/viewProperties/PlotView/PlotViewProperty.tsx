@@ -108,13 +108,13 @@ const PlotView = () => {
 
     // Define both the toast message and the route for each status
     const actionMap: Record<string, { toastMessage: string; route: string }> = {
-      "0": { toastMessage: "Plot has been denied.", route: "/plots" },
-      "1": { toastMessage: "Plot approved successfully!", route: "/plots" },
-      "2": { toastMessage: "Plot deleted from listings.", route: "/plots" },
-      "3": { toastMessage: "Plot marked as sold.", route: "/plots" },
+      "0": { toastMessage: "Plot has been denied.", route: "/plot" },
+      "1": { toastMessage: "Plot approved successfully!", route: "/plot" },
+      "2": { toastMessage: "Plot deleted from listings.", route: "/plot" },
+      "3": { toastMessage: "Plot marked as sold.", route: "/plot" },
     };
 
-    const { toastMessage, route } = actionMap[status] || { toastMessage: "Action completed.", route: "/plots" };
+    const { toastMessage, route } = actionMap[status] || { toastMessage: "Action completed.", route: "/plot" };
 
     toast.success(toastMessage);
     navigate(route);

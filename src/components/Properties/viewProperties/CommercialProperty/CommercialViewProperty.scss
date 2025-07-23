@@ -210,18 +210,16 @@ span.inline-style {
 }
 
 .owner-info .inner-div {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 24px 0;
-  border: 1px solid #D3DDE7;
-  border-radius: 6px;
-      max-width: 425px;
-  width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 0;
+    border: 1px solid #D3DDE7;
+    border-radius: 6px;
+        max-width: 355px;
+    width: 100%;
 }
-.number-outer {
-  padding: 0 12px;
-}
+
 
 .owner-info img {
   width: max-content;
@@ -271,8 +269,9 @@ span.inline-style {
   font-weight: 600;
 }  
 .view-property-icon-inside {
-  display: flex;
-  gap: 16px;
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
 }
 .view-property-icon .btn {
   padding: 14px 24px;

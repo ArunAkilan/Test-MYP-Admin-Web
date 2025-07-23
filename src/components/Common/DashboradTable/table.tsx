@@ -8,7 +8,7 @@ import {
   Backdrop,
   CircularProgress,
 } from "@mui/material";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useMemo, useRef } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -21,7 +21,12 @@ import type {
   ResidentialProperty,
   PropertyViewWithSource
 } from "./table.model"; 
+import EmptyState from "../Emptystate/EmptyState";
 
+// type EmptyStateProps = {
+//   tabType: 'pending' | 'approved' | 'rejected' | 'deleted';
+//   onAction?: () => void;  // Optional click handler
+// };
 interface TableProps {
   //data: ResidentialProperty[];
   data: PropertyDataResponse | ResidentialProperty[];
@@ -39,6 +44,8 @@ interface TableProps {
     action: "Approve" | "Deny" | "Delete",
     item: ResidentialProperty
   ) => void;
+  tabType: 'pending' | 'approved' | 'rejected' | 'deleted';
+  onAction?: () => void;
 }
 
 export interface Property {
@@ -65,7 +72,7 @@ const modalStyle = {
   p: 4,
 };
 
-function Table({ data, properties, onScrollChange }: TableProps) {
+function Table({ data, properties, onScrollChange,tabType }: TableProps) {
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [isBackdropLoading, setIsBackdropLoading] = useState(false);
   const [popoverAnchorEl, setPopoverAnchorEl] = useState<HTMLElement | null>(
@@ -78,28 +85,22 @@ function Table({ data, properties, onScrollChange }: TableProps) {
 
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   // const [hideHeader, setHideHeader] = React.useState(false);
-  const [lastScrollY, setLastScrollY] = React.useState(0);
-  React.useEffect(() => {
-    const container = containerRef.current;
+  // const [lastScrollY, setLastScrollY] = React.useState(0);
+  const lastScrollYRef = useRef(0);
 
-    const handleScroll = () => {
-      if (container) {
-        onScrollChange(container.scrollTop);
-      }
+useEffect(() => {
+  const container = containerRef.current;
+  const handleScroll = () => {
+    const currentScrollY = container?.scrollTop || 0;
+    onScrollChange(currentScrollY);
 
-      // Show header when scrolling up
-      const currentScrollY = container?.scrollTop || 0;
-      if (currentScrollY < lastScrollY || currentScrollY < 50) {
-       // setHideHeader(false);
-      } else {
-       // setHideHeader(true);
-      }
-      setLastScrollY(currentScrollY);
-    };
+    // Use ref instead of state
+    lastScrollYRef.current = currentScrollY;
+  };
 
-    container?.addEventListener("scroll", handleScroll);
-    return () => container?.removeEventListener("scroll", handleScroll);
-  }, [onScrollChange, lastScrollY]);
+  container?.addEventListener("scroll", handleScroll);
+  return () => container?.removeEventListener("scroll", handleScroll);
+}, [onScrollChange]);
 
   useEffect(() => {
     if (selectedRows.length === 0) {
@@ -125,7 +126,7 @@ function Table({ data, properties, onScrollChange }: TableProps) {
     try {
       const token = localStorage.getItem("token"); // Safely retrieve the auth token
 
-      const response = await axios.put(
+      await axios.put(
         `${
           import.meta.env.VITE_BackEndUrl
         }/api/adminpermission`,
@@ -146,8 +147,6 @@ function Table({ data, properties, onScrollChange }: TableProps) {
           },
         }
       );
-      console.log("Status updated:", response.data);
-      console.log("editid", response?.data?._id);
     } catch {
       console.error("Failed to update status");
     }
@@ -226,11 +225,6 @@ function Table({ data, properties, onScrollChange }: TableProps) {
       alert("Property not found");
       return;
     }
-    if (!selectedItem) {
-      alert("Property not found");
-      return;
-    }
-
     const routeBase = selectedItem._source;
     // const routeBase = selectedItem._source;
 
@@ -283,17 +277,7 @@ function Table({ data, properties, onScrollChange }: TableProps) {
     }
   };
 
-  if (!Array.isArray(data)) {
-    const fallback =
-      data?.residential || data?.commercial || data?.plot;
 
-    if (Array.isArray(fallback)) {
-      data = fallback;
-    } else {
-      console.error("Expected 'data' to be an array but got:", data);
-      return <p>Error: Invalid data format</p>;
-    }
-  }
 
   // popover
   const handlePopoverClick = (event: React.MouseEvent<HTMLInputElement>) => {
@@ -387,19 +371,36 @@ function Table({ data, properties, onScrollChange }: TableProps) {
     });
   };
 
-  useEffect(() => {
-    checkScroll();
-    const el:any = scrollRef.current;
-    if (el) {
-      el.addEventListener("scroll", checkScroll);
-      window.addEventListener("resize", checkScroll);
-    }
-    return () => {
-      el?.removeEventListener("scroll", checkScroll);
-      window.removeEventListener("resize", checkScroll);
-    };
-  }, []);
+useEffect(() => {
+  checkScroll();
+  const el = scrollRef.current as HTMLElement | null;
 
+  el?.addEventListener("scroll", checkScroll);
+  window.addEventListener("resize", checkScroll);
+
+  return () => {
+    el?.removeEventListener("scroll", checkScroll);
+    window.removeEventListener("resize", checkScroll);
+  };
+}, []);
+
+  const formattedData = useMemo(() => {
+    if (!Array.isArray(data)) {
+      const fallback = data?.residential || data?.commercial || data?.plot;
+      return Array.isArray(fallback) ? fallback : [];
+    }
+    return data.map(item => ({
+      ...item,
+      _source: properties === "residentials" ? "residential" : 
+              properties === "commercials" ? "commercial" : 
+              properties === "plots" ? "plot" : "residential"
+    }));
+  }, [data, properties]);
+
+  // 3. Then do conditional rendering
+  if (formattedData.length === 0) {
+    return <p>No data available</p>; // Now this is safe
+  }
   return (
     <>
       <div
@@ -418,7 +419,9 @@ function Table({ data, properties, onScrollChange }: TableProps) {
               ◀
             </button>
           )}
-
+         {formatedData.length === 0 ? (
+             <EmptyState tabType={tabType} />
+          ) : (
         <div
           ref={scrollRef}
           className="table-scroll">
@@ -446,26 +449,26 @@ function Table({ data, properties, onScrollChange }: TableProps) {
                 <th>
                   <div className="th-content">
                     Listing Name
-                    <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                    <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                   </div>
                 </th>
                 <th>
                   <div className="th-content">
                     Area
-                    <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                    <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                   </div>
                 </th>
                 <th>
                   <div className="th-content">
                     Status
-                    <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                    <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                   </div>
                 </th>
                 {properties === "all" && (
                   <th>
                     <div className="th-content">
                       Floors
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                     </div>
                   </th>
                 )}
@@ -473,7 +476,7 @@ function Table({ data, properties, onScrollChange }: TableProps) {
                   <th>
                     <div className="th-content">
                       Floors
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                     </div>
                   </th>
                 )}
@@ -481,7 +484,7 @@ function Table({ data, properties, onScrollChange }: TableProps) {
                   <th>
                     <div className="th-content">
                       Floors
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                     </div>
                   </th>
                 )}
@@ -489,7 +492,7 @@ function Table({ data, properties, onScrollChange }: TableProps) {
                   <th>
                     <div className="th-content">
                       Facing
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                     </div>
                   </th>
                 )}
@@ -497,7 +500,7 @@ function Table({ data, properties, onScrollChange }: TableProps) {
                   <th>
                     <div className="th-content">
                       Facing
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                     </div>
                   </th>
                 )}
@@ -505,7 +508,7 @@ function Table({ data, properties, onScrollChange }: TableProps) {
                   <th>
                     <div className="th-content">
                       Facing
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                     </div>
                   </th>
                 )}
@@ -514,7 +517,7 @@ function Table({ data, properties, onScrollChange }: TableProps) {
                   <th>
                     <div className="th-content">
                       Furnish
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                     </div>
                   </th>
                 )}
@@ -522,7 +525,7 @@ function Table({ data, properties, onScrollChange }: TableProps) {
                   <th>
                     <div className="th-content">
                       Furnish
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                     </div>
                   </th>
                 )}
@@ -530,7 +533,7 @@ function Table({ data, properties, onScrollChange }: TableProps) {
                   <th>
                     <div className="th-content">
                       Wahroom
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                     </div>
                   </th>
                 )}
@@ -538,7 +541,7 @@ function Table({ data, properties, onScrollChange }: TableProps) {
                   <th>
                     <div className="th-content">
                       Wahroom
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                     </div>
                   </th>
                 )}
@@ -546,7 +549,7 @@ function Table({ data, properties, onScrollChange }: TableProps) {
                   <th>
                     <div className="th-content">
                       Plot Type
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                     </div>
                   </th>
                 )}
@@ -554,19 +557,19 @@ function Table({ data, properties, onScrollChange }: TableProps) {
                   <th>
                     <div className="th-content">
                       Plot Type
-                      <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                      <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                     </div>
                   </th>
                 )}
                 <th>
                   <div className="th-content">
                     Type
-                    <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                    <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                   </div>
                 </th>
                 <th className="link-h">
                   Link &nbsp;{" "}
-                  <img src="../src/assets/table/arrow-up.svg" alt="arrow" />
+                  <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
                 </th>
               </tr>
             </thead>
@@ -648,31 +651,31 @@ function Table({ data, properties, onScrollChange }: TableProps) {
                   <td className="Links">
                     <div className="link-wrap">
                       <img
-                        src="/src/assets/tabelimg/Eye view.svg"
+                        src={`${import.meta.env.BASE_URL}/tabelimg/Eye view.svg`}
                         alt="view"
                         onClick={() => item._id && handleView(item._id)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
-                        src="/Edit.svg"
+                        src={`${import.meta.env.BASE_URL}/Edit.svg`}
                         alt="edit"
                         onClick={() => handleEdit(item as unknown as ResidentialProperty)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
-                        src="/Approve.svg"
+                        src={`${import.meta.env.BASE_URL}/Approve.svg`}
                         alt="Approve"
                         onClick={() => handleOpenModal("Approve", item as unknown as ResidentialProperty)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
-                        src="/Deny.svg"
+                        src={`${import.meta.env.BASE_URL}/Deny.svg`}
                         alt="Deny"
                         onClick={() => handleOpenModal("Deny", item as unknown as ResidentialProperty)}
                         style={{ cursor: "pointer" }}
                       />
                       <img
-                        src="/Delete.svg"
+                        src={`${import.meta.env.BASE_URL}/Delete.svg`}
                         alt="Delete"
                         onClick={() => handleOpenModal("Delete", item as unknown as ResidentialProperty)}
                         style={{ cursor: "pointer" }}
@@ -724,7 +727,7 @@ function Table({ data, properties, onScrollChange }: TableProps) {
             </Popover>
           </table>
           </div>
-
+          )}
           {canScrollRight && (
             <button className="scroll-button right" onClick={() => scroll("right")}>
               ▶
