@@ -21,11 +21,12 @@ import type {
   ResidentialProperty,
   PropertyViewWithSource
 } from "./table.model"; 
+import EmptyState from "../Emptystate/EmptyState";
 
-type EmptyStateProps = {
-  tabType: 'pending' | 'approved' | 'rejected' | 'deleted';
-  onAction?: () => void;  // Optional click handler
-};
+// type EmptyStateProps = {
+//   tabType: 'pending' | 'approved' | 'rejected' | 'deleted';
+//   onAction?: () => void;  // Optional click handler
+// };
 interface TableProps {
   //data: ResidentialProperty[];
   data: PropertyDataResponse | ResidentialProperty[];
@@ -43,6 +44,8 @@ interface TableProps {
     action: "Approve" | "Deny" | "Delete",
     item: ResidentialProperty
   ) => void;
+  tabType: 'pending' | 'approved' | 'rejected' | 'deleted';
+  onAction?: () => void;
 }
 
 export interface Property {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState} from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./Dashboard.scss";
@@ -19,7 +19,7 @@ import {
   Alert,
   Skeleton,
 } from "@mui/material";
-import { useAppSelector } from "../../hook";
+// import { useAppSelector } from "../../hook";
 
 type PropertyType = "all" | "residentials" | "commercials" | "plots";
 
@@ -53,7 +53,7 @@ function Home({ properties  }: HomeProps) {
     plot: [],
   });
   const [loadingBackdrop, setLoadingBackdrop] = useState(false);
-   const activeTab = useAppSelector(state => state.tabs.currentTab);
+  //  const activeTab = useAppSelector(state => state.tabs.currentTab);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [hideHeader, setHideHeader] = useState(false);
@@ -64,7 +64,7 @@ function Home({ properties  }: HomeProps) {
 
   const location = useLocation();
   const navigate = useNavigate();
-
+  console.log("loadingBackdrop",loadingBackdrop)
   const headingMap: Record<PropertyType, string> = {
     all: "Dashboard",
     residentials: "Manage Residential Properties",

@@ -7,23 +7,14 @@ import SqrtImage from "../../../../assets/viewProperty/radix-icons_dimensions.sv
 import facingImage from "../../../../assets/viewProperty/Icon_Facing.svg";
 import dateImage from "../../../../assets/viewProperty/solar_calendar-outline.svg";
 import footStepImg from "../../../../assets/viewProperty/material-steps.svg";
-// import roomImg from "../../../../assets/viewProperty/material-room.svg";
-// import furnitureImg from "../../../../assets/viewProperty/streamline-block_shopping-furniture.svg";
-
-// import tree_outline from "../../../../assets/viewProperty/tree_outline.svg";
-
-// import mingcute_movie_line from "../../../../assets/viewProperty/mingcute_movie-line.svg";
-
 import Icon_Cleaning from "../../../../assets/viewProperty/Icon_Cleaning.svg";
 import water_full_outline from "../../../../assets/viewProperty/water-full-outline.svg";
 import Icon_Road from "../../../../assets/viewProperty/Icon_Road.svg";
 import Icon_restroom from "../../../../assets/viewProperty/Icon_restroom.svg";
 import Icon_Parking from "../../../../assets/viewProperty/Icon_Parking.svg";
 import Icon_Balcony from "../../../../assets/viewProperty/Icon_Balcony.svg";
-
 import solar_user from "../../../../assets/viewProperty/solar_user.svg";
 import ramp_up from "../../../../assets/viewProperty/ramp-up.svg";
-
 import Icon_Bus from "../../../../assets/viewProperty/Icon_Bus.png";
 import ph_airplane from "../../../../assets/viewProperty/ph_airplane-in-flight.png";
 import metro from "../../../../assets/viewProperty/hugeicons_metro.png";
@@ -42,62 +33,17 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 import ViewCarousel from "../../../Common/ViewCarousel/ViewCarousel";
-
+ 
 interface PropertyResponse {
   property: PlotProperty;
 }
-
+ 
 const PlotView = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const propertyData = location.state?.data as PlotProperty;
-
-  const { id } = useParams();
   const token = localStorage.getItem("token");
 
   const [property, setProperty] = useState<PropertyResponse | null>(null);
-console.log("property",property)
-const latitudeRaw = property?.property?.location?.map?.latitude;
-const longitudeRaw = property?.property?.location?.map?.longitude;
-
-const latitude =
-  typeof latitudeRaw === "number"
-    ? latitudeRaw
-    : typeof latitudeRaw === "string" && !isNaN(parseFloat(latitudeRaw))
-    ? parseFloat(latitudeRaw)
-    : undefined;
-
-const longitude =
-  typeof longitudeRaw === "number"
-    ? longitudeRaw
-    : typeof longitudeRaw === "string" && !isNaN(parseFloat(longitudeRaw))
-    ? parseFloat(longitudeRaw)
-    : undefined;
-
-
-  if (!propertyData) {
-    return <p className="mt-5">No property data found</p>;
-  }
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  useEffect(() => {
-    axios
-      .get(
-        `${
-          import.meta.env.VITE_BackEndUrl
-        }/api/plot/${id}`,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            "Authorization":`Bearer ${localStorage.getItem("token")}`
-          },
-        }
-      )
-      .then((res) => setProperty(res.data))
-      .catch((err) => console.error("Error fetching property:", err));
-  }, [id]);
-
-  if (!property) return <div>Loading...</div>;
-
 
   useEffect(() => {
     console.log(
@@ -220,7 +166,7 @@ if (!property) return <div>Loading...</div>;
             </button>
             <button className="btn detail-status-type">Rented out</button>
           </div>
-
+ 
           <p className="lead mb-3">
             Property for {property?.property?.propertyType}
           </p>
@@ -273,7 +219,7 @@ if (!property) return <div>Loading...</div>;
           </div>
         </div>
       </section>
-
+ 
       <section className="midDetails">
         <h3>Property Overview</h3>
         <div className="row gap-4 data-detail-row">
@@ -308,7 +254,7 @@ if (!property) return <div>Loading...</div>;
                 </span>
               </div>
             )}
-
+ 
             {property?.property?.facingDirection && (
               <div className="col-md-2 row-individual-data">
                 <p>FACING</p>
@@ -318,7 +264,7 @@ if (!property) return <div>Loading...</div>;
                 </span>
               </div>
             )}
-
+ 
             {property?.property?.createdAt && (
               <div className="col-md-2 row-individual-data">
                 <p>POSTED ON</p>
@@ -327,11 +273,11 @@ if (!property) return <div>Loading...</div>;
                   {property.property.createdAt}
                 </span>
               </div>
-            )}   
+            )}  
           </div>
         </section>
       )}
-
+ 
       {(property?.property?.facility?.washRoom ||
         property?.property?.facility?.waterFacility ||
         property?.property?.facility?.roadFacility ||
@@ -350,7 +296,7 @@ if (!property) return <div>Loading...</div>;
                 </span>
               </div>
             )}
-
+ 
             {property?.property?.facility?.waterFacility && (
               <div className="col-md-2 row-individual-data">
                 <p>WATER FACILITY</p>
@@ -360,7 +306,7 @@ if (!property) return <div>Loading...</div>;
                 </span>
               </div>
             )}
-
+ 
             {property?.property?.facility?.roadFacility && (
               <div className="col-md-2 row-individual-data">
                 <p>ROAD FACILITY</p>
@@ -370,7 +316,7 @@ if (!property) return <div>Loading...</div>;
                 </span>
               </div>
             )}
-
+ 
             {property?.property?.facility?.tilesOnFloor && (
               <div className="col-md-2 row-individual-data">
                 <p>TILES ON FLOOR</p>
@@ -380,7 +326,7 @@ if (!property) return <div>Loading...</div>;
                 </span>
               </div>
             )}
-
+ 
             {property?.property?.facility?.parking && (
               <div className="col-md-2 row-individual-data">
                 <p>PARKING</p>
@@ -390,7 +336,7 @@ if (!property) return <div>Loading...</div>;
                 </span>
               </div>
             )}
-
+ 
             {property?.property?.facility?.readyToOccupy && (
               <div className="col-md-2 row-individual-data">
                 <p>READY TO OCCUPY</p>
@@ -403,7 +349,7 @@ if (!property) return <div>Loading...</div>;
           </div>
         </section>
       )}
-
+ 
       {(property?.property?.accessibility?.ramp ||
         property?.property?.accessibility?.steps ||
         property?.property?.accessibility?.lift) && (
@@ -420,7 +366,7 @@ if (!property) return <div>Loading...</div>;
                 </span>
               </div>
             )}
-
+ 
             {/* STAIR ACCESS */}
             {property?.property?.accessibility?.steps && (
               <div className="col-md-2 row-individual-data">
@@ -431,7 +377,7 @@ if (!property) return <div>Loading...</div>;
                 </span>
               </div>
             )}
-
+ 
             {/* LIFT */}
             {property?.property?.accessibility?.lift && (
               <div className="col-md-2 row-individual-data">
@@ -455,7 +401,7 @@ if (!property) return <div>Loading...</div>;
             apartment offers a carpet area of 800 sq ft, ensuring ample room for
             cozy living.
           </p>
-
+ 
           <p className="mb-0">
             This South-facing home invites natural light throughout the day and
             features unfurnished interiors—ideal for tenants who prefer to style
@@ -533,7 +479,7 @@ if (!property) return <div>Loading...</div>;
           </div>
         </div>
       </section>
-
+ 
       <section className="midDetails">
         <h3>Owner Information</h3>
         <div className="owner-info gap-2 row">
@@ -561,7 +507,7 @@ if (!property) return <div>Loading...</div>;
       </section>
       <section className="midDetails">
         <div className="area-icon ">
-
+ 
           <div className="view-property-icon ">
             <h3>Action</h3>
             <div className="view-property-icon-inside">

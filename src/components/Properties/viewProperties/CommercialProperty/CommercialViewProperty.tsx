@@ -145,30 +145,6 @@ const CommercialView = () => {
       ? parseFloat(longitudeRaw)
       : undefined;
 
-
-  if (!propertyData) {
-    return <p className="mt-5">No property data found</p>;
-  }
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  useEffect(() => {
-    axios
-      .get(
-        `${
-          import.meta.env.VITE_BackEndUrl
-        }/api/commercial/${id}`,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            "Authorization":`Bearer ${localStorage.getItem("token")}`
-          },
-        }
-      )
-      .then((res) => setProperty(res.data))
-      .catch((err) => console.error("Error fetching property:", err));
-  }, [id]);
-
-  if (!property) return <div>Loading...</div>;
-
   return (
     <section className="container pt-4">
       <div className="breadcrumb">
@@ -532,7 +508,7 @@ const CommercialView = () => {
 
       <section className="midDetails">
         <h3>Owner Information</h3>
-        <div className="owner-info gap-2 row">
+        <div className="owner-info row">
           <div className="name inner-div col-md-4">
             <img src={solar_user} alt="solar_user" />
             <p>Name</p>
