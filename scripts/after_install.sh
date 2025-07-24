@@ -12,4 +12,4 @@ fi
 
 # Login to ECR
 echo "Logging into ECR..."
-aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 434648646586.dkr.ecr.ap-south-1.amazonaws.com
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 434648646586.dkr.ecr.us-east-1.amazonaws.com
