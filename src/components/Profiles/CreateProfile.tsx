@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createProfile } from "./Services/profileService";
 import type { Profile } from "./ProfileDashboard/ProfileDashboard.model";
+import "./Services/service.scss"
 
 function CreateProfile() {
   const navigate = useNavigate();
@@ -55,9 +56,10 @@ function CreateProfile() {
   };
 
   return (
-    <div>
-      <h2>Create Profile</h2>
-      <form onSubmit={handleSubmit}>
+  <div className="create-profile-wrapper">
+    <div className="create-profile-paper">
+      <h2 className="create-profile-title">Create Profile</h2>
+      <form className="create-profile-form" onSubmit={handleSubmit}>
         <input
           name="profileInformation.firstName"
           placeholder="First Name"
@@ -104,10 +106,14 @@ function CreateProfile() {
           placeholder="Description"
           onChange={handleChange}
         />
-        <button type="submit">Create</button>
+        <button type="submit" className="create-profile-button">
+          Create Profile
+        </button>
       </form>
     </div>
-  );
+  </div>
+);
+
 }
 
 export default CreateProfile;

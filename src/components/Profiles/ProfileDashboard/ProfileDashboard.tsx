@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAllProfiles, deleteProfile } from "../Services/profileService";
 import "./ProfileDashboard.scss";
+import PersonIcon from '@mui/icons-material/Person';
+import AddIcon from '@mui/icons-material/Add';
 
-function ProfileDashboard() {
+function AdminAllProfile() {
   const [profiles, setProfiles] = useState<any>([]);
   const navigate = useNavigate();
 
@@ -25,9 +27,12 @@ function ProfileDashboard() {
 
   return (
     <div className="dashboard">
-      <h2>Profiles</h2>
-      <button onClick={() => navigate("/profile/create")}>+ Create New</button>
-      <table>
+      <div className="profile-title">
+        <h2 className="page-title">< PersonIcon style={{ color: "#4CAF50",fontSize: "28px" }} />&nbsp; Profiles</h2>
+        <button onClick={() => navigate("/profile/create")} className="create-btn"><AddIcon style={{ fontSize: "14px" }} /> Create New</button>
+      </div>
+      
+      <table className="profile-table">
         <thead>
           <tr>
             <th>Name</th>
@@ -43,11 +48,11 @@ function ProfileDashboard() {
                 {p.profileInformation.firstName} {p.profileInformation.lastName}
               </td>
               <td>{p.contactInformation.primaryPhone}</td>
-              <td>{p.role}</td>
+              <td className={`role-tag ${p.role.toLowerCase()}`}> <span>{p.role}</span> </td>
               <td>
-                <button onClick={() => navigate(`/profile/view/${p._id}`)}>View</button>
-                <button onClick={() => navigate(`/profile/edit/${p._id}`)}>Edit</button>
-                <button onClick={() => handleDelete(p._id)}>Delete</button>
+                <button className="view-btn" onClick={() => navigate(`/profile/view/${p._id}`)}>View</button>
+                <button className="edit-btn" onClick={() => navigate(`/profile/edit/${p._id}`)}>Edit</button>
+                <button className="delete-btn" onClick={() => handleDelete(p._id)}>Delete</button>
               </td>
             </tr>
           ))}
@@ -57,4 +62,4 @@ function ProfileDashboard() {
   );
 }
 
-export default ProfileDashboard;
+export default AdminAllProfile;

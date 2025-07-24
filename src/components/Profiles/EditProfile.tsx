@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import type { Profile } from "./ProfileDashboard/ProfileDashboard.model";
 import { getProfileById, updateProfile } from "./Services/profileService";
 import { Box } from "@mui/material";
+import "./Services/service.scss"
 
 function EditProfile() {
   const { id } = useParams();
@@ -12,8 +13,8 @@ function EditProfile() {
   useEffect(() => {
     const fetch = async () => {
       const getToken = localStorage.getItem("token");
-      const data:any = await getProfileById(id, getToken );
-      console.log(data, "data.data",data.data)
+      const data: any = await getProfileById(id, getToken);
+      console.log(data, "data.data", data.data);
       setForm(data.data);
     };
     fetch();
@@ -41,7 +42,7 @@ function EditProfile() {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     const getToken = localStorage.getItem("token");
-    console.log("getTOken", getToken)
+    console.log("getTOken", getToken);
     await updateProfile(id, form, getToken);
     navigate("/profile");
   };
@@ -49,48 +50,54 @@ function EditProfile() {
   if (!form) return <div>Loading...</div>;
 
   return (
-    <Box sx={{margin:"80px 0"}}>
-     <Link to="/profile">Back</Link>
-      <h2>Edit Profile</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          name="profileInformation.firstName"
-          value={form.profileInformation?.firstName || ""}
-          onChange={handleChange}
-        />
-        <input
-          name="profileInformation.lastName"
-          value={form.profileInformation?.lastName || ""}
-          onChange={handleChange}
-        />
-        <input
-          name="profileInformation.gender"
-          value={form.profileInformation?.gender || ""}
-          onChange={handleChange}
-        />
-        <input
-          name="contactInformation.email"
-          value={form.contactInformation?.email || ""}
-          onChange={handleChange}
-        />
-        <input
-          name="contactInformation.primaryPhone"
-          value={form.contactInformation?.primaryPhone || ""}
-          onChange={handleChange}
-        />
-        <select name="role" onChange={handleChange} value={form.role}>
-          <option value="Admin">Admin</option>
-          <option value="Marketing">Marketing</option>
-          <option value="User">User</option>
-        </select>
-        <input
-          name="description"
-          value={form.description || ""}
-          onChange={handleChange}
-        />
-        <button type="submit">Update</button>
-      </form>
-    </Box>
+    <div className="edit-profile-wrapper">
+      <div className="edit-profile-paper">
+        <Link to="/profile" className="edit-profile-back">
+          ← Back
+        </Link>
+        <h2 className="edit-profile-title">Edit Profile</h2>
+        <form className="edit-profile-form" onSubmit={handleSubmit}>
+          <input
+            name="profileInformation.firstName"
+            value={form.profileInformation?.firstName || ""}
+            onChange={handleChange}
+          />
+          <input
+            name="profileInformation.lastName"
+            value={form.profileInformation?.lastName || ""}
+            onChange={handleChange}
+          />
+          <input
+            name="profileInformation.gender"
+            value={form.profileInformation?.gender || ""}
+            onChange={handleChange}
+          />
+          <input
+            name="contactInformation.email"
+            value={form.contactInformation?.email || ""}
+            onChange={handleChange}
+          />
+          <input
+            name="contactInformation.primaryPhone"
+            value={form.contactInformation?.primaryPhone || ""}
+            onChange={handleChange}
+          />
+          <select name="role" onChange={handleChange} value={form.role}>
+            <option value="Admin">Admin</option>
+            <option value="Marketing">Marketing</option>
+            <option value="User">User</option>
+          </select>
+          <input
+            name="description"
+            value={form.description || ""}
+            onChange={handleChange}
+          />
+          <button type="submit" className="edit-profile-button">
+            Update Profile
+          </button>
+        </form>
+      </div>
+    </div>
   );
 }
 
