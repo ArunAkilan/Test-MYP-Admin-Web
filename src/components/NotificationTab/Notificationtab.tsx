@@ -61,7 +61,12 @@ export default function Notificationtab() {
   };
   //Socket IO
   useEffect(() => {
-    axios.get<NotificationResponse>(`${ENDPOINT}/api/notifications`)
+    const token = localStorage.getItem("token");
+    axios.get<NotificationResponse>(`${ENDPOINT}/api/notifications`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
       .then((res) => {
          setNotifications(res.data.notifications);
       });

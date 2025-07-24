@@ -22,7 +22,7 @@ function ViewProfile() {
   return (
     <div className="view-profile-wrapper">
       <div className="profile-container">
-          <Link to="/profile" className="back-link">Back</Link>
+          <Link to="/allprofile" className="back-link">Back</Link>
           <div className="card">
         <h2>View Profile</h2>
         <p className="detail">
