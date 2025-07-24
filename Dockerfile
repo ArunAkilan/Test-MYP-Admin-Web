@@ -1,12 +1,16 @@
-# Stage 1: Build
-FROM node:18-alpine AS builder
-WORKDIR /app
-COPY . .
-#RUN npm install && npm run build
-RUN npm install
-
-# Stage 2: Serve with nginx
+# Use lightweight Nginx image
 FROM nginx:alpine
-COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Remove default nginx site
+RUN rm -rf /usr/share/nginx/html/*
+
+# Copy custom nginx config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copy Vite build output
+COPY dist/ /usr/share/nginx/html/admin/
+
+# Expose web port
 EXPOSE 80
+
 CMD ["nginx", "-g", "daemon off;"]
