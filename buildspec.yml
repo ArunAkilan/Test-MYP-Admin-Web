@@ -2,7 +2,7 @@ version: 0.2
 
 env:
   variables:
-    IMAGE_REPO_NAME: "prh_web_2"  # Your ECR repo name
+    ECR_REPO_NAME: "prh_web_2"  # Your ECR repo name
     REGION: "us-east-1"                  # Your AWS region
     AWS_ACCOUNT_ID: "434648646586"
 
