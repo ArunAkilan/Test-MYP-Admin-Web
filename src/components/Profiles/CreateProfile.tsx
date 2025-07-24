@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createProfile } from "./Services/profileService";
 import type { Profile } from "./ProfileDashboard/ProfileDashboard.model";
+import "./Services/service.scss"
+import { Link } from "react-router-dom";
 
 function CreateProfile() {
   const navigate = useNavigate();
@@ -51,13 +53,17 @@ function CreateProfile() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     await createProfile(form);
-    navigate("/profile");
+    navigate("/allprofile");
   };
 
   return (
-    <div>
-      <h2>Create Profile</h2>
-      <form onSubmit={handleSubmit}>
+  <div className="create-profile-wrapper">
+    <div className="create-profile-paper">
+      <Link to="/allprofile" className="edit-profile-back">
+          ← Back
+        </Link>
+      <h2 className="create-profile-title">Create Profile</h2>
+      <form className="create-profile-form" onSubmit={handleSubmit}>
         <input
           name="profileInformation.firstName"
           placeholder="First Name"
@@ -78,8 +84,6 @@ function CreateProfile() {
         >
           <option value="Male">Male</option>
           <option value="Female">Female</option>
-          <option value="Others">Others</option>
-          <option value="Prefer not to say">Prefer not to say</option>
         </select>
 
         <input
@@ -98,16 +102,21 @@ function CreateProfile() {
           <option value="Admin">Admin</option>
           <option value="Marketing">Marketing</option>
           <option value="User">User</option>
+          <option value="SuperAdmin">Super Admin</option>
         </select>
         <input
           name="description"
           placeholder="Description"
           onChange={handleChange}
         />
-        <button type="submit">Create</button>
+        <button type="submit" className="create-profile-button">
+          Create Profile
+        </button>
       </form>
     </div>
-  );
+  </div>
+);
+
 }
 
 export default CreateProfile;

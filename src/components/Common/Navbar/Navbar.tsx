@@ -86,8 +86,13 @@ const Header: React.FC<HeaderProps> = ({
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
     axios
-      .get<{ notifications: Notification[] }>(`${ENDPOINT}/api/notifications`)
+      .get<{ notifications: Notification[] }>(`${ENDPOINT}/api/notifications`,{
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
       .then((res) => setNotifications(res.data.notifications));
 
     const sock = io(ENDPOINT);
@@ -138,10 +143,10 @@ const Header: React.FC<HeaderProps> = ({
                 isCollapsed ? "show" : ""
               }`}
             >
-              <div className="col-8">
+              <div className="col-9">
                 <AutoCompleteWithSelect />
               </div>
-              <div className="col-4 bell">
+              <div className="col-3 bell">
                 <img
                   src={`${import.meta.env.BASE_URL}/Vector.svg`}
                   alt="setting svg"
@@ -149,7 +154,10 @@ const Header: React.FC<HeaderProps> = ({
                 />
                 <div className="bell-image">
                   <button aria-describedby={idFirst} onClick={handleFirstClick}>
-                    <img src={`${import.meta.env.BASE_URL}/BTN_Notification.svg`} alt="Notification svg" />
+                    <img
+                      src={`${import.meta.env.BASE_URL}/BTN_Notification.svg`}
+                      alt="Notification svg"
+                    />
 
                     <div className="notifyround">{notifications?.length}</div>
                   </button>
@@ -160,12 +168,12 @@ const Header: React.FC<HeaderProps> = ({
                     anchorEl={firstAnchorEl} // anchor to the clicked element
                     onClose={handleCloseFirst}
                     anchorOrigin={{
-                      vertical: "bottom", // bottom of the source element
-                      horizontal: "center", // horizontal center of the source element
+                      vertical: "bottom", // Bottom edge of the source element
+                      horizontal: "right", // Right edge of the source element
                     }}
                     transformOrigin={{
-                      vertical: "top", // top edge of the popover
-                      horizontal: "right", // right edge of the popover
+                      vertical: "top", // Top edge of the popover
+                      horizontal: "right", // Right edge of the popover
                     }}
                   >
                     <div className="notification-popover">
@@ -193,37 +201,45 @@ const Header: React.FC<HeaderProps> = ({
                   anchorEl={secondAnchorEl} // the clicked element
                   onClose={handleCloseSecond}
                   anchorOrigin={{
-                    vertical: "bottom", // bottom of the source element
-                    horizontal: "center", // horizontal center of the source element
+                    vertical: "bottom",
+                    horizontal: "right", 
                   }}
                   transformOrigin={{
-                    vertical: "top", // top edge of the popover
-                    horizontal: "right", // right edge of the popover
+                    vertical: "top", 
+                    horizontal: "right", 
                   }}
                 >
                   <div className="admin-btn-popover">
                     <div  onClick={gotoProfile} className="row admin-btn-popup-top admin-popup-cmn-div">
                       <img
-                        src={`${import.meta.env.BASE_URL}/navbar/iconamoon_profile-bold.svg`}
+                        src={`${
+                          import.meta.env.BASE_URL
+                        }/navbar/iconamoon_profile-bold.svg`}
                         alt="profile"
                         className="col-2"
                       />
                       <p className="col-8">Profile</p>
                       <img
-                        src={`${import.meta.env.BASE_URL}/navbar/icon-park-outline_down.svg`}
+                        src={`${
+                          import.meta.env.BASE_URL
+                        }/navbar/icon-park-outline_down.svg`}
                         alt="side-arrow"
                         className="col-2"
                       />
                     </div>
                     <div className="row admin-btn-popup-middle admin-popup-cmn-div">
                       <img
-                        src={`${import.meta.env.BASE_URL}/navbar/propertiesIcon.svg`}
+                        src={`${
+                          import.meta.env.BASE_URL
+                        }/navbar/propertiesIcon.svg`}
                         alt="propertiesIcon"
                         className="col-2"
                       />
                       <p className="col-8">Posted Properties</p>
                       <img
-                        src={`${import.meta.env.BASE_URL}/navbar/icon-park-outline_down.svg`}
+                        src={`${
+                          import.meta.env.BASE_URL
+                        }/navbar/icon-park-outline_down.svg`}
                         alt="side-arrow"
                         className="col-2"
                       />
@@ -233,7 +249,9 @@ const Header: React.FC<HeaderProps> = ({
                       className="row admin-btn-popup-bottom admin-popup-cmn-div"
                     >
                       <img
-                        src={`${import.meta.env.BASE_URL}/navbar/mynaui_logout.svg`}
+                        src={`${
+                          import.meta.env.BASE_URL
+                        }/navbar/mynaui_logout.svg`}
                         alt="logout"
                         className="col-2"
                       />
