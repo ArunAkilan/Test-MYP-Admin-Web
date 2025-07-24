@@ -31,7 +31,7 @@
   position: relative;
   text-align: end;
 }
-.admin {
+.header-wrap .admin {
   display: flex;
   justify-content: flex-end;
   width: 100%;
@@ -224,7 +224,7 @@
 }
 
 @media only screen and (max-width:992px) {
-      .admin {
+      .header-wrap .admin {
         flex-direction: column;
         align-items: center !important;
         padding: 20px 0px;

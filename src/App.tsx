@@ -34,7 +34,7 @@ import { useMediaQuery } from "@mui/material";
 import CreateProfile from "./components/Profiles/CreateProfile";
 import EditProfile from "./components/Profiles/EditProfile";
 import ViewProfile from "./components/Profiles/ViewProfile";
-import ProfileDashboard from "./components/Profiles/ProfileDashboard/ProfileDashboard";
+import AdminAllProfile from "./components/Profiles/ProfileDashboard/ProfileDashboard";
 
 function AppRoutes() {
   const location = useLocation();
@@ -209,10 +209,10 @@ function AppRoutes() {
             <Route path="/residential/view/:id" element={<ViewProperty />} />
             <Route path="/commercial/view/:id" element={<CommercialView />} />
 
-            <Route path="/profile" element={<ProfileDashboard />} />
-            <Route path="/profile/create" element={<CreateProfile />} />
-            <Route path="/profile/edit/:id" element={<EditProfile />} />
-            <Route path="/profile/view/:id" element={<ViewProfile />} />
+            <Route path="/allProfile" element={<AdminAllProfile />} />
+            <Route path="/allProfile/create" element={<CreateProfile />} />
+            <Route path="/allProfile/edit/:id" element={<EditProfile />} />
+            <Route path="/allProfile/view/:id" element={<ViewProfile />} />
           </Route>
         </Routes>
       </div>
