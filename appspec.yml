@@ -1,0 +1,13 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /ubuntu/app  # adjust as needed
+
+hooks:
+  AfterInstall:
+    - location: scripts/stop_container.sh
+      timeout: 60
+  ApplicationStart:
+    - location: scripts/start_container.sh
+      timeout: 60
