@@ -26,4 +26,5 @@ phases:
 artifacts:
   files:
     - appspec.yml
-    - scripts/**  # deployment lifecycle scripts
+    - scripts/**
+    - image_tag.txt
