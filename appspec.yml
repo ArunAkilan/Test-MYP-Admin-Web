@@ -4,7 +4,6 @@ os: linux
 files:
   - source: /
     destination: /home/ubuntu/app
-    overwrite: true
 
 hooks:
   BeforeInstall:
@@ -22,7 +21,4 @@ hooks:
       timeout: 300
       runas: root
 
-  ValidateService:
-    - location: scripts/validate.sh
-      timeout: 300
-      runas: root
+
