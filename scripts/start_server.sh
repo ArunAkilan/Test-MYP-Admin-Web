@@ -16,5 +16,9 @@ if [ "$(docker ps -aq -f name=^${CONTAINER_NAME}$)" ]; then
 fi
 
 # Run new container
-docker run -d --name "$CONTAINER_NAME" -p 80:80 "$REPO_URI:$IMAGE_TAG"
+docker run -e VITE_REACT_ST_OAUTH_DEMO_CLIENT_ID=66760581762-t0v73nov7mtgq1n8a5r5nqka5vit22ss.apps.googleusercontent.com \
+  -e VITE_BackEndUrl=http://13.203.171.5:3002 \
+  -e VITE_BackEndUrlProfile=http://13.203.171.5:3001 \
+  -e VITE_GOOGLE_MAPS_API_KEY=AIzaSyC5nev5mSL-f_zbhc-vOvUgMtzopcYGpEk \
+ -d --name "$CONTAINER_NAME" -p 80:80 "$REPO_URI:$IMAGE_TAG"
 echo "Started container: $CONTAINER_NAME"
