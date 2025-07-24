@@ -1710,7 +1710,7 @@ const removeImage = (index: number) => {
                       icon={
                         <Avatar
                           alt="Separate Electricity Billing"
-                          src="/src/assets/createProperty/mage_electricity.svg"
+                          src={`${import.meta.env.BASE_URL}/createProperty/mage_electricity.svg`}
                           className="avatarImg"
                         />
                       }
@@ -1731,7 +1731,7 @@ const removeImage = (index: number) => {
                       icon={
                         <Avatar
                           alt="Public Park"
-                          src="/src/assets/createProperty/material-symbols_park-outline-rounded.svg"
+                          src={`${import.meta.env.BASE_URL}/createProperty/material-symbols_park-outline-rounded.svg`}
                           className="avatarImg"
                         />
                       }
@@ -1752,7 +1752,7 @@ const removeImage = (index: number) => {
                       icon={
                         <Avatar
                           alt="Gym"
-                          src="/src/assets/createProperty/hugeicons_equipment-gym-03.svg"
+                          src={`${import.meta.env.BASE_URL}/createProperty/hugeicons_equipment-gym-03.svg`}
                           className="avatarImg"
                         />
                       }
@@ -1772,7 +1772,7 @@ const removeImage = (index: number) => {
                       icon={
                         <Avatar
                           alt="Movie Theater"
-                          src="/src/assets/createProperty/mingcute_movie-line.svg"
+                          src={`${import.meta.env.BASE_URL}/createProperty/mingcute_movie-line.svg`}
                           className="avatarImg"
                         />
                       }
@@ -1792,7 +1792,7 @@ const removeImage = (index: number) => {
                       icon={
                         <Avatar
                           alt="Shopping Mall"
-                          src="/src/assets/createProperty/material-symbols_local-mall-outline.svg"
+                          src={`${import.meta.env.BASE_URL}/createProperty/material-symbols_local-mall-outline.svg`}
                           className="avatarImg"
                         />
                       }
@@ -1830,7 +1830,7 @@ const removeImage = (index: number) => {
                       icon={
                         <Avatar
                           alt="Lift Access"
-                          src="/src/assets/createProperty/Icon_Lift.svg"
+                          src={`${import.meta.env.BASE_URL}/createProperty/Icon_Lift.svg`}
                           className="avatarImg"
                         />
                       }
@@ -1851,7 +1851,7 @@ const removeImage = (index: number) => {
                       icon={
                         <Avatar
                           alt="Ramp Access"
-                          src="/src/assets/createProperty/guidance_ramp-up.svg"
+                          src={`${import.meta.env.BASE_URL}/createProperty/guidance_ramp-up.svg`}
                           className="avatarImg"
                         />
                       }
@@ -1872,7 +1872,7 @@ const removeImage = (index: number) => {
                       icon={
                         <Avatar
                           alt="Only via Stairs"
-                          src="/src/assets/createProperty/tabler_stairs.svg"
+                          src={`${import.meta.env.BASE_URL}/createProperty/tabler_stairs.svg`}
                           className="avatarImg"
                         />
                       }
@@ -1910,7 +1910,7 @@ const removeImage = (index: number) => {
                       icon={
                         <Avatar
                           alt="Lift Access"
-                          src="/src/assets/createProperty/Group.svg"
+                          src={`${import.meta.env.BASE_URL}/createProperty/Group.svg`}
                           className="avatarImg"
                         />
                       }
@@ -1931,7 +1931,7 @@ const removeImage = (index: number) => {
                       icon={
                         <Avatar
                           alt="Ramp Access"
-                          src="/src/assets/createProperty/mingcute_user-security-line.svg"
+                          src={`${import.meta.env.BASE_URL}/createProperty/mingcute_user-security-line.svg`}
                           className="avatarImg"
                         />
                       }
@@ -1968,7 +1968,7 @@ const removeImage = (index: number) => {
                         icon={
                           <Avatar
                             alt="Regular Maintenance Included"
-                            src="/src/assets/createProperty/Icon_Cleaning.svg"
+                            src={`${import.meta.env.BASE_URL}/createProperty/Icon_Cleaning.svg`}
                             className="avatarImg"
                           />
                         }
@@ -1989,7 +1989,7 @@ const removeImage = (index: number) => {
                         icon={
                           <Avatar
                             alt="Water Supply Available"
-                            src="/src/assets/createProperty/material-symbols_water-full-outline.svg"
+                            src={`${import.meta.env.BASE_URL}/createProperty/material-symbols_water-full-outline.svg`}
                             className="avatarImg"
                           />
                         }
@@ -2010,7 +2010,7 @@ const removeImage = (index: number) => {
                         icon={
                           <Avatar
                             alt="Good Road Access"
-                            src="/src/assets/createProperty/Icon_Road.svg"
+                            src={`${import.meta.env.BASE_URL}/createProperty/Icon_Road.svg`}
                             className="avatarImg"
                           />
                         }
@@ -2033,7 +2033,7 @@ const removeImage = (index: number) => {
                         icon={
                           <Avatar
                             alt="Sewage Connection Available"
-                            src="/src/assets/createProperty/Icon_restroom.svg"
+                            src={`${import.meta.env.BASE_URL}/createProperty/Icon_restroom.svg`}
                             className="avatarImg"
                           />
                         }
@@ -2053,7 +2053,7 @@ const removeImage = (index: number) => {
                         icon={
                           <Avatar
                             alt="Dedicated Parking Available"
-                            src="/src/assets/createProperty/Icon_Parking.svg"
+                            src={`${import.meta.env.BASE_URL}/createProperty/Icon_Parking.svg`}
                             className="avatarImg"
                           />
                         }
@@ -2073,7 +2073,7 @@ const removeImage = (index: number) => {
                         icon={
                           <Avatar
                             alt="Private Balcony Included"
-                            src="/src/assets/createProperty/Icon_Balcony.svg"
+                            src={`${import.meta.env.BASE_URL}/createProperty/Icon_Balcony.svg`}
                             className="avatarImg"
                           />
                         }
@@ -2117,7 +2117,7 @@ const removeImage = (index: number) => {
                       icon={
                         <Avatar
                           alt="Guests Not Allowed"
-                          src="/src/assets/createProperty/solar_user-linear.svg"
+                          src={`${import.meta.env.BASE_URL}/createProperty/solar_user-linear.svg`}
                           className="avatarImg"
                           sx={{ width: 18, height: 18 }}
                         />
@@ -2139,7 +2139,7 @@ const removeImage = (index: number) => {
                       icon={
                         <Avatar
                           alt="No Pets Allowed"
-                          src="/src/assets/createProperty/streamline_pets-allowed.svg"
+                          src={`${import.meta.env.BASE_URL}/createProperty/streamline_pets-allowed.svg`}
                           className="avatarImg"
                         />
                       }
@@ -2160,7 +2160,7 @@ const removeImage = (index: number) => {
                       icon={
                         <Avatar
                           alt="No Bachelors Allowed"
-                          src="/src/assets/createProperty/Icon_Lift (1).svg"
+                          src={`${import.meta.env.BASE_URL}/createProperty/Icon_Lift (1).svg`}
                           className="avatarImg"
                         />
                       }

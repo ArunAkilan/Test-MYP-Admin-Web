@@ -1640,7 +1640,7 @@ const removeImage = (index: number) => {
                       icon={
                         <Avatar
                           alt="Well"
-                          src="/src/assets/createProperty/material-symbols_water-full-outline.svg"
+                          src={`${import.meta.env.BASE_URL}/createProperty/material-symbols_water-full-outline.svg`}
                           className="avatarImg"
                         />
                       }
@@ -1660,7 +1660,7 @@ const removeImage = (index: number) => {
                       icon={
                         <Avatar
                           alt="Bore Well"
-                          src="/src/assets/createProperty/fa6-solid_bore-hole.svg"
+                          src={`${import.meta.env.BASE_URL}/createProperty/fa6-solid_bore-hole.svg`}
                           className="avatarImg"
                         />
                       }
@@ -1680,7 +1680,7 @@ const removeImage = (index: number) => {
                       icon={
                         <Avatar
                           alt="EB Connection"
-                          src="/src/assets/createProperty/mage_electricity.svg"
+                          src={`${import.meta.env.BASE_URL}/createProperty/mage_electricity.svg`}
                           className="avatarImg"
                         />
                       }
@@ -1700,7 +1700,7 @@ const removeImage = (index: number) => {
                       icon={
                         <Avatar
                           alt="Motor"
-                          src="/src/assets/createProperty/tabler_stairs.svg"
+                          src={`${import.meta.env.BASE_URL}/createProperty/tabler_stairs.svg`}
                           className="avatarImg"
                         />
                       }
