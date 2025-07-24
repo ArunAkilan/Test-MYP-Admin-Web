@@ -29,7 +29,7 @@ function AdminAllProfile() {
     <div className="dashboard">
       <div className="profile-title">
         <h2 className="page-title">< PersonIcon style={{ color: "#4CAF50",fontSize: "28px" }} />&nbsp; Profiles</h2>
-        <button onClick={() => navigate("/profile/create")} className="create-btn"><AddIcon style={{ fontSize: "14px" }} /> Create New</button>
+        <button onClick={() => navigate("/allprofile/create")} className="create-btn"><AddIcon style={{ fontSize: "14px" }} /> Create New</button>
       </div>
       
       <table className="profile-table">
@@ -50,9 +50,9 @@ function AdminAllProfile() {
               <td>{p.contactInformation.primaryPhone}</td>
               <td className={`role-tag ${p.role.toLowerCase()}`}> <span>{p.role}</span> </td>
               <td>
-                <button className="view-btn" onClick={() => navigate(`/profile/view/${p._id}`)}>View</button>
-                <button className="edit-btn" onClick={() => navigate(`/profile/edit/${p._id}`)}>Edit</button>
-                <button className="delete-btn" onClick={() => handleDelete(p._id)}>Delete</button>
+                <button className="view-btn" onClick={() => navigate(`/allprofile/view/${p._id}`)}>View</button>
+                <button className="edit-btn" onClick={() => navigate(`/allprofile/edit/${p._id}`)}>Edit</button>
+                <button className="delete-btn" disabled onClick={() => handleDelete(p._id)}>Delete</button>
               </td>
             </tr>
           ))}

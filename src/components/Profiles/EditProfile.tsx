@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import type { Profile } from "./ProfileDashboard/ProfileDashboard.model";
 import { getProfileById, updateProfile } from "./Services/profileService";
-import { Box } from "@mui/material";
 import "./Services/service.scss"
 
 function EditProfile() {
@@ -44,7 +43,7 @@ function EditProfile() {
     const getToken = localStorage.getItem("token");
     console.log("getTOken", getToken);
     await updateProfile(id, form, getToken);
-    navigate("/profile");
+    navigate("/allprofile");
   };
 
   if (!form) return <div>Loading...</div>;
@@ -52,7 +51,7 @@ function EditProfile() {
   return (
     <div className="edit-profile-wrapper">
       <div className="edit-profile-paper">
-        <Link to="/profile" className="edit-profile-back">
+        <Link to="/allprofile" className="edit-profile-back">
           ← Back
         </Link>
         <h2 className="edit-profile-title">Edit Profile</h2>

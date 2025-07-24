@@ -86,8 +86,13 @@ const Header: React.FC<HeaderProps> = ({
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
     axios
-      .get<{ notifications: Notification[] }>(`${ENDPOINT}/api/notifications`)
+      .get<{ notifications: Notification[] }>(`${ENDPOINT}/api/notifications`,{
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
       .then((res) => setNotifications(res.data.notifications));
 
     const sock = io(ENDPOINT);
