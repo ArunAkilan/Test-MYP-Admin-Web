@@ -86,19 +86,25 @@ export default function Notificationtab() {
           <Tab
             label="All"
             {...a11yProps(0)}
-            icon={<Avatar alt="all-icon avatar" src="/all-icon.svg" />}
+            icon={<Avatar alt="all-icon avatar" src={`${
+                          import.meta.env.BASE_URL
+                        }/all-icon.svg`} />}
             iconPosition="start"
           />
           <Tab
             label="Updates"
             {...a11yProps(1)}
-            icon={<Avatar alt="update-icon avatar" src="/update-icon.svg" />}
+            icon={<Avatar alt="update-icon avatar" src={`${
+                          import.meta.env.BASE_URL
+                        }/update-icon.svg`} />}
             iconPosition="start"
           />
           <Tab
             label="Alerts"
             {...a11yProps(2)}
-            icon={<Avatar alt="alert-icon avatar" src="/alert-new-icon.svg" />}
+            icon={<Avatar alt="alert-icon avatar" src={`${
+                          import.meta.env.BASE_URL
+                        }/alert-new-icon.svg` }/>}
             iconPosition="start"
           />
         </Tabs>

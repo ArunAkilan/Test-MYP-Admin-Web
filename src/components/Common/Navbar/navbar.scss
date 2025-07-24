@@ -99,7 +99,6 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  width: 100px;
   text-align: left;
 }
 .bell-image {
@@ -156,7 +155,7 @@
 
 .admin-btn-popover {
   box-shadow: 4px 8px 16px 0px rgba(138, 182, 229, 0.06), 2px 4px 8px 0px rgba(178, 178, 178, 0.04), 1px 2px 4px 0px rgba(178, 178, 178, 0.04), 0px 1px 2px 0px rgba(178, 178, 178, 0.04);
-  
+  border: 1px solid #D3DDE7;
 }
 // notification 
 .notification-popover {
