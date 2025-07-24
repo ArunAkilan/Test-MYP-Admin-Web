@@ -9,7 +9,7 @@ phases:
   pre_build:
     commands:
       - printf "%-20s %s\n" "AWS_REGION:" "$AWS_REGION"
-      - printf "%-20s %s\n" "AWS_ACCOUNT_ID:" "$AWS_ACCOUNT_ID"
+      - printf "%-20s %s\n" "AWS_ACCOUNT_ID:" "${AWS_ACCOUNT_ID:-<MISSING>}"
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
