@@ -1218,7 +1218,7 @@ export const CreateCommercialProperty = () => {
                   <div className="preview-images d-flex gap-3 mt-2 image-scroll-container">
                     {images.map((img, index) => (
                       <div key={index} className="choosedImages position-relative">
-                        <img src={img.url} alt={`preview-${index}`} className="preview-img" style={{ cursor: 'pointer' }}
+                        <img src={img.name} alt={`preview-${index}`} className="preview-img" style={{ cursor: 'pointer' }}
                           onClick={() => setPreviewImage(img.url)} />
                         <div
                           className="image-name mt-1 text-truncate"
@@ -1232,7 +1232,7 @@ export const CreateCommercialProperty = () => {
                             textOverflow: "ellipsis",
                           }}
                         >
-                          {img.name}
+                          {/* <img src={img.name} alt={img.name} /> */}
                         </div>
                         <button type="button" onClick={() => removeImage(index)} className="remove-btn">
                             <img src={`${import.meta.env.BASE_URL}/createProperty/material-symbols_close-rounded.svg`} alt="Remove" />
