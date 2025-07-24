@@ -1,16 +1,16 @@
-# Use lightweight Nginx image
-FROM nginx:alpine
+FROM node:18-alpine
 
-# Remove default nginx site
-RUN rm -rf /usr/share/nginx/html/*
+WORKDIR /app
 
-# Copy custom nginx config
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY package*.json ./
+RUN npm install
+COPY . .
+# Make vite executable (optional, if it's local)
+RUN chmod +x node_modules/.bin/vite
+#RUN npm run build
 
-# Copy Vite build output
-COPY dist/ /usr/share/nginx/html/admin/
-
-# Expose web port
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+
+
+CMD ["npm", "run", "dev"]
