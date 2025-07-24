@@ -1,4 +1,5 @@
-FROM node:22.14.0-bullseye
+# Stage 1: Build
+FROM node:18-alpine AS builder
 WORKDIR /app
 COPY . .
 RUN npm install && npm run build
