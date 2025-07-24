@@ -1629,7 +1629,7 @@ export const CreateCommercialProperty = () => {
                       icon={
                         <Avatar
                           alt="Lift Access"
-                          src="/src/assets/createProperty/Icon_Lift.svg"
+                          src={`${import.meta.env.BASE_URL}/createProperty/Icon_Lift.svg`}
                           className="avatarImg"
                         />
                       }
@@ -1649,7 +1649,7 @@ export const CreateCommercialProperty = () => {
                       icon={
                         <Avatar
                           alt="Ramp Access"
-                          src="/src/assets/createProperty/guidance_ramp-up.svg"
+                          src={`${import.meta.env.BASE_URL}/createProperty/guidance_ramp-up.svg`}
                           className="avatarImg"
                         />
                       }
@@ -1669,7 +1669,7 @@ export const CreateCommercialProperty = () => {
                       icon={
                         <Avatar
                           alt="Only via Stairs"
-                          src="/src/assets/createProperty/tabler_stairs.svg"
+                          src={`${import.meta.env.BASE_URL}/createProperty/tabler_stairs.svg`}
                           className="avatarImg"
                         />
                       }
