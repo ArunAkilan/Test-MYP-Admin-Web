@@ -126,7 +126,7 @@ Props) {
       <div className="large-screen-header">
         <span className="large-screen-header-wrap" onClick={onClose}>
           <img
-            src="../src/assets/dashboardtab/weui_arrow-outlined.svg"
+            src={`${import.meta.env.BASE_URL}/dashboardtab/weui_arrow-outlined.svg`}
             alt="arrow"
           />
           <p>Back</p>
@@ -138,7 +138,7 @@ Props) {
           className="Gallery-button"
         >
           <img
-            src="../src/assets/dashboardtab/solar_gallery-linear.svg"
+            src={`${import.meta.env.BASE_URL}/dashboardtab/solar_gallery-linear.svg`}
             alt="gallery"
           />
           <span className="gallery-text">Gallery</span>

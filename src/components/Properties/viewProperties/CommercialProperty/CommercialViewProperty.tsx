@@ -171,7 +171,7 @@ const CommercialView = () => {
           </p>
           <div className="d-flex align-items-center">
             <img
-              src="../../../../../public/ICON_Location.svg"
+              src={`${import.meta.env.BASE_URL}/ICON_Location.svg`}
               alt="Location Icon"
               className="me-2"
             />

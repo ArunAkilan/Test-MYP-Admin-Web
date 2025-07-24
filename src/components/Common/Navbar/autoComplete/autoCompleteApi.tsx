@@ -108,7 +108,7 @@ export default function AutoCompleteWithSelect() {
     return (
         <Grid container alignItems="center" sx={{ width: '100%' }}>
             {/* Select Dropdown */}
-            <Grid item xs={12} sm={3} sx={{ display: "flex" }}>
+            <Grid item xs={12} sm={3} sx={{ display: "flex",justifyContent: "flex-end" }}>
                 <Select
                     labelId="select-label"
                     value={selectValue}

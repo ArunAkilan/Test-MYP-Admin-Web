@@ -44,7 +44,7 @@ import { TabStatus } from "./Dashboardtab.model";
 import type { Property } from "../../AdminResidencial/AdminResidencial.model";
 import type {
   PropertyViewWithSource
-} from "../DashboradTable/table.model";
+} from "./Dashboardtab.model";
 
   import  {useNavigate } from "react-router-dom";
 
@@ -764,7 +764,7 @@ export default function Dashboardtab({
                 </React.Fragment>
               }
               {...a11yProps(1)}
-              icon={<Avatar alt="test avatar" src="/pending-approval.svg" />}
+              icon={<Avatar alt="test avatar" src={`${import.meta.env.BASE_URL}/pending-approval.svg`} />}
               iconPosition="start"
             />
  
@@ -781,7 +781,7 @@ export default function Dashboardtab({
                 </React.Fragment>
               }
               {...a11yProps(2)}
-              icon={<Avatar alt="test avatar" src="/pending-reject.svg" />}
+              icon={<Avatar alt="test avatar" src={`${import.meta.env.BASE_URL}/pending-reject.svg`} />}
               iconPosition="start"
             />
 
@@ -800,7 +800,7 @@ export default function Dashboardtab({
                 </React.Fragment>
               }
               {...a11yProps(3)}
-              icon={<Avatar alt="test avatar" src="/pending-delete.svg" />}
+              icon={<Avatar alt="test avatar" src={`${import.meta.env.BASE_URL}/pending-delete.svg`} />}
               iconPosition="start"
             />
           </Tabs>
@@ -823,7 +823,7 @@ export default function Dashboardtab({
                         }}
                       >
                         <img
-                          src="../src/assets/dashboardtab/ic_round-clear-16.svg"
+                          src={`${import.meta.env.BASE_URL}/dashboardtab/ic_round-clear-16.svg`}
                           alt="close icon"
                         />
                         Clear Filter
@@ -852,14 +852,14 @@ export default function Dashboardtab({
                       >
                         <ToggleButton value="List View">
                           <img
-                            src="../src/assets/dashboardtab/solar_list-linear.svg"
+                            src={`${import.meta.env.BASE_URL}/dashboardtab/solar_list-linear.svg`}
                             alt="list-view"
                           />
                           List View
                         </ToggleButton>
                         <ToggleButton value="Card View">
                           <img
-                            src="../src/assets/dashboardtab/system-uicons_card-view.svg"
+                            src={`${import.meta.env.BASE_URL}/dashboardtab/system-uicons_card-view.svg`}
                             alt="card-view"
                           />
                           Card View
@@ -874,7 +874,7 @@ export default function Dashboardtab({
                         onClick={toggleDrawer(true)}
                       >
                         <img
-                          src="/majesticons_filter-line.svg"
+                          src={`${import.meta.env.BASE_URL}/majesticons_filter-line.svg`}
                           alt="filter img"
                         />
                         Filter{" "}
@@ -887,7 +887,7 @@ export default function Dashboardtab({
                       <div className="sort-link color-edit">
                         <Button className="filter-text" aria-describedby={id}>
                           <img
-                            src="/material-symbols_sort-rounded.svg"
+                            src={`${import.meta.env.BASE_URL}/material-symbols_sort-rounded.svg`}
                             alt="filter img"
                           />
                           Sort
@@ -918,7 +918,7 @@ export default function Dashboardtab({
                       className={`search ${isExpanded ? "active" : ""}`}
                     >
                       <input type="search" placeholder="Search Properties" />
-                      <img src="/Search-1.svg" alt="search svg" />
+                      <img src={`${import.meta.env.BASE_URL}/Search-1.svg`} alt="search svg" />
                     </div>
                     <div className="list-card-toggle">
                       <ToggleButtonGroup
@@ -930,14 +930,14 @@ export default function Dashboardtab({
                       >
                         <ToggleButton value="List View">
                           <img
-                            src="../src/assets/dashboardtab/solar_list-linear.svg"
+                            src={`${import.meta.env.BASE_URL}/dashboardtab/solar_list-linear.svg`}
                             alt="list-view"
                           />
                           List View
                         </ToggleButton>
                         <ToggleButton value="Card View">
                           <img
-                            src="../src/assets/dashboardtab/system-uicons_card-view.svg"
+                            src={`${import.meta.env.BASE_URL}/dashboardtab/system-uicons_card-view.svg`}
                             alt="card-view"
                           />
                           Card View
@@ -952,7 +952,7 @@ export default function Dashboardtab({
                         onClick={toggleDrawer(true)}
                       >
                         <img
-                          src="/majesticons_filter-line.svg"
+                          src={`${import.meta.env.BASE_URL}/majesticons_filter-line.svg`}
                           alt="filter img"
                         />
                         Filter{" "}
@@ -965,7 +965,7 @@ export default function Dashboardtab({
                       <div className="sort-link color-edit">
                         <Button className="filter-text" aria-describedby={id}>
                           <img
-                            src="material-symbols_sort-rounded.svg"
+                            src={`${import.meta.env.BASE_URL}/material-symbols_sort-rounded.svg`}
                             alt="filter img"
                           />
                           Sort
@@ -996,7 +996,7 @@ export default function Dashboardtab({
                       className={`search ${isExpanded ? "active" : ""}`}
                     >
                       <input type="search" placeholder="Search Properties" />
-                      <img src="/Search-1.svg" alt="search svg" />
+                      <img src={`${import.meta.env.BASE_URL}/Search-1.svg`} alt="search svg" />
                     </div>
                     <div className="list-card-toggle">
                       <ToggleButtonGroup
@@ -1008,14 +1008,14 @@ export default function Dashboardtab({
                       >
                         <ToggleButton value="List View">
                           <img
-                            src="../src/assets/dashboardtab/solar_list-linear.svg"
+                            src={`${import.meta.env.BASE_URL}/dashboardtab/solar_list-linear.svg`}
                             alt="list-view"
                           />
                           List View
                         </ToggleButton>
                         <ToggleButton value="Card View">
                           <img
-                            src="../src/assets/dashboardtab/system-uicons_card-view.svg"
+                            src={`${import.meta.env.BASE_URL}/dashboardtab/system-uicons_card-view.svg`}
                             alt="card-view"
                           />
                           Card View
@@ -1030,7 +1030,7 @@ export default function Dashboardtab({
                         onClick={toggleDrawer(true)} 
                       >
                         <img
-                          src="/majesticons_filter-line.svg"
+                          src={`${import.meta.env.BASE_URL}/majesticons_filter-line.svg`}
                           alt="filter img"
                         />
                         Filter{" "}
@@ -1043,7 +1043,7 @@ export default function Dashboardtab({
                       <div className="sort-link color-edit">
                         <Button className="filter-text" aria-describedby={id}>
                           <img
-                            src="material-symbols_sort-rounded.svg"
+                            src={`${import.meta.env.BASE_URL}/material-symbols_sort-rounded.svg`}
                             alt="filter img"
                           />
                           Sort
@@ -1086,14 +1086,14 @@ export default function Dashboardtab({
                       >
                         <ToggleButton value="List View">
                           <img
-                            src="../src/assets/dashboardtab/solar_list-linear.svg"
+                            src={`${import.meta.env.BASE_URL}/dashboardtab/solar_list-linear.svg`}
                             alt="list-view"
                           />
                           List View
                         </ToggleButton>
                         <ToggleButton value="Card View">
                           <img
-                            src="../src/assets/dashboardtab/system-uicons_card-view.svg"
+                            src={`${import.meta.env.BASE_URL}/dashboardtab/system-uicons_card-view.svg`}
                             alt="card-view"
                           />
                           Card View
@@ -1108,7 +1108,7 @@ export default function Dashboardtab({
                         onClick={toggleDrawer(true)}
                       >
                         <img
-                          src="/majesticons_filter-line.svg"
+                          src={`${import.meta.env.BASE_URL}/majesticons_filter-line.svg`}
                           alt="filter img"
                         />
                         Filter{" "}
@@ -1121,7 +1121,7 @@ export default function Dashboardtab({
                       <div className="sort-link color-edit">
                         <Button className="filter-text" aria-describedby={id}>
                           <img
-                            src="/material-symbols_sort-rounded.svg"
+                            src={`${import.meta.env.BASE_URL}/material-symbols_sort-rounded.svg`}
                             alt="filter img"
                           />
                           Sort
@@ -1258,7 +1258,7 @@ export default function Dashboardtab({
           <div className="filter-header">
             <p>
               <img
-                src="../src/assets/dashboardtab/icon-park-outline_down.svg"
+                src={`${import.meta.env.BASE_URL}/dashboardtab/icon-park-outline_down.svg`}
                 alt="icon park"
                 style={{ cursor: "pointer" }}
                 onClick={() => setDrawerOpen(false)}
@@ -1315,7 +1315,7 @@ export default function Dashboardtab({
               }}
             >
               <img
-                src="../src/assets/dashboardtab/ic_round-clear-24.svg"
+                src={`${import.meta.env.BASE_URL}/dashboardtab/ic_round-clear-24.svg`}
                 alt="close icon"
               />
               Clear
@@ -1470,29 +1470,21 @@ const formatedData: (PropertyItem & PropertyViewWithSource)[] = properties;
   };
   
  
-  const cardHandleView = (id: string | number) => {
+ const handleView = (id: string | number) => {
   const selectedItem = formatedData.find(
     (item) => String(item._id) === String(id)
-  ) as PropertyViewWithSource | undefined;
+  );
 
   if (!selectedItem) {
     alert("Property not found");
     return;
   }
 
-  const routeBase = selectedItem._source;
-
-  if (!routeBase) {
-    alert("Unknown property type");
-    console.log("Missing _source in selectedItem", selectedItem);
-    return;
-  }
-
-  navigate(`/${routeBase}/view/${selectedItem._id}`, {
+  const routeBase = getSingularPropertyType();
+  navigate(`/${routeBase}/view/${id}`, {
     state: { data: selectedItem, mode: "view" },
   });
 };
-
 
   const handleAction = async (id: string, status: number) => {
     const singularProperty = getSingularPropertyType();  // fix here
@@ -1610,22 +1602,22 @@ const formatedData: (PropertyItem & PropertyViewWithSource)[] = properties;
                   <div className="card-view-icon-wrapper">
                     <div className="card-icon-view">
                       <img
-                        src="../src/assets/dashboardtab/view-card.png"
+                        src={`${import.meta.env.BASE_URL}/dashboardtab/view-card.png`}
                         alt="icon-edit"
-                        onClick={() => item._id && cardHandleView(item._id)}
+                        onClick={() => item._id && handleView(item._id)}
                         style={{ cursor: "pointer" }}
                       />
                     </div>
                     <div className="card-icon-edit">
                       <img
-                        src="../src/assets/dashboardtab/Icon_Edit.svg"
+                        src={`${import.meta.env.BASE_URL}/dashboardtab/Icon_Edit.svg`}
                         alt="icon-edit"
                         onClick={() => handleEdit(item)}
                       />
                     </div>
                     <div className="card-icon-approve">
                       <img
-                        src="../src/assets/dashboardtab/Icon_Tick.svg"
+                        src={`${import.meta.env.BASE_URL}/dashboardtab/Icon_Tick.svg`}
                         alt="icon-approve"
                         style={{ cursor: "pointer" }}
                         onClick={() => handleOpenModal("Approve", item)}
@@ -1633,7 +1625,7 @@ const formatedData: (PropertyItem & PropertyViewWithSource)[] = properties;
                     </div>
                     <div className="card-icon-deny">
                       <img
-                        src="../src/assets/dashboardtab/Icon_Deny.svg"
+                        src={`${import.meta.env.BASE_URL}/dashboardtab/Icon_Deny.svg`}
                         alt="icon-deny"
                         style={{ cursor: "pointer" }}
                         onClick={() => handleOpenModal("Deny", item)}
@@ -1641,7 +1633,7 @@ const formatedData: (PropertyItem & PropertyViewWithSource)[] = properties;
                     </div>
                     <div className="card-icon-delete">
                       <img
-                        src="../src/assets/dashboardtab/Icon-Delete-orange.svg"
+                        src={`${import.meta.env.BASE_URL}/dashboardtab/Icon-Delete-orange.svg`}
                         alt="icon-delete"
                         style={{ cursor: "pointer" }}
                         onClick={() => handleOpenModal("Delete", item)}

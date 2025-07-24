@@ -154,11 +154,17 @@
   color: #fff;
 }
 
+.admin-btn-popover {
+  box-shadow: 4px 8px 16px 0px rgba(138, 182, 229, 0.06), 2px 4px 8px 0px rgba(178, 178, 178, 0.04), 1px 2px 4px 0px rgba(178, 178, 178, 0.04), 0px 1px 2px 0px rgba(178, 178, 178, 0.04);
+  
+}
 // notification 
 .notification-popover {
   padding: 16px;
   height: calc(100vh - 128px);
-      border: 1px solid #ddd;
+  border: 1px solid #ddd;
+  box-shadow: 4px 8px 16px 0px rgba(138, 182, 229, 0.06), 2px 4px 8px 0px rgba(178, 178, 178, 0.04), 1px 2px 4px 0px rgba(178, 178, 178, 0.04), 0px 1px 2px 0px rgba(178, 178, 178, 0.04);
+   
 }
 .notify-header {
   display: flex;
@@ -221,7 +227,7 @@
 @media only screen and (max-width:992px) {
       .admin {
         flex-direction: column;
-        align-items: flex-start !important;
+        align-items: center !important;
         padding: 20px 0px;
         position: absolute;
         width: 100vw;
