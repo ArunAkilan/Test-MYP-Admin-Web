@@ -3,7 +3,7 @@ version: 0.2
 env:
   variables:
     ECR_REPO_NAME: "prh_web_2"  # Your ECR repo name
-    REGION: "us-east-1"                  # Your AWS region
+    AWS_REGION: "us-east-1"                  # Your AWS region
     AWS_ACCOUNT_ID: "434648646586"
 
 phases:
@@ -27,4 +27,4 @@ artifacts:
   files:
     - appspec.yml
     - scripts/**
-    - image_tag.txt
+    - image_tag.txt[]
