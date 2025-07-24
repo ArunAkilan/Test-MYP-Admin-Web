@@ -208,7 +208,7 @@ useEffect(() => {
   //   console.log("Editing item:", item);
   //   navigate(`/commercial/create`, { state: { data: item, mode: "edit" } });};
   const handleEdit = (item: any) => {
-    console.log("item._source =", item._source);
+    console.log("item._source =", item);
 
     // If _source is an object with a type field:
     const propertyType =
@@ -664,7 +664,7 @@ const requestSort = (key: SortableColumn) => {
                       data-bs-placement="bottom"
                       title={item?.location?.address}
                     >
-                      <img src={`${import.meta.env.BASE_URL}ICON_Location.svg`} alt="location" />
+                      <img src={`${import.meta.env.BASE_URL}/ICON_Location.svg`} alt="location" />
                       <span className="truncate-text">
                         {truncateWords(item?.location?.address, 9)}
                       </span>

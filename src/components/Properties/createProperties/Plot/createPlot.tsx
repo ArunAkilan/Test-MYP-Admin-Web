@@ -302,7 +302,8 @@ const cropImage = async () => {
 
       setImages((prev) => [
         ...prev,
-        { file: croppedFile, url: previewUrl, name: croppedFile.name, imageSize: croppedFile.size, },
+        // { file: croppedFile, url: previewUrl, name: croppedFile.name, imageSize: croppedFile.size, }
+        { file: croppedFile, url: previewUrl, name: previewUrl, imageSize: 0 }
       ]);
 
       // Reset crop modal state
@@ -1230,8 +1231,8 @@ const removeImage = (index: number) => {
                     <div className="preview-images d-flex gap-3 mt-2 image-scroll-container">
                       {images.map((img, index) => (
                         <div key={index} className="choosedImages position-relative">
-                          <img src={img.url} alt={`preview-${index}`} className="preview-img" style={{ cursor: 'pointer' }}
-                  onClick={() => setPreviewImage(img.url)}   />
+                          <img src={img.name} alt={`preview-${index}`} className="preview-img" style={{ cursor: 'pointer' }}
+                            onClick={() => setPreviewImage(img.name)} />
                           <div
                             className="image-name mt-1 text-truncate"
                             title={img.name}
@@ -1244,7 +1245,7 @@ const removeImage = (index: number) => {
                               textOverflow: "ellipsis",
                             }}
                           >
-                            {img.name}
+                            {/* <img src={img.name} alt={img.name} /> */}
                           </div>
                           <button type="button" onClick={() => removeImage(index)} className="remove-btn">
                             <img src={`${import.meta.env.BASE_URL}/createProperty/material-symbols_close-rounded.svg`} alt="Remove" />
@@ -1639,7 +1640,7 @@ const removeImage = (index: number) => {
                       icon={
                         <Avatar
                           alt="Well"
-                          src="/src/assets/createProperty/material-symbols_water-full-outline.svg"
+                          src={`${import.meta.env.BASE_URL}/createProperty/material-symbols_water-full-outline.svg`}
                           className="avatarImg"
                         />
                       }
@@ -1659,7 +1660,7 @@ const removeImage = (index: number) => {
                       icon={
                         <Avatar
                           alt="Bore Well"
-                          src="/src/assets/createProperty/fa6-solid_bore-hole.svg"
+                          src={`${import.meta.env.BASE_URL}/createProperty/fa6-solid_bore-hole.svg`}
                           className="avatarImg"
                         />
                       }
@@ -1679,7 +1680,7 @@ const removeImage = (index: number) => {
                       icon={
                         <Avatar
                           alt="EB Connection"
-                          src="/src/assets/createProperty/mage_electricity.svg"
+                          src={`${import.meta.env.BASE_URL}/createProperty/mage_electricity.svg`}
                           className="avatarImg"
                         />
                       }
@@ -1699,7 +1700,7 @@ const removeImage = (index: number) => {
                       icon={
                         <Avatar
                           alt="Motor"
-                          src="/src/assets/createProperty/tabler_stairs.svg"
+                          src={`${import.meta.env.BASE_URL}/createProperty/tabler_stairs.svg`}
                           className="avatarImg"
                         />
                       }
