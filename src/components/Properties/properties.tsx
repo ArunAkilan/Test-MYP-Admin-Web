@@ -1391,7 +1391,6 @@ const removeImage = (index: number) => {
 
 
 {/*new code for cropping functionalities ends here */}
------------------------------------------------------------------------------------------
               {/* <div>
                   <div className="ResidentialCategory mt-3">
                     <p>
@@ -1545,7 +1544,6 @@ const removeImage = (index: number) => {
                   </div>
                 </div>
               */ }
-              ---------------------------------------------------------------------------------
 
 
               {/* Property Layout Section */}
