@@ -608,7 +608,7 @@ useEffect(() => {
                       data-bs-placement="bottom"
                       title={item?.location?.address}
                     >
-                      <img src="ICON_Location.svg" alt="location" />
+                      <img src={`${import.meta.env.BASE_URL}/ICON_Location.svg`} alt="location" />
                       <span className="truncate-text">
                         {truncateWords(item?.location?.address, 9)}
                       </span>
