@@ -3,6 +3,7 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import Table from "../DashboradTable/table";
+import { useNavigate } from "react-router-dom";
 import {
   Avatar,
   Typography,
@@ -42,47 +43,20 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { useAppDispatch, useAppSelector } from "../../../hook";
 import { setActiveTab } from "../../../slicers/tabsSlice";
 import { TabStatus } from "./Dashboardtab.model";
-import type { Property } from "../../AdminResidencial/AdminResidencial.model";
-import type {
-  PropertyViewWithSource
-} from "../DashboradTable/table.model";
 
-  import  {useNavigate } from "react-router-dom";
-
-// type Property = {
-//   _id?: string;
-//   createdAt?: string;
-//   postOwner?: {
-//     userName?: string;
-//   }
-//   rent?: {
-//     rentAmount?: string;
-//     advanceAmount?: string;
-//     agreementTiming?: string;
-//     negotiable?: boolean;
-//   };
-//   status?: string;
-//   propertyType?: string;
-//   title?: string;
-//   plotType?: string;
-//   furnishingType?: string;
-//   facingDirection?: string;
-//   totalFloors?: string;
-//   commercialType?: string;
-//   washroom?: string;
-//   type?: string;
-//   location?: {
-//     landmark?: string;
-//     address?: string;
-//   };
-//   area? : {
-//     totalArea?: string;
-//   }
-// };
+type Property = {
+  _id?: string;
+  propertyType?: string;
+  location?: {
+    landmark?: string;
+    address?: string;
+  };
+  [key: string]: any;
+};
 type PropertyData = {
-  residential?: Property[];
-  commercial?: Property[];
-  plot?: Property[];
+  residential: Property[];
+  commercial: Property[];
+  plot: Property[];
   properties?:
   | "all"
   | "residential"
@@ -101,15 +75,6 @@ interface DashboardtabProps {
 
 type PropertyItem = {
   _id: string;
-   createdAt?: string;
-  postOwner?: {
-    userName?: string;
-  }
-  area? : {
-    totalArea?: string;
-  }
-  title?: string;
-  commercialType?: string;
   propertyType: string;
   location?: {
     landmark?: string;
@@ -438,7 +403,7 @@ export default function Dashboardtab({
     if (!isFiltered) {
       const status = statusByTab[value];
       let filtered = allItems.filter(
-        (item: Property) =>
+        (item: any) =>
           item.status?.toString().trim().toLowerCase() ===
           status.trim().toLowerCase()
       );
@@ -677,7 +642,7 @@ export default function Dashboardtab({
       console.log("Status updated:", response.data);
     } catch (err) {
       console.error("Failed to update status", err);
-    } 
+    }
   };
 
 
@@ -698,15 +663,12 @@ export default function Dashboardtab({
     } finally {
       setIsBackdropLoading(false); // ✅ hide loading
     }
-      setIsBackdropLoading(false); // ✅ hide loading
-    }
   };
 
   const handleConfirmButtonClick = () => {
     if (!selectedItem?._id || !selectedAction) return;
     const statusCode = { Approve: 1, Deny: 0, Delete: 2 }[selectedAction];
     handleConfirmAction(selectedItem._id, statusCode);
-  };
   };
   return (
     <div id="pending-approval-tab">
@@ -728,9 +690,6 @@ export default function Dashboardtab({
             sx={{
               paddingBottom: hideHeader ? "0" : "24px",
               display: hideHeader ? "block" : "true",
-              '& .MuiTabs-flexContainer': {
-                flexWrap: 'wrap',
-              },
             }}
             id="pending-approval-tabs-wrap"
           >
@@ -747,8 +706,7 @@ export default function Dashboardtab({
                 </React.Fragment>
               }
               {...a11yProps(0)}
-              icon={<Avatar alt="test avatar"
-                src={`${import.meta.env.BASE_URL}/pending-action.svg`} />}
+              icon={<Avatar alt="test avatar" src="/pending-action.svg" />}
               iconPosition="start"
             />
 
@@ -765,7 +723,7 @@ export default function Dashboardtab({
                 </React.Fragment>
               }
               {...a11yProps(1)}
-              icon={<Avatar alt="test avatar" src={`${import.meta.env.BASE_URL}/pending-approval.svg`} />}
+              icon={<Avatar alt="test avatar" src="/pending-approval.svg" />}
               iconPosition="start"
             />
 
@@ -782,7 +740,7 @@ export default function Dashboardtab({
                 </React.Fragment>
               }
               {...a11yProps(2)}
-              icon={<Avatar alt="test avatar" src={`${import.meta.env.BASE_URL}/pending-reject.svg`} />}
+              icon={<Avatar alt="test avatar" src="/pending-reject.svg" />}
               iconPosition="start"
             />
 
@@ -801,7 +759,7 @@ export default function Dashboardtab({
                 </React.Fragment>
               }
               {...a11yProps(3)}
-              icon={<Avatar alt="test avatar" src={`${import.meta.env.BASE_URL}/pending-delete.svg`} />}
+              icon={<Avatar alt="test avatar" src="/pending-delete.svg" />}
               iconPosition="start"
             />
           </Tabs>
@@ -824,7 +782,7 @@ export default function Dashboardtab({
                         }}
                       >
                         <img
-                          src={`${import.meta.env.BASE_URL}/dashboardtab/ic_round-clear-16.svg`}
+                          src="../src/assets/dashboardtab/ic_round-clear-16.svg"
                           alt="close icon"
                         />
                         Clear Filter
@@ -853,14 +811,14 @@ export default function Dashboardtab({
                       >
                         <ToggleButton value="List View">
                           <img
-                            src={`${import.meta.env.BASE_URL}/dashboardtab/solar_list-linear.svg`}
+                            src="../src/assets/dashboardtab/solar_list-linear.svg"
                             alt="list-view"
                           />
                           List View
                         </ToggleButton>
                         <ToggleButton value="Card View">
                           <img
-                            src={`${import.meta.env.BASE_URL}/dashboardtab/system-uicons_card-view.svg`}
+                            src="../src/assets/dashboardtab/system-uicons_card-view.svg"
                             alt="card-view"
                           />
                           Card View
@@ -875,20 +833,17 @@ export default function Dashboardtab({
                         onClick={toggleDrawer(true)}
                       >
                         <img
-                          src={`${import.meta.env.BASE_URL}/majesticons_filter-line.svg`}
+                          src="/majesticons_filter-line.svg"
                           alt="filter img"
                         />
-                        Filter{" "}
-                        {checkListCount > 0 && (
-                          <span className="count-badge">{checkListCount}</span>
-                        )}
+                        Filter {checkListCount}
                       </Button>
                     </div>
                     {alignment === "Card View" && (
                       <div className="sort-link color-edit">
                         <Button className="filter-text" aria-describedby={id}>
                           <img
-                            src={`${import.meta.env.BASE_URL}/material-symbols_sort-rounded.svg`}
+                            src="/material-symbols_sort-rounded.svg"
                             alt="filter img"
                           />
                           Sort
@@ -919,7 +874,7 @@ export default function Dashboardtab({
                       className={`search ${isExpanded ? "active" : ""}`}
                     >
                       <input type="search" placeholder="Search Properties" />
-                      <img src={`${import.meta.env.BASE_URL}/Search-1.svg`} alt="search svg" />
+                      <img src="/Search-1.svg" alt="search svg" />
                     </div>
                     <div className="list-card-toggle">
                       <ToggleButtonGroup
@@ -931,14 +886,14 @@ export default function Dashboardtab({
                       >
                         <ToggleButton value="List View">
                           <img
-                            src={`${import.meta.env.BASE_URL}/dashboardtab/solar_list-linear.svg`}
+                            src="../src/assets/dashboardtab/solar_list-linear.svg"
                             alt="list-view"
                           />
                           List View
                         </ToggleButton>
                         <ToggleButton value="Card View">
                           <img
-                            src={`${import.meta.env.BASE_URL}/dashboardtab/system-uicons_card-view.svg`}
+                            src="../src/assets/dashboardtab/system-uicons_card-view.svg"
                             alt="card-view"
                           />
                           Card View
@@ -953,20 +908,17 @@ export default function Dashboardtab({
                         onClick={toggleDrawer(true)}
                       >
                         <img
-                          src={`${import.meta.env.BASE_URL}/majesticons_filter-line.svg`}
+                          src="/majesticons_filter-line.svg"
                           alt="filter img"
                         />
-                        Filter{" "}
-                        {checkListCount > 0 && (
-                          <span className="count-badge">{checkListCount}</span>
-                        )}
+                        Filter {checkListCount}
                       </Button>
                     </div>
                     {alignment === "Card View" && (
                       <div className="sort-link color-edit">
                         <Button className="filter-text" aria-describedby={id}>
                           <img
-                            src={`${import.meta.env.BASE_URL}/material-symbols_sort-rounded.svg`}
+                            src="material-symbols_sort-rounded.svg"
                             alt="filter img"
                           />
                           Sort
@@ -997,7 +949,7 @@ export default function Dashboardtab({
                       className={`search ${isExpanded ? "active" : ""}`}
                     >
                       <input type="search" placeholder="Search Properties" />
-                      <img src={`${import.meta.env.BASE_URL}/Search-1.svg`} alt="search svg" />
+                      <img src="/Search-1.svg" alt="search svg" />
                     </div>
                     <div className="list-card-toggle">
                       <ToggleButtonGroup
@@ -1009,14 +961,14 @@ export default function Dashboardtab({
                       >
                         <ToggleButton value="List View">
                           <img
-                            src={`${import.meta.env.BASE_URL}/dashboardtab/solar_list-linear.svg`}
+                            src="../src/assets/dashboardtab/solar_list-linear.svg"
                             alt="list-view"
                           />
                           List View
                         </ToggleButton>
                         <ToggleButton value="Card View">
                           <img
-                            src={`${import.meta.env.BASE_URL}/dashboardtab/system-uicons_card-view.svg`}
+                            src="../src/assets/dashboardtab/system-uicons_card-view.svg"
                             alt="card-view"
                           />
                           Card View
@@ -1031,20 +983,17 @@ export default function Dashboardtab({
                         onClick={toggleDrawer(true)}
                       >
                         <img
-                          src={`${import.meta.env.BASE_URL}/majesticons_filter-line.svg`}
+                          src="/majesticons_filter-line.svg"
                           alt="filter img"
                         />
-                        Filter{" "}
-                        {checkListCount > 0 && (
-                          <span className="count-badge">{checkListCount}</span>
-                        )}
+                        Filter {checkListCount}
                       </Button>
                     </div>
                     {alignment === "Card View" && (
                       <div className="sort-link color-edit">
                         <Button className="filter-text" aria-describedby={id}>
                           <img
-                            src={`${import.meta.env.BASE_URL}/material-symbols_sort-rounded.svg`}
+                            src="material-symbols_sort-rounded.svg"
                             alt="filter img"
                           />
                           Sort
@@ -1087,14 +1036,14 @@ export default function Dashboardtab({
                       >
                         <ToggleButton value="List View">
                           <img
-                            src={`${import.meta.env.BASE_URL}/dashboardtab/solar_list-linear.svg`}
+                            src="../src/assets/dashboardtab/solar_list-linear.svg"
                             alt="list-view"
                           />
                           List View
                         </ToggleButton>
                         <ToggleButton value="Card View">
                           <img
-                            src={`${import.meta.env.BASE_URL}/dashboardtab/system-uicons_card-view.svg`}
+                            src="../src/assets/dashboardtab/system-uicons_card-view.svg"
                             alt="card-view"
                           />
                           Card View
@@ -1109,20 +1058,17 @@ export default function Dashboardtab({
                         onClick={toggleDrawer(true)}
                       >
                         <img
-                          src={`${import.meta.env.BASE_URL}/majesticons_filter-line.svg`}
+                          src="/majesticons_filter-line.svg"
                           alt="filter img"
                         />
-                        Filter{" "}
-                        {checkListCount > 0 && (
-                          <span className="count-badge">{checkListCount}</span>
-                        )}
+                        Filter {checkListCount}
                       </Button>
                     </div>
                     {alignment === "Card View" && (
                       <div className="sort-link color-edit">
                         <Button className="filter-text" aria-describedby={id}>
                           <img
-                            src={`${import.meta.env.BASE_URL}/material-symbols_sort-rounded.svg`}
+                            src="/material-symbols_sort-rounded.svg"
                             alt="filter img"
                           />
                           Sort
@@ -1178,12 +1124,10 @@ export default function Dashboardtab({
         {!cardView ? (
           <Table
             //@ts-ignore
-            //@ts-ignore
             data={tableValues}
             properties={properties}
             onScrollChange={handleChildScroll}
             handleOpenModal={handleOpenModal}
-            tabType="pending"
           />
         ) : (
           <PropertyCardList
@@ -1199,12 +1143,10 @@ export default function Dashboardtab({
         {!cardView ? (
           <Table
             //@ts-ignore
-            //@ts-ignore
             data={tableValues}
             properties={properties}
             onScrollChange={handleChildScroll}
             handleOpenModal={handleOpenModal}
-            tabType="approved"
           />
         ) : (
           <PropertyCardList
@@ -1220,12 +1162,10 @@ export default function Dashboardtab({
         {!cardView ? (
           <Table
             //@ts-ignore
-            //@ts-ignore
             data={tableValues}
             properties={properties}
             onScrollChange={handleChildScroll}
             handleOpenModal={handleOpenModal}
-            tabType="rejected"
           />
         ) : (
           <PropertyCardList
@@ -1241,12 +1181,10 @@ export default function Dashboardtab({
         {!cardView ? (
           <Table
             //@ts-ignore
-            //@ts-ignore
             data={tableValues}
             properties={properties}
             onScrollChange={handleChildScroll}
             handleOpenModal={handleOpenModal}
-            tabType="deleted"
           />
         ) : (
           <PropertyCardList
@@ -1263,7 +1201,7 @@ export default function Dashboardtab({
           <div className="filter-header">
             <p>
               <img
-                src={`${import.meta.env.BASE_URL}/dashboardtab/icon-park-outline_down.svg`}
+                src="../src/assets/dashboardtab/icon-park-outline_down.svg"
                 alt="icon park"
                 style={{ cursor: "pointer" }}
                 onClick={() => setDrawerOpen(false)}
@@ -1271,10 +1209,7 @@ export default function Dashboardtab({
               &nbsp; Filter By
             </p>
             <p className="filtercount">
-              {checkListCount > 0 && (
-                <span className="count-badge">{checkListCount}</span>
-              )}
-              Filter{checkListCount !== 1 ? "s" : ""}
+              ({checkListCount}) Filter{checkListCount !== 1 ? "s" : ""}
             </p>
           </div>
           <div className="checklist-content row">
@@ -1320,7 +1255,7 @@ export default function Dashboardtab({
               }}
             >
               <img
-                src={`${import.meta.env.BASE_URL}/dashboardtab/ic_round-clear-24.svg`}
+                src="../src/assets/dashboardtab/ic_round-clear-24.svg"
                 alt="close icon"
               />
               Clear
@@ -1422,9 +1357,7 @@ const PropertyCardList = ({
       const currentScrollY = container?.scrollTop || 0;
       if (currentScrollY < lastScrollY || currentScrollY < 50) {
         // setHideHeader(false);
-        // setHideHeader(false);
       } else {
-        // setHideHeader(true);
         // setHideHeader(true);
       }
       setLastScrollY(currentScrollY);
@@ -1490,7 +1423,7 @@ const PropertyCardList = ({
         }
       );
       console.log("Status updated:", response.data);
-    }  catch {
+    } catch {
       console.error("Failed to update status");
     }
   };
@@ -1515,7 +1448,6 @@ const PropertyCardList = ({
       handlePopoverClose(); // Close popover
       window.dispatchEvent(new Event("refreshTableData")); // Refresh table
     } catch {
-    } catch {
       console.error(`Failed to ${action.toLowerCase()} selected properties`);
     }
   };
@@ -1532,9 +1464,9 @@ const PropertyCardList = ({
         <Box
           ref={containerRef}
           sx={{
-            // height: "400px",
-            // overflowY: "auto",
-            // marginBottom: "50px",
+            height: "400px",
+            overflowY: "auto",
+            marginBottom: "50px",
           }}
         >
           {formatedData.length === 0 &&
@@ -1571,7 +1503,7 @@ const PropertyCardList = ({
                 <div className="card-view-content col-md-6">
                   <div className="card-view-address-bar">
                     <div className="cardview-address-detail">
-                      <h6>{item?.title || "No Landmark"}</h6>
+                      <h6>{item?.location?.landmark || "No Landmark"}</h6>
                       <p>{item?.location?.address}</p>
                     </div>
                     <div className="cardview-rent">
@@ -1588,28 +1520,20 @@ const PropertyCardList = ({
 
                   <div className="cardview-posted-detail">
                     <span className="posted-span">
-                      {item?.postOwner?.userName } | {item?.createdAt}
+                      Posted by TestUser | 6 hours ago
                     </span>
                   </div>
                   <div className="card-view-icon-wrapper">
-                    <div className="card-icon-view">
-                      <img
-                        src={`${import.meta.env.BASE_URL}/dashboardtab/view-card.png`}
-                        alt="icon-edit"
-                        onClick={() => item._id && cardHandleView(item._id)}
-                        style={{ cursor: "pointer" }}
-                      />
-                    </div>
                     <div className="card-icon-edit">
                       <img
-                        src={`${import.meta.env.BASE_URL}/dashboardtab/Icon_Edit.svg`}
+                        src="../src/assets/dashboardtab/Icon_Edit.svg"
                         alt="icon-edit"
                         onClick={() => handleEdit(item)}
                       />
                     </div>
                     <div className="card-icon-approve">
                       <img
-                        src={`${import.meta.env.BASE_URL}/dashboardtab/Icon_Tick.svg`}
+                        src="../src/assets/dashboardtab/Icon_Tick.svg"
                         alt="icon-approve"
                         style={{ cursor: "pointer" }}
                         onClick={() => handleOpenModal("Approve", item)}
@@ -1617,7 +1541,7 @@ const PropertyCardList = ({
                     </div>
                     <div className="card-icon-deny">
                       <img
-                        src={`${import.meta.env.BASE_URL}/dashboardtab/Icon_Deny.svg`}
+                        src="../src/assets/dashboardtab/Icon_Deny.svg"
                         alt="icon-deny"
                         style={{ cursor: "pointer" }}
                         onClick={() => handleOpenModal("Deny", item)}
@@ -1625,7 +1549,7 @@ const PropertyCardList = ({
                     </div>
                     <div className="card-icon-delete">
                       <img
-                        src={`${import.meta.env.BASE_URL}/dashboardtab/Icon-Delete-orange.svg`}
+                        src="../src/assets/dashboardtab/Icon-Delete-orange.svg"
                         alt="icon-delete"
                         style={{ cursor: "pointer" }}
                         onClick={() => handleOpenModal("Delete", item)}
@@ -1679,4 +1603,3 @@ const PropertyCardList = ({
     </Box>
   );
 };
-
