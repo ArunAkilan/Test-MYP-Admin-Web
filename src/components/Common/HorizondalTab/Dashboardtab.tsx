@@ -28,6 +28,8 @@ import { debounce } from "lodash";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
  
+import { useSelector } from 'react-redux';
+import type { RootState } from '../../../store';
 import Carousel from "../Carousel/carousel";
 import Popover from "@mui/material/Popover";
 import tickIcon from "../../../assets/table/Icon_Tick.svg";
@@ -547,21 +549,19 @@ export default function Dashboardtab({
  
   const toggleDrawer =
     (drawerOpen: boolean) =>
-    (event: React.KeyboardEvent | React.MouseEvent | unknown) => {
-      if (
-         event && 
-          typeof event === "object" && 
-        event !== null && 
-        "type" in event &&
-        event.type === "keydown" &&
-        ((event as React.KeyboardEvent).key === "Tab" ||
-          (event as React.KeyboardEvent).key === "Shift")
-      ) {
-        return;
-      }
- 
-      setDrawerOpen(drawerOpen); 
-    };
+      (event: React.KeyboardEvent | React.MouseEvent | {}) => {
+        if (
+          event &&
+          "type" in event &&
+          event.type === "keydown" &&
+          ((event as React.KeyboardEvent).key === "Tab" ||
+            (event as React.KeyboardEvent).key === "Shift")
+        ) {
+          return;
+        }
+
+        setDrawerOpen(drawerOpen);
+      };
  
   // card view
   const [cardView, setCardView] = useState(false);
@@ -599,28 +599,27 @@ export default function Dashboardtab({
   //@ts-ignore
   const formatData: PropertyItem[] = Array.isArray(data)
     ? data.map((item) => ({
-        _id: item._id ?? "",
-        propertyType: item.propertyType ?? "",
-        location: {
-          landmark: item.location?.landmark ?? "",
-          address: item.location?.address ?? "",
-        },
-        rent: item.rent ?? {},
-      }))
+      _id: item._id ?? "",
+      propertyType: item.propertyType ?? "",
+      location: {
+        landmark: item.location?.landmark ?? "",
+        address: item.location?.address ?? "",
+      },
+      rent: item.rent ?? {},
+    }))
     : [
-        ...(data?.residential ?? []),
-        ...(data?.commercial ?? []),
-        ...(data?.plot ?? []),
-      ].map((item) => ({
-        _id: item._id ?? "",
-        propertyType: item.propertyType ?? "",
-        location: {
-          landmark: item.location?.landmark ?? "",
-          address: item.location?.address ?? "",
-        },
-        rent: item.rent ?? {},
-      }));
- 
+      ...(data?.residential ?? []),
+      ...(data?.commercial ?? []),
+      ...(data?.plot ?? []),
+    ].map((item) => ({
+      _id: item._id ?? "",
+      propertyType: item.propertyType ?? "",
+      location: {
+        landmark: item.location?.landmark ?? "",
+        address: item.location?.address ?? "",
+      },
+      rent: item.rent ?? {},
+    }));
   // handlemodal
   const handleOpenModal = (
     action: "Approve" | "Deny" | "Delete",
@@ -1442,13 +1441,14 @@ const formatedData: (PropertyItem & PropertyViewWithSource)[] = properties;
   const isPopoverOpen = Boolean(popoverAnchorEl);
   const popoverId = isPopoverOpen ? "simple-popover" : undefined;
  
+  const tabValue = useSelector((state: RootState) => state.SidebarTab.value);
   const getSingularPropertyType = () => {
-    switch (properties) {
-      case "residentials":
+    switch (tabValue) {
+      case 2:
         return "residential";
-      case "commercials":
+      case 1:
         return "commercial";
-      case "plots":
+      case 3:
         return "plot";
       default:
         return "residential";
@@ -1456,9 +1456,12 @@ const formatedData: (PropertyItem & PropertyViewWithSource)[] = properties;
   };
   
   const handleEdit = (item: any) => {
-    console.log(item,"start")
-    const singularProperty = getSingularPropertyType();
-    console.log("type",properties, singularProperty)
+    // console.log(item,"start")
+    // const singularProperty = getSingularPropertyType();
+    // console.log("type",properties, singularProperty)
+
+    console.log("Editing item:", tabValue, item);
+    const singularProperty = getSingularPropertyType(); 
   
     navigate(`/${singularProperty}/create`, {
       state: {
@@ -1466,7 +1469,7 @@ const formatedData: (PropertyItem & PropertyViewWithSource)[] = properties;
         mode: "edit",
       },
     });
-    console.log("end")
+    // console.log("end")
   };
   
  
@@ -1545,8 +1548,8 @@ const formatedData: (PropertyItem & PropertyViewWithSource)[] = properties;
             // marginBottom: "50px",
           }}
         >
-          {formatedData.length === 0 && 
-              (<div style={{padding:"20px", margin:"auto",textAlign:"center"}}>No properties available...</div>)
+      {formatedData.length === 0 &&
+            (<div style={{ padding: "20px", margin: "auto", textAlign: "center" }}>No properties available...</div>)
           }
           {formatedData.map((item: PropertyItem) => (
             <Grid item xs={12} sm={12} md={12} key={item._id}>
