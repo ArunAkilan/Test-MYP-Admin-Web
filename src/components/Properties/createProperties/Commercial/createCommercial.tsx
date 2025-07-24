@@ -219,32 +219,32 @@ export const CreateCommercialProperty = () => {
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
-  // // Handle file input change & open crop modal
-  // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = e.target.files?.[0];
-  //   if (!file) return;
+  //  Handle file input change & open crop modal
+   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+     const file = e.target.files?.[0];
+     if (!file) return;
 
-  //   setErrors({});
+     setErrors({});
 
-  //   if (!file.type.startsWith("image/")) {
+  if (!file.type.startsWith("image/")) {
 
-  //     toast.error(`Invalid file type: ${file.name}`);
-  //     e.target.value = "";
-  //     return;
-  //   }
+       toast.error(`Invalid file type: ${file.name}`);
+       e.target.value = "";
+      return;
+    }
 
-  //   if (images.length >= MAX_IMAGES) {
-  //     setErrors({ images: `Maximum ${MAX_IMAGES} images allowed.` });
-  //     e.target.value = "";
-  //     return;
-  //   }
+    if (images.length >= MAX_IMAGES) {
+      setErrors({ images: `Maximum ${MAX_IMAGES} images allowed.` });
+      e.target.value = "";
+      return;
+    }
 
-  //   const objectUrl = URL.createObjectURL(file);
-  //   setFileToCrop(file);
-  //   setImageSrc(objectUrl);
-  //   setCropModalOpen(true);
-  //   e.target.value = "";
-  // };
+    const objectUrl = URL.createObjectURL(file);
+    setFileToCrop(file);
+    setImageSrc(objectUrl);
+    setCropModalOpen(true);
+    e.target.value = "";
+  };
 
   // Cropper callback to get cropped area pixels
   const onCropComplete = useCallback((_: Area, croppedPixels: Area) => {
@@ -1218,7 +1218,7 @@ export const CreateCommercialProperty = () => {
                   <div className="preview-images d-flex gap-3 mt-2 image-scroll-container">
                     {images.map((img, index) => (
                       <div key={index} className="choosedImages position-relative">
-                        <img src={img.url} alt={`preview-${index}`} className="preview-img" style={{ cursor: 'pointer' }}
+                        <img src={img.name} alt={`preview-${index}`} className="preview-img" style={{ cursor: 'pointer' }}
                           onClick={() => setPreviewImage(img.url)} />
                         <div
                           className="image-name mt-1 text-truncate"
@@ -1232,7 +1232,7 @@ export const CreateCommercialProperty = () => {
                             textOverflow: "ellipsis",
                           }}
                         >
-                          {img.name}
+                          {/* <img src={img.name} alt={img.name} /> */}
                         </div>
                         <button type="button" onClick={() => removeImage(index)} className="remove-btn">
                             <img src={`${import.meta.env.BASE_URL}/createProperty/material-symbols_close-rounded.svg`} alt="Remove" />
@@ -1256,7 +1256,10 @@ export const CreateCommercialProperty = () => {
                       id="propertyImageUpload"
                       style={{ display: "none" }}
                       accept="image/*"
-                      multiple
+                       onChange={handleFileChange}
+      />
+
+                      { /* multiple
                       onChange={(e) => {
                         if (!e.target.files) return;
 
@@ -1303,7 +1306,7 @@ export const CreateCommercialProperty = () => {
                         e.target.value = ""; // allow re-selection of same file
                       }}
                     />
-
+*/}
                     <MuiButton
                       className="chooseBtn"
                       variant="contained"
