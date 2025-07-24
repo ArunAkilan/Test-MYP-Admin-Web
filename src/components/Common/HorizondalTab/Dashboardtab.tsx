@@ -44,11 +44,7 @@ import { useAppDispatch, useAppSelector } from "../../../hook";
 import { setActiveTab } from "../../../slicers/tabsSlice";
 import { TabStatus } from "./Dashboardtab.model";
 import type { Property } from "../../AdminResidencial/AdminResidencial.model";
-import type {
-  PropertyViewWithSource
-} from "./Dashboardtab.model";
-
-  import  {useNavigate } from "react-router-dom";
+// import type {PropertyViewWithSource} from "./Dashboardtab.model";
 
 // type Property = {
 //   _id?: string;
