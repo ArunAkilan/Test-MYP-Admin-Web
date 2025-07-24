@@ -274,9 +274,10 @@ export interface PropertyView extends Property {
 }
 
 // ───── View Type With Source ─────
-export interface PropertyViewWithSource extends PropertyView {
-  _source: "residential" | "commercial" | "plot";
-}
+// export interface PropertyViewWithSource extends PropertyView {
+//   _source: "residential" | "commercial" | "plot";
+  
+// }
 
 // ───── Backend Response ─────
 export interface PropertyDataResponse {
@@ -288,3 +289,6 @@ export interface PropertyDataResponse {
   plot?: PropertyView[];
   data?: PropertyView[];
 }
+
+export type SortDirection = 'asc' | 'desc';
+export type SortableColumn = 'title' | 'totalArea' | 'status' | 'totalFloors' | 'facingDirection' | 'furnishingType' | 'washroom' | 'plotType' | 'propertyType';

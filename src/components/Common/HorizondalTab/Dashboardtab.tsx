@@ -43,16 +43,43 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { useAppDispatch, useAppSelector } from "../../../hook";
 import { setActiveTab } from "../../../slicers/tabsSlice";
 import { TabStatus } from "./Dashboardtab.model";
+import type { Property } from "../../AdminResidencial/AdminResidencial.model";
+import type {
+  PropertyViewWithSource
+} from "./Dashboardtab.model";
 
-type Property = {
-  _id?: string;
-  propertyType?: string;
-  location?: {
-    landmark?: string;
-    address?: string;
-  };
-  [key: string]: any;
-};
+  import  {useNavigate } from "react-router-dom";
+
+// type Property = {
+//   _id?: string;
+//   createdAt?: string;
+//   postOwner?: {
+//     userName?: string;
+//   }
+//   rent?: {
+//     rentAmount?: string;
+//     advanceAmount?: string;
+//     agreementTiming?: string;
+//     negotiable?: boolean;
+//   };
+//   status?: string;
+//   propertyType?: string;
+//   title?: string;
+//   plotType?: string;
+//   furnishingType?: string;
+//   facingDirection?: string;
+//   totalFloors?: string;
+//   commercialType?: string;
+//   washroom?: string;
+//   type?: string;
+//   location?: {
+//     landmark?: string;
+//     address?: string;
+//   };
+//   area? : {
+//     totalArea?: string;
+//   }
+// };
 type PropertyData = {
   residential: Property[];
   commercial: Property[];
@@ -1407,8 +1434,25 @@ const PropertyCardList = ({
         mode: "edit",
       },
     });
+    console.log("end")
   };
+  
+ 
+ const handleView = (id: string | number) => {
+  const selectedItem = formatedData.find(
+    (item) => String(item._id) === String(id)
+  );
 
+  if (!selectedItem) {
+    alert("Property not found");
+    return;
+  }
+
+  const routeBase = getSingularPropertyType();
+  navigate(`/${routeBase}/view/${id}`, {
+    state: { data: selectedItem, mode: "view" },
+  });
+};
 
   const handleAction = async (id: string, status: number) => {
     const singularProperty = getSingularPropertyType();  // fix here
@@ -1524,6 +1568,14 @@ const PropertyCardList = ({
                     </span>
                   </div>
                   <div className="card-view-icon-wrapper">
+                    <div className="card-icon-view">
+                      <img
+                        src={`${import.meta.env.BASE_URL}/dashboardtab/view-card.png`}
+                        alt="icon-edit"
+                        onClick={() => item._id && handleView(item._id)}
+                        style={{ cursor: "pointer" }}
+                      />
+                    </div>
                     <div className="card-icon-edit">
                       <img
                         src="../src/assets/dashboardtab/Icon_Edit.svg"

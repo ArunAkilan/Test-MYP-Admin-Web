@@ -21,3 +21,6 @@ export type PropertyItem = {
   };
   images?: string[];
 };
+export interface PropertyViewWithSource {
+  _source: "residential" | "commercial" | "plot";
+}
