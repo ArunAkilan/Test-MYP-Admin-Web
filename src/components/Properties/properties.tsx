@@ -297,7 +297,9 @@ const cropImage = async () => {
 
       setImages((prev) => [
         ...prev,
-        { file: croppedFile, url: previewUrl, name: croppedFile.name },
+        // { file: croppedFile, url: previewUrl, name: croppedFile.name },
+        { file: croppedFile, url: previewUrl, name: previewUrl }
+
       ]);
 
       // Reset crop modal state
@@ -1245,8 +1247,8 @@ const removeImage = (index: number) => {
     <div className="preview-images d-flex gap-3 mt-2 image-scroll-container">
       {images.map((img, index) => (
         <div key={index} className="choosedImages position-relative">
-          <img src={img.url} alt={`preview-${index}`} className="preview-img" style={{ cursor: 'pointer' }}
-  onClick={() => setPreviewImage(img.url ?? null)}   />
+          <img src={img.name} alt={`preview-${index}`} className="preview-img" style={{ cursor: 'pointer' }}
+  onClick={() => setPreviewImage(img.name ?? null)}   />
           <div
             className="image-name mt-1 text-truncate"
             title={img.name}
@@ -1259,7 +1261,7 @@ const removeImage = (index: number) => {
               textOverflow: "ellipsis",
             }}
           >
-            {img.name}
+            {/* <img src={img.name} alt={img.name} /> */}
           </div>
           <button type="button" onClick={() => removeImage(index)} className="remove-btn">
             <img src={`${import.meta.env.BASE_URL}/createProperty/material-symbols_close-rounded.svg`} alt="Remove" />

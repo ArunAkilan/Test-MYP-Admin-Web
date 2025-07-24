@@ -291,7 +291,8 @@ export const CreateCommercialProperty = () => {
 
         setImages((prev) => [
           ...prev,
-          { file: croppedFile, url: previewUrl, name: croppedFile.name },
+          //{ file: croppedFile, url: previewUrl, name: croppedFile.name },
+          { file: croppedFile, url: previewUrl, name: previewUrl }
         ]);
 
         // Reset crop modal state
@@ -1219,7 +1220,7 @@ export const CreateCommercialProperty = () => {
                     {images.map((img, index) => (
                       <div key={index} className="choosedImages position-relative">
                         <img src={img.name} alt={`preview-${index}`} className="preview-img" style={{ cursor: 'pointer' }}
-                          onClick={() => setPreviewImage(img.url)} />
+                          onClick={() => setPreviewImage(img.name)} />
                         <div
                           className="image-name mt-1 text-truncate"
                           title={img.name}
