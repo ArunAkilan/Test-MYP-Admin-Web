@@ -8,7 +8,7 @@ COPY . .
 RUN rm -rf dist 
 # Make vite executable (optional, if it's local)
 RUN chmod +x node_modules/.bin/vite
-#RUN npm run build
+#RUN npm run  build
 
 EXPOSE 80
 
