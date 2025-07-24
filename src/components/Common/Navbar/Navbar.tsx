@@ -103,6 +103,10 @@ const Header: React.FC<HeaderProps> = ({
 
   //Socket IO
 
+  const gotoProfile = () => {
+   navigate('/profile');
+  }
+  
   return (
     <div
       className={`navbar navbar-expand-lg navbar-light header-wrap ${
@@ -201,7 +205,7 @@ const Header: React.FC<HeaderProps> = ({
                   }}
                 >
                   <div className="admin-btn-popover">
-                    <div className="row admin-btn-popup-top admin-popup-cmn-div">
+                    <div  onClick={gotoProfile} className="row admin-btn-popup-top admin-popup-cmn-div">
                       <img
                         src={`${
                           import.meta.env.BASE_URL
