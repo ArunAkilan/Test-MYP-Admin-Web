@@ -32,8 +32,13 @@ import Tooltip from "@mui/material/Tooltip";
 import Cropper from "react-easy-crop";
 import type { Area } from "react-easy-crop";
 import { Button as MuiButton, Modal, Slider } from "@mui/material";
+// import { GOOGLE_MAP_OPTIONS } from "./googleMapsConfig";
+import {GOOGLE_MAP_OPTIONS} from "../Common/googleMapsConfig"
+
 
 //cropping code ends here
+
+
 
 const containerStyle = {
   width: "100%",
@@ -42,12 +47,12 @@ const containerStyle = {
   border: "1px solid #D3DDE7",
 };
 const defaultCenter = { lat: 11.2419968, lng: 78.8063549 };
-const GOOGLE_LIBRARIES: (
-  | "places"
-  | "geometry"
-  | "drawing"
-  | "visualization"
-)[] = ["places", "geometry"];
+// const GOOGLE_LIBRARIES: (
+//   | "places"
+//   | "geometry"
+//   | "drawing"
+//   | "visualization"
+// )[] = ["places", "geometry"];
 
 // Utility function to set nested value dynamically
 function setNested(obj: PlainObject, path: string, value: unknown) {
@@ -206,121 +211,117 @@ function buildPayloadDynamic(
 
 export const CreateProperty = () => {
 
-//cropping code starts here 
+  //cropping code starts here 
   // ===== Cropping & Image Upload State =====
   const MIN_WIDTH = 800;
-const MIN_HEIGHT = 600;
-const MAX_WIDTH = 1024;
-const MAX_HEIGHT = 768;
-const MAX_IMAGES = 12;
+  const MIN_HEIGHT = 600;
+  const MAX_WIDTH = 1024;
+  const MAX_HEIGHT = 768;
+  const MAX_IMAGES = 12;
 
-//const [images, setImages] = useState<UploadedImage[]>([]);
-//const [_errors, setErrors] = useState<{ images?: string }>({});
+  //const [images, setImages] = useState<UploadedImage[]>([]);
+  //const [_errors, setErrors] = useState<{ images?: string }>({});
 
-const [cropModalOpen, setCropModalOpen] = useState(false);
-const [fileToCrop, setFileToCrop] = useState<File | null>(null);
-const [imageSrc, setImageSrc] = useState<string | null>(null);
-const [crop, setCrop] = useState({ x: 0, y: 0 });
-const [zoom, setZoom] = useState(1);
-const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
-const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [cropModalOpen, setCropModalOpen] = useState(false);
+  const [fileToCrop, setFileToCrop] = useState<File | null>(null);
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
-// Handle file input change & open crop modal
-const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+  // Handle file input change & open crop modal
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  setErrors({});
+    setErrors({});
 
-  if (!file.type.startsWith("image/")) {
-    
-    toast.error(`Invalid file type: ${file.name}`);
+    if (!file.type.startsWith("image/")) {
+
+      toast.error(`Invalid file type: ${file.name}`);
+      e.target.value = "";
+      return;
+    }
+
+    if (images.length >= MAX_IMAGES) {
+      setErrors({ images: `Maximum ${MAX_IMAGES} images allowed.` });
+      e.target.value = "";
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    setFileToCrop(file);
+    setImageSrc(objectUrl);
+    setCropModalOpen(true);
     e.target.value = "";
-    return;
-  }
+  };
 
-  if (images.length >= MAX_IMAGES) {
-    setErrors({ images: `Maximum ${MAX_IMAGES} images allowed.` });
-    e.target.value = "";
-    return;
-  }
+  // Cropper callback to get cropped area pixels
+  const onCropComplete = useCallback((_: Area, croppedPixels: Area) => {
+    setCroppedAreaPixels(croppedPixels);
+  }, []);
 
-  const objectUrl = URL.createObjectURL(file);
-  setFileToCrop(file);
-  setImageSrc(objectUrl);
-  setCropModalOpen(true);
-  e.target.value = "";
-};
+  // Crop the image, generate cropped file & add to images array
+  const cropImage = async () => {
+    if (!imageSrc || !croppedAreaPixels || !fileToCrop) return;
 
-// Cropper callback to get cropped area pixels
-const onCropComplete = useCallback((_: Area, croppedPixels: Area) => {
-  setCroppedAreaPixels(croppedPixels);
-}, []);
+    const image = new Image();
+    image.src = imageSrc;
+    await image.decode();
 
-// Crop the image, generate cropped file & add to images array
-const cropImage = async () => {
-  if (!imageSrc || !croppedAreaPixels || !fileToCrop) return;
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
 
-  const image = new Image();
-  image.src = imageSrc;
-  await image.decode();
+    const TARGET_WIDTH = 1024;
+    const TARGET_HEIGHT = 768;
+    canvas.width = TARGET_WIDTH;
+    canvas.height = TARGET_HEIGHT;
 
-  const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
+    if (ctx) {
+      ctx.filter = "brightness(1.05) contrast(1.1)";
+      ctx.drawImage(
+        image,
+        croppedAreaPixels.x,
+        croppedAreaPixels.y,
+        croppedAreaPixels.width,
+        croppedAreaPixels.height,
+        0,
+        0,
+        TARGET_WIDTH,
+        TARGET_HEIGHT
+      );
 
-  const TARGET_WIDTH = 1024;
-  const TARGET_HEIGHT = 768;
-  canvas.width = TARGET_WIDTH;
-  canvas.height = TARGET_HEIGHT;
+      canvas.toBlob((blob) => {
+        if (!blob) return;
 
-  if (ctx) {
-    ctx.filter = "brightness(1.05) contrast(1.1)";
-    ctx.drawImage(
-      image,
-      croppedAreaPixels.x,
-      croppedAreaPixels.y,
-      croppedAreaPixels.width,
-      croppedAreaPixels.height,
-      0,
-      0,
-      TARGET_WIDTH,
-      TARGET_HEIGHT
-    );
+        const croppedFile = new File([blob], fileToCrop.name, {
+          type: "image/jpeg",
+        });
+        const previewUrl = URL.createObjectURL(blob);
 
-    canvas.toBlob((blob) => {
-      if (!blob) return;
+        setImages((prev) => [
+          ...prev,
+          // { file: croppedFile, url: previewUrl, name: croppedFile.name },
+          { file: croppedFile, url: previewUrl, name: previewUrl }
 
-      const croppedFile = new File([blob], fileToCrop.name, {
-        type: "image/jpeg",
-      });
-      const previewUrl = URL.createObjectURL(blob);
+        ]);
 
-      setImages((prev) => [
-        ...prev,
-        // { file: croppedFile, url: previewUrl, name: croppedFile.name },
-        { file: croppedFile, url: previewUrl, name: previewUrl }
+        // Reset crop modal state
+        setCropModalOpen(false);
+        setImageSrc(null);
+        setFileToCrop(null);
+        setCrop({ x: 0, y: 0 });
+        setZoom(1);
+        setCroppedAreaPixels(null);
+      }, "image/jpeg", 0.95);
+    }
+  };
 
-      ]);
-
-      // Reset crop modal state
-      setCropModalOpen(false);
-      setImageSrc(null);
-      setFileToCrop(null);
-      setCrop({ x: 0, y: 0 });
-      setZoom(1);
-      setCroppedAreaPixels(null);
-    }, "image/jpeg", 0.95);
-  }
-};
-
-// Remove image from preview list
-const removeImage = (index: number) => {
-  setImages((prevImages) => prevImages.filter((_, i) => i !== index));
-};
-
-//cropping code ends here
-
-
+  // Remove image from preview list
+  const removeImage = (index: number) => {
+    setImages((prevImages) => prevImages.filter((_, i) => i !== index));
+  };
 
   // State for form data
   const navigate = useNavigate();
@@ -425,12 +426,14 @@ const removeImage = (index: number) => {
     Record<string, string>
   >({ "BUS STAND": "0 KM", AIRPORT: "0 KM", METRO: "0 KM", RAILWAY: "0 KM" });
 
-  // Google Maps API loader
-  const { isLoaded } = useJsApiLoader({
-    id: "google-map-script",
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "", // put your API key in .env file
-    libraries: GOOGLE_LIBRARIES,
-  });
+  // // Google Maps API loader
+  // const { isLoaded } = useJsApiLoader({
+  //   id: "google-map-script",
+  //   googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "", // put your API key in .env file
+  //   libraries: GOOGLE_LIBRARIES,
+  // });
+
+  const { isLoaded } = useJsApiLoader(GOOGLE_MAP_OPTIONS);
 
   // pass the map instance or the map div to PlacesService
   const fetchNearbyTransport = async (lat: number, lng: number) => {
@@ -494,17 +497,17 @@ const removeImage = (index: number) => {
       });
     });
   };
-  
+
   const onMapClick = useCallback(async (e: google.maps.MapMouseEvent) => {
     if (!e.latLng) return;
-  
+
     const lat = e.latLng.lat();
     const lng = e.latLng.lng();
-  
+
     setLatitude(lat.toFixed(6));
     setLongitude(lng.toFixed(6));
     setMarkerPosition({ lat, lng });
-  
+
     try {
       const address = await geocodeLatLng(lat, lng);
       setAddress(address);
@@ -514,11 +517,11 @@ const removeImage = (index: number) => {
       setAddress("");
       setErrors((prev) => ({ ...prev, address: "Geocoder failed" }));
     }
-  
+
     fetchNearbyTransport(lat, lng);
   }, []);
-  
-  
+
+
 
   // Validation function
   const validate = (): Record<string, string> => {
@@ -690,8 +693,7 @@ const removeImage = (index: number) => {
       console.error("Submission Error:", error);
 
       toast.error(
-        `Failed to ${
-          isEditMode ? "update" : "create"
+        `Failed to ${isEditMode ? "update" : "create"
         } property: ${errorMessage}`
       );
     } finally {
@@ -923,8 +925,8 @@ const removeImage = (index: number) => {
                             placeholder="Enter Deposit"
                             value={advanceAmount}
                             onChange={(e) => setAdvanceAmount(e.target.value)}
-                            // error={!!errors.advanceDeposit}
-                            // helperText={errors.advanceAmount}
+                          // error={!!errors.advanceDeposit}
+                          // helperText={errors.advanceAmount}
                           />
                         </div>
                         <div className="col-12 col-md-6 mb-3">
@@ -1139,7 +1141,7 @@ const removeImage = (index: number) => {
                           placeholder="Latitude"
                           value={latitude}
                           onChange={(e) => setLatitude(e.target.value)}
-                          // Add error handling if latitude is mandatory
+                        // Add error handling if latitude is mandatory
                         />
                       </div>
                       <div className="col-6 mb-3">
@@ -1152,7 +1154,7 @@ const removeImage = (index: number) => {
                           placeholder="Longitude"
                           value={longitude}
                           onChange={(e) => setLongitude(e.target.value)}
-                          // Add error handling if longitude is mandatory
+                        // Add error handling if longitude is mandatory
                         />
                       </div>
                     </div>
@@ -1233,166 +1235,167 @@ const removeImage = (index: number) => {
                     </div>
                   </div>
                 </div>
-</section>
+              </section>
 
-{/*new code for cropping functionalities*/}
-<section>
-  <div className="ResidentialCategory mt-3">
-    <p>
-      Upload Property Images <span className="star">*</span>
-    </p>
-  </div>
+              {/*new code for cropping functionalities*/}
+              <section>
+                <div className="ResidentialCategory mt-3">
+                  <p>
+                    Upload Property Images <span className="star">*</span>
+                  </p>
+                </div>
 
-  <div className={`image-upload-wrapper ${errors.images ? "error-border" : ""}`}>
-    <div className="preview-images d-flex gap-3 mt-2 image-scroll-container">
-      {images.map((img, index) => (
-        <div key={index} className="choosedImages position-relative">
-          <img src={img.name} alt={`preview-${index}`} className="preview-img" style={{ cursor: 'pointer' }}
-  onClick={() => setPreviewImage(img.name ?? null)}   />
-          <div
-            className="image-name mt-1 text-truncate"
-            title={img.name}
-            style={{
-              fontSize: "12px",
-              color: "#333",
-              maxWidth: "100%",
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            }}
-          >
-            {/* <img src={img.name} alt={img.name} /> */}
-          </div>
-          <button type="button" onClick={() => removeImage(index)} className="remove-btn">
-            <img src={`${import.meta.env.BASE_URL}/createProperty/material-symbols_close-rounded.svg`} alt="Remove" />
-          </button>
-        </div>
-      ))}
-    </div>
+                <div className={`image-upload-wrapper ${errors.images ? "error-border" : ""}`}>
+                  <div className="preview-images d-flex gap-3 mt-2 image-scroll-container">
+                    {images.map((img, index) => (
+                      <div key={index} className="choosedImages position-relative">
+                        <img src={img.name} alt={`preview-${index}`} className="preview-img" style={{ cursor: 'pointer' }}
+                          onClick={() => setPreviewImage(img.name ?? null)} />
+                        <div
+                          className="image-name mt-1 text-truncate"
+                          title={img.name}
+                          style={{
+                            fontSize: "12px",
+                            color: "#333",
+                            maxWidth: "100%",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {/* <img src={img.name} alt={img.name} /> */}
+                        </div>
+                        <button type="button" onClick={() => removeImage(index)} className="remove-btn">
+                          <img src={`${import.meta.env.BASE_URL}/createProperty/material-symbols_close-rounded.svg`} alt="Remove" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
 
-    <div
-      className={`BtnFrame d-flex mt-3 mb-2 align-items-start gap-3 ${
-        images.length > 0 ? "with-gap" : ""
-      }`}
-    >
-      <p className="image-p">
-        {images.length > 0
-          ? `${images.length} image${images.length > 1 ? "s" : ""} chosen`
-          : "No image chosen"}
-      </p>
+                  <div
+                    className={`BtnFrame d-flex mt-3 mb-2 align-items-start gap-3 ${images.length > 0 ? "with-gap" : ""
+                      }`}
+                  >
+                    <p className="image-p">
+                      {images.length > 0
+                        ? `${images.length} image${images.length > 1 ? "s" : ""} chosen`
+                        : "No image chosen"}
+                    </p>
 
-      <input
-        type="file"
-        id="propertyImageUpload"
-        style={{ display: "none" }}
-        accept="image/*"
-        
-        onChange={handleFileChange}
-      />
+                    <input
+                      type="file"
+                      id="propertyImageUpload"
+                      style={{ display: "none" }}
+                      accept="image/*"
 
-      <MuiButton
-        className="chooseBtn"
-        variant="contained"
-        startIcon={<FileUploadOutlinedIcon />}
-        onClick={() => document.getElementById("propertyImageUpload")?.click()}
-      >
-        <span className="btnC">Choose image</span>
-      </MuiButton>
+                      onChange={handleFileChange}
+                    />
 
-      <p className="imageDesc">Max. {MAX_IMAGES} Images</p>
-    </div>
+                    <MuiButton
+                      className="chooseBtn"
+                      variant="contained"
+                      startIcon={<FileUploadOutlinedIcon />}
+                      onClick={() => document.getElementById("propertyImageUpload")?.click()}
+                    >
+                      <span className="btnC">Choose image</span>
+                    </MuiButton>
 
-    {errors.images && (
-      <div className="text-danger mt-1" style={{ fontSize: "14px" }}>
-        {errors.images}
-      </div>
-    )}
-  </div>
+                    <p className="imageDesc">Max. {MAX_IMAGES} Images</p>
+                  </div>
 
-  <Modal open={cropModalOpen} onClose={() => setCropModalOpen(false)}>
-    <div
-      style={{
-        background: "#fff",
-        padding: 20,
-        margin: "5% auto",
-        width: "90%",
-        maxWidth: 600,
-      }}
-    >
-      {imageSrc && (
-        <>
-          <div style={{ position: "relative", width: "100%", height: 400 }}>
-            <Cropper
-              image={imageSrc}
-              crop={crop}
-              zoom={zoom}
-              aspect={4 / 3}
-              onCropChange={setCrop}
-              onZoomChange={setZoom}
-              onCropComplete={onCropComplete}
-            />
-          </div>
-          <div style={{ marginTop: 20 }}>
-            <Slider
-              value={zoom}
-              min={1}
-              max={3}
-              step={0.1}
-              onChange={(_, value) => setZoom(value as number)}
-            />
-            <div style={{ marginTop: 10 }}>
-              <button onClick={cropImage}>Crop</button>
-              <button
-                onClick={() => setCropModalOpen(false)}
-                style={{ marginLeft: 10 }}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
+                  {errors.images && (
+                    <div className="text-danger mt-1" style={{ fontSize: "14px" }}>
+                      {errors.images}
+                    </div>
+                  )}
+                </div>
 
-        </>
-      )}
-      
-    </div>
-  </Modal>
-</section>
+                <Modal open={cropModalOpen} onClose={() => setCropModalOpen(false)}>
+                  <div
+                    style={{
+                      background: "#fff",
+                      padding: 20,
+                      margin: "5% auto",
+                      width: "90%",
+                      maxWidth: 600,
+                    }}
+                  >
+                    {imageSrc && (
+                      <>
+                        <div style={{ position: "relative", width: "100%", height: 400 }}>
+                          <Cropper
+                            image={imageSrc}
+                            crop={crop}
+                            zoom={zoom}
+                            aspect={4 / 3}
+                            onCropChange={setCrop}
+                            onZoomChange={setZoom}
+                            onCropComplete={onCropComplete}
+                          />
+                        </div>
+                        <div style={{ marginTop: 20 }}>
+                          <Slider
+                            value={zoom}
+                            min={1}
+                            max={3}
+                            step={0.1}
+                            onChange={(_, value) => setZoom(value as number)}
+                          />
+                          <div style={{ marginTop: 10 }}>
+                            <button onClick={cropImage}>Crop</button>
+                            <button
+                              onClick={() => setCropModalOpen(false)}
+                              style={{ marginLeft: 10 }}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
 
-{previewImage && (
-  <Modal open={true} onClose={() => setPreviewImage(null)}>
-    <div
-      style={{
-        position: 'fixed',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        backgroundColor: '#fff',
-        padding: 20,
-        maxWidth: '90%',
-        maxHeight: '90%',
-        overflow: 'auto',
-        boxShadow: '0 0 10px rgba(0,0,0,0.5)',
-        zIndex: 1300,
-      }}
-    >
-      <img
-        src={previewImage}
-        alt="Preview"
-        style={{maxWidth: `${MAX_WIDTH}px`,
-    maxHeight: `${MAX_HEIGHT}px`,
-    minWidth: `${MIN_WIDTH}px`,
-    minHeight: `${MIN_HEIGHT}px`,
-    objectFit: 'contain'}}
-      />
-      <button onClick={() => setPreviewImage(null)} style={{ marginTop: 10 }}>
-        Close Preview
-      </button>
-    </div>
-  </Modal>
-)}
+                      </>
+                    )}
+
+                  </div>
+                </Modal>
+              </section>
+
+              {previewImage && (
+                <Modal open={true} onClose={() => setPreviewImage(null)}>
+                  <div
+                    style={{
+                      position: 'fixed',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      backgroundColor: '#fff',
+                      padding: 20,
+                      maxWidth: '90%',
+                      maxHeight: '90%',
+                      overflow: 'auto',
+                      boxShadow: '0 0 10px rgba(0,0,0,0.5)',
+                      zIndex: 1300,
+                    }}
+                  >
+                    <img
+                      src={previewImage}
+                      alt="Preview"
+                      style={{
+                        maxWidth: `${MAX_WIDTH}px`,
+                        maxHeight: `${MAX_HEIGHT}px`,
+                        minWidth: `${MIN_WIDTH}px`,
+                        minHeight: `${MIN_HEIGHT}px`,
+                        objectFit: 'contain'
+                      }}
+                    />
+                    <button onClick={() => setPreviewImage(null)} style={{ marginTop: 10 }}>
+                      Close Preview
+                    </button>
+                  </div>
+                </Modal>
+              )}
 
 
-{/*new code for cropping functionalities ends here */}
+              {/*new code for cropping functionalities ends here */}
               {/* <div>
                   <div className="ResidentialCategory mt-3">
                     <p>
@@ -1687,22 +1690,17 @@ const removeImage = (index: number) => {
               </section>
 
               {/* Amenities Section - No direct validation needed unless you have min/max selections */}
-              <section className=" AmenitiesSection mb-4">
+              <section className="AmenitiesSection mb-4">
                 <div className="ownerTitle mb-3">
                   <h6>Nearby Services & Essentials</h6>
                   <p>
-                    Select the important places or services available near this
-                    property
+                    Select the important places or services available near this property
                   </p>
                 </div>
 
-                <div className="chipField row g-3">
-                  <div
-                    className="chipcard  d-flex flex-nowrap flex-wrap-sm gap-4 col-6 col-md-3 mb-3"
-                    style={{ padding: "31px" }}
-                  >
+                <div className="chipField">
+                  <div className="d-flex flex-wrap gap-3">
                     <InputField
-                      className="col-6 input-field col-sm-4 col-md-3 col-lg-2 d-flex"
                       type="chip"
                       label="Separate Electricity Billing"
                       icon={
@@ -1723,7 +1721,6 @@ const removeImage = (index: number) => {
                     />
 
                     <InputField
-                      className="col-6 input-field col-sm-4 col-md-3 col-lg-2 d-flex"
                       type="chip"
                       label="Public Park"
                       icon={
@@ -1744,7 +1741,6 @@ const removeImage = (index: number) => {
                     />
 
                     <InputField
-                      className="col-6 input-field col-sm-4 col-md-3 col-lg-2 d-flex"
                       type="chip"
                       label="Gym"
                       icon={
@@ -1763,8 +1759,8 @@ const removeImage = (index: number) => {
                         );
                       }}
                     />
+
                     <InputField
-                      className="col-6 input-field col-sm-4 col-md-3 col-lg-2 d-flex"
                       type="chip"
                       label="Movie Theater"
                       icon={
@@ -1783,8 +1779,8 @@ const removeImage = (index: number) => {
                         );
                       }}
                     />
+
                     <InputField
-                      className="col-6 input-field col-sm-4 col-md-3 col-lg-2 d-flex"
                       type="chip"
                       label="Shopping Mall"
                       icon={
@@ -1807,6 +1803,7 @@ const removeImage = (index: number) => {
                 </div>
               </section>
 
+
               {/* Accessibility Section - No direct validation needed */}
               <section className="AccessibilitySection mb-4">
                 <div className="ownerTitle">
@@ -1816,11 +1813,8 @@ const removeImage = (index: number) => {
                   </p>
                 </div>
 
-                <div className="chipField row">
-                  <div
-                    className="chipcard d-flex gap-4 col-6 col-md-3 mb-3"
-                    style={{ padding: "31px" }}
-                  >
+                <div className="chipField">
+                  <div className="d-flex flex-wrap gap-3">
                     <InputField
                       type="chip"
                       className="input-field"
@@ -1864,8 +1858,8 @@ const removeImage = (index: number) => {
                     />
 
                     <InputField
-                      className="input-field"
                       type="chip"
+                      className="input-field"
                       label="Only via Stairs"
                       icon={
                         <Avatar
@@ -1887,27 +1881,25 @@ const removeImage = (index: number) => {
                 </div>
               </section>
 
+
               <section className="AccessibilitySection mb-4">
                 <div className="ownerTitle">
                   <h6>Connectivity & Security Features</h6>
                   <p>
                     Highlight the connectivity options and security services
-                    included with this property{" "}
+                    included with this property
                   </p>
                 </div>
 
-                <div className="chipField row">
-                  <div
-                    className="chipcard d-flex gap-4 col-6 col-md-3 mb-3"
-                    style={{ padding: "31px" }}
-                  >
+                <div className="chipField">
+                  <div className="d-flex flex-wrap gap-3">
                     <InputField
                       type="chip"
                       className="input-field"
                       label="Broadband Connection"
                       icon={
                         <Avatar
-                          alt="Lift Access"
+                          alt="Broadband Connection"
                           src={`${import.meta.env.BASE_URL}/createProperty/Group.svg`}
                           className="avatarImg"
                         />
@@ -1928,7 +1920,7 @@ const removeImage = (index: number) => {
                       label="Security"
                       icon={
                         <Avatar
-                          alt="Ramp Access"
+                          alt="Security"
                           src={`${import.meta.env.BASE_URL}/createProperty/mingcute_user-security-line.svg`}
                           className="avatarImg"
                         />
@@ -1945,6 +1937,7 @@ const removeImage = (index: number) => {
                   </div>
                 </div>
               </section>
+
 
               {/* Utilities Section - No direct validation needed */}
               <section className="UtilitiesSection ">
@@ -2099,15 +2092,12 @@ const removeImage = (index: number) => {
                     Select any rules about who can stay or live in this property
                   </p>
                   {errors.selectedChips && (
-                    <p className="text-danger">{errors.selectedChips}</p> // <-- error message here
+                    <p className="text-danger">{errors.selectedChips}</p>
                   )}
                 </div>
 
-                <div className="chipField row">
-                  <div
-                    className="chipcard d-flex gap-4 col-6 col-md-3 mb-3"
-                    style={{ padding: "31px" }}
-                  >
+                <div className="chipField">
+                  <div className="d-flex flex-wrap gap-3">
                     <InputField
                       type="chip"
                       className="input-field"
@@ -2117,7 +2107,7 @@ const removeImage = (index: number) => {
                           alt="Guests Not Allowed"
                           src={`${import.meta.env.BASE_URL}/createProperty/solar_user-linear.svg`}
                           className="avatarImg"
-                          sx={{ width: 18, height: 18 }}
+                          // sx={{ width: 18, height: 18 }}
                         />
                       }
                       selectedChips={selectedChips}
@@ -2276,8 +2266,8 @@ const removeImage = (index: number) => {
                         loading
                           ? "Saving..."
                           : isEditMode
-                          ? "Update Property"
-                          : "Create New Property"
+                            ? "Update Property"
+                            : "Create New Property"
                       }
                       icon={
                         loading ? (

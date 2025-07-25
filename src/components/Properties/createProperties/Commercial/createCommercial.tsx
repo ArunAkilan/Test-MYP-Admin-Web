@@ -38,7 +38,7 @@ import type { PlainObject } from "../createProperty.model";
 import Cropper from "react-easy-crop";
 import type { Area } from "react-easy-crop";
 import { Button as MuiButton, Modal, Slider } from "@mui/material";
-
+import { GOOGLE_MAP_OPTIONS } from "../../../Common/googleMapsConfig";
 //cropping code ends here
 
 const containerStyle = {
@@ -48,12 +48,12 @@ const containerStyle = {
   border: "1px solid #D3DDE7",
 };
 const defaultCenter = { lat: 11.2419968, lng: 78.8063549 };
-const GOOGLE_LIBRARIES: (
-  | "places"
-  | "geometry"
-  | "drawing"
-  | "visualization"
-)[] = ["places", "geometry"];
+// const GOOGLE_LIBRARIES: (
+//   | "places"
+//   | "geometry"
+//   | "drawing"
+//   | "visualization"
+// )[] = ["places", "geometry"];
 
 // Utility function to set nested value dynamically
 function setNested(obj: PlainObject, path: string, value: unknown) {
@@ -220,16 +220,16 @@ export const CreateCommercialProperty = () => {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   //  Handle file input change & open crop modal
-   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-     const file = e.target.files?.[0];
-     if (!file) return;
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-     setErrors({});
+    setErrors({});
 
-  if (!file.type.startsWith("image/")) {
+    if (!file.type.startsWith("image/")) {
 
-       toast.error(`Invalid file type: ${file.name}`);
-       e.target.value = "";
+      toast.error(`Invalid file type: ${file.name}`);
+      e.target.value = "";
       return;
     }
 
@@ -420,12 +420,14 @@ export const CreateCommercialProperty = () => {
     Record<string, string>
   >({ "BUS STAND": "0 KM", AIRPORT: "0 KM", METRO: "0 KM", RAILWAY: "0 KM" });
 
-  // Google Maps API loader
-  const { isLoaded } = useJsApiLoader({
-    id: "google-map-script",
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "", // put your API key in .env file
-    libraries: GOOGLE_LIBRARIES,
-  });
+  // // Google Maps API loader
+  // const { isLoaded } = useJsApiLoader({
+  //   id: "google-map-script",
+  //   googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "", // put your API key in .env file
+  //   libraries: GOOGLE_LIBRARIES,
+  // });
+
+  const { isLoaded } = useJsApiLoader(GOOGLE_MAP_OPTIONS);
 
   const fetchNearbyTransport = async (lat: number, lng: number) => {
     const types = [
@@ -1236,7 +1238,7 @@ export const CreateCommercialProperty = () => {
                           {/* <img src={img.name} alt={img.name} /> */}
                         </div>
                         <button type="button" onClick={() => removeImage(index)} className="remove-btn">
-                            <img src={`${import.meta.env.BASE_URL}/createProperty/material-symbols_close-rounded.svg`} alt="Remove" />
+                          <img src={`${import.meta.env.BASE_URL}/createProperty/material-symbols_close-rounded.svg`} alt="Remove" />
                         </button>
                       </div>
                     ))}
@@ -1257,10 +1259,10 @@ export const CreateCommercialProperty = () => {
                       id="propertyImageUpload"
                       style={{ display: "none" }}
                       accept="image/*"
-                       onChange={handleFileChange}
-      />
+                      onChange={handleFileChange}
+                    />
 
-                      { /* multiple
+                    { /* multiple
                       onChange={(e) => {
                         if (!e.target.files) return;
 
@@ -1613,16 +1615,11 @@ export const CreateCommercialProperty = () => {
               <section className="AccessibilitySection mb-4">
                 <div className="ownerTitle">
                   <h6>Move-In Accessibility</h6>
-                  <p>
-                    Choose how easy it is to access and move into the property
-                  </p>
+                  <p>Choose how easy it is to access and move into the property</p>
                 </div>
 
-                <div className="chipField row">
-                  <div
-                    className="chipcard d-flex gap-4 col-6 col-md-3 mb-3"
-                    style={{ padding: "31px" }}
-                  >
+                <div className="chipField">
+                  <div className="d-flex flex-wrap gap-3">
                     <InputField
                       type="chip"
                       label="Lift Access"
@@ -1662,7 +1659,6 @@ export const CreateCommercialProperty = () => {
                         );
                       }}
                     />
-
                     <InputField
                       type="chip"
                       label="Only via Stairs"
@@ -1685,7 +1681,6 @@ export const CreateCommercialProperty = () => {
                   </div>
                 </div>
               </section>
-
               {/* Additional Information Section */}
               <section className="AdditionalInfoSection mb-4">
                 <div className="ownerTitle">
