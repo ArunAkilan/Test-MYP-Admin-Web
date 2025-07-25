@@ -84,21 +84,14 @@ type PropertyData = {
   residential?: Property[];
   commercial?: Property[];
   plot?: Property[];
-  properties?:
-    | "all"
-    | "residential"
-    | "residentials"
-    | "commercial"
-    | "commercials"
-    | "plot"
-    | "plots";
+  properties?: "all" | "residential" | "residentials" | "commercial" | "commercials" | "plot" | "plots";
 };
 
 interface DashboardtabProps {
-  data: PropertyData;
+  data: PropertyData; // ✅ Accepts array now
   properties: "all" | "residentials" | "commercials" | "plots";
   onScrollChangeParent: (scrollTop: number) => void;
-} 
+}
  
 type PropertyItem = {
   _id: string;
@@ -1651,6 +1644,7 @@ const formatedData: (PropertyItem & PropertyViewWithSource)[] = properties;
       </Grid>
       <Popover
         className="checkbox-popover"
+        disableScrollLock={true}
         id={popoverId}
         open={Boolean(popoverAnchorEl) && selectedRows.length > 0}
         onClose={handlePopoverClose}
