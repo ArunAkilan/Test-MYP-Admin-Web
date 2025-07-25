@@ -23,9 +23,9 @@ import type {
   SortableColumn,
 } from "./table.model";
 import EmptyState from "../Emptystate/EmptyState";
-import { useSelector } from 'react-redux';
-import type { RootState } from '../../../store';
-
+import { useSelector } from "react-redux";
+import type { RootState } from "../../../store";
+import type { PropertyViewWithSource } from "../HorizondalTab/Dashboardtab.model";
 
 // type EmptyStateProps = {
 //   tabType: 'pending' | 'approved' | 'rejected' | 'deleted';
@@ -157,7 +157,7 @@ function Table({ data, properties, onScrollChange, tabType }: TableProps) {
     }
   };
 
- const propertyType = useMemo(() => {
+  const propertyType = useMemo(() => {
     switch (tabValue) {
       case 2:
         return "residential";
@@ -165,8 +165,8 @@ function Table({ data, properties, onScrollChange, tabType }: TableProps) {
         return "commercial";
       case 3:
         return "plot";
-        case 0:
-          return 'dashboard'
+      case 0:
+        return "dashboard";
       default:
         return "residential";
     }
@@ -174,8 +174,11 @@ function Table({ data, properties, onScrollChange, tabType }: TableProps) {
 
   //@ts-ignore
   const formatedData: PropertyViewWithSource[] = useMemo(() => {
-  const rawData = Array.isArray(data)
-    ? data.map((item) => ({
+    let rawData: PropertyViewWithSource[] = [];
+
+    if (Array.isArray(data)) {
+      // For specific types
+      rawData = data.map((item) => ({
         ...item,
         _source:
           properties === "residentials"
@@ -184,43 +187,43 @@ function Table({ data, properties, onScrollChange, tabType }: TableProps) {
             ? "commercial"
             : properties === "plots"
             ? "plot"
-            : "residential",
-      }))
-    : [
-        ...(data?.residentials?.map((item) => ({
-          ...item,
-          _source: "residential",
-        })) ?? []),
-        ...(data?.commercials?.map((item) => ({
-          ...item,
-          _source: "commercial",
-        })) ?? []),
-        ...(data?.plots?.map((item) => ({
-          ...item,
-          _source: "plot",
-        })) ?? []),
+            : "all",
+      }));
+    } else if (properties === "all") {
+      // For "all" property, combine all types
+      rawData = [
         ...(data?.residential?.map((item) => ({
           ...item,
-          _source: "residential",
+          _source: "residential" as const,
         })) ?? []),
         ...(data?.commercial?.map((item) => ({
           ...item,
-          _source: "commercial",
+          _source: "commercial" as const,
         })) ?? []),
         ...(data?.plot?.map((item) => ({
           ...item,
-          _source: "plot",
+          _source: "plot" as const,
         })) ?? []),
       ];
+    }
 
-  // Filter based on the tabValue if properties is "all"
- return properties === "all"
-      ? rawData.filter((item) => item._source === propertyType)
-      : rawData;
-}, [data, properties, propertyType]);
-  useEffect(()=>{
-console.log(formatedData,'propertyType');
-  },[formatedData,propertyType])
+    if (properties === "all") {
+      if (propertyType === "dashboard") {
+        // Show all types
+        return rawData;
+      } else {
+        // Filter by propertyType
+        return rawData.filter((item) => item._source === propertyType);
+      }
+    }
+
+    // Default, for other cases
+    return rawData;
+  }, [data, properties, propertyType]);
+
+  useEffect(() => {
+    console.log(formatedData,properties,propertyType, "propertyType");
+  }, [formatedData, propertyType]);
   // Modal state
   const [open, setOpen] = React.useState(false);
   const [selectedAction, setSelectedAction] = React.useState<string | null>(
@@ -464,8 +467,6 @@ console.log(formatedData,'propertyType');
   if (formattedData.length === 0) {
     return <p>No data available</p>; // Now this is safe
   }
-
-
 
   return (
     <>
