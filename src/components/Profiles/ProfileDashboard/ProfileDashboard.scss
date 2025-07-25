@@ -73,7 +73,9 @@
   background-color: #e0f2fe;
   transition: background 0.2s ease-in-out;
 }
-
+.style-action {
+  display: flex;
+}
 /* Role tags */
 .role-tag span {
   display: inline-block;
@@ -86,14 +88,17 @@
 }
 
 .role-tag.admin span {
-  background-color: #3b82f6;
+  background-color: #e3f2fd;
+  color: #1976d2;
 }
 
 .role-tag.marketing span {
-  background-color: #f97316;
+  background-color: #fff3e0;
+  color: #ef6c00;
 }
 .role-tag.superadmin span {
-  background-color: #ef4444;
+  background-color: #ffebee;
+  color: #c62828;
 }
 
 /* Buttons */
@@ -113,35 +118,35 @@
 
 /* Button Styles */
 .view-btn {
-  background-color: #3b82f6;
-  color: #fff;
+  background-color: #e3f2fd;
+  color: #1976d2;
 }
 
 .edit-btn {
-  background-color: #facc15;
-  color: #1e293b;
+  background-color: #fff9c4;
+  color: #f9a825;
 }
 
 .delete-btn {
-  background-color: #ef4444;
-  color: white;
+  background-color: #ffebee;
+  color: #d32f2f;
 }
 
 /* Hover Effects */
 .view-btn:hover {
-  background-color: #2563eb;
+  background-color: #bbdefb;
   transform: scale(1.05);
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
 }
 
 .edit-btn:hover {
-  background-color: #eab308;
+  background-color: #fff59d;
   transform: scale(1.05);
   box-shadow: 0 2px 8px rgba(250, 204, 21, 0.25);
 }
 
 .delete-btn:hover {
-  background-color: #dc2626;
+  background-color: #ef9a9a;
   transform: scale(1.05);
   box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
 }

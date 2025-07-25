@@ -205,3 +205,15 @@ td  {
   z-index: 1;
 }
 
+.table-scroll {
+  overflow-x: auto;
+  pointer-events: auto;
+}
+
+.checkbox-popover {
+  pointer-events: none;
+}
+
+.checkbox-popover .MuiPaper-root {
+  pointer-events: auto;
+}
