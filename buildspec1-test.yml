@@ -2,8 +2,8 @@ version: 0.2
 
 env:
   variables:
-    ECR_REPO_NAME: "prh_web_2"  # Your ECR repo name
-    REGION: "us-east-1"                  # Your AWS region
+    ECR_REPO_NAME: "simple-docker-service-025017df747b"  # Your  ECR repo name
+    AWS_REGION: "ap-south-1"                  # Your AWS region
     AWS_ACCOUNT_ID: "434648646586"
 
 phases:
@@ -25,4 +25,6 @@ phases:
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO_NAME:$IMAGE_TAG
 artifacts:
   files:
-    - '**/*'
+    - appspec.yml
+    - scripts/**
+    - image_tag.txt[]
