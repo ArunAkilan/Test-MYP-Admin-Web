@@ -1,4 +1,4 @@
-import {  useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -46,12 +46,15 @@ import proicons_mail from "../../../../assets/viewProperty/proicons_mail.png";
 import solar_phone from "../../../../assets/viewProperty/solar_phone.png";
 import MapComponent from "../../../Common/LocationPicker/LocationPicker";
 import backIcon from "../../../../assets/dashboardtab/icon-park-outline_down.svg";
+import { useLocation } from "react-router-dom";
 
 interface PropertyResponse {
   property: ResidentialProperty;
 }
 
 const ViewProperty = () => {
+        
+const location = useLocation();
   const { id } = useParams();
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -81,14 +84,13 @@ const ViewProperty = () => {
       toast.error("Property data not available");
       return;
     }
-  
+
     const cleanItem = JSON.parse(JSON.stringify(property.property)); // sanitize any Date objects
-  
+
     navigate(`/residential/create`, {
       state: { data: cleanItem, mode: "edit" },
     });
   };
-  
 
   // Unified status update function for approve, deny, delete, sold
   const updateResidentialPermissionStatus = async (
@@ -125,12 +127,14 @@ const ViewProperty = () => {
         "2": { label: "Deleted", route: "/residential" },
         "3": { label: "Sold", route: "/residential" },
       };
-      
-      const { label, route } = actionMap[status] || { label: "Unknown", route: "/" };
-      
+
+      const { label, route } = actionMap[status] || {
+        label: "Unknown",
+        route: "/",
+      };
+
       toast.success(`Property ${label.toLowerCase()} successfully`);
       navigate(route);
-
     } catch (error) {
       toast.error("Action failed");
       console.error(error);
@@ -156,6 +160,21 @@ const ViewProperty = () => {
       ? parseFloat(longitudeRaw)
       : undefined;
 
+
+const pathSegments = location.pathname.split("/");
+
+// This assumes structure: /admin/{type}/view/:id
+const propertyType = pathSegments[1];
+
+let typeLabel = "-";
+if (propertyType === "residential") {
+  typeLabel = "Residential TYPE";
+} else if (propertyType === "commercial") {
+  typeLabel = "Commercial TYPE";
+} else if (propertyType === "plot") {
+  typeLabel = "Plot TYPE";
+}
+
   return (
     <section className="container pt-4">
       <div className="breadcrumb">
@@ -163,7 +182,7 @@ const ViewProperty = () => {
           <img src={backIcon} alt="backIcon" />
           Back
         </button>
-        <DynamicBreadcrumbs />
+        <DynamicBreadcrumbs title={property?.property?.title} />
       </div>
       <div className="slick-carousel">
         <ViewCarousel images={property?.property?.images || []} />
@@ -195,15 +214,18 @@ const ViewProperty = () => {
             <div className="text-center">
               <p className="mb-1 caps">Area</p>
               <h3 className="mb-1 user-result-data">
-                {property?.property?.area?.totalArea}
+                {typeof property?.property?.area?.totalArea === "number"
+                  ? property.property.area.totalArea
+                  : "-"}
               </h3>
-              <p className="text-muted">Sq.Ft</p>
             </div>
             <div className="area-facing-divider"></div>
             <div className=" text-center">
               <p className="mb-1">Rent</p>
               <h3 className="mb-1 user-result-data">
-                {property?.property?.rent?.rentAmount}
+                {typeof property?.property?.rent?.rentAmount === "number"
+                  ? property?.property?.rent?.rentAmount
+                  : "-"}
               </h3>
               <p className="text-muted">Per Month</p>
             </div>
@@ -223,7 +245,13 @@ const ViewProperty = () => {
               <div className=" text-center tenure-days ">
                 <p className="mb-1">AGREEMENT</p>
                 <h3 className="mb-1 user-result-data">
-                  {property?.property?.rent?.agreementTiming}
+                  {typeof property?.property?.rent?.agreementTiming === "number"
+                    ? property.property.rent.agreementTiming === 12
+                      ? "12 Month"
+                      : property.property.rent.agreementTiming === 1
+                      ? "1 Year"
+                      : `${property.property.rent.agreementTiming} Years`
+                    : "-"}
                 </h3>
               </div>
             )}
@@ -239,12 +267,12 @@ const ViewProperty = () => {
             <span>{property?.property?.propertyType}</span>
           </div>
           <div className="col-md-2 row-individual-data">
-            <p>Residential TYPE</p>
+            <p>{typeLabel}</p>
             <span>Shop</span>
           </div>
           <div className="col-md-2 row-individual-data">
             <p>Negotiable</p>
-            <span>{property?.property?.rent?.negotiable}</span>
+            <span>{property?.property?.rent?.negotiable ? "Yes" : "No"}</span>
           </div>
         </div>
       </section>
@@ -305,7 +333,7 @@ const ViewProperty = () => {
                 <p>POSTED ON</p>
                 <span>
                   <img src={dateImage} alt="date" />
-                  {property.property.createdAt}
+                  {property?.property?.createdAt ? new Date(property?.property?.createdAt).toLocaleDateString("en-GB") : "-"}
                 </span>
               </div>
             )}
@@ -320,7 +348,7 @@ const ViewProperty = () => {
               </div>
             )}
 
-            {property?.property?.propertyFloor && (
+           {property?.property?.propertyFloor !== undefined && property?.property?.propertyFloor !== null  && (
               <div className="col-md-2 row-individual-data">
                 <p>PROPERTY ON</p>
                 <span>
@@ -366,7 +394,7 @@ const ViewProperty = () => {
                 <p>SEPARATE EB CONNECTION</p>
                 <span>
                   <img src={mage_electricity} alt="mage_electricity" />
-                  {property.property.amenities.separateEBConnection}
+                  {property.property.amenities.separateEBConnection? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -376,7 +404,7 @@ const ViewProperty = () => {
                 <p>MARKET</p>
                 <span>
                   <img src={weixin_market} alt="weixin_market" />
-                  {property.property.amenities.nearbyMarket}
+                  {property.property.amenities.nearbyMarket? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -386,7 +414,7 @@ const ViewProperty = () => {
                 <p>GYM</p>
                 <span>
                   <img src={equipment_gym} alt="equipment_gym" />
-                  {property.property.amenities.nearbyGym}
+                  {property.property.amenities.nearbyGym? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -396,7 +424,7 @@ const ViewProperty = () => {
                 <p>SHOPPING MALL</p>
                 <span>
                   <img src={local_mall} alt="local_mall" />
-                  {property.property.amenities.nearbyMall}
+                  {property.property.amenities.nearbyMall? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -406,7 +434,7 @@ const ViewProperty = () => {
                 <p>TURF</p>
                 <span>
                   <img src={tabler_cricket} alt="tabler_cricket" />
-                  {property.property.amenities.nearbyTurf}
+                  {property.property.amenities.nearbyTurf? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -416,7 +444,7 @@ const ViewProperty = () => {
                 <p>ARENA</p>
                 <span>
                   <img src={gamingImg} alt="gamingImg" />
-                  {property.property.amenities.nearbyArena}
+                  {property.property.amenities.nearbyArena? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -440,7 +468,7 @@ const ViewProperty = () => {
                 <p>MAINTENANCE</p>
                 <span>
                   <img src={Icon_Cleaning} alt="Icon_Cleaning" />
-                  {property.property.facility.maintenance}
+                  {property.property.facility.maintenance? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -451,7 +479,7 @@ const ViewProperty = () => {
                 <p>WATER SUPPLY</p>
                 <span>
                   <img src={water_full_outline} alt="water_full_outline" />
-                  {property.property.facility.waterFacility}
+                  {property.property.facility.waterFacility? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -462,7 +490,7 @@ const ViewProperty = () => {
                 <p>ROAD ACCESS</p>
                 <span>
                   <img src={Icon_Road} alt="Icon_Road" />
-                  {property.property.facility.roadFacility}
+                  {property.property.facility.roadFacility? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -473,7 +501,7 @@ const ViewProperty = () => {
                 <p>DRAINAGE</p>
                 <span>
                   <img src={Icon_restroom} alt="Icon_restroom" />
-                  {property.property.facility.drainage}
+                  {property.property.facility.drainage? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -484,7 +512,7 @@ const ViewProperty = () => {
                 <p>PARKING</p>
                 <span>
                   <img src={Icon_Parking} alt="Icon_Parking" />
-                  {property.property.facility.parking}
+                  {property.property.facility.parking? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -495,7 +523,7 @@ const ViewProperty = () => {
                 <p>BALCONY</p>
                 <span>
                   <img src={Icon_Balcony} alt="Icon_Balcony" />
-                  {property.property.facility.balcony}
+                  {property.property.facility.balcony? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -506,7 +534,7 @@ const ViewProperty = () => {
                 <p>TERRACE</p>
                 <span>
                   <img src={icon_park_terrace} alt="icon_park_terrace" />
-                  {property.property.facility.terrace}
+                  {property.property.facility.terrace? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -525,7 +553,7 @@ const ViewProperty = () => {
                 <p>GUESTS</p>
                 <span>
                   <img src={solar_user} alt="solar_user" />
-                  {property.property.restrictions.guestAllowed}
+                  {property.property.restrictions.guestAllowed? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -535,7 +563,7 @@ const ViewProperty = () => {
                 <p>PETS</p>
                 <span>
                   <img src={streamline_pets} alt="streamline_pets" />
-                  {property.property.restrictions.petsAllowed}
+                  {property.property.restrictions.petsAllowed? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -545,7 +573,7 @@ const ViewProperty = () => {
                 <p>BACHELORS</p>
                 <span>
                   <img src={Icon_Lift} alt="Icon_Lift" />
-                  {property.property.restrictions.bachelorsAllowed}
+                  {property.property.restrictions.bachelorsAllowed? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -566,7 +594,7 @@ const ViewProperty = () => {
                     src={streamline_flex_network}
                     alt="streamline_flex_network"
                   />
-                  {property.property.amenities.separateEBConnection}
+                  {property.property.amenities.separateEBConnection? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -577,7 +605,7 @@ const ViewProperty = () => {
                 <p>SECURITY</p>
                 <span>
                   <img src={user_security} alt="user_security" />
-                  {property.property.availability.securities}
+                  {property.property.availability.securities? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -596,7 +624,7 @@ const ViewProperty = () => {
                 <p>RAMP ACCESS</p>
                 <span>
                   <img src={ramp_up} alt="ramp_up" />
-                  {property.property.accessibility.ramp}
+                  {property.property.accessibility.ramp? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -607,7 +635,7 @@ const ViewProperty = () => {
                 <p>STAIR ACCESS</p>
                 <span>
                   <img src={footStepImg} alt="footStepImg" />
-                  {property.property.accessibility.steps}
+                  {property.property.accessibility.steps? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -618,7 +646,7 @@ const ViewProperty = () => {
                 <p>LIFT</p>
                 <span>
                   <img src={footStepImg} alt="footStepImg" />
-                  {property.property.accessibility.lift}
+                  {property.property.accessibility.lift? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -678,7 +706,7 @@ const ViewProperty = () => {
                     Bus Stand
                   </h3>
                   <p>
-                    {property?.property?.availability?.transport?.nearbyBusStop}
+                    {property?.property?.availability?.transport?.nearbyBusStop || "N/A"}
                   </p>
                 </div>
                 <div className="Airport col-md-3">
@@ -687,7 +715,7 @@ const ViewProperty = () => {
                     Airport
                   </h3>
                   <p>
-                    {property?.property?.availability?.transport?.nearbyAirport}
+                    {property?.property?.availability?.transport?.nearbyAirport || "N/A"}
                   </p>
                 </div>
                 <div className="Metro col-md-3">
@@ -696,7 +724,7 @@ const ViewProperty = () => {
                     Metro
                   </h3>
                   <p>
-                    {property?.property?.availability?.transport?.nearbyPort}
+                    {property?.property?.availability?.transport?.nearbyPort || "N/A"}
                   </p>
                 </div>
                 <div className="Railway col-md-3">
@@ -705,7 +733,7 @@ const ViewProperty = () => {
                     Railway
                   </h3>
                   <p>
-                    {property?.property?.availability?.transport?.nearbyBusStop}
+                    {property?.property?.availability?.transport?.nearbyBusStop || "N/A"}
                   </p>
                 </div>
               </div>

@@ -22,5 +22,27 @@ export type PropertyItem = {
   images?: string[];
 };
 export interface PropertyViewWithSource {
-  _source: "residential" | "commercial" | "plot";
+  _source: "residential" | "commercial" | "plot"  | "all";
+
+ _id: string;
+  location?: {
+    landmark?: string;
+    address?: string;
+  };
+  area?: {
+    totalArea?: string | number;
+  };
+  status?: string;
+  totalFloors?: number;
+  facingDirection?: string;
+  furnishingType?: string;
+   totalArea?: number;
+  washroom?: number;
+  plotType?: string;
+  propertyType?: string;
+  images?: string[];
+  title?: string;
+  rooms?: number;
+  owner?: string;
+
 }
