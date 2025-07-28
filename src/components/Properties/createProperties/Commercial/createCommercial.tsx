@@ -924,7 +924,7 @@ export const CreateCommercialProperty = () => {
                             />
                           </div>
                           <div className="col-6 mb-3">
-                            <label className="TextLabel" htmlFor="tenure">
+                            <label className="TextLabel text-break text-wrap" htmlFor="tenure">
                               Agreement Timings (Years)
                             </label>
                             <InputField
@@ -1467,7 +1467,7 @@ export const CreateCommercialProperty = () => {
                       }
                     />
                   </div>
-                  <div className="d-flex flex-d-row gap-3">
+                  <div className="d-flex flex-wrap flex-md-nowrap gap-3">
                     <div className="col-12 col-md-6 mb-3">
                       <label className="TextLabel" htmlFor="totalFloors">
                         Total Floors
