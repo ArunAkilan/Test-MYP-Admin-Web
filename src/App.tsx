@@ -57,7 +57,7 @@ function AppRoutes() {
     "/login",
   ];
   useEffect(() => {
-    setOpen(!isMobile); // 👈 automatically toggle drawer based on screen width
+    setOpen(!isMobile); // 👈z automatically toggle drawer based on screen width
   }, [isMobile]);
 
   // Check if the current pathname starts with any of the routes

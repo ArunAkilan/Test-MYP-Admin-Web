@@ -27,7 +27,7 @@ import {
 } from "@react-google-maps/api";
 import Tooltip from "@mui/material/Tooltip";
 import type { PlainObject } from "../createProperty.model";
-
+import { GOOGLE_MAP_OPTIONS } from "../../../Common/googleMapsConfig";
 //cropping code starts here
 
 import Cropper from "react-easy-crop";
@@ -43,12 +43,12 @@ const containerStyle = {
   border: "1px solid #D3DDE7",
 };
 const defaultCenter = { lat: 11.2419968, lng: 78.8063549 };
-const GOOGLE_LIBRARIES: (
-  | "places"
-  | "geometry"
-  | "drawing"
-  | "visualization"
-)[] = ["places", "geometry"];
+// const GOOGLE_LIBRARIES: (
+//   | "places"
+//   | "geometry"
+//   | "drawing"
+//   | "visualization"
+// )[] = ["places", "geometry"];
 
 // Utility function to set nested value dynamically
 function setNested(obj: PlainObject, path: string, value: unknown) {
@@ -128,7 +128,7 @@ function buildPayloadDynamic(formState: PlotFormState): PlotFormState {
       "rent.advanceAmount",
       Number(formState.rent.advanceAmount) || 0
     );
-    setNested(payload, "rent.agreementTiming", formState.rent.agreementTiming); 
+    setNested(payload, "rent.agreementTiming", formState.rent.agreementTiming);
   } else if (formState.propertyType === "Lease") {
     setNested(
       payload,
@@ -211,118 +211,118 @@ function buildPayloadDynamic(formState: PlotFormState): PlotFormState {
 
 export const CreatePlotProperty = () => {
 
-//cropping code starts here 
+  //cropping code starts here 
   // ===== Cropping & Image Upload State =====
   const MIN_WIDTH = 800;
-const MIN_HEIGHT = 600;
-const MAX_WIDTH = 1024;
-const MAX_HEIGHT = 768;
-const MAX_IMAGES = 12;
+  const MIN_HEIGHT = 600;
+  const MAX_WIDTH = 1024;
+  const MAX_HEIGHT = 768;
+  const MAX_IMAGES = 12;
 
-//const [images, setImages] = useState<UploadedImage[]>([]);
-//const [_errors, setErrors] = useState<{ images?: string }>({});
+  //const [images, setImages] = useState<UploadedImage[]>([]);
+  //const [_errors, setErrors] = useState<{ images?: string }>({});
 
-const [cropModalOpen, setCropModalOpen] = useState(false);
-const [fileToCrop, setFileToCrop] = useState<File | null>(null);
-const [imageSrc, setImageSrc] = useState<string | null>(null);
-const [crop, setCrop] = useState({ x: 0, y: 0 });
-const [zoom, setZoom] = useState(1);
-const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
-const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [cropModalOpen, setCropModalOpen] = useState(false);
+  const [fileToCrop, setFileToCrop] = useState<File | null>(null);
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
-// Handle file input change & open crop modal
-const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+  // Handle file input change & open crop modal
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  setErrors({});
+    setErrors({});
 
-  if (!file.type.startsWith("image/")) {
-    
-    toast.error(`Invalid file type: ${file.name}`);
+    if (!file.type.startsWith("image/")) {
+
+      toast.error(`Invalid file type: ${file.name}`);
+      e.target.value = "";
+      return;
+    }
+
+    if (images.length >= MAX_IMAGES) {
+      setErrors({ images: `Maximum ${MAX_IMAGES} images allowed.` });
+      e.target.value = "";
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    setFileToCrop(file);
+    setImageSrc(objectUrl);
+    setCropModalOpen(true);
     e.target.value = "";
-    return;
-  }
+  };
 
-  if (images.length >= MAX_IMAGES) {
-    setErrors({ images: `Maximum ${MAX_IMAGES} images allowed.` });
-    e.target.value = "";
-    return;
-  }
+  // Cropper callback to get cropped area pixels
+  const onCropComplete = useCallback((_: Area, croppedPixels: Area) => {
+    setCroppedAreaPixels(croppedPixels);
+  }, []);
 
-  const objectUrl = URL.createObjectURL(file);
-  setFileToCrop(file);
-  setImageSrc(objectUrl);
-  setCropModalOpen(true);
-  e.target.value = "";
-};
+  // Crop the image, generate cropped file & add to images array
+  const cropImage = async () => {
+    if (!imageSrc || !croppedAreaPixels || !fileToCrop) return;
 
-// Cropper callback to get cropped area pixels
-const onCropComplete = useCallback((_: Area, croppedPixels: Area) => {
-  setCroppedAreaPixels(croppedPixels);
-}, []);
+    const image = new Image();
+    image.src = imageSrc;
+    await image.decode();
 
-// Crop the image, generate cropped file & add to images array
-const cropImage = async () => {
-  if (!imageSrc || !croppedAreaPixels || !fileToCrop) return;
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
 
-  const image = new Image();
-  image.src = imageSrc;
-  await image.decode();
+    const TARGET_WIDTH = 1024;
+    const TARGET_HEIGHT = 768;
+    canvas.width = TARGET_WIDTH;
+    canvas.height = TARGET_HEIGHT;
 
-  const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
+    if (ctx) {
+      ctx.filter = "brightness(1.05) contrast(1.1)";
+      ctx.drawImage(
+        image,
+        croppedAreaPixels.x,
+        croppedAreaPixels.y,
+        croppedAreaPixels.width,
+        croppedAreaPixels.height,
+        0,
+        0,
+        TARGET_WIDTH,
+        TARGET_HEIGHT
+      );
 
-  const TARGET_WIDTH = 1024;
-  const TARGET_HEIGHT = 768;
-  canvas.width = TARGET_WIDTH;
-  canvas.height = TARGET_HEIGHT;
+      canvas.toBlob((blob) => {
+        if (!blob) return;
 
-  if (ctx) {
-    ctx.filter = "brightness(1.05) contrast(1.1)";
-    ctx.drawImage(
-      image,
-      croppedAreaPixels.x,
-      croppedAreaPixels.y,
-      croppedAreaPixels.width,
-      croppedAreaPixels.height,
-      0,
-      0,
-      TARGET_WIDTH,
-      TARGET_HEIGHT
-    );
+        const croppedFile = new File([blob], fileToCrop.name, {
+          type: "image/jpeg",
+        });
+        const previewUrl = URL.createObjectURL(blob);
 
-    canvas.toBlob((blob) => {
-      if (!blob) return;
+        setImages((prev) => [
+          ...prev,
+          // { file: croppedFile, url: previewUrl, name: croppedFile.name, imageSize: croppedFile.size, }
+          { file: croppedFile, url: previewUrl, name: previewUrl, imageSize: 0 }
+        ]);
 
-      const croppedFile = new File([blob], fileToCrop.name, {
-        type: "image/jpeg",
-      });
-      const previewUrl = URL.createObjectURL(blob);
+        // Reset crop modal state
+        setCropModalOpen(false);
+        setImageSrc(null);
+        setFileToCrop(null);
+        setCrop({ x: 0, y: 0 });
+        setZoom(1);
+        setCroppedAreaPixels(null);
+      }, "image/jpeg", 0.95);
+    }
+  };
 
-      setImages((prev) => [
-        ...prev,
-        // { file: croppedFile, url: previewUrl, name: croppedFile.name, imageSize: croppedFile.size, }
-        { file: croppedFile, url: previewUrl, name: previewUrl, imageSize: 0 }
-      ]);
+  // Remove image from preview list
+  const removeImage = (index: number) => {
+    setImages((prevImages) => prevImages.filter((_, i) => i !== index));
+  };
 
-      // Reset crop modal state
-      setCropModalOpen(false);
-      setImageSrc(null);
-      setFileToCrop(null);
-      setCrop({ x: 0, y: 0 });
-      setZoom(1);
-      setCroppedAreaPixels(null);
-    }, "image/jpeg", 0.95);
-  }
-};
-
-// Remove image from preview list
-const removeImage = (index: number) => {
-  setImages((prevImages) => prevImages.filter((_, i) => i !== index));
-};
-
-//cropping code ends here
+  //cropping code ends here
 
   // State for form data
   const navigate = useNavigate();
@@ -359,11 +359,11 @@ const removeImage = (index: number) => {
   const [markerPosition, setMarkerPosition] = useState(defaultCenter);
   const [autocomplete, setAutocomplete] =
     useState<google.maps.places.Autocomplete | null>(null);
-    const location = useLocation();
-    const isEditMode = location.state?.mode === "edit";
-    const editData = location.state?.data;
-    const editId = location.state?.data?._id;
-    console.log("editid", editId);
+  const location = useLocation();
+  const isEditMode = location.state?.mode === "edit";
+  const editData = location.state?.data;
+  const editId = location.state?.data?._id;
+  console.log("editid", editId);
   // Update state when in edit mode
   useEffect(() => {
     if (isEditMode && editData) {
@@ -379,20 +379,20 @@ const removeImage = (index: number) => {
       setLeaseTenure(editData.lease?.leaseTenure || "");
       setPlotType(editData.plotType || "Agriculture");
       setAddress(editData.location?.address || "");
-  
+
       if (editData.location?.map) {
         setLatitude(editData.location.map.latitude?.toString() || "");
         setLongitude(editData.location.map.longitude?.toString() || "");
       }
-  
+
       setImages((editData.images || []).map((img: string) => ({ name: img })));
 
-  
+
       setTotalArea(editData.location?.area?.totalArea?.replace(" sqft", "") || "");
       setFacingDirection(editData.facingDirection || "East");
       setTotalFloors(String(editData.totalFloors || ""));
       setPropertyFloor(String(editData.propertyFloor || ""));
-  
+
       const chips: string[] = [];
       if (editData.restrictions) {
         if (editData.restrictions.guestAllowed === false)
@@ -406,18 +406,20 @@ const removeImage = (index: number) => {
       setPropertyDescription(editData.description || "");
     }
   }, [isEditMode, editData]);
-  
+
 
   const [nearbyTransport, setNearbyTransport] = useState<
     Record<string, string>
   >({ "BUS STAND": "0 KM", AIRPORT: "0 KM", METRO: "0 KM", RAILWAY: "0 KM" });
 
-  // Google Maps API loader
-  const { isLoaded } = useJsApiLoader({
-    id: "google-map-script",
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "", // put your API key in .env file
-    libraries: GOOGLE_LIBRARIES,
-  });
+  // // Google Maps API loader
+  // const { isLoaded } = useJsApiLoader({
+  //   id: "google-map-script",
+  //   googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "", // put your API key in .env file
+  //   libraries: GOOGLE_LIBRARIES,
+  // });
+
+  const { isLoaded } = useJsApiLoader(GOOGLE_MAP_OPTIONS);
 
   const fetchNearbyTransport = async (lat: number, lng: number) => {
     const types = [
@@ -429,9 +431,8 @@ const removeImage = (index: number) => {
     const info: Record<string, string> = {};
     for (const t of types) {
       try {
-        const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=10000&type=${
-          t.type
-        }&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`;
+        const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=10000&type=${t.type
+          }&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`;
         const res = await fetch(url);
         const data = await res.json();
         if (data.results && data.results.length > 0) {
@@ -507,18 +508,18 @@ const removeImage = (index: number) => {
 
     const validationErrors = validate();
     setErrors(validationErrors);
-    
+
     if (Object.keys(validationErrors).length > 0) {
-      setLoading(false);        
-      setEditable(true);        
-    
+      setLoading(false);
+      setEditable(true);
+
       toast.error("Please fix the errors in the form.", {
         autoClose: false,
       });
-    
+
       return;
     }
-    
+
 
     // Form is valid, proceed with submission
     const formState: PlotFormState = {
@@ -594,7 +595,7 @@ const removeImage = (index: number) => {
 
     //Append images with MIME type handling & debug logging
     const MAX_FILE_SIZE_MB = 5;
-    
+
     images.forEach((img) => {
       if (img.file instanceof File) {
         if (
@@ -625,35 +626,35 @@ const removeImage = (index: number) => {
       const url = isEditMode
         ? `${import.meta.env.VITE_BackEndUrl}/api/plot/${editId}`
         : `${import.meta.env.VITE_BackEndUrl}/api/plot/create`;
-        const method = isEditMode ? "put" : "post";
-        const response = await axios[method](url, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`, //  Add token here
+      const method = isEditMode ? "put" : "post";
+      const response = await axios[method](url, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`, //  Add token here
 
-          },
-        });
+        },
+      });
 
-       // Keep loading true until toast closes
-  // So DO NOT setLoading(false) here immediately!
+      // Keep loading true until toast closes
+      // So DO NOT setLoading(false) here immediately!
 
-  toast.success(isEditMode ? "Property updated successfully!" : "Property created successfully!", {
-    onClose: () => {
-      setLoading(false);
-      setEditable(true);
-      
+      toast.success(isEditMode ? "Property updated successfully!" : "Property created successfully!", {
+        onClose: () => {
+          setLoading(false);
+          setEditable(true);
 
-      // Navigate after loading hidden and editing enabled
-      const plotId = response?.data?._id;
-      if (plotId) {
-        navigate(`/plot/view/${plotId}`);
-      } else {
-        navigate("/plot", {
-          state: { data: response.data, showLoading: true },
-        });
-      }
-    },
-  });
+
+          // Navigate after loading hidden and editing enabled
+          const plotId = response?.data?._id;
+          if (plotId) {
+            navigate(`/plot/view/${plotId}`);
+          } else {
+            navigate("/plot", {
+              state: { data: response.data, showLoading: true },
+            });
+          }
+        },
+      });
     } catch (err) {
       const error = err as AxiosError<{ message?: string; error?: string }>;
       const errorMessage =
@@ -705,7 +706,7 @@ const removeImage = (index: number) => {
                   {/* Rest of your page content */}
                 </div>
 
-                <ToastContainer 
+                <ToastContainer
                 />
                 {/* Rest of your page content */}
 
@@ -833,7 +834,7 @@ const removeImage = (index: number) => {
                     {/* Property Type */}
                     <div className="col-md-6 mb-3">
                       <label className="TextLabel" htmlFor="propertyType">
-                      Property Type
+                        Property Type
                       </label>
                       <InputField
                         type="dropdown"
@@ -845,7 +846,7 @@ const removeImage = (index: number) => {
                         }
                       />
                     </div>
-                    
+
                     {/* Plot Type */}
                     <div className="col-md-6 mb-3">
                       <label className="TextLabel" htmlFor="plotType">
@@ -878,171 +879,171 @@ const removeImage = (index: number) => {
                       />
                     </div>
                   </div>
-                  </div>
-                  {/* -------- Dynamic Inputs based on propertyType --------- */}
-                  {/* Rent/Lease/Sale Specific Fields */}
-                  {propertyType === "Rent" && (
-                    <>
-                  <div className="OwnerInputField row mb-3">
-                  <div className=" d-flex flex-d-row gap-3">
-                    <div className="col-md-6 mb-3">
-                      <label className="TextLabel" htmlFor="rentAmount">
-                        Rent Amount(₹)
-                      </label>
-                      <InputField
-                        type="text"
-                        id="rentAmount"
-                        placeholder="Enter Amount in Rupees (₹)"
-                        value={rentAmount}
-                        onChange={(e) => setRentAmount(Number(e.target.value))}
-                      />
-                    </div>
-                    <div className="row">
-                      <div className="col-12">
-                        <label className="TextLabel" htmlFor="negotiable">
-                          Negotiable
-                        </label>
-                        <div className="d-flex flex-wrap gap-3">
+                </div>
+                {/* -------- Dynamic Inputs based on propertyType --------- */}
+                {/* Rent/Lease/Sale Specific Fields */}
+                {propertyType === "Rent" && (
+                  <>
+                    <div className="OwnerInputField row mb-3">
+                      <div className=" d-flex flex-d-row gap-3">
+                        <div className="col-md-6 mb-3">
+                          <label className="TextLabel" htmlFor="rentAmount">
+                            Rent Amount(₹)
+                          </label>
                           <InputField
-                            type="radio"
-                            radioOptions={["Yes", "No"]}
-                            id="negotiable"
-                            value={negotiable ? "Yes" : "No"}
-                            onChange={(e) =>
-                              setNegotiable(e.target.value === "Yes")
-                            }
+                            type="text"
+                            id="rentAmount"
+                            placeholder="Enter Amount in Rupees (₹)"
+                            value={rentAmount}
+                            onChange={(e) => setRentAmount(Number(e.target.value))}
+                          />
+                        </div>
+                        <div className="row">
+                          <div className="col-12">
+                            <label className="TextLabel" htmlFor="negotiable">
+                              Negotiable
+                            </label>
+                            <div className="d-flex flex-wrap gap-3">
+                              <InputField
+                                type="radio"
+                                radioOptions={["Yes", "No"]}
+                                id="negotiable"
+                                value={negotiable ? "Yes" : "No"}
+                                onChange={(e) =>
+                                  setNegotiable(e.target.value === "Yes")
+                                }
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="d-flex flex-d-row gap-3">
+                        <div className="col-6 mb-3">
+                          <label className="TextLabel" htmlFor="advanceDeposit">
+                            Advance Deposit (₹)
+                          </label>
+                          <InputField
+                            type="text"
+                            id="advanceDeposit"
+                            placeholder="Enter Deposit"
+                            value={advanceAmount}
+                            onChange={(e) => setAdvanceAmount(e.target.value)}
+                          // error={!!errors.advanceDeposit}
+                          // helperText={errors.advanceAmount}
+                          />
+                        </div>
+                        <div className="col-6 mb-3">
+                          <label className="TextLabel" htmlFor="tenure">
+                            Agreement Timings (Years){" "}
+                          </label>
+                          <InputField
+                            type="text"
+                            id="tenure"
+                            placeholder="No. of Years"
+                            value={leaseTenure}
+                            onChange={(e) => setLeaseTenure(e.target.value)}
                           />
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </>
+                )}
 
-                  <div className="d-flex flex-d-row gap-3">
-                    <div className="col-6 mb-3">
-                      <label className="TextLabel" htmlFor="advanceDeposit">
-                        Advance Deposit (₹)
-                      </label>
-                      <InputField
-                        type="text"
-                        id="advanceDeposit"
-                        placeholder="Enter Deposit"
-                        value={advanceAmount}
-                        onChange={(e) => setAdvanceAmount(e.target.value)}
-                        // error={!!errors.advanceDeposit}
-                        // helperText={errors.advanceAmount}
-                      />
-                    </div>
-                    <div className="col-6 mb-3">
-                      <label className="TextLabel" htmlFor="tenure">
-                        Agreement Timings (Years){" "}
-                      </label>
-                      <InputField
-                        type="text"
-                        id="tenure"
-                        placeholder="No. of Years"
-                        value={leaseTenure}
-                        onChange={(e) => setLeaseTenure(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  </div>
-                    </>
-                  )}
-                  
 
-                  {propertyType === "Lease" && (
-                    <>
-                      <div className="OwnerInputField row mb-3">
-                        <div className="d-flex flex-d-row gap-3">
-                          <div className="col-md-6 mb-3">
-                            <label className="TextLabel" htmlFor="leaseAmount">
-                              Lease Amount(₹)
-                            </label>
-                            <InputField
-                              type="text"
-                              id="leaseAmount"
-                              placeholder="Enter Amount in Rupees (₹)"
-                              value={rentAmount}
-                              onChange={(e) =>
-                                setRentAmount(Number(e.target.value))
-                              }
-                            />
-                          </div>
-                          <div className="row">
-                            <div className="col-12">
-                              <label className="TextLabel" htmlFor="negotiable">
-                                Negotiable
-                              </label>
-                              <div className="d-flex flex-wrap gap-3">
-                                <InputField
-                                  type="radio"
-                                  radioOptions={["Yes", "No"]}
-                                  id="negotiable"
-                                  value={negotiable ? "Yes" : "No"}
-                                  onChange={(e) =>
-                                    setNegotiable(e.target.value === "Yes")
-                                  }
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        </div>                          
+                {propertyType === "Lease" && (
+                  <>
+                    <div className="OwnerInputField row mb-3">
+                      <div className="d-flex flex-d-row gap-3">
+                        <div className="col-md-6 mb-3">
+                          <label className="TextLabel" htmlFor="leaseAmount">
+                            Lease Amount(₹)
+                          </label>
+                          <InputField
+                            type="text"
+                            id="leaseAmount"
+                            placeholder="Enter Amount in Rupees (₹)"
+                            value={rentAmount}
+                            onChange={(e) =>
+                              setRentAmount(Number(e.target.value))
+                            }
+                          />
+                        </div>
+                        <div className="row">
                           <div className="col-12">
-                            <label className="TextLabel" htmlFor="tenure">
-                              Tenure (Years)
+                            <label className="TextLabel" htmlFor="negotiable">
+                              Negotiable
                             </label>
-                            <InputField
-                              type="text"
-                              id="tenure"
-                              placeholder="No. of Years"
-                              value={leaseTenure}
-                              onChange={(e) => setLeaseTenure(e.target.value)}
-                            />
-                          </div>
-                        
-                      </div>
-                    </>
-                  )}
-                  {propertyType === "Sale" && (
-                    <>
-                      <div className="OwnerInputField row mb-3">
-                        <div className="d-flex flex-d-row gap-3">
-                          <div className="col-md-6 mb-3">
-                            <label className="TextLabel" htmlFor="saleAmount">
-                              Sale Amount(₹)
-                            </label>
-                            <InputField
-                              type="text"
-                              id="saleAmount"
-                              placeholder="Enter Amount in Rupees (₹)"
-                              value={rentAmount}
-                              onChange={(e) =>
-                                setRentAmount(Number(e.target.value))
-                              }
-                            />
-                          </div>
-                          <div className="row">
-                            <div className="col-12">
-                              <label className="TextLabel" htmlFor="negotiable">
-                                Negotiable
-                              </label>
-                              <div className="d-flex flex-wrap gap-3">
-                                <InputField
-                                  type="radio"
-                                  radioOptions={["Yes", "No"]}
-                                  id="negotiable"
-                                  value={negotiable ? "Yes" : "No"}
-                                  onChange={(e) =>
-                                    setNegotiable(e.target.value === "Yes")
-                                  }
-                                />
-                              </div>
+                            <div className="d-flex flex-wrap gap-3">
+                              <InputField
+                                type="radio"
+                                radioOptions={["Yes", "No"]}
+                                id="negotiable"
+                                value={negotiable ? "Yes" : "No"}
+                                onChange={(e) =>
+                                  setNegotiable(e.target.value === "Yes")
+                                }
+                              />
                             </div>
                           </div>
                         </div>
                       </div>
-                    </>
-                  )}
+                      <div className="col-12">
+                        <label className="TextLabel" htmlFor="tenure">
+                          Tenure (Years)
+                        </label>
+                        <InputField
+                          type="text"
+                          id="tenure"
+                          placeholder="No. of Years"
+                          value={leaseTenure}
+                          onChange={(e) => setLeaseTenure(e.target.value)}
+                        />
+                      </div>
+
+                    </div>
+                  </>
+                )}
+                {propertyType === "Sale" && (
+                  <>
+                    <div className="OwnerInputField row mb-3">
+                      <div className="d-flex flex-d-row gap-3">
+                        <div className="col-md-6 mb-3">
+                          <label className="TextLabel" htmlFor="saleAmount">
+                            Sale Amount(₹)
+                          </label>
+                          <InputField
+                            type="text"
+                            id="saleAmount"
+                            placeholder="Enter Amount in Rupees (₹)"
+                            value={rentAmount}
+                            onChange={(e) =>
+                              setRentAmount(Number(e.target.value))
+                            }
+                          />
+                        </div>
+                        <div className="row">
+                          <div className="col-12">
+                            <label className="TextLabel" htmlFor="negotiable">
+                              Negotiable
+                            </label>
+                            <div className="d-flex flex-wrap gap-3">
+                              <InputField
+                                type="radio"
+                                radioOptions={["Yes", "No"]}
+                                id="negotiable"
+                                value={negotiable ? "Yes" : "No"}
+                                onChange={(e) =>
+                                  setNegotiable(e.target.value === "Yes")
+                                }
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
               </section>
 
               {/* Location Details Section */}
@@ -1123,7 +1124,7 @@ const removeImage = (index: number) => {
                           placeholder="Latitude"
                           value={latitude}
                           onChange={(e) => setLatitude(e.target.value)}
-                          // Add error handling if latitude is mandatory
+                        // Add error handling if latitude is mandatory
                         />
                       </div>
                       <div className="col-6 mb-3">
@@ -1136,7 +1137,7 @@ const removeImage = (index: number) => {
                           placeholder="Longitude"
                           value={longitude}
                           onChange={(e) => setLongitude(e.target.value)}
-                          // Add error handling if longitude is mandatory
+                        // Add error handling if longitude is mandatory
                         />
                       </div>
                     </div>
@@ -1217,169 +1218,170 @@ const removeImage = (index: number) => {
                     </div>
                   </div>
                 </div>
-                </section>
+              </section>
 
-                {/*new code for cropping functionalities*/}
-                <section>
-                  <div className="ResidentialCategory mt-3">
-                    <p>
-                      Upload Property Images <span className="star">*</span>
-                    </p>
-                  </div>
-                
-                  <div className={`image-upload-wrapper ${errors.images ? "error-border" : ""}`}>
-                    <div className="preview-images d-flex gap-3 mt-2 image-scroll-container">
-                      {images.map((img, index) => (
-                        <div key={index} className="choosedImages position-relative">
-                          <img src={img.name} alt={`preview-${index}`} className="preview-img" style={{ cursor: 'pointer' }}
-                            onClick={() => setPreviewImage(img.name)} />
-                          <div
-                            className="image-name mt-1 text-truncate"
-                            title={img.name}
-                            style={{
-                              fontSize: "12px",
-                              color: "#333",
-                              maxWidth: "100%",
-                              whiteSpace: "nowrap",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                            }}
-                          >
-                            {/* <img src={img.name} alt={img.name} /> */}
-                          </div>
-                          <button type="button" onClick={() => removeImage(index)} className="remove-btn">
-                            <img src={`${import.meta.env.BASE_URL}/createProperty/material-symbols_close-rounded.svg`} alt="Remove" />
-                          </button>
+              {/*new code for cropping functionalities*/}
+              <section>
+                <div className="ResidentialCategory mt-3">
+                  <p>
+                    Upload Property Images <span className="star">*</span>
+                  </p>
+                </div>
+
+                <div className={`image-upload-wrapper ${errors.images ? "error-border" : ""}`}>
+                  <div className="preview-images d-flex gap-3 mt-2 image-scroll-container">
+                    {images.map((img, index) => (
+                      <div key={index} className="choosedImages position-relative">
+                        <img src={img.name} alt={`preview-${index}`} className="preview-img" style={{ cursor: 'pointer' }}
+                          onClick={() => setPreviewImage(img.name)} />
+                        <div
+                          className="image-name mt-1 text-truncate"
+                          title={img.name}
+                          style={{
+                            fontSize: "12px",
+                            color: "#333",
+                            maxWidth: "100%",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {/* <img src={img.name} alt={img.name} /> */}
                         </div>
-                      ))}
-                    </div>
-                
-                    <div
-                      className={`BtnFrame d-flex mt-3 mb-2 align-items-start gap-3 ${
-                        images.length > 0 ? "with-gap" : ""
-                      }`}
-                    >
-                      <p className="image-p">
-                        {images.length > 0
-                          ? `${images.length} image${images.length > 1 ? "s" : ""} chosen`
-                          : "No image chosen"}
-                      </p>
-                
-                      <input
-                        type="file"
-                        id="propertyImageUpload"
-                        style={{ display: "none" }}
-                        accept="image/*"
-                        
-                        onChange={handleFileChange}
-                      />
-                
-                      <MuiButton
-                        className="chooseBtn"
-                        variant="contained"
-                        startIcon={<FileUploadOutlinedIcon />}
-                        onClick={() => document.getElementById("propertyImageUpload")?.click()}
-                      >
-                        <span className="btnC">Choose image</span>
-                      </MuiButton>
-                
-                      <p className="imageDesc">Max. {MAX_IMAGES} Images</p>
-                    </div>
-                
-                    {errors.images && (
-                      <div className="text-danger mt-1" style={{ fontSize: "14px" }}>
-                        {errors.images}
+                        <button type="button" onClick={() => removeImage(index)} className="remove-btn">
+                          <img src={`${import.meta.env.BASE_URL}/createProperty/material-symbols_close-rounded.svg`} alt="Remove" />
+                        </button>
                       </div>
-                    )}
+                    ))}
                   </div>
-                
-                  <Modal open={cropModalOpen} onClose={() => setCropModalOpen(false)}>
-                    <div
-                      style={{
-                        background: "#fff",
-                        padding: 20,
-                        margin: "5% auto",
-                        width: "90%",
-                        maxWidth: 600,
-                      }}
-                    >
-                      {imageSrc && (
-                        <>
-                          <div style={{ position: "relative", width: "100%", height: 400 }}>
-                            <Cropper
-                              image={imageSrc}
-                              crop={crop}
-                              zoom={zoom}
-                              aspect={4 / 3}
-                              onCropChange={setCrop}
-                              onZoomChange={setZoom}
-                              onCropComplete={onCropComplete}
-                            />
-                          </div>
-                          <div style={{ marginTop: 20 }}>
-                            <Slider
-                              value={zoom}
-                              min={1}
-                              max={3}
-                              step={0.1}
-                              onChange={(_, value) => setZoom(value as number)}
-                            />
-                            <div style={{ marginTop: 10 }}>
-                              <button onClick={cropImage}>Crop</button>
-                              <button
-                                onClick={() => setCropModalOpen(false)}
-                                style={{ marginLeft: 10 }}
-                              >
-                                Cancel
-                              </button>
-                            </div>
-                          </div>
-                
-                        </>
-                      )}
-                      
-                    </div>
-                  </Modal>
-                </section>
-                
-                {previewImage && (
-                  <Modal open={true} onClose={() => setPreviewImage(null)}>
-                    <div
-                      style={{
-                        position: 'fixed',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        backgroundColor: '#fff',
-                        padding: 20,
-                        maxWidth: '90%',
-                        maxHeight: '90%',
-                        overflow: 'auto',
-                        boxShadow: '0 0 10px rgba(0,0,0,0.5)',
-                        zIndex: 1300,
-                      }}
-                    >
-                      <img
-                        src={previewImage}
-                        alt="Preview"
-                        style={{maxWidth: `${MAX_WIDTH}px`,
-                    maxHeight: `${MAX_HEIGHT}px`,
-                    minWidth: `${MIN_WIDTH}px`,
-                    minHeight: `${MIN_HEIGHT}px`,
-                    objectFit: 'contain'}}
-                      />
-                      <button onClick={() => setPreviewImage(null)} style={{ marginTop: 10 }}>
-                        Close Preview
-                      </button>
-                    </div>
-                  </Modal>
-                )}
-                
-                
-                {/*new code for cropping functionalities ends here */}
-                
 
-                { /* <div>
+                  <div
+                    className={`BtnFrame d-flex mt-3 mb-2 align-items-start gap-3 ${images.length > 0 ? "with-gap" : ""
+                      }`}
+                  >
+                    <p className="image-p">
+                      {images.length > 0
+                        ? `${images.length} image${images.length > 1 ? "s" : ""} chosen`
+                        : "No image chosen"}
+                    </p>
+
+                    <input
+                      type="file"
+                      id="propertyImageUpload"
+                      style={{ display: "none" }}
+                      accept="image/*"
+
+                      onChange={handleFileChange}
+                    />
+
+                    <MuiButton
+                      className="chooseBtn"
+                      variant="contained"
+                      startIcon={<FileUploadOutlinedIcon />}
+                      onClick={() => document.getElementById("propertyImageUpload")?.click()}
+                    >
+                      <span className="btnC">Choose image</span>
+                    </MuiButton>
+
+                    <p className="imageDesc">Max. {MAX_IMAGES} Images</p>
+                  </div>
+
+                  {errors.images && (
+                    <div className="text-danger mt-1" style={{ fontSize: "14px" }}>
+                      {errors.images}
+                    </div>
+                  )}
+                </div>
+
+                <Modal open={cropModalOpen} onClose={() => setCropModalOpen(false)}>
+                  <div
+                    style={{
+                      background: "#fff",
+                      padding: 20,
+                      margin: "5% auto",
+                      width: "90%",
+                      maxWidth: 600,
+                    }}
+                  >
+                    {imageSrc && (
+                      <>
+                        <div style={{ position: "relative", width: "100%", height: 400 }}>
+                          <Cropper
+                            image={imageSrc}
+                            crop={crop}
+                            zoom={zoom}
+                            aspect={4 / 3}
+                            onCropChange={setCrop}
+                            onZoomChange={setZoom}
+                            onCropComplete={onCropComplete}
+                          />
+                        </div>
+                        <div style={{ marginTop: 20 }}>
+                          <Slider
+                            value={zoom}
+                            min={1}
+                            max={3}
+                            step={0.1}
+                            onChange={(_, value) => setZoom(value as number)}
+                          />
+                          <div style={{ marginTop: 10 }}>
+                            <button onClick={cropImage}>Crop</button>
+                            <button
+                              onClick={() => setCropModalOpen(false)}
+                              style={{ marginLeft: 10 }}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+
+                      </>
+                    )}
+
+                  </div>
+                </Modal>
+              </section>
+
+              {previewImage && (
+                <Modal open={true} onClose={() => setPreviewImage(null)}>
+                  <div
+                    style={{
+                      position: 'fixed',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      backgroundColor: '#fff',
+                      padding: 20,
+                      maxWidth: '90%',
+                      maxHeight: '90%',
+                      overflow: 'auto',
+                      boxShadow: '0 0 10px rgba(0,0,0,0.5)',
+                      zIndex: 1300,
+                    }}
+                  >
+                    <img
+                      src={previewImage}
+                      alt="Preview"
+                      style={{
+                        maxWidth: `${MAX_WIDTH}px`,
+                        maxHeight: `${MAX_HEIGHT}px`,
+                        minWidth: `${MIN_WIDTH}px`,
+                        minHeight: `${MIN_HEIGHT}px`,
+                        objectFit: 'contain'
+                      }}
+                    />
+                    <button onClick={() => setPreviewImage(null)} style={{ marginTop: 10 }}>
+                      Close Preview
+                    </button>
+                  </div>
+                </Modal>
+              )}
+
+
+              {/*new code for cropping functionalities ends here */}
+
+
+              { /* <div>
                   <div className="ResidentialCategory mt-3">
                     <p>
                       Upload Property Images <span className="star">*</span>
@@ -1544,8 +1546,8 @@ const removeImage = (index: number) => {
                       placeholder="Enter Total Area (sq.ft)"
                       value={totalArea}
                       onChange={(e) => setTotalArea(e.target.value)}
-                      // error={!!errors.totalArea}
-                      // helperText={errors.totalArea}
+                    // error={!!errors.totalArea}
+                    // helperText={errors.totalArea}
                     />
                   </div>
                   <div className="col-12 col-md-6 mb-3">
@@ -1622,18 +1624,14 @@ const removeImage = (index: number) => {
                 </div>
               </section>
 
-              <section className="ownerFacilitiess">
+              <section className="ownerFacilitiess mb-4">
                 <div className="ownerTitle">
                   <h6>Facilities Provided</h6>
-                  <p>
-                    Specify the amenities and utilities available in the plot
-                  </p>
+                  <p>Specify the amenities and utilities available in the plot</p>
                 </div>
-                <div className="chipField row">
-                  <div
-                    className="chipcard d-flex gap-4 col-6 col-md-3 mb-3"
-                    style={{ padding: "31px" }}
-                  >
+
+                <div className="chipField">
+                  <div className="d-flex flex-wrap gap-3">
                     <InputField
                       type="chip"
                       label="Well"
@@ -1645,15 +1643,14 @@ const removeImage = (index: number) => {
                         />
                       }
                       selectedChips={selectedChips}
-                      onChipToggle={(label) => {
+                      onChipToggle={(label) =>
                         setSelectedChips((prev) =>
                           prev.includes(label)
                             ? prev.filter((chip) => chip !== label)
                             : [...prev, label]
-                        );
-                      }}
+                        )
+                      }
                     />
-
                     <InputField
                       type="chip"
                       label="Bore Well"
@@ -1665,15 +1662,14 @@ const removeImage = (index: number) => {
                         />
                       }
                       selectedChips={selectedChips}
-                      onChipToggle={(label) => {
+                      onChipToggle={(label) =>
                         setSelectedChips((prev) =>
                           prev.includes(label)
                             ? prev.filter((chip) => chip !== label)
                             : [...prev, label]
-                        );
-                      }}
+                        )
+                      }
                     />
-
                     <InputField
                       type="chip"
                       label="EB Connection"
@@ -1685,15 +1681,14 @@ const removeImage = (index: number) => {
                         />
                       }
                       selectedChips={selectedChips}
-                      onChipToggle={(label) => {
+                      onChipToggle={(label) =>
                         setSelectedChips((prev) =>
                           prev.includes(label)
                             ? prev.filter((chip) => chip !== label)
                             : [...prev, label]
-                        );
-                      }}
+                        )
+                      }
                     />
-
                     <InputField
                       type="chip"
                       label="Motor"
@@ -1705,18 +1700,17 @@ const removeImage = (index: number) => {
                         />
                       }
                       selectedChips={selectedChips}
-                      onChipToggle={(label) => {
+                      onChipToggle={(label) =>
                         setSelectedChips((prev) =>
                           prev.includes(label)
                             ? prev.filter((chip) => chip !== label)
                             : [...prev, label]
-                        );
-                      }}
+                        )
+                      }
                     />
                   </div>
                 </div>
               </section>
-
               {/* Additional Information Section */}
               <section className="AdditionalInfoSection mb-4">
                 <div className="ownerTitle">
@@ -1821,7 +1815,7 @@ const removeImage = (index: number) => {
                       type="submit"
                       disabled={loading}
 
-                      // onClick={() => navigate("/createCommercial", { state: { mode: "create" } })}
+                    // onClick={() => navigate("/createCommercial", { state: { mode: "create" } })}
                     />
 
                     {/* This must be rendered */}

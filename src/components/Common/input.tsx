@@ -119,7 +119,11 @@ const StyledTextarea = styled(TextareaAutosize)(
  
 // ---------------- Subcomponent: Breadcrumbs -------------------
 const DynamicBreadcrumbs = () => {
-  const pathnames = location.pathname.split("/").filter((x) => x);
+  // const pathnames = location.pathname.split("/").filter((x) => x);
+  const pathnames = location.pathname
+  .split("/")
+  .filter((x) => x && x !== "admin"); // Hide 'admin'
+  
   return (
     <Stack spacing={2} sx={{ mb: 2 }}>
       {/* <Breadcrumbs
