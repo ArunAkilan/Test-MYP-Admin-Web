@@ -118,7 +118,7 @@ const StyledTextarea = styled(TextareaAutosize)(
 );
  
 // ---------------- Subcomponent: Breadcrumbs -------------------
-const DynamicBreadcrumbs = () => {
+const DynamicBreadcrumbs = ({ title }: { title?: string }) => {
   const pathnames = location.pathname.split("/").filter((x) => x);
   return (
     <Stack spacing={2} sx={{ mb: 2 }}>
@@ -155,7 +155,7 @@ const DynamicBreadcrumbs = () => {
           const to = `/${pathnames.slice(0, index + 1).join("/")}`;
           const isLast = index === pathnames.length - 1;
           //const label = PATH_LABELS[value] || value;
-          const label = value;
+          const label = isLast && title ? title : value;
 
           return isLast ? (
             <Typography color="text.primary" key={to}>
