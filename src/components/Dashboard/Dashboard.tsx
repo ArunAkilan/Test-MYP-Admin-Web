@@ -145,7 +145,13 @@ function Home({ properties }: { properties: PropertyType }) {
     }
   }, [dashboardData, sideNavTabvalue]);
 
-  console.log(tableData, "table");
+const triggerReset = () => {
+  setIsSkeletonLoading(true);
+  setTimeout(() => {
+    setIsSkeletonLoading(false);
+  }, 2000);
+};
+
   if (loading) {
     return (
       <Box display="flex" alignItems="center" justifyContent="center" p={3}>
@@ -306,6 +312,7 @@ function Home({ properties }: { properties: PropertyType }) {
                 data={tableData}
                 properties={sideNavTabvalue}
                 onScrollChangeParent={handleChildScroll}
+                onReset={triggerReset}
               />
             </div>
           </div>

@@ -2,7 +2,7 @@ export interface PlotProperty {
   _id: string;
   title: string;
   propertyType: string;
-  commercialType: string;
+  plotType: string;
   description: string;
   readyToOccupy: boolean;
   washroom: string;

@@ -53,8 +53,7 @@ interface PropertyResponse {
 }
 
 const ViewProperty = () => {
-        
-const location = useLocation();
+  const location = useLocation();
   const { id } = useParams();
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -160,20 +159,19 @@ const location = useLocation();
       ? parseFloat(longitudeRaw)
       : undefined;
 
+  const pathSegments = location.pathname.split("/");
 
-const pathSegments = location.pathname.split("/");
+  // This assumes structure: /admin/{type}/view/:id
+  const propertyType = pathSegments[1];
 
-// This assumes structure: /admin/{type}/view/:id
-const propertyType = pathSegments[1];
-
-let typeLabel = "-";
-if (propertyType === "residential") {
-  typeLabel = "Residential TYPE";
-} else if (propertyType === "commercial") {
-  typeLabel = "Commercial TYPE";
-} else if (propertyType === "plot") {
-  typeLabel = "Plot TYPE";
-}
+  let typeLabel = "-";
+  if (propertyType === "residential") {
+    typeLabel = "Residential TYPE";
+  } else if (propertyType === "commercial") {
+    typeLabel = "Commercial TYPE";
+  } else if (propertyType === "plot") {
+    typeLabel = "Plot TYPE";
+  }
 
   return (
     <section className="container pt-4">
@@ -214,44 +212,61 @@ if (propertyType === "residential") {
             <div className="text-center">
               <p className="mb-1 caps">Area</p>
               <h3 className="mb-1 user-result-data">
-                {typeof property?.property?.area?.totalArea === "number"
+                {typeof property?.property?.area?.totalArea === "string" ||
+                typeof property.property.rent.agreementTiming === "number"
                   ? property.property.area.totalArea
                   : "-"}
               </h3>
             </div>
             <div className="area-facing-divider"></div>
             <div className=" text-center">
-              <p className="mb-1">Rent</p>
+              <p className="mb-1">Amount</p>
               <h3 className="mb-1 user-result-data">
                 {typeof property?.property?.rent?.rentAmount === "number"
                   ? property?.property?.rent?.rentAmount
                   : "-"}
               </h3>
-              <p className="text-muted">Per Month</p>
+              {property?.property?.propertyType === "Rent" && (
+                <p className="text-muted">Per Month</p>
+              )}
             </div>
             <div className="area-facing-divider"></div>
-            {property?.property?.propertyType !== "Rent" &&
-              property?.property?.propertyType !== "Sale" && (
+            {property?.property?.propertyType !== "rent" &&
+              property?.property?.propertyType !== "sale" && (
                 <>
                   <div className=" text-center deposit-amount">
                     <p className="mb-1">Deposit Amount</p>
                     <h3 className="mb-1 user-result-data">
-                      {property?.property?.rent?.advanceAmount}
+                      {typeof property?.property?.rent?.advanceAmount ===
+                      "number"
+                        ? property?.property?.rent?.advanceAmount
+                        : "-"}
                     </h3>
                   </div>
+                  <div className="area-facing-divider"></div>
                 </>
               )}
-            {property?.property?.propertyType === "Rent" && (
+            
+            {property?.property?.propertyType === "lease" && (
               <div className=" text-center tenure-days ">
                 <p className="mb-1">AGREEMENT</p>
                 <h3 className="mb-1 user-result-data">
-                  {typeof property?.property?.rent?.agreementTiming === "number"
-                    ? property.property.rent.agreementTiming === 12
-                      ? "12 Month"
-                      : property.property.rent.agreementTiming === 1
-                      ? "1 Year"
-                      : `${property.property.rent.agreementTiming} Years`
-                    : "-"}
+                  {(() => {
+                    const timing = property?.property?.rent?.agreementTiming;
+
+                    if (timing === undefined || timing === null) return "-";
+
+                    const timingNum = Number(timing);
+
+                    if (isNaN(timingNum)) {
+                      return timing; // Probably a custom string
+                    }
+
+                    if (timingNum === 12) return "12 Months";
+                    if (timingNum === 1) return "1 Year";
+
+                    return `${timingNum} Years`;
+                  })()}
                 </h3>
               </div>
             )}
@@ -268,7 +283,7 @@ if (propertyType === "residential") {
           </div>
           <div className="col-md-2 row-individual-data">
             <p>{typeLabel}</p>
-            <span>Shop</span>
+            <span>{property?.property?.residentialType}</span>
           </div>
           <div className="col-md-2 row-individual-data">
             <p>Negotiable</p>
@@ -333,7 +348,11 @@ if (propertyType === "residential") {
                 <p>POSTED ON</p>
                 <span>
                   <img src={dateImage} alt="date" />
-                  {property?.property?.createdAt ? new Date(property?.property?.createdAt).toLocaleDateString("en-GB") : "-"}
+                  {property?.property?.createdAt
+                    ? new Date(
+                        property?.property?.createdAt
+                      ).toLocaleDateString("en-GB")
+                    : "-"}
                 </span>
               </div>
             )}
@@ -348,15 +367,16 @@ if (propertyType === "residential") {
               </div>
             )}
 
-           {property?.property?.propertyFloor !== undefined && property?.property?.propertyFloor !== null  && (
-              <div className="col-md-2 row-individual-data">
-                <p>PROPERTY ON</p>
-                <span>
-                  <img src={footStepImg} alt="Facing" />
-                  {property.property.propertyFloor}
-                </span>
-              </div>
-            )}
+            {property?.property?.propertyFloor !== undefined &&
+              property?.property?.propertyFloor !== null && (
+                <div className="col-md-2 row-individual-data">
+                  <p>PROPERTY ON</p>
+                  <span>
+                    <img src={footStepImg} alt="Facing" />
+                    {property.property.propertyFloor}
+                  </span>
+                </div>
+              )}
 
             {property?.property?.furnishingType && (
               <div className="col-md-2 row-individual-data">
@@ -394,7 +414,9 @@ if (propertyType === "residential") {
                 <p>SEPARATE EB CONNECTION</p>
                 <span>
                   <img src={mage_electricity} alt="mage_electricity" />
-                  {property.property.amenities.separateEBConnection? "Yes" : "No"}
+                  {property.property.amenities.separateEBConnection
+                    ? "Yes"
+                    : "No"}
                 </span>
               </div>
             )}
@@ -404,7 +426,7 @@ if (propertyType === "residential") {
                 <p>MARKET</p>
                 <span>
                   <img src={weixin_market} alt="weixin_market" />
-                  {property.property.amenities.nearbyMarket? "Yes" : "No"}
+                  {property.property.amenities.nearbyMarket ? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -414,7 +436,7 @@ if (propertyType === "residential") {
                 <p>GYM</p>
                 <span>
                   <img src={equipment_gym} alt="equipment_gym" />
-                  {property.property.amenities.nearbyGym? "Yes" : "No"}
+                  {property.property.amenities.nearbyGym ? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -424,7 +446,7 @@ if (propertyType === "residential") {
                 <p>SHOPPING MALL</p>
                 <span>
                   <img src={local_mall} alt="local_mall" />
-                  {property.property.amenities.nearbyMall? "Yes" : "No"}
+                  {property.property.amenities.nearbyMall ? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -434,7 +456,7 @@ if (propertyType === "residential") {
                 <p>TURF</p>
                 <span>
                   <img src={tabler_cricket} alt="tabler_cricket" />
-                  {property.property.amenities.nearbyTurf? "Yes" : "No"}
+                  {property.property.amenities.nearbyTurf ? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -444,7 +466,7 @@ if (propertyType === "residential") {
                 <p>ARENA</p>
                 <span>
                   <img src={gamingImg} alt="gamingImg" />
-                  {property.property.amenities.nearbyArena? "Yes" : "No"}
+                  {property.property.amenities.nearbyArena ? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -468,7 +490,7 @@ if (propertyType === "residential") {
                 <p>MAINTENANCE</p>
                 <span>
                   <img src={Icon_Cleaning} alt="Icon_Cleaning" />
-                  {property.property.facility.maintenance? "Yes" : "No"}
+                  {property.property.facility.maintenance ? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -479,7 +501,7 @@ if (propertyType === "residential") {
                 <p>WATER SUPPLY</p>
                 <span>
                   <img src={water_full_outline} alt="water_full_outline" />
-                  {property.property.facility.waterFacility? "Yes" : "No"}
+                  {property.property.facility.waterFacility ? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -490,7 +512,7 @@ if (propertyType === "residential") {
                 <p>ROAD ACCESS</p>
                 <span>
                   <img src={Icon_Road} alt="Icon_Road" />
-                  {property.property.facility.roadFacility? "Yes" : "No"}
+                  {property.property.facility.roadFacility ? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -501,7 +523,7 @@ if (propertyType === "residential") {
                 <p>DRAINAGE</p>
                 <span>
                   <img src={Icon_restroom} alt="Icon_restroom" />
-                  {property.property.facility.drainage? "Yes" : "No"}
+                  {property.property.facility.drainage ? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -512,7 +534,7 @@ if (propertyType === "residential") {
                 <p>PARKING</p>
                 <span>
                   <img src={Icon_Parking} alt="Icon_Parking" />
-                  {property.property.facility.parking? "Yes" : "No"}
+                  {property.property.facility.parking ? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -523,7 +545,7 @@ if (propertyType === "residential") {
                 <p>BALCONY</p>
                 <span>
                   <img src={Icon_Balcony} alt="Icon_Balcony" />
-                  {property.property.facility.balcony? "Yes" : "No"}
+                  {property.property.facility.balcony ? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -534,7 +556,7 @@ if (propertyType === "residential") {
                 <p>TERRACE</p>
                 <span>
                   <img src={icon_park_terrace} alt="icon_park_terrace" />
-                  {property.property.facility.terrace? "Yes" : "No"}
+                  {property.property.facility.terrace ? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -553,7 +575,7 @@ if (propertyType === "residential") {
                 <p>GUESTS</p>
                 <span>
                   <img src={solar_user} alt="solar_user" />
-                  {property.property.restrictions.guestAllowed? "Yes" : "No"}
+                  {property.property.restrictions.guestAllowed ? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -563,7 +585,7 @@ if (propertyType === "residential") {
                 <p>PETS</p>
                 <span>
                   <img src={streamline_pets} alt="streamline_pets" />
-                  {property.property.restrictions.petsAllowed? "Yes" : "No"}
+                  {property.property.restrictions.petsAllowed ? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -573,7 +595,9 @@ if (propertyType === "residential") {
                 <p>BACHELORS</p>
                 <span>
                   <img src={Icon_Lift} alt="Icon_Lift" />
-                  {property.property.restrictions.bachelorsAllowed? "Yes" : "No"}
+                  {property.property.restrictions.bachelorsAllowed
+                    ? "Yes"
+                    : "No"}
                 </span>
               </div>
             )}
@@ -594,7 +618,9 @@ if (propertyType === "residential") {
                     src={streamline_flex_network}
                     alt="streamline_flex_network"
                   />
-                  {property.property.amenities.separateEBConnection? "Yes" : "No"}
+                  {property.property.amenities.separateEBConnection
+                    ? "Yes"
+                    : "No"}
                 </span>
               </div>
             )}
@@ -605,7 +631,7 @@ if (propertyType === "residential") {
                 <p>SECURITY</p>
                 <span>
                   <img src={user_security} alt="user_security" />
-                  {property.property.availability.securities? "Yes" : "No"}
+                  {property.property.availability.securities ? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -624,7 +650,7 @@ if (propertyType === "residential") {
                 <p>RAMP ACCESS</p>
                 <span>
                   <img src={ramp_up} alt="ramp_up" />
-                  {property.property.accessibility.ramp? "Yes" : "No"}
+                  {property.property.accessibility.ramp ? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -635,7 +661,7 @@ if (propertyType === "residential") {
                 <p>STAIR ACCESS</p>
                 <span>
                   <img src={footStepImg} alt="footStepImg" />
-                  {property.property.accessibility.steps? "Yes" : "No"}
+                  {property.property.accessibility.steps ? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -646,7 +672,7 @@ if (propertyType === "residential") {
                 <p>LIFT</p>
                 <span>
                   <img src={footStepImg} alt="footStepImg" />
-                  {property.property.accessibility.lift? "Yes" : "No"}
+                  {property.property.accessibility.lift ? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -706,7 +732,8 @@ if (propertyType === "residential") {
                     Bus Stand
                   </h3>
                   <p>
-                    {property?.property?.availability?.transport?.nearbyBusStop || "N/A"}
+                    {property?.property?.availability?.transport
+                      ?.nearbyBusStop || "N/A"}
                   </p>
                 </div>
                 <div className="Airport col-md-3">
@@ -715,7 +742,8 @@ if (propertyType === "residential") {
                     Airport
                   </h3>
                   <p>
-                    {property?.property?.availability?.transport?.nearbyAirport || "N/A"}
+                    {property?.property?.availability?.transport
+                      ?.nearbyAirport || "N/A"}
                   </p>
                 </div>
                 <div className="Metro col-md-3">
@@ -724,7 +752,8 @@ if (propertyType === "residential") {
                     Metro
                   </h3>
                   <p>
-                    {property?.property?.availability?.transport?.nearbyPort || "N/A"}
+                    {property?.property?.availability?.transport?.nearbyPort ||
+                      "N/A"}
                   </p>
                 </div>
                 <div className="Railway col-md-3">
@@ -733,7 +762,8 @@ if (propertyType === "residential") {
                     Railway
                   </h3>
                   <p>
-                    {property?.property?.availability?.transport?.nearbyBusStop || "N/A"}
+                    {property?.property?.availability?.transport
+                      ?.nearbyBusStop || "N/A"}
                   </p>
                 </div>
               </div>
