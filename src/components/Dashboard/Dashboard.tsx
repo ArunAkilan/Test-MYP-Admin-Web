@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import  { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./Dashboard.scss";
@@ -145,7 +145,13 @@ function Home({ properties }: { properties: PropertyType }) {
     }
   }, [dashboardData, sideNavTabvalue]);
 
-  console.log(tableData, "table");
+const triggerReset = () => {
+  setIsSkeletonLoading(true);
+  setTimeout(() => {
+    setIsSkeletonLoading(false);
+  }, 2000);
+};
+
   if (loading) {
     return (
       <Box display="flex" alignItems="center" justifyContent="center" p={3}>
@@ -306,6 +312,7 @@ function Home({ properties }: { properties: PropertyType }) {
                 data={tableData}
                 properties={sideNavTabvalue}
                 onScrollChangeParent={handleChildScroll}
+                onReset={triggerReset}
               />
             </div>
           </div>

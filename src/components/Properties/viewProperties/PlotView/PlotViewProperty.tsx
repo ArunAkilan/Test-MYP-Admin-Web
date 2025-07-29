@@ -200,44 +200,61 @@ console.log("Path Segments:", pathSegments);
             <div className="text-center">
               <p className="mb-1 caps">Area</p>
               <h3 className="mb-1 user-result-data">
-                {typeof property?.property?.area?.totalArea === "number"
+                {typeof property?.property?.area?.totalArea === "string" ||
+                typeof property.property.rent.agreementTiming === "number"
                   ? property.property.area.totalArea
                   : "-"}
               </h3>
             </div>
             <div className="area-facing-divider"></div>
             <div className=" text-center">
-              <p className="mb-1">Rent</p>
+              <p className="mb-1">Amount</p>
               <h3 className="mb-1 user-result-data">
                 {typeof property?.property?.rent?.rentAmount === "number"
                   ? property?.property?.rent?.rentAmount
                   : "-"}
               </h3>
-              <p className="text-muted">Per Month</p>
+              {property?.property?.propertyType === "Rent" && (
+                <p className="text-muted">Per Month</p>
+              )}
             </div>
             <div className="area-facing-divider"></div>
-            {property?.property?.propertyType !== "Rent" &&
-              property?.property?.propertyType !== "Sale" && (
+            {property?.property?.propertyType !== "rent" &&
+              property?.property?.propertyType !== "sale" && (
                 <>
                   <div className=" text-center deposit-amount">
                     <p className="mb-1">Deposit Amount</p>
                     <h3 className="mb-1 user-result-data">
-                      {property?.property?.rent?.advanceAmount}
+                      {typeof property?.property?.rent?.advanceAmount ===
+                      "number"
+                        ? property?.property?.rent?.advanceAmount
+                        : "-"}
                     </h3>
                   </div>
+                  <div className="area-facing-divider"></div>
                 </>
               )}
-            {property?.property?.propertyType === "Rent" && (
+            
+            {property?.property?.propertyType === "lease" && (
               <div className=" text-center tenure-days ">
                 <p className="mb-1">AGREEMENT</p>
                 <h3 className="mb-1 user-result-data">
-                  {typeof property?.property?.rent?.agreementTiming === "number"
-                    ? property.property.rent.agreementTiming === 12
-                      ? "12 Month"
-                      : property.property.rent.agreementTiming === 1
-                      ? "1 Year"
-                      : `${property.property.rent.agreementTiming} Years`
-                    : "-"}
+                  {(() => {
+                    const timing = property?.property?.rent?.agreementTiming;
+
+                    if (timing === undefined || timing === null) return "-";
+
+                    const timingNum = Number(timing);
+
+                    if (isNaN(timingNum)) {
+                      return timing; // Probably a custom string
+                    }
+
+                    if (timingNum === 12) return "12 Months";
+                    if (timingNum === 1) return "1 Year";
+
+                    return `${timingNum} Years`;
+                  })()}
                 </h3>
               </div>
             )}
@@ -254,7 +271,7 @@ console.log("Path Segments:", pathSegments);
           </div>
           <div className="col-md-2 row-individual-data">
             <p>{typeLabel}</p>
-            <span>Shop</span>
+            <span>{property?.property?.plotType}</span>
           </div>
           <div className="col-md-2 row-individual-data">
             <p>Negotiable</p>

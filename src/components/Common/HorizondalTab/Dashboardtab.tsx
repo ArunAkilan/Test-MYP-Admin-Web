@@ -97,6 +97,7 @@ interface DashboardtabProps {
   data: PropertyData; // ✅ Accepts array now
   properties: "all" | "residentials" | "commercials" | "plots";
   onScrollChangeParent: (scrollTop: number) => void;
+  onReset?: () => void;
 }
 
 type PropertyItem = {
@@ -152,7 +153,7 @@ function a11yProps(index: number) {
 export default function Dashboardtab({
   data,
   properties,
-  onScrollChangeParent,
+  onScrollChangeParent, onReset
 }: DashboardtabProps) {
   const [isFiltered, setIsFiltered] = useState(false);
   const [currentCheckList, setCurrentCheckList] = useState<string[]>([]);
@@ -478,6 +479,7 @@ export default function Dashboardtab({
     fetchFilteredData([], value);
     setDrawerOpen(false);
     setResetCounter((prev) => prev + 1);
+    if (onReset) onReset();
   };
 
   // count function
