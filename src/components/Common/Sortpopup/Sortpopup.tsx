@@ -1,75 +1,68 @@
-// SortMenu.tsx
-import React from "react";
-import {
-  Menu,
-  MenuItem,
-  ListItemText,
-} from "@mui/material";
+// BasicPopover.tsx
+import React, { useState, useEffect } from "react";
+import Popover from "@mui/material/Popover";
+import MenuItem from "@mui/material/MenuItem";
+import MenuList from "@mui/material/MenuList";
 
-// Define the sort options type
-type SortOption = "newest" | "oldest" | "highestPrice" | "lowestPrice";
+interface BasicPopoverProps {
+  triggerRef: React.RefObject<HTMLElement | null>;
+  openOnClick: boolean;
+  onClosePopover: () => void;
+  items: string[];
+  selectedLabel: string;
+  onSelect: (label: string) => void;
+  
+}
 
-// Props type
-type SortMenuProps = {
-  anchorElement: null | HTMLElement;
-  menuOpen: boolean;
-  handleMenuClose: () => void;
-  onChange: (label: string) => void;
-  selected: string;
-};
-
-// Raw options to map to display strings
-const sortOptions: SortOption[] = [
-  "newest",
-  "oldest",
-  "highestPrice",
-  "lowestPrice",
-];
-
-// Format display label
-const formatOption = (key: SortOption): string => {
-  switch (key) {
-    case "newest":
-      return "Newest Property";
-    case "oldest":
-      return "Oldest Property";
-    case "highestPrice":
-      return "Highest Price";
-    case "lowestPrice":
-      return "Lowest Price";
-    default:
-      return key;
-  }
-};
-
-const SortMenu: React.FC<SortMenuProps> = ({
-  anchorElement,
-  menuOpen,
-  handleMenuClose,
-  onChange,
-  selected,
+const BasicPopover: React.FC<BasicPopoverProps> = ({
+  triggerRef,
+  openOnClick,
+  onClosePopover,
+  items,
+  selectedLabel,
+  onSelect,
 }) => {
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (openOnClick && triggerRef.current) {
+      setAnchorEl(triggerRef.current);
+    } else {
+      setAnchorEl(null);
+    }
+  }, [openOnClick, triggerRef]);
+
+  const handleClose = () => {
+    onClosePopover();
+  };
+
   return (
-    <Menu
-      anchorEl={anchorElement}
-      open={menuOpen}
-      onClose={handleMenuClose}
-      sx={{ border: "1px solid #D3DDE7" }}
+    <Popover
+      id="basic-popover"
+      open={Boolean(anchorEl)}
+      anchorEl={anchorEl}
+      onClose={handleClose}
+      anchorOrigin={{
+        vertical: "bottom",
+        horizontal: "left",
+      }}
     >
-      {sortOptions.map((option) => (
-        <MenuItem
-          key={option}
-          selected={selected === option}
-          onClick={() => {
-            onChange(option);
-            handleMenuClose();
-          }}
-        >
-          <ListItemText primary={option} />
-        </MenuItem>
-      ))}
-    </Menu>
+      <MenuList>
+        {items.map((item) => (
+          <MenuItem
+            key={item}
+            selected={item === selectedLabel}
+            onClick={() => {
+              onSelect(item);
+              handleClose();
+            }}
+          >
+            {item}
+          </MenuItem>
+        ))}
+      </MenuList>
+    </Popover>
   );
 };
 
-export default SortMenu;
+export default BasicPopover;
