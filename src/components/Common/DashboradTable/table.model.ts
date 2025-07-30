@@ -233,6 +233,8 @@ export interface Property {
   title?: string;
   rooms?: number;
   owner?: string;
+  type?: string;
+  _source?: string;
 }
 
 // ───── Residential Property ─────
@@ -291,4 +293,4 @@ export interface PropertyDataResponse {
 }
 
 export type SortDirection = 'asc' | 'desc';
-export type SortableColumn = 'title' | 'totalArea' | 'status' | 'totalFloors' | 'facingDirection' | 'furnishingType' | 'washroom' | 'plotType' | 'propertyType';
+export type SortableColumn = 'title' | '_source' | 'type' | 'totalArea' | 'status' | 'totalFloors' | 'facingDirection' | 'furnishingType' | 'washroom' | 'plotType' | 'propertyType';

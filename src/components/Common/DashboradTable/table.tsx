@@ -8,7 +8,7 @@ import {
   Backdrop,
   CircularProgress,
 } from "@mui/material";
-import React, { useState, useEffect,useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -19,8 +19,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import type {
   PropertyDataResponse,
   ResidentialProperty,
-  SortDirection, SortableColumn
-} from "./table.model"; 
+  SortDirection,
+  SortableColumn,
+} from "./table.model";
 import EmptyState from "../Emptystate/EmptyState";
 
 // type EmptyStateProps = {
@@ -31,20 +32,20 @@ interface TableProps {
   //data: ResidentialProperty[];
   data: PropertyDataResponse | ResidentialProperty[];
   properties?:
-  | "all"
-  | "residential"
-  | "residentials"
-  | "commercial"
-  | "commercials"
-  | "plot"
-  | "plots"
-  | undefined;
+    | "all"
+    | "residential"
+    | "residentials"
+    | "commercial"
+    | "commercials"
+    | "plot"
+    | "plots"
+    | undefined;
   onScrollChange: (scrollTop: number) => void;
   handleOpenModal: (
     action: "Approve" | "Deny" | "Delete",
     item: ResidentialProperty
   ) => void;
-  tabType: 'pending' | 'approved' | 'rejected' | 'deleted';
+  tabType: "pending" | "approved" | "rejected" | "deleted";
   onAction?: () => void;
 }
 
@@ -72,7 +73,8 @@ const modalStyle = {
   p: 4,
 };
 
-function Table({ data, properties, onScrollChange,tabType }: TableProps) {
+function Table({ data, properties, onScrollChange, tabType }: TableProps) {
+  console.log("properties",properties)
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [isBackdropLoading, setIsBackdropLoading] = useState(false);
   const [popoverAnchorEl, setPopoverAnchorEl] = useState<HTMLElement | null>(
@@ -87,23 +89,23 @@ function Table({ data, properties, onScrollChange,tabType }: TableProps) {
   // const [lastScrollY, setLastScrollY] = React.useState(0);
   const lastScrollYRef = useRef(0);
   const [sortConfig, setSortConfig] = useState<{
-  key: SortableColumn;
-  direction: SortDirection;
-} | null>(null);
+    key: SortableColumn;
+    direction: SortDirection;
+  } | null>(null);
 
-useEffect(() => {
-  const container = containerRef.current;
-  const handleScroll = () => {
-    const currentScrollY = container?.scrollTop || 0;
-    onScrollChange(currentScrollY);
+  useEffect(() => {
+    const container = containerRef.current;
+    const handleScroll = () => {
+      const currentScrollY = container?.scrollTop || 0;
+      onScrollChange(currentScrollY);
 
-    // Use ref instead of state
-    lastScrollYRef.current = currentScrollY;
-  };
+      // Use ref instead of state
+      lastScrollYRef.current = currentScrollY;
+    };
 
-  container?.addEventListener("scroll", handleScroll);
-  return () => container?.removeEventListener("scroll", handleScroll);
-}, [onScrollChange]);
+    container?.addEventListener("scroll", handleScroll);
+    return () => container?.removeEventListener("scroll", handleScroll);
+  }, [onScrollChange]);
 
   useEffect(() => {
     if (selectedRows.length === 0) {
@@ -124,29 +126,26 @@ useEffect(() => {
     }
   };
   const handleAction = async (id: string, status: number) => {
-    
     const singularProperty = getSingularProperty();
     try {
       const token = localStorage.getItem("token"); // Safely retrieve the auth token
 
       await axios.put(
-        `${
-          import.meta.env.VITE_BackEndUrl
-        }/api/adminpermission`,
+        `${import.meta.env.VITE_BackEndUrl}/api/adminpermission`,
         {
           status: status.toString(),
           properties: [
             {
-              "type": singularProperty,
+              type: singularProperty,
               id: id,
             },
           ],
         },
-        
+
         {
           headers: {
             "Content-Type": "application/json",
-             Authorization: `Bearer ${token}`, // Add token here
+            Authorization: `Bearer ${token}`, // Add token here
           },
         }
       );
@@ -154,46 +153,39 @@ useEffect(() => {
       console.error("Failed to update status");
     }
   };
-  
-//@ts-ignore
-  const formatedData: PropertyViewWithSource[] = Array.isArray(data)
-  ? data.map((item) => ({
+
+  //@ts-ignore
+const formatedData = useMemo(() => {
+  if (Array.isArray(data)) {
+    return data.map((item) => ({
       ...item,
-      _source:
-        properties === "residentials"
+      type:
+        item?.type?.toLowerCase() ||
+        (properties === "residentials"
           ? "residential"
           : properties === "commercials"
           ? "commercial"
           : properties === "plots"
-          ? "plot" // singular and valid
-          : "residential", // default to valid value
-    }))
-  : [
-      ...(data?.residentials?.map((item) => ({
-        ...item,
-        _source: "residential",
-      })) ?? []),
-      ...(data?.commercials?.map((item) => ({
-        ...item,
-        _source: "commercial",
-      })) ?? []),
-      ...(data?.plots?.map((item) => ({
-        ...item,
-        _source: "plot", 
-      })) ?? []),
-      ...(data?.residential?.map((item) => ({
-        ...item,
-        _source: "residential",
-      })) ?? []),
-      ...(data?.commercial?.map((item) => ({
-        ...item,
-        _source: "commercial",
-      })) ?? []),
-      ...(data?.plot?.map((item) => ({
-        ...item,
-        _source: "plot", 
-      })) ?? []),
-    ];
+          ? "plot"
+          : "residential"), // default fallback if everything is missing
+    }));
+  }
+
+  return [
+    ...(data?.residentials?.map((item) => ({
+      ...item,
+      type: "residential",
+    })) ?? []),
+    ...(data?.commercials?.map((item) => ({
+      ...item,
+      type: "commercial",
+    })) ?? []),
+    ...(data?.plots?.map((item) => ({
+      ...item,
+      type: "plot",
+    })) ?? []),
+  ];
+}, [data, properties]);
 
 
   // Modal state
@@ -221,30 +213,28 @@ useEffect(() => {
     });
   };
 
-  const handleView = (id: string | number) => {
-
+ const handleView = (id: string | number) => {
   const selectedItem = formatedData.find(
     (item) => String(item._id) === String(id)
   );
 
-  console.log("🔍 selectedItem result:", selectedItem);
+  if (!selectedItem) {
+    alert("Property not found");
+    return;
+  }
 
-    if (!selectedItem) {
-      alert("Property not found");
-      return;
-    }
-    const routeBase = selectedItem._source;
-    // const routeBase = selectedItem._source;
+  const routeBase = selectedItem?.type?.toLowerCase();
 
-    if (!routeBase) {
-      alert("Unknown property type");
-      console.log("Missing _source in selectedItem", selectedItem);
-      return;
-    }
-    navigate(`/${routeBase}/view/${id}`, {
-      state: { data: selectedItem, mode: "view" },
-    });
-  };
+  if (!routeBase || !["residential", "commercial", "plot"].includes(routeBase)) {
+    alert(" Unknown or missing property type");
+    return;
+  }
+
+  navigate(`/${routeBase}/view/${id}`, {
+    state: { data: selectedItem, mode: "view" },
+  });
+};
+
 
   const handleOpenModal = (action: string, item: ResidentialProperty) => {
     console.log(" Opening modal with action:", action, "on item:", item._id);
@@ -269,23 +259,19 @@ useEffect(() => {
       // Success toast message
       const actionText =
         status === 1 ? "Approved" : status === 0 ? "Denied" : "Deleted";
-      
-         //Delay toast slightly to avoid UI interference
-    setTimeout(() => {
-      toast.success(`Listing successfully ${actionText.toLowerCase()}`);
-    }, 300);
 
+      //Delay toast slightly to avoid UI interference
+      setTimeout(() => {
+        toast.success(`Listing successfully ${actionText.toLowerCase()}`);
+      }, 300);
     } catch (e) {
       console.error("Error performing action:", e);
       toast.error("Something went wrong");
-
     } finally {
       setIsBackdropLoading(false);
       // setIsBackdropLoading(false);
     }
   };
-
-
 
   // popover
   const handlePopoverClick = (event: React.MouseEvent<HTMLInputElement>) => {
@@ -310,18 +296,18 @@ useEffect(() => {
       Delete: 2,
       Sold: 3,
     };
-  
+
     const statusCode = statusMap[action];
-  
+
     // Prepare properties array for API payload
     const properties = selectedRows.map((id) => {
       const item = formatedData.find((itm) => itm._id === id);
       return {
         id,
-        type: item?._source || "residential",  
+        type: item?._source || "residential",
       };
     });
-  
+
     try {
       setIsBackdropLoading(true); // Show loading
       const token = localStorage.getItem("token");
@@ -338,7 +324,7 @@ useEffect(() => {
           },
         }
       );
-  
+
       toast.success(`Properties successfully ${action.toLowerCase()}d`);
       setSelectedRows([]);
       handlePopoverClose();
@@ -346,16 +332,16 @@ useEffect(() => {
     } catch (error) {
       console.error(`Bulk ${action.toLowerCase()} failed`, error);
       toast.error(`Bulk ${action.toLowerCase()} failed`);
-    }
-    finally {
+    } finally {
       setIsBackdropLoading(false); //Hide loading
     }
   };
-  
 
   const truncateWords = (text: string = "", wordLimit: number): string => {
     const words = text.trim().split(/\s+/);
-    return words.length > wordLimit ? words.slice(0, wordLimit).join(" ") + "..." : text;
+    return words.length > wordLimit
+      ? words.slice(0, wordLimit).join(" ") + "..."
+      : text;
   };
 
   const scrollRef = React.useRef(null);
@@ -363,14 +349,14 @@ useEffect(() => {
   const [canScrollRight, setCanScrollRight] = useState(false);
 
   const checkScroll = () => {
-    const el:any = scrollRef.current;
+    const el: any = scrollRef.current;
     if (!el) return;
     setCanScrollLeft(el.scrollLeft > 0);
     setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth);
   };
 
-  const scroll = (direction:any) => {
-    const el:any = scrollRef.current;
+  const scroll = (direction: any) => {
+    const el: any = scrollRef.current;
     if (!el) return;
     const scrollAmount = 300;
     el.scrollBy({
@@ -379,413 +365,658 @@ useEffect(() => {
     });
   };
 
-useEffect(() => {
-  checkScroll();
-  const el = scrollRef.current as HTMLElement | null;
+  useEffect(() => {
+    checkScroll();
+    const el = scrollRef.current as HTMLElement | null;
 
-  el?.addEventListener("scroll", checkScroll);
-  window.addEventListener("resize", checkScroll);
+    el?.addEventListener("scroll", checkScroll);
+    window.addEventListener("resize", checkScroll);
 
-  return () => {
-    el?.removeEventListener("scroll", checkScroll);
-    window.removeEventListener("resize", checkScroll);
-  };
-}, []);
+    return () => {
+      el?.removeEventListener("scroll", checkScroll);
+      window.removeEventListener("resize", checkScroll);
+    };
+  }, []);
 
   const formattedData = useMemo(() => {
     if (!Array.isArray(data)) {
       const fallback = data?.residential || data?.commercial || data?.plot;
       return Array.isArray(fallback) ? fallback : [];
     }
-    return data.map(item => ({
+    return data.map((item) => ({
       ...item,
-      _source: properties === "residentials" ? "residential" : 
-              properties === "commercials" ? "commercial" : 
-              properties === "plots" ? "plot" : "residential"
+      _source:
+        properties === "residentials"
+          ? "residential"
+          : properties === "commercials"
+          ? "commercial"
+          : properties === "plots"
+          ? "plot"
+          : "residential",
     }));
   }, [data, properties]);
 
-  const sortedData = useMemo(() => {
+ const sortedData = useMemo(() => {
   if (!sortConfig) return formatedData;
-  
+
   return [...formatedData].sort((a, b) => {
-    // Handle undefined/null values
-    const aValue = a[sortConfig.key] || '';
-    const bValue = b[sortConfig.key] || '';
-    
-    if (aValue < bValue) {
-      return sortConfig.direction === 'asc' ? -1 : 1;
-    }
-    if (aValue > bValue) {
-      return sortConfig.direction === 'asc' ? 1 : -1;
-    }
+    const key = sortConfig.key as keyof typeof a;
+
+    const aValue = a[key] ?? "";
+    const bValue = b[key] ?? "";
+
+    if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+    if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
     return 0;
   });
 }, [formatedData, sortConfig]);
 
-const requestSort = (key: SortableColumn) => {
-  let direction: SortDirection = 'asc';
-  if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
-    direction = 'desc';
-  }
-  setSortConfig({ key, direction });
-};
+  const requestSort = (key: SortableColumn) => {
+    let direction: SortDirection = "asc";
+    if (
+      sortConfig &&
+      sortConfig.key === key &&
+      sortConfig.direction === "asc"
+    ) {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
 
   // 3. Then do conditional rendering
   if (formattedData.length === 0) {
     return <p>No data available</p>; // Now this is safe
   }
 
-  
   return (
     <>
       <div
         ref={containerRef}
-        style={{
-          // height: hideHeader ? "450px" : "315px",
-          // overflowY: "auto",
-          // marginBottom: "50px",
-        }}
+        style={
+          {
+            // height: hideHeader ? "450px" : "315px",
+            // overflowY: "auto",
+            // marginBottom: "50px",
+          }
+        }
       >
-        <div className="container table-wrapper" style={{position:"relative"}}>
-
-
+        <div
+          className="container table-wrapper"
+          style={{ position: "relative" }}
+        >
           {canScrollLeft && (
-            <button className="scroll-button left" onClick={() => scroll("left")}>
+            <button
+              className="scroll-button left"
+              onClick={() => scroll("left")}
+            >
               ◀
             </button>
           )}
-         {formatedData.length === 0 ? (
-             <EmptyState tabType={tabType} />
+          {formatedData.length === 0 ? (
+            <EmptyState tabType={tabType} />
           ) : (
-        <div
-          ref={scrollRef}
-          className="table-scroll">
-          <table className="horizontal-table">
-            <thead>
-              <tr>
-                <th className="checkbox-align chechbox-cmn">
-                  <input
-                    type="checkbox"
-                    checked={
-                      formatedData.length > 0 &&
-                      selectedRows.length === formatedData.length
-                    }
-                    onClick={handlePopoverClick}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        const allIds = formatedData.map((item) => item._id);
-                        setSelectedRows(allIds);
-                      } else {
-                        setSelectedRows([]);
-                      }
-                    }}
-                  />
-                </th>
-                <th>
-                  <div className="th-content"
-                    onClick={() => requestSort('title')}
-                    style={{ cursor: 'pointer' }}>
-                    Property Name
-                    <img src={`${import.meta.env.BASE_URL}src/assets/table/arrow-up.svg`} alt="arrow" 
-                    className={sortConfig?.key === 'title' ? `sorted-${sortConfig.direction}` : ''} />
-                  </div>
-                </th>
-                <th>
-                  <div className="th-content"
-                  onClick={() => requestSort('totalArea')}>
-                    Area
-                    <img src={`${import.meta.env.BASE_URL}src/assets/table/arrow-up.svg`} alt="arrow" 
-                    className={sortConfig?.key === 'totalArea' ? `sorted-${sortConfig.direction}` : ''}/>
-                  </div>
-                </th>
-                <th>
-                  <div className="th-content " onClick={() => requestSort('status')}>
-                    Status
-                    <img src={`${import.meta.env.BASE_URL}src/assets/table/arrow-up.svg`} alt="arrow" 
-                    className={sortConfig?.key === 'status' ? `sorted-${sortConfig.direction}` : ''}/>
-                  </div>
-                </th>
-                {properties === "all" && (
-                  <th>
-                    <div className="th-content" 
-                      onClick={() => requestSort('totalFloors')}>
-                      Floors
-                      <img src={`${import.meta.env.BASE_URL}src/assets/table/arrow-up.svg`} alt="arrow" 
-                      className={sortConfig?.key === 'totalFloors' ? `sorted-${sortConfig.direction}` : ''}/>
-                    </div>
-                  </th>
-                )}
-                {properties === "residentials" && (
-                  <th>
-                    <div className="th-content"onClick={() => requestSort('totalFloors')}>
-                      Floors
-                      <img src={`${import.meta.env.BASE_URL}src/assets/table/arrow-up.svg`} alt="arrow" 
-                      className={sortConfig?.key === 'totalFloors' ? `sorted-${sortConfig.direction}` : ''} />
-                    </div>
-                  </th>
-                )}
-                {properties === "commercials" && (
-                  <th>
-                    <div className="th-content" onClick={() => requestSort('totalFloors')}>
-                      Floors
-                      <img src={`${import.meta.env.BASE_URL}src/assets/table/arrow-up.svg`} alt="arrow" 
-                      className={sortConfig?.key === 'totalFloors' ? `sorted-${sortConfig.direction}` : ''}/>
-                    </div>
-                  </th>
-                )}
-                {properties === "all" && (
-                  <th>
-                    <div className="th-content" onClick={() => requestSort('facingDirection')}>
-                      Facing
-                      <img src={`${import.meta.env.BASE_URL}src/assets/table/arrow-up.svg`} alt="arrow" 
-                      className={sortConfig?.key === 'facingDirection' ? `sorted-${sortConfig.direction}` : ''}/>
-                    </div>
-                  </th>
-                )}
-                {properties === "residentials" && (
-                  <th>
-                    <div className="th-content" onClick={() => requestSort('facingDirection')}>
-                      Facing
-                      <img src={`${import.meta.env.BASE_URL}src/assets/table/arrow-up.svg`} alt="arrow" 
-                      className={sortConfig?.key === 'facingDirection' ? `sorted-${sortConfig.direction}` : ''}/>
-                    </div>
-                  </th>
-                )}
-                {properties === "commercials" && (
-                  <th>
-                    <div className="th-content" onClick={() => requestSort('facingDirection')}>
-                      Facing
-                      <img src={`${import.meta.env.BASE_URL}src/assets/table/arrow-up.svg`} alt="arrow" 
-                      className={sortConfig?.key === 'facingDirection' ? `sorted-${sortConfig.direction}` : ''}/>
-                    </div>
-                  </th>
-                )}
-
-                {properties === "all" && (
-                  <th>
-                    <div className="th-content" onClick={() => requestSort('furnishingType')}>
-                      Furnish
-                      <img src={`${import.meta.env.BASE_URL}src/assets/table/arrow-up.svg`} alt="arrow" 
-                      className={sortConfig?.key === 'furnishingType' ? `sorted-${sortConfig.direction}` : ''}/>
-                    </div>
-                  </th>
-                )}
-                {properties === "residentials" && (
-                  <th>
-                    <div className="th-content" onClick={() => requestSort('furnishingType')}>
-                      Furnish
-                      <img src={`${import.meta.env.BASE_URL}src/assets/table/arrow-up.svg`} alt="arrow" 
-                      className={sortConfig?.key === 'furnishingType' ? `sorted-${sortConfig.direction}` : ''}/>
-                    </div>
-                  </th>
-                )}
-                {properties === "all" && (
-                  <th>
-                    <div className="th-content" onClick={() => requestSort('washroom')}>
-                      Wahroom
-                      <img src={`${import.meta.env.BASE_URL}src/assets/table/arrow-up.svg`} alt="arrow" 
-                      className={sortConfig?.key === 'washroom' ? `sorted-${sortConfig.direction}` : ''}/>
-                    </div>
-                  </th>
-                )}
-                {properties === "commercials" && (
-                  <th>
-                    <div className="th-content" onClick={() => requestSort('washroom')}>
-                      Wahroom
-                      <img src={`${import.meta.env.BASE_URL}src/assets/table/arrow-up.svg`} alt="arrow" 
-                      className={sortConfig?.key === 'washroom' ? `sorted-${sortConfig.direction}` : ''}/>
-                    </div>
-                  </th>
-                )}
-                {properties === "all" && (
-                  <th>
-                    <div className="th-content" onClick={() => requestSort('plotType')}>
-                      Plot Type
-                      <img src={`${import.meta.env.BASE_URL}src/assets/table/arrow-up.svg`} alt="arrow" 
-                      className={sortConfig?.key === 'plotType' ? `sorted-${sortConfig.direction}` : ''}/>
-                    </div>
-                  </th>
-                )}
-                {properties === "plots" && (
-                  <th>
-                    <div className="th-content" onClick={() => requestSort('plotType')}>
-                      Plot Type
-                      <img src={`${import.meta.env.BASE_URL}src/assets/table/arrow-up.svg`} alt="arrow" 
-                      className={sortConfig?.key === 'plotType' ? `sorted-${sortConfig.direction}` : ''}/>
-                    </div>
-                  </th>
-                )}
-                <th>
-                  <div className="th-content" onClick={() => requestSort('propertyType')}>
-                    Type
-                    <img src={`${import.meta.env.BASE_URL}src/assets/table/arrow-up.svg`} alt="arrow" 
-                    className={sortConfig?.key === 'propertyType' ? `sorted-${sortConfig.direction}` : ''}/>
-                  </div>
-                </th>
-                <th className="link-h">
-                  Link &nbsp;{" "}
-                  <img src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`} alt="arrow" />
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedData.length === 0 && 
-              (<div style={{padding:"20px", margin:"auto",textAlign:"center"}}>No properties available...</div>)
-              }
-              {sortedData.length > 0 && sortedData.map((item) => (
-                <tr key={item._id}>
-                  <td className="checkbox-align chechbox-align-inside">
-                    <input
-                      type="checkbox"
-                      aria-describedby={popoverId}
-                      onClick={handlePopoverClick}
-                      checked={selectedRows.includes(item._id)}
-                      onChange={(e) => {
-                        setSelectedRows((prev) =>
-                          e.target.checked
-                            ? [...prev, item._id]
-                            : prev.filter((id) => id !== item._id)
-                        );
-                      }}
-                    />
-                  </td>
-                  <td className="company-name">
-                    <h3>
-                      {/* <span className="truncate-text">
-                         {truncateWords(item?.location?.landmark, 12)}
-                      </span> */}
-                      <span>
-                        {item?.title}
-                      </span>
-                    </h3>
-                    <p
-                      data-bs-toggle="tooltip"
-                      data-bs-placement="bottom"
-                      title={item?.location?.address}
-                    >
-                      <img src={`${import.meta.env.BASE_URL}/ICON_Location.svg`} alt="location" />
-                      <span className="truncate-text">
-                        {truncateWords(item?.location?.address, 9)}
-                      </span>
-                    </p>
-                  </td>
-                  <td>{item?.area?.totalArea}</td>
-                  <td>{item.status}</td>
-
-                  {(properties === "commercials" ||
-                    properties === "residentials" ||
-                    properties === "all") && (
-                      <>
-                        <td>{item?.totalFloors}</td>
-                        <td>{item?.facingDirection}</td>
-                      </>
+            <div ref={scrollRef} className="table-scroll">
+              <table className="horizontal-table">
+                <thead>
+                  <tr>
+                    <th className="checkbox-align chechbox-cmn">
+                      <input
+                        type="checkbox"
+                        checked={
+                          formatedData.length > 0 &&
+                          selectedRows.length === formatedData.length
+                        }
+                        onClick={handlePopoverClick}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            const allIds = formatedData.map((item) => item._id);
+                            setSelectedRows(allIds);
+                          } else {
+                            setSelectedRows([]);
+                          }
+                        }}
+                      />
+                    </th>
+                    <th>
+                      <div
+                        className="th-content"
+                        onClick={() => requestSort("title")}
+                        style={{ cursor: "pointer" }}
+                      >
+                        Property Name
+                        <img
+                          src={`${
+                            import.meta.env.BASE_URL
+                          }src/assets/table/arrow-up.svg`}
+                          alt="arrow"
+                          className={
+                            sortConfig?.key === "title"
+                              ? `sorted-${sortConfig.direction}`
+                              : ""
+                          }
+                        />
+                      </div>
+                    </th>
+                    <th>
+                      <div
+                        className="th-content"
+                        onClick={() => requestSort("totalArea")}
+                      >
+                        Area
+                        <img
+                          src={`${
+                            import.meta.env.BASE_URL
+                          }src/assets/table/arrow-up.svg`}
+                          alt="arrow"
+                          className={
+                            sortConfig?.key === "totalArea"
+                              ? `sorted-${sortConfig.direction}`
+                              : ""
+                          }
+                        />
+                      </div>
+                    </th>
+                    <th>
+                      <div
+                        className="th-content "
+                        onClick={() => requestSort("status")}
+                      >
+                        Status
+                        <img
+                          src={`${
+                            import.meta.env.BASE_URL
+                          }src/assets/table/arrow-up.svg`}
+                          alt="arrow"
+                          className={
+                            sortConfig?.key === "status"
+                              ? `sorted-${sortConfig.direction}`
+                              : ""
+                          }
+                        />
+                      </div>
+                    </th>
+                    {properties === "all" && (
+                      <th>
+                        <div
+                          className="th-content"
+                          onClick={() => requestSort("totalFloors")}
+                        >
+                          Floors
+                          <img
+                            src={`${
+                              import.meta.env.BASE_URL
+                            }src/assets/table/arrow-up.svg`}
+                            alt="arrow"
+                            className={
+                              sortConfig?.key === "totalFloors"
+                                ? `sorted-${sortConfig.direction}`
+                                : ""
+                            }
+                          />
+                        </div>
+                      </th>
+                    )}
+                    {properties === "residentials" && (
+                      <th>
+                        <div
+                          className="th-content"
+                          onClick={() => requestSort("totalFloors")}
+                        >
+                          Floors
+                          <img
+                            src={`${
+                              import.meta.env.BASE_URL
+                            }src/assets/table/arrow-up.svg`}
+                            alt="arrow"
+                            className={
+                              sortConfig?.key === "totalFloors"
+                                ? `sorted-${sortConfig.direction}`
+                                : ""
+                            }
+                          />
+                        </div>
+                      </th>
+                    )}
+                    {properties === "commercials" && (
+                      <th>
+                        <div
+                          className="th-content"
+                          onClick={() => requestSort("totalFloors")}
+                        >
+                          Floors
+                          <img
+                            src={`${
+                              import.meta.env.BASE_URL
+                            }src/assets/table/arrow-up.svg`}
+                            alt="arrow"
+                            className={
+                              sortConfig?.key === "totalFloors"
+                                ? `sorted-${sortConfig.direction}`
+                                : ""
+                            }
+                          />
+                        </div>
+                      </th>
+                    )}
+                    {properties === "all" && (
+                      <th>
+                        <div
+                          className="th-content"
+                          onClick={() => requestSort("facingDirection")}
+                        >
+                          Facing
+                          <img
+                            src={`${
+                              import.meta.env.BASE_URL
+                            }src/assets/table/arrow-up.svg`}
+                            alt="arrow"
+                            className={
+                              sortConfig?.key === "facingDirection"
+                                ? `sorted-${sortConfig.direction}`
+                                : ""
+                            }
+                          />
+                        </div>
+                      </th>
+                    )}
+                    {properties === "residentials" && (
+                      <th>
+                        <div
+                          className="th-content"
+                          onClick={() => requestSort("facingDirection")}
+                        >
+                          Facing
+                          <img
+                            src={`${
+                              import.meta.env.BASE_URL
+                            }src/assets/table/arrow-up.svg`}
+                            alt="arrow"
+                            className={
+                              sortConfig?.key === "facingDirection"
+                                ? `sorted-${sortConfig.direction}`
+                                : ""
+                            }
+                          />
+                        </div>
+                      </th>
+                    )}
+                    {properties === "commercials" && (
+                      <th>
+                        <div
+                          className="th-content"
+                          onClick={() => requestSort("facingDirection")}
+                        >
+                          Facing
+                          <img
+                            src={`${
+                              import.meta.env.BASE_URL
+                            }src/assets/table/arrow-up.svg`}
+                            alt="arrow"
+                            className={
+                              sortConfig?.key === "facingDirection"
+                                ? `sorted-${sortConfig.direction}`
+                                : ""
+                            }
+                          />
+                        </div>
+                      </th>
                     )}
 
-                  {(properties === "residentials" || properties === "all") && (
-                    <td
-                      className="furnish"
-                      data-bs-toggle="tooltip"
-                      data-bs-placement="bottom"
-                      title={item?.furnishingType}
+                    {properties === "all" && (
+                      <th>
+                        <div
+                          className="th-content"
+                          onClick={() => requestSort("furnishingType")}
+                        >
+                          Furnish
+                          <img
+                            src={`${
+                              import.meta.env.BASE_URL
+                            }src/assets/table/arrow-up.svg`}
+                            alt="arrow"
+                            className={
+                              sortConfig?.key === "furnishingType"
+                                ? `sorted-${sortConfig.direction}`
+                                : ""
+                            }
+                          />
+                        </div>
+                      </th>
+                    )}
+                    {properties === "residentials" && (
+                      <th>
+                        <div
+                          className="th-content"
+                          onClick={() => requestSort("furnishingType")}
+                        >
+                          Furnish
+                          <img
+                            src={`${
+                              import.meta.env.BASE_URL
+                            }src/assets/table/arrow-up.svg`}
+                            alt="arrow"
+                            className={
+                              sortConfig?.key === "furnishingType"
+                                ? `sorted-${sortConfig.direction}`
+                                : ""
+                            }
+                          />
+                        </div>
+                      </th>
+                    )}
+                    {properties === "all" && (
+                      <th>
+                        <div
+                          className="th-content"
+                          onClick={() => requestSort("washroom")}
+                        >
+                          Wahroom
+                          <img
+                            src={`${
+                              import.meta.env.BASE_URL
+                            }src/assets/table/arrow-up.svg`}
+                            alt="arrow"
+                            className={
+                              sortConfig?.key === "washroom"
+                                ? `sorted-${sortConfig.direction}`
+                                : ""
+                            }
+                          />
+                        </div>
+                      </th>
+                    )}
+                    {properties === "commercials" && (
+                      <th>
+                        <div
+                          className="th-content"
+                          onClick={() => requestSort("washroom")}
+                        >
+                          Washroom
+                          <img
+                            src={`${
+                              import.meta.env.BASE_URL
+                            }src/assets/table/arrow-up.svg`}
+                            alt="arrow"
+                            className={
+                              sortConfig?.key === "washroom"
+                                ? `sorted-${sortConfig.direction}`
+                                : ""
+                            }
+                          />
+                        </div>
+                      </th>
+                    )}
+                    {properties === "all" && (
+                      <th>
+                        <div
+                          className="th-content"
+                          onClick={() => requestSort("plotType")}
+                        >
+                          Plot Type
+                          <img
+                            src={`${
+                              import.meta.env.BASE_URL
+                            }src/assets/table/arrow-up.svg`}
+                            alt="arrow"
+                            className={
+                              sortConfig?.key === "plotType"
+                                ? `sorted-${sortConfig.direction}`
+                                : ""
+                            }
+                          />
+                        </div>
+                      </th>
+                    )}
+                    {properties === "plots" && (
+                      <th>
+                        <div
+                          className="th-content"
+                          onClick={() => requestSort("plotType")}
+                        >
+                          Plot Type
+                          <img
+                            src={`${
+                              import.meta.env.BASE_URL
+                            }src/assets/table/arrow-up.svg`}
+                            alt="arrow"
+                            className={
+                              sortConfig?.key === "plotType"
+                                ? `sorted-${sortConfig.direction}`
+                                : ""
+                            }
+                          />
+                        </div>
+                      </th>
+                    )}
+                    <th>
+                      <div
+                        className="th-content"
+                        onClick={() => requestSort("propertyType")}
+                      >
+                        Type
+                        <img
+                          src={`${
+                            import.meta.env.BASE_URL
+                          }src/assets/table/arrow-up.svg`}
+                          alt="arrow"
+                          className={
+                            sortConfig?.key === "propertyType"
+                              ? `sorted-${sortConfig.direction}`
+                              : ""
+                          }
+                        />
+                      </div>
+                    </th>
+                    <th className="link-h">
+                      Link &nbsp;{" "}
+                      <img
+                        src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`}
+                        alt="arrow"
+                      />
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedData.length === 0 && (
+                    <div
+                      style={{
+                        padding: "20px",
+                        margin: "auto",
+                        textAlign: "center",
+                      }}
                     >
-                      <span className="truncate-text">
-                        {truncateWords(item?.furnishingType, 12)}
-                      </span>
-                    </td>
-                  )}
-
-                  {(properties === "commercials" || properties === "all") && (
-                    <td className="washroom">{item?.washroom}</td>
-                  )}
-                  {(properties === "plots" || properties === "all") && (
-                    <td className="plot-type">{item?.plotType}</td>
-                  )}
-                  <td className="type ">
-                    <div className="rental">{item?.propertyType}</div>
-                  </td>
-                  <td className="Links">
-                    <div className="link-wrap">
-                      <img
-                        src={`${import.meta.env.BASE_URL}/tabelimg/Eye view.svg`}
-                        alt="view"
-                        onClick={() => item._id && handleView(item._id)}
-                        style={{ cursor: "pointer" }}
-                      />
-                      <img
-                        src={`${import.meta.env.BASE_URL}/Edit.svg`}
-                        alt="edit"
-                        onClick={() => handleEdit(item as unknown as ResidentialProperty)}
-                        style={{ cursor: "pointer" }}
-                      />
-                      <img
-                        src={`${import.meta.env.BASE_URL}/Approve.svg`}
-                        alt="Approve"
-                        onClick={() => handleOpenModal("Approve", item as unknown as ResidentialProperty)}
-                        style={{ cursor: "pointer" }}
-                      />
-                      <img
-                        src={`${import.meta.env.BASE_URL}/Deny.svg`}
-                        alt="Deny"
-                        onClick={() => handleOpenModal("Deny", item as unknown as ResidentialProperty)}
-                        style={{ cursor: "pointer" }}
-                      />
-                      <img
-                        src={`${import.meta.env.BASE_URL}/Delete.svg`}
-                        alt="Delete"
-                        onClick={() => handleOpenModal("Delete", item as unknown as ResidentialProperty)}
-                        style={{ cursor: "pointer" }}
-                      />
+                      No properties available...
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+                  )}
+                  {sortedData.length > 0 &&
+                    sortedData.map((item) => (
+                      <tr key={item._id}>
+                        <td className="checkbox-align chechbox-align-inside">
+                          <input
+                            type="checkbox"
+                            aria-describedby={popoverId}
+                            onClick={handlePopoverClick}
+                            checked={selectedRows.includes(item._id)}
+                            onChange={(e) => {
+                              setSelectedRows((prev) =>
+                                e.target.checked
+                                  ? [...prev, item._id]
+                                  : prev.filter((id) => id !== item._id)
+                              );
+                            }}
+                          />
+                        </td>
+                        <td className="company-name">
+                          <h3>
+                            {/* <span className="truncate-text">
+                         {truncateWords(item?.location?.landmark, 12)}
+                      </span> */}
+                            <span>{item?.title}</span>
+                          </h3>
+                          <p
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="bottom"
+                            title={item?.location?.address}
+                          >
+                            <img
+                              src={`${
+                                import.meta.env.BASE_URL
+                              }/ICON_Location.svg`}
+                              alt="location"
+                            />
+                            <span className="truncate-text">
+                              {truncateWords(item?.location?.address, 9)}
+                            </span>
+                          </p>
+                        </td>
+                        <td>{item?.area?.totalArea}</td>
+                        <td>{item.status}</td>
 
-            <Popover
-              className="checkbox-popover"
-              id={popoverId}
-              open={Boolean(popoverAnchorEl) && selectedRows.length > 0}
-              onClose={handlePopoverClose}
-              anchorReference="anchorPosition"
-              anchorPosition={{ top: 800, left: window.innerWidth - 725 }} // adjust position here
-              PaperProps={{
-                style: { pointerEvents: "auto", zIndex: 1400 }, // ensure above table
-              }}
-            >
-              <div className="checkbox-popover-content">
-                <p className="property-select">
-                  {selectedRows.length} Property selected
-                </p>
-                <div className="pop-content-divider"></div>
-                <p
-                  className="property-approve"
-                  onClick={() => handleBulkAction("Approve")}
+                        {(properties === "commercials" ||
+                          properties === "residentials" ||
+                          properties === "all") && (
+                          <>
+                            <td>{item?.totalFloors}</td>
+                            <td>{item?.facingDirection}</td>
+                          </>
+                        )}
+
+                        {(properties === "residentials" ||
+                          properties === "all") && (
+                          <td
+                            className="furnish"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="bottom"
+                            title={item?.furnishingType}
+                          >
+                            <span className="truncate-text">
+                              {truncateWords(item?.furnishingType, 12)}
+                            </span>
+                          </td>
+                        )}
+
+                        {(properties === "commercials" ||
+                          properties === "all") && (
+                          <td className="washroom">{item?.washroom}</td>
+                        )}
+                        {(properties === "plots" || properties === "all") && (
+                          <td className="plot-type">{item?.plotType}</td>
+                        )}
+                        <td className="type ">
+                          <div className="rental">{item?.propertyType}</div>
+                        </td>
+                        <td className="Links">
+                          <div className="link-wrap">
+                            <img
+                              src={`${
+                                import.meta.env.BASE_URL
+                              }/tabelimg/Eye view.svg`}
+                              alt="view"
+                              onClick={() => {
+                                console.log("item.id", item._id);
+                                if (item._id) {
+                                  handleView(item._id);
+                                }
+                              }}
+                              style={{ cursor: "pointer" }}
+                            />
+                            <img
+                              src={`${import.meta.env.BASE_URL}/Edit.svg`}
+                              alt="edit"
+                              onClick={() =>
+                                handleEdit(
+                                  item as unknown as ResidentialProperty
+                                )
+                              }
+                              style={{ cursor: "pointer" }}
+                            />
+                            <img
+                              src={`${import.meta.env.BASE_URL}/Approve.svg`}
+                              alt="Approve"
+                              onClick={() =>
+                                handleOpenModal(
+                                  "Approve",
+                                  item as unknown as ResidentialProperty
+                                )
+                              }
+                              style={{ cursor: "pointer" }}
+                            />
+                            <img
+                              src={`${import.meta.env.BASE_URL}/Deny.svg`}
+                              alt="Deny"
+                              onClick={() =>
+                                handleOpenModal(
+                                  "Deny",
+                                  item as unknown as ResidentialProperty
+                                )
+                              }
+                              style={{ cursor: "pointer" }}
+                            />
+                            <img
+                              src={`${import.meta.env.BASE_URL}/Delete.svg`}
+                              alt="Delete"
+                              onClick={() =>
+                                handleOpenModal(
+                                  "Delete",
+                                  item as unknown as ResidentialProperty
+                                )
+                              }
+                              style={{ cursor: "pointer" }}
+                            />
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+
+                <Popover
+                  className="checkbox-popover"
+                  disableScrollLock={true}
+                  id={popoverId}
+                  open={Boolean(popoverAnchorEl) && selectedRows.length > 0}
+                  onClose={handlePopoverClose}
+                  anchorReference="anchorPosition"
+                  anchorPosition={{ top: 800, left: window.innerWidth - 725 }} // adjust position here
+                  PaperProps={{
+                    style: { pointerEvents: "auto", zIndex: 1400 }, // ensure above table
+                  }}
                 >
-                  <img src={tickIcon} alt="Icon_Tick" />
-                  Approve
-                </p>
-                <div className="pop-content-divider"></div>
-                <p
-                  className="property-deny"
-                  onClick={() => handleBulkAction("Deny")}
-                >
-                  <img src={denyIcon} alt="Icon_Tick" /> Deny
-                </p>
-                <div className="pop-content-divider"></div>
-                <p
-                  className="property-delete"
-                  onClick={() => handleBulkAction("Delete")}
-                >
-                  Delete
-                </p>
-              </div>
-            </Popover>
-          </table>
-          </div>
+                  <div className="checkbox-popover-content">
+                    <p className="property-select">
+                      {selectedRows.length} Property selected
+                    </p>
+                    <div className="pop-content-divider"></div>
+                    <p
+                      className="property-approve"
+                      onClick={() => handleBulkAction("Approve")}
+                    >
+                      <img src={tickIcon} alt="Icon_Tick" />
+                      Approve
+                    </p>
+                    <div className="pop-content-divider"></div>
+                    <p
+                      className="property-deny"
+                      onClick={() => handleBulkAction("Deny")}
+                    >
+                      <img src={denyIcon} alt="Icon_Tick" /> Deny
+                    </p>
+                    <div className="pop-content-divider"></div>
+                    <p
+                      className="property-delete"
+                      onClick={() => handleBulkAction("Delete")}
+                    >
+                      Delete
+                    </p>
+                  </div>
+                </Popover>
+              </table>
+            </div>
           )}
           {canScrollRight && (
-            <button className="scroll-button right" onClick={() => scroll("right")}>
+            <button
+              className="scroll-button right"
+              onClick={() => scroll("right")}
+            >
               ▶
             </button>
           )}
@@ -819,7 +1050,6 @@ const requestSort = (key: SortableColumn) => {
                 variant="contained"
                 color="primary"
                 onClick={() => {
-
                   if (!selectedItem?._id || !selectedAction) return;
 
                   const statusMap: Record<string, number> = {
@@ -833,11 +1063,10 @@ const requestSort = (key: SortableColumn) => {
                   // Show toast immediately for Delete
                   if (selectedAction === "Delete") {
                     toast.success("Listing successfully deleted", {
-                      autoClose: 500000, 
+                      autoClose: 500000,
                     });
                   }
                   handleConfirmAction(selectedItem._id, statusCode);
-
                 }}
                 sx={{ mr: 1 }}
               >

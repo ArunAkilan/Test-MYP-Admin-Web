@@ -205,3 +205,25 @@ td  {
   z-index: 1;
 }
 
+.table-scroll {
+  overflow-x: auto;
+  pointer-events: auto;
+}
+
+.checkbox-popover {
+  pointer-events: none;
+}
+
+.checkbox-popover .MuiPaper-root {
+  pointer-events: auto;
+}
+
+.sorted-asc {
+  transform: rotate(0deg);
+  transition: transform 0.3s ease;
+}
+
+.sorted-desc {
+  transform: rotate(180deg);
+  transition: transform 0.3s ease;
+}
