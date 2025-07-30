@@ -265,7 +265,7 @@ function Home({ properties="all" }: HomeProps) {
                   <h3>{heading}</h3>
                   <p>{para}</p>
                 </div>
-                <div>
+                <div data-testid="mock-modal">
                   <GenericButton
                     variant="primary"
                     image={iconAdd}
