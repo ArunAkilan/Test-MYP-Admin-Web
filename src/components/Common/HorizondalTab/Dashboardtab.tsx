@@ -47,6 +47,7 @@ import type { Property } from "../../AdminResidencial/AdminResidencial.model";
 import type { PropertyViewWithSource } from "./Dashboardtab.model";
 
 import { useNavigate } from "react-router-dom";
+import SortMenu from "../Sortpopup/Sortpopup";
 
 // type Property = {
 //   _id?: string;
@@ -93,6 +94,7 @@ type PropertyData = {
     | "plots";
 };
 
+type SortOption = "newest" | "oldest" | "highestPrice" | "lowestPrice";
 interface DashboardtabProps {
   data: PropertyData; // ✅ Accepts array now
   properties: "all" | "residentials" | "commercials" | "plots";
@@ -173,6 +175,9 @@ export default function Dashboardtab({
   >(null);
   const [selectedItem, setSelectedItem] = useState<PropertyItem | null>(null);
   const [isBackdropLoading, setIsBackdropLoading] = useState(false);
+  const [sortBtnAnchor, setSortBtnAnchor] = useState<null | HTMLElement>(null);
+  const [selectedSortLabel, setSelectedSortLabel] = useState("Newest Property");
+  const [sortOption, setSortOption] = useState<SortOption>("newest");
 
   //const currentStatus = statusByTab[value];
   const filterOptions = {
@@ -317,6 +322,12 @@ export default function Dashboardtab({
 
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
+  const sortMap: Record<string, SortOption> = {
+  "Newest Property": "newest",
+  "Oldest Property": "oldest",
+  "Highest Price": "highestPrice",
+  "Lowest Price": "lowestPrice",
+};
   // const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
   //   setAnchorEl(event.currentTarget);
   // };
@@ -713,6 +724,53 @@ export default function Dashboardtab({
     const statusCode = { Approve: 1, Deny: 0, Delete: 2 }[selectedAction];
     handleConfirmAction(selectedItem._id, statusCode);
   };
+
+  const onSortBtnClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setSortBtnAnchor(event.currentTarget);
+  };
+
+const handleMenuClose = () => {
+  setAnchorEl(null);
+};
+
+  const onSortOptionChoose = (label: string) => {
+    setSelectedSortLabel(label);
+    // Optional: Trigger actual sort logic here
+    console.log("Sorting by:", label);
+  };
+
+  const sortedData = useMemo(() => {
+    const list = [...formatData];
+
+    switch (sortOption) {
+      case "newest":
+        return list.sort(
+          (a, b) =>
+            new Date(b.createdAt ?? "").getTime() -
+            new Date(a.createdAt ?? "").getTime()
+        );
+      case "oldest":
+        return list.sort(
+          (a, b) =>
+            new Date(a.createdAt ?? "").getTime() -
+            new Date(b.createdAt ?? "").getTime()
+        );
+      case "highestPrice":
+        return list.sort(
+          (a, b) =>
+            Number(b.rent?.rentAmount ?? 0) - Number(a.rent?.rentAmount ?? 0)
+        );
+
+      case "lowestPrice":
+        return list.sort(
+          (a, b) =>
+            Number(a.rent?.rentAmount ?? 0) - Number(b.rent?.rentAmount ?? 0)
+        );
+      default:
+        return list;
+    }
+  }, [formatData, sortOption]);
+  
   return (
     <div id="pending-approval-tab">
       <div>
@@ -916,15 +974,27 @@ export default function Dashboardtab({
                     </div>
                     {alignment === "Card View" && (
                       <div className="sort-link color-edit">
-                        <Button className="filter-text" aria-describedby={id}>
+                        <Button className="filter-text" aria-describedby={id}
+                        onClick={onSortBtnClick}>
                           <img
                             src={`${
                               import.meta.env.BASE_URL
                             }/material-symbols_sort-rounded.svg`}
                             alt="filter img"
                           />
-                          Sort
+                          Newest Property
                         </Button>
+                         <SortMenu
+                          anchorElement={anchorEl}
+                          menuOpen={Boolean(anchorEl)}
+                          handleMenuClose={handleMenuClose}
+                          selected={selectedSort}
+                          onChange={(option) => {
+                            setSelectedSort(option); // ✅ Update selected state
+                            handleMenuClose(); // ✅ Close popover
+                            triggerSorting(option); // ✅ Apply sorting logic if needed
+                          }}
+                        />
                       </div>
                     )}
                   </div>
@@ -940,7 +1010,7 @@ export default function Dashboardtab({
                     {!isExpanded && (
                       <h3 className="result">
                         <span className="resultCount">{getResultCount}</span>{" "}
-                        Results
+                        Filtered Results
                       </h3>
                     )}
                   </div>
@@ -997,7 +1067,7 @@ export default function Dashboardtab({
                           }/majesticons_filter-line.svg`}
                           alt="filter img"
                         />
-                        Filter{" "}&NBSP;
+                        Filter{" "}
                         {checkListCount > 0 && (
                           <span className="count-badge">{(checkListCount)}</span>
                         )}
@@ -1012,7 +1082,7 @@ export default function Dashboardtab({
                             }/material-symbols_sort-rounded.svg`}
                             alt="filter img"
                           />
-                          Sort
+                          Newest Property
                         </Button>
                       </div>
                     )}
@@ -1029,7 +1099,7 @@ export default function Dashboardtab({
                     {!isExpanded && (
                       <h3 className="result">
                         <span className="resultCount">{getResultCount}</span>{" "}
-                        Results
+                        Filtered Results
                       </h3>
                     )}
                   </div>
@@ -1086,7 +1156,7 @@ export default function Dashboardtab({
                           }/majesticons_filter-line.svg`}
                           alt="filter img"
                         />
-                        Filter{" "}&NBSP;
+                        Filter{" "}
                         {checkListCount > 0 && (
                           <span className="count-badge">{checkListCount}</span>
                         )}
@@ -1101,7 +1171,7 @@ export default function Dashboardtab({
                             }/material-symbols_sort-rounded.svg`}
                             alt="filter img"
                           />
-                          Sort
+                          Newest Property
                         </Button>
                       </div>
                     )}
@@ -1118,7 +1188,7 @@ export default function Dashboardtab({
                     {!isExpanded && (
                       <h3 className="result">
                         <span className="resultCount">{getResultCount}</span>{" "}
-                        Results
+                        Filtered Results
                       </h3>
                     )}
                   </div>
@@ -1187,7 +1257,7 @@ export default function Dashboardtab({
                             }/material-symbols_sort-rounded.svg`}
                             alt="filter img"
                           />
-                          Sort
+                          Newest Property
                         </Button>
                       </div>
                     )}
@@ -1249,6 +1319,7 @@ export default function Dashboardtab({
         ) : (
           <PropertyCardList
             formatData={formatData}
+            sortedData={sortedData}
             properties={tableValues}
             onScrollChange={handleChildScroll}
             handleOpenModal={handleOpenModal}
@@ -1269,6 +1340,7 @@ export default function Dashboardtab({
         ) : (
           <PropertyCardList
             properties={tableValues}
+            sortedData={sortedData}
             onScrollChange={handleChildScroll}
             formatData={formatData}
             handleOpenModal={handleOpenModal}
@@ -1289,6 +1361,7 @@ export default function Dashboardtab({
         ) : (
           <PropertyCardList
             properties={tableValues}
+            sortedData={sortedData}
             onScrollChange={handleChildScroll}
             formatData={formatData}
             handleOpenModal={handleOpenModal}
@@ -1309,6 +1382,7 @@ export default function Dashboardtab({
         ) : (
           <PropertyCardList
             properties={tableValues}
+            sortedData={sortedData}
             onScrollChange={handleChildScroll}
             formatData={formatData}
             handleOpenModal={handleOpenModal}
@@ -1409,6 +1483,7 @@ interface ProCardProps {
   onScrollChange: (scrollTop: number) => void;
   formatData: any;
   handleOpenModal: (action: "Approve" | "Deny" | "Delete", item: any) => void;
+  sortedData?: PropertyItem[];
 }
 const modalStyle = {
   position: "absolute",
@@ -1424,6 +1499,7 @@ const modalStyle = {
 
 const PropertyCardList = ({
   properties,
+  sortedData,
   onScrollChange,
   handleOpenModal,
 }: ProCardProps) => {
@@ -1624,7 +1700,10 @@ const PropertyCardList = ({
               No properties available...
             </div>
           )}
-          {formatedData.map((item: PropertyItem) => (
+          {(sortedData && sortedData.length > 0
+            ? sortedData
+            : formatedData
+          ).map((item: PropertyItem) => (
             <Grid item xs={12} sm={12} md={12} key={item._id}>
               <div className="card-view-wrapper row" key={item._id}>
                 <div className="card-view-img col-md-6">
