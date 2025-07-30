@@ -1,4 +1,4 @@
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { DynamicBreadcrumbs } from "../../../Common/input";
 import type { CommercialProperty } from "./CommercialViewProperty.modal";
@@ -42,90 +42,58 @@ const CommercialView = () => {
   const location = useLocation();
   const { id } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
   const token = localStorage.getItem("token");
-  const [property, setProperty] = useState<PropertyResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
   // const location = useLocation();
   // const propertyData = location.state?.data as CommercialProperty;
 
-
-  const isEditMode = location.state?.mode === "edit";
-  const editPropertyData = location.state?.data as CommercialProperty | undefined;
+  const [property, setProperty] = useState<PropertyResponse | null>(null);
 
   useEffect(() => {
-    const fetchProperty = async () => {
-      try {
-        console.log(
-          "API call URL:",
-          `${import.meta.env.VITE_BackEndUrl}/api/commercial/${id}`
-        );
-        
-        const response = await axios.get(`${import.meta.env.VITE_BackEndUrl}/api/commercial/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        
-        setProperty(response.data);
-        setError(null);
-        
-        // If we're in edit mode, don't auto-navigate again
-        if (!isEditMode) {
-          // Auto-navigate to edit page after successful data load
-          setTimeout(() => {
-            handleEdit();
-          }, 500); // Small delay to ensure UI is ready
-        }
-        
-      } catch (err) {
+    console.log(
+      "API call URL:",
+      `${import.meta.env.VITE_BackEndUrl}/api/commercial/${id}`
+    );
+    axios
+      .get(`${import.meta.env.VITE_BackEndUrl}/api/commercial/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => setProperty(res.data))
+      .catch((err) => {
         console.error("Error fetching property:", err);
-        setError("Failed to load property data");
         toast.error("Failed to load property");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    // If we're in edit mode with data from navigation, use that data
-    if (isEditMode && editPropertyData) {
-      setProperty({ property: editPropertyData });
-      setLoading(false);
-      return;
-    }
-
-    fetchProperty();
-  }, [id, token, isEditMode, editPropertyData]);
+      });
+  }, [id, token]);
 
   const handleEdit = () => {
-    if (isProcessing || !property) {
-      toast.warning("Please wait...");
+    if (!property) {
+      toast.error("Property data not available");
       return;
     }
-
+  
     const cleanItem = JSON.parse(JSON.stringify(property.property)); // sanitize any Date objects
-    
+  
     navigate(`/commercial/create`, {
       state: { data: cleanItem, mode: "edit" },
     });
   };
+  
 
+  // Unified status update function for approve, deny, delete, sold
   const updateCommercialPermissionStatus = async (
     status: "0" | "1" | "2" | "3"
   ) => {
-    if (isProcessing || !token) {
-      toast.warning("Please wait...");
+    if (!token) {
+      toast.error("Authentication token missing");
       return;
     }
-    
-    setIsProcessing(true);
+
     try {
       await axios.put(
         `${import.meta.env.VITE_BackEndUrl}/api/adminpermission`,
         {
-          status,
+          status, // 0=Rejected, 1=Approved, 2=Deleted, 3=Sold
           properties: [
             {
               type: "commercial",
@@ -140,7 +108,7 @@ const CommercialView = () => {
           },
         }
       );
-      
+
       const actionMap: Record<string, { label: string; route: string }> = {
         "0": { label: "Denied", route: "/commercial" },
         "1": { label: "Approved", route: "/commercial" },
@@ -153,25 +121,25 @@ const CommercialView = () => {
       toast.success(`Property ${label.toLowerCase()} successfully`);
       navigate(route);
       
+
     } catch (error) {
       toast.error("Action failed");
       console.error(error);
-    } finally {
-      setIsProcessing(false);
     }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
-  
+  if (!property) return <div>Loading...</div>;
+
   const latitudeRaw = property?.property?.location?.map?.latitude;
   const longitudeRaw = property?.property?.location?.map?.longitude;
+
   const latitude =
     typeof latitudeRaw === "number"
       ? latitudeRaw
       : typeof latitudeRaw === "string" && !isNaN(parseFloat(latitudeRaw))
       ? parseFloat(latitudeRaw)
       : undefined;
+
   const longitude =
     typeof longitudeRaw === "number"
       ? longitudeRaw
