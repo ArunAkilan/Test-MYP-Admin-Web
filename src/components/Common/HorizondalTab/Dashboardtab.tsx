@@ -910,7 +910,7 @@ export default function Dashboardtab({
                         />
                         Filter{" "}
                         {checkListCount > 0 && (
-                          <span className="count-badge">{checkListCount}</span>
+                          <span className="count-badge">{(checkListCount)}</span>
                         )}
                       </Button>
                     </div>
@@ -997,9 +997,9 @@ export default function Dashboardtab({
                           }/majesticons_filter-line.svg`}
                           alt="filter img"
                         />
-                        Filter{" "}
+                        Filter{" "}&NBSP;
                         {checkListCount > 0 && (
-                          <span className="count-badge">{checkListCount}</span>
+                          <span className="count-badge">{(checkListCount)}</span>
                         )}
                       </Button>
                     </div>
@@ -1086,7 +1086,7 @@ export default function Dashboardtab({
                           }/majesticons_filter-line.svg`}
                           alt="filter img"
                         />
-                        Filter{" "}
+                        Filter{" "}&NBSP;
                         {checkListCount > 0 && (
                           <span className="count-badge">{checkListCount}</span>
                         )}

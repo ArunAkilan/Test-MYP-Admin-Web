@@ -452,7 +452,7 @@ const formatedData = useMemo(() => {
               ◀
             </button>
           )}
-          {formatedData.length === 0 ? (
+          {Array.isArray(formatedData) && formatedData.length === 0 ? (
             <EmptyState tabType={tabType} />
           ) : (
             <div ref={scrollRef} className="table-scroll">
