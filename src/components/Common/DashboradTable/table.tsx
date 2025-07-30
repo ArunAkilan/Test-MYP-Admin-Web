@@ -296,20 +296,20 @@ const formatedData = useMemo(() => {
       Delete: 2,
       Sold: 3,
     };
-
+  
     const statusCode = statusMap[action];
-
-    // Prepare properties array for API payload
+  
     const properties = selectedRows.map((id) => {
       const item = formatedData.find((itm) => itm._id === id);
+  
       return {
         id,
-        type: item?._source || "residential",
+        type: item?.type || item?.propertyType || item?._source || "unknown", // ✅ dynamic fallback chain
       };
     });
-
+  
     try {
-      setIsBackdropLoading(true); // Show loading
+      setIsBackdropLoading(true);
       const token = localStorage.getItem("token");
       await axios.put(
         `${import.meta.env.VITE_BackEndUrl}/api/adminpermission`,
@@ -324,7 +324,7 @@ const formatedData = useMemo(() => {
           },
         }
       );
-
+  
       toast.success(`Properties successfully ${action.toLowerCase()}d`);
       setSelectedRows([]);
       handlePopoverClose();
@@ -333,10 +333,10 @@ const formatedData = useMemo(() => {
       console.error(`Bulk ${action.toLowerCase()} failed`, error);
       toast.error(`Bulk ${action.toLowerCase()} failed`);
     } finally {
-      setIsBackdropLoading(false); //Hide loading
+      setIsBackdropLoading(false);
     }
   };
-
+  
   const truncateWords = (text: string = "", wordLimit: number): string => {
     const words = text.trim().split(/\s+/);
     return words.length > wordLimit
