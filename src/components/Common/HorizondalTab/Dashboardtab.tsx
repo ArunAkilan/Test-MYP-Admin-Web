@@ -47,6 +47,7 @@ import type { Property } from "../../AdminResidencial/AdminResidencial.model";
 import type { PropertyViewWithSource } from "./Dashboardtab.model";
 
 import { useNavigate } from "react-router-dom";
+import BasicPopover from "../Sortpopup/Sortpopup";
 
 // type Property = {
 //   _id?: string;
@@ -98,6 +99,8 @@ interface DashboardtabProps {
   properties: "all" | "residentials" | "commercials" | "plots";
   onScrollChangeParent: (scrollTop: number) => void;
   onReset?: () => void;
+  onSortChange: (option: string) => void;
+  selectedSort: string;
 }
 
 type PropertyItem = {
@@ -153,7 +156,10 @@ function a11yProps(index: number) {
 export default function Dashboardtab({
   data,
   properties,
-  onScrollChangeParent, onReset
+  onScrollChangeParent,
+  onReset,
+  onSortChange, 
+  selectedSort 
 }: DashboardtabProps) {
   const [isFiltered, setIsFiltered] = useState(false);
   const [currentCheckList, setCurrentCheckList] = useState<string[]>([]);
@@ -173,6 +179,22 @@ export default function Dashboardtab({
   >(null);
   const [selectedItem, setSelectedItem] = useState<PropertyItem | null>(null);
   const [isBackdropLoading, setIsBackdropLoading] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [selectedLabel, setSelectedLabel] = useState(selectedSort);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  // const [sortOption, setSortOption] = useState("Newest Property");
+
+  const sortOptions = [
+    "Newest Property",
+    "Oldest Property",
+    "Highest Price",
+    "Lowest Price",
+  ];
+
+  const handleSortSelect = (option: string) => {
+    setSelectedLabel(option);      // Update UI label
+    onSortChange(option);          // ✅ Send to Home, which updates PropertyCardList
+  };
 
   //const currentStatus = statusByTab[value];
   const filterOptions = {
@@ -332,25 +354,30 @@ export default function Dashboardtab({
       ...(data?.residential || []),
       ...(data?.commercial || []),
       ...(data?.plot || []),
-      ...(data?.all|| []),
+      ...(data?.all || []),
     ],
     [data]
   );
 
-  // Handle tab change
-  const handleChange = (_: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
-    console.log("newValue", newValue);
-    dispatch(setActiveTab(newValue));
+   // Reset tab state when property type changes
+  useEffect(() => {
+    setValue(0);
+    dispatch(setActiveTab(0));
     setIsFiltered(false);
     setCurrentCheckList([]);
-
-    const newStatus = statusByTab[newValue];
-    const filtered = allItems.filter(
-      (item) => item.status?.toLowerCase() === newStatus.toLowerCase()
+    const pendingItems = allItems.filter(item => 
+      item.status?.toLowerCase() === 'pending'
     );
-    setTableValues(filtered);
-  };
+    setTableValues(pendingItems);
+  }, [properties, allItems]);
+
+  // Handle tab change
+const handleChange = (_: React.SyntheticEvent, newValue: number) => {
+  setValue(newValue);
+  dispatch(setActiveTab(newValue));
+  setIsFiltered(false);
+  setCurrentCheckList([]);
+};
 
   useEffect(() => {
     console.log(tableValues, "vvvv");
@@ -440,37 +467,41 @@ export default function Dashboardtab({
     handleClose(); // Closes the popover
   };
 
-  useEffect(() => {
-    if (!isFiltered) {
-      const status = statusByTab[value];
-      let filtered = allItems.filter(
-        (item: Property) =>
-          item.status?.toString().trim().toLowerCase() ===
-          status.trim().toLowerCase()
-      );
-      if (searchQuery.trim()) {
-        const search = searchQuery.toLowerCase();
+useEffect(() => { 
+  if (!isFiltered) {
+    const status = statusByTab[value];
 
-        filtered = filtered.filter((item) => {
-          return (
-            item?.location?.address?.toLowerCase().includes(search) ||
-            item?.location?.landmark?.toLowerCase().includes(search) ||
-            item?.title?.toLowerCase().includes(search) ||
-            item?.type?.toLowerCase().includes(search) ||
-            item?.propertyType?.toLowerCase().includes(search) ||
-            item?.commercialType?.toLowerCase().includes(search) ||
-            item?.plotType?.toLowerCase().includes(search) ||
-            item?.furnishingType?.toLowerCase().includes(search) ||
-            item?.facingDirection?.toLowerCase().includes(search) ||
-            item?.totalFloors?.toString().toLowerCase().includes(search) ||
-            item?.washroom?.toString().toLowerCase().includes(search) ||
-            item?.area?.totalArea?.toString().toLowerCase().includes(search)
-          );
-        });
-      }
-      setTableValues(filtered);
+    let filtered = allItems.filter(
+      (item: Property) =>
+        item.status?.toLowerCase() === status.toLowerCase()
+    );
+
+    if (searchQuery.trim()) {
+      const search = searchQuery.toLowerCase();
+      filtered = filtered.filter((item) =>
+        [
+          item?.location?.address,
+          item?.location?.landmark,
+          item?.title,
+          item?.type,
+          item?.propertyType,
+          item?.commercialType,
+          item?.plotType,
+          item?.furnishingType,
+          item?.facingDirection,
+          item?.totalFloors?.toString(),
+          item?.washroom?.toString(),
+          item?.area?.totalArea?.toString(),
+        ]
+          .map((field) => (field ?? "").toLowerCase())
+          .some((field) => field.includes(search))
+      );
     }
-  }, [searchQuery, value, isFiltered, allItems]);
+
+    setTableValues(filtered);
+  }
+}, [searchQuery, value, isFiltered, allItems]);
+
 
   // filterResetFunction
   const filterResetFunction = () => {
@@ -910,21 +941,38 @@ export default function Dashboardtab({
                         />
                         Filter{" "}
                         {checkListCount > 0 && (
-                          <span className="count-badge">{(checkListCount)}</span>
+                          <span className="count-badge">{checkListCount}</span>
                         )}
                       </Button>
                     </div>
                     {alignment === "Card View" && (
                       <div className="sort-link color-edit">
-                        <Button className="filter-text" aria-describedby={id}>
+                        <Button
+                          ref={buttonRef}
+                          className="filter-text"
+                          onClick={() => setIsPopoverOpen(true)}
+                          variant="outlined"
+                        >
                           <img
                             src={`${
                               import.meta.env.BASE_URL
                             }/material-symbols_sort-rounded.svg`}
-                            alt="filter img"
+                            alt="sort icon"
+                            style={{ marginRight: 8 }}
                           />
-                          Sort
+                          {selectedLabel}
                         </Button>
+
+                        <BasicPopover
+                          triggerRef={buttonRef as React.RefObject<HTMLElement>}
+                          openOnClick={isPopoverOpen}
+                          onClosePopover={() => setIsPopoverOpen(false)}
+                          items={sortOptions}
+                          selectedLabel={selectedLabel}
+                          onSelect={handleSortSelect}
+                          onSortChange={handleSortSelect}
+                          options={sortOptions} // ✅ also pass this or remove from props interface
+                        />
                       </div>
                     )}
                   </div>
@@ -940,7 +988,7 @@ export default function Dashboardtab({
                     {!isExpanded && (
                       <h3 className="result">
                         <span className="resultCount">{getResultCount}</span>{" "}
-                        Results
+                        Filtered Results
                       </h3>
                     )}
                   </div>
@@ -997,23 +1045,40 @@ export default function Dashboardtab({
                           }/majesticons_filter-line.svg`}
                           alt="filter img"
                         />
-                        Filter{" "}&NBSP;
+                        Filter{" "}
                         {checkListCount > 0 && (
-                          <span className="count-badge">{(checkListCount)}</span>
+                          <span className="count-badge">{checkListCount}</span>
                         )}
                       </Button>
                     </div>
                     {alignment === "Card View" && (
                       <div className="sort-link color-edit">
-                        <Button className="filter-text" aria-describedby={id}>
+                        <Button
+                          ref={buttonRef}
+                          className="filter-text"
+                          onClick={() => setIsPopoverOpen(true)}
+                          variant="outlined"
+                        >
                           <img
                             src={`${
                               import.meta.env.BASE_URL
                             }/material-symbols_sort-rounded.svg`}
-                            alt="filter img"
+                            alt="sort icon"
+                            style={{ marginRight: 8 }}
                           />
-                          Sort
+                          {selectedLabel}
                         </Button>
+
+                        <BasicPopover
+                          triggerRef={buttonRef as React.RefObject<HTMLElement>}
+                          openOnClick={isPopoverOpen}
+                          onClosePopover={() => setIsPopoverOpen(false)}
+                          items={sortOptions}
+                          selectedLabel={selectedLabel}
+                          onSelect={handleSortSelect}
+                          onSortChange={handleSortSelect}
+                          options={sortOptions} // ✅ also pass this or remove from props interface
+                        />
                       </div>
                     )}
                   </div>
@@ -1029,7 +1094,7 @@ export default function Dashboardtab({
                     {!isExpanded && (
                       <h3 className="result">
                         <span className="resultCount">{getResultCount}</span>{" "}
-                        Results
+                        Filtered Results
                       </h3>
                     )}
                   </div>
@@ -1086,7 +1151,7 @@ export default function Dashboardtab({
                           }/majesticons_filter-line.svg`}
                           alt="filter img"
                         />
-                        Filter{" "}&NBSP;
+                        Filter{" "}
                         {checkListCount > 0 && (
                           <span className="count-badge">{checkListCount}</span>
                         )}
@@ -1094,15 +1159,32 @@ export default function Dashboardtab({
                     </div>
                     {alignment === "Card View" && (
                       <div className="sort-link color-edit">
-                        <Button className="filter-text" aria-describedby={id}>
+                        <Button
+                          ref={buttonRef}
+                          className="filter-text"
+                          onClick={() => setIsPopoverOpen(true)}
+                          variant="outlined"
+                        >
                           <img
                             src={`${
                               import.meta.env.BASE_URL
                             }/material-symbols_sort-rounded.svg`}
-                            alt="filter img"
+                            alt="sort icon"
+                            style={{ marginRight: 8 }}
                           />
-                          Sort
+                          {selectedLabel}
                         </Button>
+
+                        <BasicPopover
+                          triggerRef={buttonRef as React.RefObject<HTMLElement>}
+                          openOnClick={isPopoverOpen}
+                          onClosePopover={() => setIsPopoverOpen(false)}
+                          items={sortOptions}
+                          selectedLabel={selectedLabel}
+                          onSelect={handleSortSelect}
+                          onSortChange={handleSortSelect}
+                          options={sortOptions} // ✅ also pass this or remove from props interface
+                        />
                       </div>
                     )}
                   </div>
@@ -1118,7 +1200,7 @@ export default function Dashboardtab({
                     {!isExpanded && (
                       <h3 className="result">
                         <span className="resultCount">{getResultCount}</span>{" "}
-                        Results
+                        Filtered Results
                       </h3>
                     )}
                   </div>
@@ -1180,15 +1262,32 @@ export default function Dashboardtab({
                     </div>
                     {alignment === "Card View" && (
                       <div className="sort-link color-edit">
-                        <Button className="filter-text" aria-describedby={id}>
+                        <Button
+                          ref={buttonRef}
+                          className="filter-text"
+                          onClick={() => setIsPopoverOpen(true)}
+                          variant="outlined"
+                        >
                           <img
                             src={`${
                               import.meta.env.BASE_URL
                             }/material-symbols_sort-rounded.svg`}
-                            alt="filter img"
+                            alt="sort icon"
+                            style={{ marginRight: 8 }}
                           />
-                          Sort
+                          {selectedLabel}
                         </Button>
+
+                        <BasicPopover
+                          triggerRef={buttonRef as React.RefObject<HTMLElement>}
+                          openOnClick={isPopoverOpen}
+                          onClosePopover={() => setIsPopoverOpen(false)}
+                          items={sortOptions}
+                          selectedLabel={selectedLabel}
+                          onSelect={handleSortSelect}
+                          onSortChange={handleSortSelect}
+                          options={sortOptions} // ✅ also pass this or remove from props interface
+                        />
                       </div>
                     )}
                   </div>
@@ -1248,6 +1347,7 @@ export default function Dashboardtab({
           />
         ) : (
           <PropertyCardList
+            sortOption={selectedSort}
             formatData={formatData}
             properties={tableValues}
             onScrollChange={handleChildScroll}
@@ -1268,6 +1368,7 @@ export default function Dashboardtab({
           />
         ) : (
           <PropertyCardList
+            sortOption={selectedSort}
             properties={tableValues}
             onScrollChange={handleChildScroll}
             formatData={formatData}
@@ -1288,6 +1389,7 @@ export default function Dashboardtab({
           />
         ) : (
           <PropertyCardList
+            sortOption={selectedSort}
             properties={tableValues}
             onScrollChange={handleChildScroll}
             formatData={formatData}
@@ -1308,6 +1410,7 @@ export default function Dashboardtab({
           />
         ) : (
           <PropertyCardList
+            sortOption={selectedSort}
             properties={tableValues}
             onScrollChange={handleChildScroll}
             formatData={formatData}
@@ -1409,6 +1512,7 @@ interface ProCardProps {
   onScrollChange: (scrollTop: number) => void;
   formatData: any;
   handleOpenModal: (action: "Approve" | "Deny" | "Delete", item: any) => void;
+  sortOption: string;
 }
 const modalStyle = {
   position: "absolute",
@@ -1426,6 +1530,7 @@ const PropertyCardList = ({
   properties,
   onScrollChange,
   handleOpenModal,
+  sortOption,
 }: ProCardProps) => {
   const navigate = useNavigate();
 
@@ -1433,8 +1538,9 @@ const PropertyCardList = ({
   const [popoverAnchorEl, setPopoverAnchorEl] = useState<HTMLElement | null>(
     null
   );
-
   const formatedData: (PropertyItem & PropertyViewWithSource)[] = properties;
+  const [sortedData, setSortedData] = useState(properties);
+
   // const allIds = formatedData.map((data: PropertyItem) => data._id);
   // const [visibleCount, setVisibleCount] = useState<number>(5);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -1448,6 +1554,49 @@ const PropertyCardList = ({
     //   setVisibleCount((prev) => Math.min(prev + 5, formatedData.length));
     // }
   }, 200);
+
+  useEffect(() => {
+    setSortedData(formatedData); // sync when new props arrive
+  }, [formatedData]);
+
+  useEffect(() => {
+    let sorted = [...properties];
+
+    switch (sortOption) {
+      case "Newest Property":
+        sorted.sort(
+          (a, b) =>
+            new Date(b.createdAt ?? 0).getTime() -
+            new Date(a.createdAt ?? 0).getTime()
+        );
+        break;
+      case "Oldest First":
+        sorted.sort(
+          (a, b) =>
+            new Date(a.createdAt ?? 0).getTime() -
+            new Date(b.createdAt ?? 0).getTime()
+        );
+        break;
+      case "Price: High to Low":
+        sorted.sort(
+          (a, b) =>
+            parseFloat(String(b?.rent?.rentAmount ?? "0")) -
+            parseFloat(String(a?.rent?.rentAmount ?? "0"))
+        );
+        break;
+      case "Price: Low to High":
+  sorted.sort(
+    (a, b) =>
+      parseFloat(String(a?.rent?.rentAmount ?? "0")) - 
+      parseFloat(String(b?.rent?.rentAmount ?? "0"))
+  );
+  break;
+      default:
+        sorted = [...properties];
+    }
+
+    setSortedData(sorted);
+  }, [sortOption, properties]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -1617,14 +1766,14 @@ const PropertyCardList = ({
             }
           }
         >
-          {formatedData.length === 0 && (
+          {sortedData.length === 0 && (
             <div
               style={{ padding: "20px", margin: "auto", textAlign: "center" }}
             >
               No properties available...
             </div>
           )}
-          {formatedData.map((item: PropertyItem) => (
+          {sortedData.map((item: PropertyItem) => (
             <Grid item xs={12} sm={12} md={12} key={item._id}>
               <div className="card-view-wrapper row" key={item._id}>
                 <div className="card-view-img col-md-6">

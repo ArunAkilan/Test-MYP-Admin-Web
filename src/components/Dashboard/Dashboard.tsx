@@ -33,7 +33,7 @@ function Home({ properties }: { properties: PropertyType }) {
     commercial: [],
     plot: [],
   });
-
+  const [sortOption, setSortOption] = useState("Newest Property");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [hideHeader, setHideHeader] = useState(false);
@@ -309,6 +309,8 @@ const triggerReset = () => {
           <div className="container">
             <div className="pending-approve">
               <Dashboardtab
+                onSortChange={setSortOption} 
+                selectedSort={sortOption}
                 data={tableData}
                 properties={sideNavTabvalue}
                 onScrollChangeParent={handleChildScroll}
