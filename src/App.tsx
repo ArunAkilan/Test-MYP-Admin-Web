@@ -189,7 +189,7 @@ function AppRoutes() {
           <Route path="/" element={<Navigate to="/login" />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Home properties="all" />} />
-
+            <Route path="/postedProperties" element={<Home properties="all" />} />
             <Route
               path="/commercial"
               element={<Home properties="commercials" />}

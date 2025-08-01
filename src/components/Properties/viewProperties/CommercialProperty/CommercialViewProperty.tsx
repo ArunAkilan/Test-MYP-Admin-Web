@@ -71,14 +71,13 @@ const CommercialView = () => {
       toast.error("Property data not available");
       return;
     }
-  
+
     const cleanItem = JSON.parse(JSON.stringify(property.property)); // sanitize any Date objects
-  
+
     navigate(`/commercial/create`, {
       state: { data: cleanItem, mode: "edit" },
     });
   };
-  
 
   // Unified status update function for approve, deny, delete, sold
   const updateCommercialPermissionStatus = async (
@@ -115,13 +114,14 @@ const CommercialView = () => {
         "2": { label: "Deleted", route: "/commercial" },
         "3": { label: "Sold", route: "/commercial/sold" },
       };
-      
-      const { label, route } = actionMap[status] || { label: "Unknown", route: "/" };
-      
+
+      const { label, route } = actionMap[status] || {
+        label: "Unknown",
+        route: "/",
+      };
+
       toast.success(`Property ${label.toLowerCase()} successfully`);
       navigate(route);
-      
-
     } catch (error) {
       toast.error("Action failed");
       console.error(error);
@@ -147,26 +147,26 @@ const CommercialView = () => {
       ? parseFloat(longitudeRaw)
       : undefined;
 
+  const pathSegments = location.pathname.split("/");
 
-const pathSegments = location.pathname.split("/");
+  // This assumes structure: /admin/{type}/view/:id
+  const propertyType = pathSegments[1];
 
-// This assumes structure: /admin/{type}/view/:id
-const propertyType = pathSegments[1]; 
-
-let typeLabel = "-";
-if (propertyType === "residential") {
-  typeLabel = "Residential TYPE";
-} else if (propertyType === "commercial") {
-  typeLabel = "Commercial TYPE";
-} else if (propertyType === "plot") {
-  typeLabel = "Plot TYPE";
-}
+  let typeLabel = "-";
+  if (propertyType === "residential") {
+    typeLabel = "Residential TYPE";
+  } else if (propertyType === "commercial") {
+    typeLabel = "Commercial TYPE";
+  } else if (propertyType === "plot") {
+    typeLabel = "Plot TYPE";
+  }
 
   return (
     <section className="container pt-4">
       <div className="breadcrumb">
         <button onClick={() => navigate(-1)} className="btn btn-secondary">
-          <img src={backIcon} alt="backIcon" />Back
+          <img src={backIcon} alt="backIcon" />
+          Back
         </button>
         <DynamicBreadcrumbs title={property?.property?.title} />
       </div>
@@ -180,7 +180,11 @@ if (propertyType === "residential") {
             <button className="btn detail-type">
               {property?.property?.propertyType}
             </button>
-            <button className="btn detail-status-type">Rented out</button>
+            <button className="btn detail-status-type">
+              {property?.property?.propertyType === "Rent" && "Rented Out"}
+              {property?.property?.propertyType === "Lease" && "Leased Out"}
+              {property?.property?.propertyType === "Sold" && "Sold Out"}
+            </button>
           </div>
 
           <p className="lead mb-3">
@@ -234,7 +238,7 @@ if (propertyType === "residential") {
                   <div className="area-facing-divider"></div>
                 </>
               )}
-            
+
             {property?.property?.propertyType === "lease" && (
               <div className=" text-center tenure-days ">
                 <p className="mb-1">AGREEMENT</p>
@@ -283,7 +287,7 @@ if (propertyType === "residential") {
         property?.property?.facingDirection ||
         property?.property?.createdAt ||
         property?.property?.totalFloors ||
-        property?.property?.propertyFloor ) && (
+        property?.property?.propertyFloor) && (
         <section className="midDetails">
           <h3>Property Dimension & Layout</h3>
           <div className="row gap-4 data-detail-row">
@@ -306,8 +310,6 @@ if (propertyType === "residential") {
                 </span>
               </div>
             )}
-
-            
 
             {property?.property?.totalFloors && (
               <div className="col-md-2 row-individual-data">
@@ -334,12 +336,14 @@ if (propertyType === "residential") {
                 <p>POSTED ON</p>
                 <span>
                   <img src={dateImage} alt="date" />
-                  {property?.property?.createdAt ? new Date(property?.property?.createdAt).toLocaleDateString("en-GB") : "-"}
+                  {property?.property?.createdAt
+                    ? new Date(
+                        property?.property?.createdAt
+                      ).toLocaleDateString("en-GB")
+                    : "-"}
                 </span>
               </div>
             )}
-
-            
           </div>
         </section>
       )}
@@ -349,11 +353,11 @@ if (propertyType === "residential") {
         property?.property?.facility?.roadFacility ||
         property?.property?.facility?.tilesOnFloor ||
         property?.property?.facility?.parking ||
-        property?.property?.facility?.readyToOccupy ) && (
+        property?.property?.facility?.readyToOccupy) && (
         <section className="midDetails">
           <h3>Facilities Provided</h3>
           <div className="row gap-4 data-detail-row">
-            {property?.property?.facility?.washRoom  && (
+            {property?.property?.facility?.washRoom && (
               <div className="col-md-2 row-individual-data">
                 <p>WASHROOM</p>
                 <span>
@@ -368,7 +372,7 @@ if (propertyType === "residential") {
                 <p>WATER FACILITY</p>
                 <span>
                   <img src={water_full_outline} alt="water_full_outline" />
-                  {property.property.facility.waterFacility? "Yes" : "No"}
+                  {property.property.facility.waterFacility ? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -378,7 +382,7 @@ if (propertyType === "residential") {
                 <p>ROAD FACILITY</p>
                 <span>
                   <img src={Icon_Road} alt="Icon_Road" />
-                  {property.property.facility.roadFacility? "Yes" : "No"}
+                  {property.property.facility.roadFacility ? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -388,7 +392,7 @@ if (propertyType === "residential") {
                 <p>TILES ON FLOOR</p>
                 <span>
                   <img src={Icon_restroom} alt="Icon_restroom" />
-                  {property.property.facility.tilesOnFloor? "Yes" : "No"}
+                  {property.property.facility.tilesOnFloor ? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -398,7 +402,7 @@ if (propertyType === "residential") {
                 <p>PARKING</p>
                 <span>
                   <img src={Icon_Parking} alt="Icon_Parking" />
-                  {property.property.facility.parking? "Yes" : "No"}
+                  {property.property.facility.parking ? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -408,7 +412,7 @@ if (propertyType === "residential") {
                 <p>READY TO OCCUPY</p>
                 <span>
                   <img src={Icon_Balcony} alt="Icon_Balcony" />
-                  {property.property.facility.readyToOccupy? "Yes" : "No"}
+                  {property.property.facility.readyToOccupy ? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -428,7 +432,7 @@ if (propertyType === "residential") {
                 <p>RAMP ACCESS</p>
                 <span>
                   <img src={ramp_up} alt="ramp_up" />
-                  {property.property.accessibility.ramp? "Yes" : "No"}
+                  {property.property.accessibility.ramp ? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -439,7 +443,7 @@ if (propertyType === "residential") {
                 <p>STAIR ACCESS</p>
                 <span>
                   <img src={footStepImg} alt="footStepImg" />
-                  {property.property.accessibility.steps? "Yes" : "No"}
+                  {property.property.accessibility.steps ? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -450,7 +454,7 @@ if (propertyType === "residential") {
                 <p>LIFT</p>
                 <span>
                   <img src={footStepImg} alt="footStepImg" />
-                  {property.property.accessibility.lift? "Yes" : "No"}
+                  {property.property.accessibility.lift ? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -510,8 +514,8 @@ if (propertyType === "residential") {
                     Bus Stand
                   </h3>
                   <p>
-                    
-                    {property?.property?.availability?.transport?.nearbyBusStop || "N/A"}
+                    {property?.property?.availability?.transport
+                      ?.nearbyBusStop || "N/A"}
                   </p>
                 </div>
                 <div className="Airport col-md-3">
@@ -520,7 +524,8 @@ if (propertyType === "residential") {
                     Airport
                   </h3>
                   <p>
-                    {property?.property?.availability?.transport?.nearbyAirport || "N/A"}
+                    {property?.property?.availability?.transport
+                      ?.nearbyAirport || "N/A"}
                   </p>
                 </div>
                 <div className="Metro col-md-3">
@@ -529,8 +534,8 @@ if (propertyType === "residential") {
                     Metro
                   </h3>
                   <p>
-                    
-                    {property?.property?.availability?.transport?.nearbyPort || "N/A"}
+                    {property?.property?.availability?.transport?.nearbyPort ||
+                      "N/A"}
                   </p>
                 </div>
                 <div className="Railway col-md-3">
@@ -539,8 +544,8 @@ if (propertyType === "residential") {
                     Railway
                   </h3>
                   <p>
-                    
-                    {property?.property?.availability?.transport?.nearbyBusStop || "N/A"}
+                    {property?.property?.availability?.transport
+                      ?.nearbyBusStop || "N/A"}
                   </p>
                 </div>
               </div>
@@ -556,50 +561,53 @@ if (propertyType === "residential") {
             <img src={solar_user} alt="solar_user" />
             <p>Name</p>
             <h6>
-              {property?.property?.owner?.firstName} &nbsp;
-              {property?.property?.owner?.lastName}
+              {property?.property?.propertyOwner?.firstName} &nbsp;
+              {property?.property?.propertyOwner?.lastName}
             </h6>
           </div>
           <div className="number-outer col-md-4">
             <div className="number inner-div  col-md-4">
               <img src={solar_phone} alt="solar_phone" />
               <p>Phone number</p>
-              <h6>{property?.property?.owner?.contact?.phone1}</h6>
+              <h6>{property?.property?.propertyOwner?.contact?.phone1}</h6>
             </div>
           </div>
           <div className="email inner-div col-md-4">
             <img src={proicons_mail} alt="proicons_mail" />
             <p>Email</p>
-            <h6>{property?.property?.owner?.contact?.email}</h6>
+            <h6>{property?.property?.propertyOwner?.contact?.email}</h6>
           </div>
         </div>
       </section>
       <section className="midDetails">
         <div className="area-icon ">
-
           <div className="view-property-icon ">
             <h3>Action</h3>
             <div className="view-property-icon-inside">
-              <button className="btn edit-btn d-flex align-items-center gap-1"
-              onClick={handleEdit}
+              <button
+                className="btn edit-btn d-flex align-items-center gap-1"
+                onClick={handleEdit}
               >
                 <img src={Icon_edit} alt="Edit Icon" />
                 <p className="mb-0">Edit</p>
               </button>
-              <button className="btn approve-btn d-flex align-items-center gap-1"
-              onClick={() => updateCommercialPermissionStatus("1")}
+              <button
+                className="btn approve-btn d-flex align-items-center gap-1"
+                onClick={() => updateCommercialPermissionStatus("1")}
               >
                 <img src={Icon_Tick} alt="Approve Icon" />
                 <p className="mb-0">Approve</p>
               </button>
-              <button className="btn deny-btn d-flex align-items-center gap-1"
-              onClick={() => updateCommercialPermissionStatus("0")}
+              <button
+                className="btn deny-btn d-flex align-items-center gap-1"
+                onClick={() => updateCommercialPermissionStatus("0")}
               >
                 <img src={Icon_Deny} alt="Deny Icon" />
                 <p className="mb-0">Deny</p>
               </button>
-              <button className="btn delete-btn d-flex align-items-center gap-1"
-              onClick={() => updateCommercialPermissionStatus("2")}
+              <button
+                className="btn delete-btn d-flex align-items-center gap-1"
+                onClick={() => updateCommercialPermissionStatus("2")}
               >
                 <img src={Icon_Delete} alt="Delete Icon" />
                 <p className="mb-0">Delete</p>
@@ -611,5 +619,5 @@ if (propertyType === "residential") {
     </section>
   );
 };
- 
+
 export default CommercialView;

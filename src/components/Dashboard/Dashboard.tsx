@@ -25,6 +25,7 @@ interface PropertyData {
   residential: ResidentialProperty[];
   commercial: ResidentialProperty[];
   plot: ResidentialProperty[];
+ 
 }
 
 function Home({ properties }: { properties: PropertyType }) {
@@ -32,6 +33,7 @@ function Home({ properties }: { properties: PropertyType }) {
     residential: [],
     commercial: [],
     plot: [],
+    
   });
   const [sortOption, setSortOption] = useState("Newest Property");
   const [loading, setLoading] = useState<boolean>(true);
@@ -55,6 +57,7 @@ function Home({ properties }: { properties: PropertyType }) {
     if (pathname.includes("dashboard")) return "all";
     return "all";
   }, [location.pathname]);
+
 
   useEffect(() => {
     const fetchAllData = async () => {
@@ -221,8 +224,8 @@ const triggerReset = () => {
             <div className="container">
               <div className="house-topic">
                 <div className="house-topic-content">
-                  <h3>{heading}</h3>
-                  <p>{para}</p>
+                  <h3 className="dashboard-title">{heading}</h3>
+                  <p className="dashboard-description">{para}</p>
                 </div>
                 <div>
                   <GenericButton

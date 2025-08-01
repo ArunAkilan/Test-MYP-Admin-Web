@@ -8,6 +8,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import AutoCompleteWithSelect from "./autoComplete/autoCompleteApi";
 
+
 interface HeaderProps {
   Title: string;
   ProfileLogo: string;
@@ -23,6 +24,7 @@ const Header: React.FC<HeaderProps> = ({
   MainLogo,
   // Profile,
 }) => {
+  const navigate = useNavigate();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [firstAnchorEl, setFirstAnchorEl] = useState<HTMLElement | null>(null);
   const [secondAnchorEl, setSecondAnchorEl] = useState<HTMLElement | null>(
@@ -41,8 +43,6 @@ const Header: React.FC<HeaderProps> = ({
     setSecondAnchorEl(event.currentTarget);
     setFirstAnchorEl(null); // Close first popover if open
   };
-
-  const navigate = useNavigate();
 
   const adminLogout = () => {
     localStorage.removeItem("token");
@@ -111,6 +111,12 @@ const Header: React.FC<HeaderProps> = ({
   const gotoProfile = () => {
    navigate('/profile');
   }
+
+  const handleMyPostsClick = () => {
+  const event = new CustomEvent("loadMyPosts");
+  window.dispatchEvent(event);
+  navigate("/postedProperties");
+};
   
   return (
     <div
@@ -235,7 +241,10 @@ const Header: React.FC<HeaderProps> = ({
                         alt="propertiesIcon"
                         className="col-2"
                       />
-                      <p className="col-8">Posted Properties</p>
+                      <p className="col-8"
+                      onClick={handleMyPostsClick}
+                      // onClick={() => navigate('/postedProperties')}
+                      >Posted Properties</p>
                       <img
                         src={`${
                           import.meta.env.BASE_URL

@@ -39,6 +39,7 @@ interface TableProps {
     | "commercials"
     | "plot"
     | "plots"
+    | "myposts"
     | undefined;
   onScrollChange: (scrollTop: number) => void;
   handleOpenModal: (
