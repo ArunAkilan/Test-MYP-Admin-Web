@@ -21,6 +21,19 @@ describe('Login Component', () => {
     jest.clearAllMocks();
   });
 
+  //snapshot rendering starts here
+test('matches snapshot', () => {
+  const { asFragment } = render(
+    <BrowserRouter>
+      <Login />
+    </BrowserRouter>
+  );
+  expect(asFragment()).toMatchSnapshot();
+});
+
+//snapshot rendering end here
+
+
   test('renders Sign in to your account text', () => {
     render(
       <BrowserRouter>
