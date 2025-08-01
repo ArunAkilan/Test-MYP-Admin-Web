@@ -296,7 +296,15 @@ const formatedData = useMemo(() => {
       Delete: 2,
       Sold: 3,
     };
-  
+
+    const actionMessages: Record<string, string> = {
+      Approve: "approved",
+      Deny: "denied",
+      Delete: "deleted",
+      Sold: "marked as sold",
+    };
+
+    
     const statusCode = statusMap[action];
   
     const properties = selectedRows.map((id) => {
@@ -304,7 +312,7 @@ const formatedData = useMemo(() => {
   
       return {
         id,
-        type: item?.type || item?.propertyType || item?._source || "unknown", // ✅ dynamic fallback chain
+        type: item?.type || item?.propertyType || item?._source || "unknown", // dynamic fallback chain
       };
     });
   
@@ -324,14 +332,20 @@ const formatedData = useMemo(() => {
           },
         }
       );
-  
-      toast.success(`Properties successfully ${action.toLowerCase()}d`);
+
+      properties.forEach((property) => {
+        toast.success(
+          `Property [ID: ${property.id}] successfully ${actionMessages[action]}`,
+          { position: "top-right" }
+        );
+      });
+      // toast.success(`Properties successfully ${action.toLowerCase()}d`);
       setSelectedRows([]);
       handlePopoverClose();
       window.dispatchEvent(new Event("refreshTableData"));
     } catch (error) {
       console.error(`Bulk ${action.toLowerCase()} failed`, error);
-      toast.error(`Bulk ${action.toLowerCase()} failed`);
+      toast.error(`Bulk ${action.toLowerCase()} failed`, { position: "top-right" });
     } finally {
       setIsBackdropLoading(false);
     }

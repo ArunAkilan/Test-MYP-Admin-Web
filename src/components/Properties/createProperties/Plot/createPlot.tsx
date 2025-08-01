@@ -521,7 +521,7 @@ export const CreatePlotProperty = () => {
       setLoading(false);
       setEditable(true);
 
-      toast.error("Please fix the errors in the form.", {
+      toast.error("Fill all required fields.", {
         autoClose: false,
       });
 
@@ -711,7 +711,7 @@ export const CreatePlotProperty = () => {
               <div className="muiBreadcrumbs">
                 {/* Breadcrumb */}
                 <div className="muiBreadcrumbs">
-                  <DynamicBreadcrumbs />
+                  <DynamicBreadcrumbs title={isEditMode ? "Update" : "Create"} />
                   {/* Rest of your page content */}
                 </div>
 
@@ -743,7 +743,7 @@ export const CreatePlotProperty = () => {
                     />
 
                     <p className="topInfoAlertP">
-                      Required Fields – 5 fields must be filled before
+                    <span className="star">*</span> Required Fields – 5 fields must be filled before
                       submitting the form.
                     </p>
                   </Alert>
