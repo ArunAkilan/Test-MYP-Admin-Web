@@ -20,7 +20,7 @@ interface Notification {
   isView: string;
   message: string;
   propertyId: string;
-  role: string;
+  role: string | string[];
   type: "update" | "alert";
 }
 
@@ -60,7 +60,7 @@ export default function Notificationtab() {
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
-  //Socket IO
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     axios
@@ -79,7 +79,11 @@ export default function Notificationtab() {
       setNotifications((prev) => [data, ...prev]);
     });
   }, []);
-  //Socket IO
+
+  const formatRole = (role: string | string[]) => {
+    return Array.isArray(role) ? role.join(", ") : role;
+  };
+
   return (
     <div id="notification-tab">
       <Box>
@@ -123,44 +127,46 @@ export default function Notificationtab() {
           />
         </Tabs>
       </Box>
+
+      {/* All Notifications */}
       <CustomTabPanel value={value} index={0}>
-        <div className="">
-          <div className="tab-panel-wrapper  mt-1">
-            <div className="tab-panel">
-              {notifications?.length == 0 ? (
-                <div className="pt-5">
-                  <img
-                    src="charm_tick.svg"
-                    alt="charm_tick image"
-                    className="notify-img"
-                  />
-                  <div className="panel-notify-content">
-                    <h6>You're All Set!</h6>
-                    <p>
-                      No alerts right now. If something important comes up like
-                      a listing issue we'll let you know here
-                    </p>
-                  </div>
+        <div className="tab-panel-wrapper  mt-1">
+          <div className="tab-panel">
+            {notifications?.length === 0 ? (
+              <div className="pt-5">
+                <img
+                  src="charm_tick.svg"
+                  alt="charm_tick image"
+                  className="notify-img"
+                />
+                <div className="panel-notify-content">
+                  <h6>You're All Set!</h6>
+                  <p>
+                    No alerts right now. If something important comes up like a
+                    listing issue we'll let you know here
+                  </p>
                 </div>
-              ) : (
-                <ul className="notifyList">
-                  {notifications.map((n) => (
-                    <li key={n._id}>
-                      <div className="d-flex">
-                        <b>{n?.role}:&nbsp; </b> {n.createdBy}
-                      </div>
-                      <div className="d-flex justify-content-between">
-                        <div>{n.message}</div>
-                        <div>{new Date(n.date).toLocaleString()}</div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
+              </div>
+            ) : (
+              <ul className="notifyList">
+                {notifications.map((n) => (
+                  <li key={n._id}>
+                    <div className="d-flex">
+                      <b>{formatRole(n.role)}:&nbsp;</b> {n.createdBy}
+                    </div>
+                    <div className="d-flex justify-content-between">
+                      <div>{n.message}</div>
+                      <div>{new Date(n.date).toLocaleString()}</div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
       </CustomTabPanel>
+
+      {/* Updates Only */}
       <CustomTabPanel value={value} index={1}>
         <div className="tab-panel-wrapper mt-1">
           <div className="tab-panel">
@@ -186,8 +192,7 @@ export default function Notificationtab() {
                   .map((n) => (
                     <li key={n._id}>
                       <div className="d-flex">
-                        <b>{n?.role}:&nbsp;</b>
-                        {n.createdBy}
+                        <b>{formatRole(n.role)}:&nbsp;</b> {n.createdBy}
                       </div>
                       <div className="d-flex justify-content-between">
                         <div>{n.message}</div>
@@ -201,6 +206,7 @@ export default function Notificationtab() {
         </div>
       </CustomTabPanel>
 
+      {/* Alerts Only */}
       <CustomTabPanel value={value} index={2}>
         <div className="tab-panel-wrapper mt-1">
           <div className="tab-panel">
@@ -226,8 +232,7 @@ export default function Notificationtab() {
                   .map((n) => (
                     <li key={n._id}>
                       <div className="d-flex">
-                        <b>{n?.role}:&nbsp;</b>
-                        {n.createdBy}
+                        <b>{formatRole(n.role)}:&nbsp;</b> {n.createdBy}
                       </div>
                       <div className="d-flex justify-content-between">
                         <div>{n.message}</div>
@@ -243,3 +248,4 @@ export default function Notificationtab() {
     </div>
   );
 }
+ 
