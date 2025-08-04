@@ -371,7 +371,13 @@ export const CreateProperty = () => {
 
   // Update state when in edit mode
   useEffect(() => {
+    
     if (isEditMode && editData) {
+
+      const expectedPath = `/admin/plot/update/${editId}`;
+      if (window.location.pathname !== expectedPath) {
+        window.history.replaceState(null, "", expectedPath);
+      }
       setFirstName(editData.propertyOwner?.firstName || "");
       setLastName(editData.propertyOwner?.lastName || "");
       setEmail(editData.propertyOwner?.contact?.email || "");
@@ -568,7 +574,7 @@ export const CreateProperty = () => {
     console.log("Validation Errors:", validationErrors);
     setErrors(validationErrors);
     if (Object.keys(validationErrors).length > 0) {
-      toast.error("Please fix the errors in the form.");
+      toast.error("Fill all required fields.");
       setLoading(false); // Don't forget to reset loading here
       return;
     }
@@ -731,7 +737,7 @@ export const CreateProperty = () => {
               <div className="muiBreadcrumbs">
                 {/* Breadcrumb */}
                 <div className="muiBreadcrumbs">
-                  <DynamicBreadcrumbs />
+                  <DynamicBreadcrumbs/>
                   {/* Rest of your page content */}
                 </div>
 
@@ -762,7 +768,7 @@ export const CreateProperty = () => {
                     />
 
                     <p className="topInfoAlertP">
-                      Required Fields – 5 fields must be filled before
+                    <span className="star">*</span> Required Fields – 5 fields must be filled before
                       submitting the form.
                     </p>
                   </Alert>

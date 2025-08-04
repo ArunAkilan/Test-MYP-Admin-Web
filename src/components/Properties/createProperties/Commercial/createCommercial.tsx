@@ -359,6 +359,10 @@ export const CreateCommercialProperty = () => {
   // Update state when in edit mode
   useEffect(() => {
     if (isEditMode && editData) {
+      const expectedPath = `/admin/commercial/update/${editId}`;
+      if (window.location.pathname !== expectedPath) {
+        window.history.replaceState(null, "", expectedPath);
+      }
       setFirstName(editData.propertyOwner?.firstName || "");
       setLastName(editData.propertyOwner?.lastName || "");
       setEmail(editData.propertyOwner?.contact?.email || "");
@@ -514,7 +518,7 @@ export const CreateCommercialProperty = () => {
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length > 0) {
-      toast.error("Please fix the errors in the form.");
+      toast.error("Fill all required fields.");
       setLoading(false);
       return;
     }
@@ -699,7 +703,7 @@ export const CreateCommercialProperty = () => {
               <div className="muiBreadcrumbs">
                 {/* Breadcrumb */}
                 <div className="muiBreadcrumbs">
-                  <DynamicBreadcrumbs />
+                  <DynamicBreadcrumbs/>
                   {/* Rest of your page content */}
                 </div>
 
@@ -730,7 +734,7 @@ export const CreateCommercialProperty = () => {
                     />
 
                     <p className="topInfoAlertP">
-                      Required Fields – 5 fields must be filled before
+                    <span className="star">*</span> Required Fields – 5 fields must be filled before
                       submitting the form.
                     </p>
                   </Alert>
@@ -924,7 +928,7 @@ export const CreateCommercialProperty = () => {
                             />
                           </div>
                           <div className="col-6 mb-3">
-                            <label className="TextLabel" htmlFor="tenure">
+                            <label className="TextLabel text-break text-wrap" htmlFor="tenure">
                               Agreement Timings (Years)
                             </label>
                             <InputField
@@ -1467,7 +1471,7 @@ export const CreateCommercialProperty = () => {
                       }
                     />
                   </div>
-                  <div className="d-flex flex-d-row gap-3">
+                  <div className="d-flex flex-wrap flex-md-nowrap gap-3">
                     <div className="col-12 col-md-6 mb-3">
                       <label className="TextLabel" htmlFor="totalFloors">
                         Total Floors

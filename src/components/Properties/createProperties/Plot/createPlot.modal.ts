@@ -101,6 +101,7 @@ export interface PlotFormState {
   uploadedImages: UploadedImage[];
   totalFloors: number;
   propertyFloor: number;
+  acre:number;
   selectedChips: string[];
   status: string;
   isDeleted: boolean;

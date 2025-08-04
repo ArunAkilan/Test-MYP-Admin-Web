@@ -208,14 +208,22 @@ function Table({
   //   console.log("Editing item:", item);
   //   navigate(`/commercial/create`, { state: { data: item, mode: "edit" } });};
   const handleEdit = (item: any) => {
-    console.log("item._source =", item);
-
-    // If _source is an object with a type field:
-    const propertyType =
-      typeof item._source === "string"
-        ? item._source
-        : item._source?.type || "residential";
-
+    console.log("Editing item:", item);
+  
+    // Valid types to allow dynamic routing
+    const validTypes = ["commercial", "residential", "plot"];
+  
+    // Fallback chain to extract property type
+    const rawType =
+      item?.type?.toLowerCase?.() ||
+      item?.propertyType?.toLowerCase?.() ||
+      item?._source?.type?.toLowerCase?.() ||
+      item?._source?.propertyType?.toLowerCase?.() ||
+      "residential";
+  
+    const propertyType = validTypes.includes(rawType) ? rawType : "residential";
+  
+    // Navigate to dynamic path
     navigate(`/${propertyType}/create`, {
       state: { data: item, mode: "edit" },
     });
@@ -307,19 +315,31 @@ function Table({
       Sold: 3,
     };
 
-    const statusCode = statusMap[action];
+    const actionMessages: Record<string, string> = {
+      Approve: "approved",
+      Deny: "denied",
+      Delete: "deleted",
+      Sold: "marked as sold",
+    };
 
-    // Prepare properties array for API payload
+    const confirmationMessage = `Are you sure you want to ${action.toLowerCase()} the selected properties?`;
+    const isConfirmed = window.confirm(confirmationMessage);
+  
+    if (!isConfirmed) return; // Exit if user cancels
+    
+    const statusCode = statusMap[action];
+  
     const properties = selectedRows.map((id) => {
       const item = formatedData.find((itm) => itm._id === id);
+  
       return {
         id,
-        type: item?._source || "residential",
+        type: item?.type || item?.propertyType || item?._source || "unknown", // dynamic fallback chain
       };
     });
-
+  
     try {
-      setIsBackdropLoading(true); // Show loading
+      setIsBackdropLoading(true);
       const token = localStorage.getItem("token");
       await axios.put(
         `${import.meta.env.VITE_BackEndUrl}/api/adminpermission`,
@@ -335,18 +355,24 @@ function Table({
         }
       );
 
-      toast.success(`Properties successfully ${action.toLowerCase()}d`);
+      properties.forEach((property) => {
+        toast.success(
+          `Property [ID: ${property.id}] successfully ${actionMessages[action]}`,
+          { position: "top-right" }
+        );
+      });
+      // toast.success(`Properties successfully ${action.toLowerCase()}d`);
       setSelectedRows([]);
       handlePopoverClose();
       window.dispatchEvent(new Event("refreshTableData"));
     } catch (error) {
       console.error(`Bulk ${action.toLowerCase()} failed`, error);
-      toast.error(`Bulk ${action.toLowerCase()} failed`);
+      toast.error(`Bulk ${action.toLowerCase()} failed`, { position: "top-right" });
     } finally {
-      setIsBackdropLoading(false); //Hide loading
+      setIsBackdropLoading(false);
     }
   };
-
+  
   const truncateWords = (text: string = "", wordLimit: number): string => {
     const words = text.trim().split(/\s+/);
     return words.length > wordLimit
