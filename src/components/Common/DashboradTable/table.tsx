@@ -297,19 +297,27 @@ const formatedData = useMemo(() => {
       Sold: 3,
     };
 
-    const statusCode = statusMap[action];
+    const actionMessages: Record<string, string> = {
+      Approve: "approved",
+      Deny: "denied",
+      Delete: "deleted",
+      Sold: "marked as sold",
+    };
 
-    // Prepare properties array for API payload
+    
+    const statusCode = statusMap[action];
+  
     const properties = selectedRows.map((id) => {
       const item = formatedData.find((itm) => itm._id === id);
+  
       return {
         id,
-        type: item?._source || "residential",
+        type: item?.type || item?.propertyType || item?._source || "unknown", // dynamic fallback chain
       };
     });
-
+  
     try {
-      setIsBackdropLoading(true); // Show loading
+      setIsBackdropLoading(true);
       const token = localStorage.getItem("token");
       await axios.put(
         `${import.meta.env.VITE_BackEndUrl}/api/adminpermission`,
@@ -325,18 +333,24 @@ const formatedData = useMemo(() => {
         }
       );
 
-      toast.success(`Properties successfully ${action.toLowerCase()}d`);
+      properties.forEach((property) => {
+        toast.success(
+          `Property [ID: ${property.id}] successfully ${actionMessages[action]}`,
+          { position: "top-right" }
+        );
+      });
+      // toast.success(`Properties successfully ${action.toLowerCase()}d`);
       setSelectedRows([]);
       handlePopoverClose();
       window.dispatchEvent(new Event("refreshTableData"));
     } catch (error) {
       console.error(`Bulk ${action.toLowerCase()} failed`, error);
-      toast.error(`Bulk ${action.toLowerCase()} failed`);
+      toast.error(`Bulk ${action.toLowerCase()} failed`, { position: "top-right" });
     } finally {
-      setIsBackdropLoading(false); //Hide loading
+      setIsBackdropLoading(false);
     }
   };
-
+  
   const truncateWords = (text: string = "", wordLimit: number): string => {
     const words = text.trim().split(/\s+/);
     return words.length > wordLimit

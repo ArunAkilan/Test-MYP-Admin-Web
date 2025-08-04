@@ -181,6 +181,9 @@ function buildPayloadDynamic(formState: PlotFormState): PlotFormState {
   // floors
   setNested(payload, "totalFloors", Number(formState.totalFloors) || 0);
   setNested(payload, "propertyFloor", Number(formState.propertyFloor) || 0);
+  setNested(payload, "acre", Number(formState.acre) || 0);
+
+  
 
   // images
   // const imageUrls = formState.uploadedImages.map((img) => img.name);
@@ -342,7 +345,7 @@ export const CreatePlotProperty = () => {
   const [negotiable, setNegotiable] = useState<boolean>(false);
   const [advanceAmount, setAdvanceAmount] = useState("");
   const [leaseTenure, setLeaseTenure] = useState("");
-  const [plotType, setPlotType] = useState("Agriculture" as PlotType);
+  const [plotType, setPlotType] = useState("None" as PlotType);
   const [address, setAddress] = useState("");
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
@@ -352,6 +355,8 @@ export const CreatePlotProperty = () => {
     useState<FacingDirection>("East");
   const [totalFloors, setTotalFloors] = useState("");
   const [propertyFloor, setPropertyFloor] = useState("");
+  const [acre, setAcre] = useState("");
+  
   const [description, setPropertyDescription] = useState("");
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -377,7 +382,7 @@ export const CreatePlotProperty = () => {
       setNegotiable(editData.rent?.negotiable || false);
       setAdvanceAmount(String(editData.rent?.advanceAmount || ""));
       setLeaseTenure(editData.lease?.leaseTenure || "");
-      setPlotType(editData.plotType || "Agriculture");
+      setPlotType(editData.plotType || "None");
       setAddress(editData.location?.address || "");
 
       if (editData.location?.map) {
@@ -391,7 +396,10 @@ export const CreatePlotProperty = () => {
       setTotalArea(editData.location?.area?.totalArea?.replace(" sqft", "") || "");
       setFacingDirection(editData.facingDirection || "East");
       setTotalFloors(String(editData.totalFloors || ""));
+      setAcre(String(editData.acre || ""));
+
       setPropertyFloor(String(editData.propertyFloor || ""));
+      
 
       const chips: string[] = [];
       if (editData.restrictions) {
@@ -513,7 +521,7 @@ export const CreatePlotProperty = () => {
       setLoading(false);
       setEditable(true);
 
-      toast.error("Please fix the errors in the form.", {
+      toast.error("Fill all required fields.", {
         autoClose: false,
       });
 
@@ -569,6 +577,7 @@ export const CreatePlotProperty = () => {
       uploadedImages: images,
       totalFloors: Number(totalFloors) || 0,
       propertyFloor: Number(propertyFloor) || 0,
+      acre: Number(acre),
       selectedChips,
       status: "Pending",
       description,
@@ -702,7 +711,7 @@ export const CreatePlotProperty = () => {
               <div className="muiBreadcrumbs">
                 {/* Breadcrumb */}
                 <div className="muiBreadcrumbs">
-                  <DynamicBreadcrumbs />
+                  <DynamicBreadcrumbs title={isEditMode ? "Update" : "Create"} />
                   {/* Rest of your page content */}
                 </div>
 
@@ -734,7 +743,7 @@ export const CreatePlotProperty = () => {
                     />
 
                     <p className="topInfoAlertP">
-                      Required Fields – 5 fields must be filled before
+                    <span className="star">*</span> Required Fields – 5 fields must be filled before
                       submitting the form.
                     </p>
                   </Alert>
@@ -871,8 +880,9 @@ export const CreatePlotProperty = () => {
                           "Timber/Tree Plantation",
                           "Nursery/Gardening Business",
                           "Telecom Towers",
+                          "None",
                         ]}
-                        value={plotType || "Agriculture"}
+                        value={plotType || "None"}
                         onChange={(e) =>
                           setPlotType(e.target.value as PlotType)
                         }
@@ -1574,7 +1584,7 @@ export const CreatePlotProperty = () => {
                       }
                     />
                   </div>
-                  <div className="d-flex flex-d-row gap-3">
+                  <div className="d-flex flex-wrap flex-md-nowrap gap-3">
                     <div className="col-12 col-md-6 mb-3">
                       <label className="TextLabel" htmlFor="totalFloors">
                         Length
@@ -1612,12 +1622,12 @@ export const CreatePlotProperty = () => {
                     </label>
                     <InputField
                       type="text"
-                      id="propertyOnFloor"
+                      id="acre"
                       placeholder="Enter Length (Ft)"
-                      value={propertyFloor}
-                      onChange={(e) => setPropertyFloor(e.target.value)}
-                      error={!!errors.propertyFloor}
-                      helperText={errors.propertyFloor}
+                      value={acre}
+                      onChange={(e) => setAcre(e.target.value)}
+                      error={!!errors.acre}
+                      helperText={errors.acre}
                       disabled={!editable}
                     />
                   </div>
