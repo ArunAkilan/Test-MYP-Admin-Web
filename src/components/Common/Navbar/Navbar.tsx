@@ -118,6 +118,7 @@ const Header: React.FC<HeaderProps> = ({
   navigate("/postedProperties");
 };
   
+
   return (
     <div
       className={`navbar navbar-expand-lg navbar-light header-wrap ${

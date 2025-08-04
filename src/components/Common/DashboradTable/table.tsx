@@ -48,6 +48,8 @@ interface TableProps {
   ) => void;
   tabType: "pending" | "approved" | "rejected" | "deleted";
   onAction?: () => void;
+  currentActiveTab: string;
+  onTabChange: (tab: "pending" | "approved" | "rejected" | "deleted") => void;
 }
 
 export interface Property {
@@ -74,8 +76,14 @@ const modalStyle = {
   p: 4,
 };
 
-function Table({ data, properties, onScrollChange, tabType }: TableProps) {
-  console.log("properties",properties)
+function Table({
+  data,
+  properties,
+  onScrollChange,
+  tabType,
+  currentActiveTab
+}: TableProps) {
+  console.log("currentActiveTab", currentActiveTab);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [isBackdropLoading, setIsBackdropLoading] = useState(false);
   const [popoverAnchorEl, setPopoverAnchorEl] = useState<HTMLElement | null>(
@@ -156,38 +164,37 @@ function Table({ data, properties, onScrollChange, tabType }: TableProps) {
   };
 
   //@ts-ignore
-const formatedData = useMemo(() => {
-  if (Array.isArray(data)) {
-    return data.map((item) => ({
-      ...item,
-      type:
-        item?.type?.toLowerCase() ||
-        (properties === "residentials"
-          ? "residential"
-          : properties === "commercials"
-          ? "commercial"
-          : properties === "plots"
-          ? "plot"
-          : "residential"), // default fallback if everything is missing
-    }));
-  }
+  const formatedData = useMemo(() => {
+    if (Array.isArray(data)) {
+      return data.map((item) => ({
+        ...item,
+        type:
+          item?.type?.toLowerCase() ||
+          (properties === "residentials"
+            ? "residential"
+            : properties === "commercials"
+            ? "commercial"
+            : properties === "plots"
+            ? "plot"
+            : "residential"), // default fallback if everything is missing
+      }));
+    }
 
-  return [
-    ...(data?.residentials?.map((item) => ({
-      ...item,
-      type: "residential",
-    })) ?? []),
-    ...(data?.commercials?.map((item) => ({
-      ...item,
-      type: "commercial",
-    })) ?? []),
-    ...(data?.plots?.map((item) => ({
-      ...item,
-      type: "plot",
-    })) ?? []),
-  ];
-}, [data, properties]);
-
+    return [
+      ...(data?.residentials?.map((item) => ({
+        ...item,
+        type: "residential",
+      })) ?? []),
+      ...(data?.commercials?.map((item) => ({
+        ...item,
+        type: "commercial",
+      })) ?? []),
+      ...(data?.plots?.map((item) => ({
+        ...item,
+        type: "plot",
+      })) ?? []),
+    ];
+  }, [data, properties]);
 
   // Modal state
   const [open, setOpen] = React.useState(false);
@@ -214,28 +221,30 @@ const formatedData = useMemo(() => {
     });
   };
 
- const handleView = (id: string | number) => {
-  const selectedItem = formatedData.find(
-    (item) => String(item._id) === String(id)
-  );
+  const handleView = (id: string | number) => {
+    const selectedItem = formatedData.find(
+      (item) => String(item._id) === String(id)
+    );
 
-  if (!selectedItem) {
-    alert("Property not found");
-    return;
-  }
+    if (!selectedItem) {
+      alert("Property not found");
+      return;
+    }
 
-  const routeBase = selectedItem?.type?.toLowerCase();
+    const routeBase = selectedItem?.type?.toLowerCase();
 
-  if (!routeBase || !["residential", "commercial", "plot"].includes(routeBase)) {
-    alert(" Unknown or missing property type");
-    return;
-  }
+    if (
+      !routeBase ||
+      !["residential", "commercial", "plot"].includes(routeBase)
+    ) {
+      alert(" Unknown or missing property type");
+      return;
+    }
 
-  navigate(`/${routeBase}/view/${id}`, {
-    state: { data: selectedItem, mode: "view" },
-  });
-};
-
+    navigate(`/${routeBase}/view/${id}`, {
+      state: { data: selectedItem, mode: "view" },
+    });
+  };
 
   const handleOpenModal = (action: string, item: ResidentialProperty) => {
     console.log(" Opening modal with action:", action, "on item:", item._id);
@@ -397,20 +406,20 @@ const formatedData = useMemo(() => {
     }));
   }, [data, properties]);
 
- const sortedData = useMemo(() => {
-  if (!sortConfig) return formatedData;
+  const sortedData = useMemo(() => {
+    if (!sortConfig) return formatedData;
 
-  return [...formatedData].sort((a, b) => {
-    const key = sortConfig.key as keyof typeof a;
+    return [...formatedData].sort((a, b) => {
+      const key = sortConfig.key as keyof typeof a;
 
-    const aValue = a[key] ?? "";
-    const bValue = b[key] ?? "";
+      const aValue = a[key] ?? "";
+      const bValue = b[key] ?? "";
 
-    if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
-    if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
-    return 0;
-  });
-}, [formatedData, sortConfig]);
+      if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [formatedData, sortConfig]);
 
   const requestSort = (key: SortableColumn) => {
     let direction: SortDirection = "asc";
@@ -428,6 +437,7 @@ const formatedData = useMemo(() => {
   if (formattedData.length === 0) {
     return <p>No data available</p>; // Now this is safe
   }
+  
 
   return (
     <>
@@ -931,39 +941,45 @@ const formatedData = useMemo(() => {
                               }
                               style={{ cursor: "pointer" }}
                             />
-                            <img
-                              src={`${import.meta.env.BASE_URL}/Approve.svg`}
-                              alt="Approve"
-                              onClick={() =>
-                                handleOpenModal(
-                                  "Approve",
-                                  item as unknown as ResidentialProperty
-                                )
-                              }
-                              style={{ cursor: "pointer" }}
-                            />
-                            <img
-                              src={`${import.meta.env.BASE_URL}/Deny.svg`}
-                              alt="Deny"
-                              onClick={() =>
-                                handleOpenModal(
-                                  "Deny",
-                                  item as unknown as ResidentialProperty
-                                )
-                              }
-                              style={{ cursor: "pointer" }}
-                            />
-                            <img
-                              src={`${import.meta.env.BASE_URL}/Delete.svg`}
-                              alt="Delete"
-                              onClick={() =>
-                                handleOpenModal(
-                                  "Delete",
-                                  item as unknown as ResidentialProperty
-                                )
-                              }
-                              style={{ cursor: "pointer" }}
-                            />
+                            {currentActiveTab !== "approved" && (
+                              <img
+                                src={`${import.meta.env.BASE_URL}/Approve.svg`}
+                                alt="Approve"
+                                onClick={() =>
+                                  handleOpenModal(
+                                    "Approve",
+                                    item as unknown as ResidentialProperty
+                                  )
+                                }
+                                style={{ cursor: "pointer" }}
+                              />
+                            )}
+                            {currentActiveTab !== "rejected" && (
+                              <img
+                                src={`${import.meta.env.BASE_URL}/Deny.svg`}
+                                alt="Deny"
+                                onClick={() =>
+                                  handleOpenModal(
+                                    "Deny",
+                                    item as unknown as ResidentialProperty
+                                  )
+                                }
+                                style={{ cursor: "pointer" }}
+                              />
+                            )}
+                            {currentActiveTab !== "deleted" && (
+                              <img
+                                src={`${import.meta.env.BASE_URL}/Delete.svg`}
+                                alt="Delete"
+                                onClick={() =>
+                                  handleOpenModal(
+                                    "Delete",
+                                    item as unknown as ResidentialProperty
+                                  )
+                                }
+                                style={{ cursor: "pointer" }}
+                              />
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -987,27 +1003,42 @@ const formatedData = useMemo(() => {
                       {selectedRows.length} Property selected
                     </p>
                     <div className="pop-content-divider"></div>
-                    <p
-                      className="property-approve"
-                      onClick={() => handleBulkAction("Approve")}
-                    >
-                      <img src={tickIcon} alt="Icon_Tick" />
-                      Approve
-                    </p>
-                    <div className="pop-content-divider"></div>
-                    <p
-                      className="property-deny"
-                      onClick={() => handleBulkAction("Deny")}
-                    >
-                      <img src={denyIcon} alt="Icon_Tick" /> Deny
-                    </p>
-                    <div className="pop-content-divider"></div>
-                    <p
-                      className="property-delete"
-                      onClick={() => handleBulkAction("Delete")}
-                    >
-                      Delete
-                    </p>
+                    {(currentActiveTab?.toLowerCase?.() ?? "") !== "approved" && (
+                      <>
+                        <p
+                          className="property-approve"
+                          onClick={() => handleBulkAction("Approve")}
+                        >
+                          <img src={tickIcon} alt="Approve Icon" />
+                          Approve
+                        </p>
+                        <div className="pop-content-divider"></div>
+                      </>
+                    )}
+
+                    {/* Conditional Deny action - hidden in rejected tab */}
+                    {(currentActiveTab?.toLowerCase?.() ?? "") !== "rejected" && (
+                      <>
+                        <p
+                          className="property-deny"
+                          onClick={() => handleBulkAction("Deny")}
+                        >
+                          <img src={denyIcon} alt="Deny Icon" />
+                          Deny
+                        </p>
+                        <div className="pop-content-divider"></div>
+                      </>
+                    )}
+
+                    {/* Conditional Delete action - hidden in deleted tab */}
+                    {(currentActiveTab?.toLowerCase?.() ?? "") !== "deleted" && (
+                      <p
+                        className="property-delete"
+                        onClick={() => handleBulkAction("Delete")}
+                      >
+                        Delete
+                      </p>
+                    )}
                   </div>
                 </Popover>
               </table>

@@ -25,17 +25,20 @@ interface PropertyData {
   residential: ResidentialProperty[];
   commercial: ResidentialProperty[];
   plot: ResidentialProperty[];
- 
+  
 }
 
 function Home({ properties }: { properties: PropertyType }) {
+  const [currentActiveTab, setCurrentActiveTab] = useState<
+  "pending" | "approved" | "rejected" | "deleted"
+>("pending");
   const [dashboardData, setDashboardData] = useState<PropertyData>({
     residential: [],
     commercial: [],
     plot: [],
     
   });
-  const [sortOption, setSortOption] = useState("Newest Property");
+  const [sortOption, setSortOption] = useState("Newest");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [hideHeader, setHideHeader] = useState(false);
@@ -95,6 +98,7 @@ function Home({ properties }: { properties: PropertyType }) {
     window.addEventListener("refreshTableData", handleRefresh);
     return () => window.removeEventListener("refreshTableData", handleRefresh);
   }, [sideNavTabvalue]);
+
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -232,7 +236,7 @@ const triggerReset = () => {
                     variant="primary"
                     image={iconAdd}
                     iconPosition="left"
-                    label="Add New Property"
+                    label="Add New"
                     className="genericNewPostStyles"
                     onClick={handleOpen}
                   />
@@ -318,6 +322,8 @@ const triggerReset = () => {
                 properties={sideNavTabvalue}
                 onScrollChangeParent={handleChildScroll}
                 onReset={triggerReset}
+                currentActiveTab={currentActiveTab}
+                setCurrentActiveTab={setCurrentActiveTab}
               />
             </div>
           </div>

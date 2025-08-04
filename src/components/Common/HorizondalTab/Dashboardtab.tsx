@@ -101,8 +101,13 @@ interface DashboardtabProps {
   onReset?: () => void;
   onSortChange: (option: string) => void;
   selectedSort: string;
+  currentActiveTab: "pending" | "approved" | "rejected" | "deleted";
+  setCurrentActiveTab: (
+    tab: "pending" | "approved" | "rejected" | "deleted"
+  ) => void;
+  
 }
-
+type TabStatus = "pending" | "approved" | "rejected" | "deleted";
 type PropertyItem = {
   _id: string;
   createdAt?: string;
@@ -158,8 +163,8 @@ export default function Dashboardtab({
   properties,
   onScrollChangeParent,
   onReset,
-  onSortChange, 
-  selectedSort 
+  onSortChange,
+  selectedSort,
 }: DashboardtabProps) {
   const [isFiltered, setIsFiltered] = useState(false);
   const [currentCheckList, setCurrentCheckList] = useState<string[]>([]);
@@ -182,18 +187,16 @@ export default function Dashboardtab({
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [selectedLabel, setSelectedLabel] = useState(selectedSort);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [currentActiveTab, setCurrentActiveTab] = useState<
+   TabStatus
+  >("pending");
   // const [sortOption, setSortOption] = useState("Newest Property");
 
-  const sortOptions = [
-    "Newest Property",
-    "Oldest Property",
-    "Highest Price",
-    "Lowest Price",
-  ];
+  const sortOptions = ["Newest", "Oldest", "Highest Price", "Lowest Price"];
 
   const handleSortSelect = (option: string) => {
-    setSelectedLabel(option);      // Update UI label
-    onSortChange(option);          // ✅ Send to Home, which updates PropertyCardList
+    setSelectedLabel(option); // Update UI label
+    onSortChange(option); // ✅ Send to Home, which updates PropertyCardList
   };
 
   //const currentStatus = statusByTab[value];
@@ -359,25 +362,25 @@ export default function Dashboardtab({
     [data]
   );
 
-   // Reset tab state when property type changes
+  // Reset tab state when property type changes
   useEffect(() => {
     setValue(0);
     dispatch(setActiveTab(0));
     setIsFiltered(false);
     setCurrentCheckList([]);
-    const pendingItems = allItems.filter(item => 
-      item.status?.toLowerCase() === 'pending'
+    const pendingItems = allItems.filter(
+      (item) => item.status?.toLowerCase() === "pending"
     );
     setTableValues(pendingItems);
   }, [properties, allItems]);
 
   // Handle tab change
-const handleChange = (_: React.SyntheticEvent, newValue: number) => {
-  setValue(newValue);
-  dispatch(setActiveTab(newValue));
-  setIsFiltered(false);
-  setCurrentCheckList([]);
-};
+  const handleChange = (_: React.SyntheticEvent, newValue: number) => {
+    setValue(newValue);
+    dispatch(setActiveTab(newValue));
+    setIsFiltered(false);
+    setCurrentCheckList([]);
+  };
 
   useEffect(() => {
     console.log(tableValues, "vvvv");
@@ -467,41 +470,39 @@ const handleChange = (_: React.SyntheticEvent, newValue: number) => {
     handleClose(); // Closes the popover
   };
 
-useEffect(() => { 
-  if (!isFiltered) {
-    const status = statusByTab[value];
+  useEffect(() => {
+    if (!isFiltered) {
+      const status = statusByTab[value];
 
-    let filtered = allItems.filter(
-      (item: Property) =>
-        item.status?.toLowerCase() === status.toLowerCase()
-    );
-
-    if (searchQuery.trim()) {
-      const search = searchQuery.toLowerCase();
-      filtered = filtered.filter((item) =>
-        [
-          item?.location?.address,
-          item?.location?.landmark,
-          item?.title,
-          item?.type,
-          item?.propertyType,
-          item?.commercialType,
-          item?.plotType,
-          item?.furnishingType,
-          item?.facingDirection,
-          item?.totalFloors?.toString(),
-          item?.washroom?.toString(),
-          item?.area?.totalArea?.toString(),
-        ]
-          .map((field) => (field ?? "").toLowerCase())
-          .some((field) => field.includes(search))
+      let filtered = allItems.filter(
+        (item: Property) => item.status?.toLowerCase() === status.toLowerCase()
       );
+
+      if (searchQuery.trim()) {
+        const search = searchQuery.toLowerCase();
+        filtered = filtered.filter((item) =>
+          [
+            item?.location?.address,
+            item?.location?.landmark,
+            item?.title,
+            item?.type,
+            item?.propertyType,
+            item?.commercialType,
+            item?.plotType,
+            item?.furnishingType,
+            item?.facingDirection,
+            item?.totalFloors?.toString(),
+            item?.washroom?.toString(),
+            item?.area?.totalArea?.toString(),
+          ]
+            .map((field) => (field ?? "").toLowerCase())
+            .some((field) => field.includes(search))
+        );
+      }
+
+      setTableValues(filtered);
     }
-
-    setTableValues(filtered);
-  }
-}, [searchQuery, value, isFiltered, allItems]);
-
+  }, [searchQuery, value, isFiltered, allItems]);
 
   // filterResetFunction
   const filterResetFunction = () => {
@@ -758,6 +759,7 @@ useEffect(() => {
           }}
         >
           <Tabs
+          
             value={activeTab}
             onChange={handleChange}
             aria-label="basic tabs example"
@@ -790,6 +792,8 @@ useEffect(() => {
                 />
               }
               iconPosition="start"
+              onClick={() => setCurrentActiveTab("pending")}
+              className={currentActiveTab === "pending" ? "active" : ""}
             />
 
             <Tab
@@ -812,6 +816,8 @@ useEffect(() => {
                 />
               }
               iconPosition="start"
+              onClick={() => setCurrentActiveTab("approved")}
+              className={currentActiveTab === "approved" ? "active" : ""}
             />
 
             <Tab
@@ -834,6 +840,8 @@ useEffect(() => {
                 />
               }
               iconPosition="start"
+              onClick={() => setCurrentActiveTab("rejected")}
+              className={currentActiveTab === "rejected" ? "active" : ""}
             />
 
             <Tab
@@ -856,6 +864,8 @@ useEffect(() => {
                 />
               }
               iconPosition="start"
+              onClick={() => setCurrentActiveTab("deleted")}
+              className={currentActiveTab === "deleted" ? "active" : ""}
             />
           </Tabs>
           <CustomTabPanel value={value} index={0}>
@@ -913,7 +923,7 @@ useEffect(() => {
                             }/dashboardtab/solar_list-linear.svg`}
                             alt="list-view"
                           />
-                          List View
+                          List
                         </ToggleButton>
                         <ToggleButton value="Card View">
                           <img
@@ -922,7 +932,7 @@ useEffect(() => {
                             }/dashboardtab/system-uicons_card-view.svg`}
                             alt="card-view"
                           />
-                          Card View
+                          Card
                         </ToggleButton>
                       </ToggleButtonGroup>
                     </div>
@@ -1344,6 +1354,8 @@ useEffect(() => {
             onScrollChange={handleChildScroll}
             handleOpenModal={handleOpenModal}
             tabType="pending"
+            currentActiveTab={currentActiveTab}
+            onTabChange={(tab) => setCurrentActiveTab(tab.toLowerCase() as TabStatus)}
           />
         ) : (
           <PropertyCardList
@@ -1352,6 +1364,7 @@ useEffect(() => {
             properties={tableValues}
             onScrollChange={handleChildScroll}
             handleOpenModal={handleOpenModal}
+            currentActiveTab={currentActiveTab}
           />
         )}
       </CustomTabPanel>
@@ -1365,6 +1378,8 @@ useEffect(() => {
             onScrollChange={handleChildScroll}
             handleOpenModal={handleOpenModal}
             tabType="approved"
+            currentActiveTab={currentActiveTab}
+            onTabChange={(tab) => setCurrentActiveTab(tab.toLowerCase() as TabStatus)}
           />
         ) : (
           <PropertyCardList
@@ -1373,6 +1388,7 @@ useEffect(() => {
             onScrollChange={handleChildScroll}
             formatData={formatData}
             handleOpenModal={handleOpenModal}
+            currentActiveTab={currentActiveTab}
           />
         )}
       </CustomTabPanel>
@@ -1386,6 +1402,8 @@ useEffect(() => {
             onScrollChange={handleChildScroll}
             handleOpenModal={handleOpenModal}
             tabType="rejected"
+            currentActiveTab={currentActiveTab}
+            onTabChange={(tab) => setCurrentActiveTab(tab.toLowerCase() as TabStatus)}
           />
         ) : (
           <PropertyCardList
@@ -1394,6 +1412,7 @@ useEffect(() => {
             onScrollChange={handleChildScroll}
             formatData={formatData}
             handleOpenModal={handleOpenModal}
+            currentActiveTab={currentActiveTab}
           />
         )}
       </CustomTabPanel>
@@ -1407,6 +1426,8 @@ useEffect(() => {
             onScrollChange={handleChildScroll}
             handleOpenModal={handleOpenModal}
             tabType="deleted"
+            currentActiveTab={currentActiveTab}
+            onTabChange={(tab) => setCurrentActiveTab(tab.toLowerCase() as TabStatus)}
           />
         ) : (
           <PropertyCardList
@@ -1415,6 +1436,7 @@ useEffect(() => {
             onScrollChange={handleChildScroll}
             formatData={formatData}
             handleOpenModal={handleOpenModal}
+            currentActiveTab={currentActiveTab}
           />
         )}
       </CustomTabPanel>
@@ -1513,6 +1535,7 @@ interface ProCardProps {
   formatData: any;
   handleOpenModal: (action: "Approve" | "Deny" | "Delete", item: any) => void;
   sortOption: string;
+  currentActiveTab: "pending" | "approved" | "rejected" | "deleted";
 }
 const modalStyle = {
   position: "absolute",
@@ -1528,6 +1551,7 @@ const modalStyle = {
 
 const PropertyCardList = ({
   properties,
+  currentActiveTab,
   onScrollChange,
   handleOpenModal,
   sortOption,
@@ -1563,14 +1587,14 @@ const PropertyCardList = ({
     let sorted = [...properties];
 
     switch (sortOption) {
-      case "Newest Property":
+      case "Newest":
         sorted.sort(
           (a, b) =>
             new Date(b.createdAt ?? 0).getTime() -
             new Date(a.createdAt ?? 0).getTime()
         );
         break;
-      case "Oldest First":
+      case "Oldest":
         sorted.sort(
           (a, b) =>
             new Date(a.createdAt ?? 0).getTime() -
@@ -1585,12 +1609,12 @@ const PropertyCardList = ({
         );
         break;
       case "Price: Low to High":
-  sorted.sort(
-    (a, b) =>
-      parseFloat(String(a?.rent?.rentAmount ?? "0")) - 
-      parseFloat(String(b?.rent?.rentAmount ?? "0"))
-  );
-  break;
+        sorted.sort(
+          (a, b) =>
+            parseFloat(String(a?.rent?.rentAmount ?? "0")) -
+            parseFloat(String(b?.rent?.rentAmount ?? "0"))
+        );
+        break;
       default:
         sorted = [...properties];
     }
@@ -1844,36 +1868,42 @@ const PropertyCardList = ({
                         onClick={() => handleEdit(item)}
                       />
                     </div>
-                    <div className="card-icon-approve">
-                      <img
-                        src={`${
-                          import.meta.env.BASE_URL
-                        }/dashboardtab/Icon_Tick.svg`}
-                        alt="icon-approve"
-                        style={{ cursor: "pointer" }}
-                        onClick={() => handleOpenModal("Approve", item)}
-                      />
-                    </div>
-                    <div className="card-icon-deny">
-                      <img
-                        src={`${
-                          import.meta.env.BASE_URL
-                        }/dashboardtab/Icon_Deny.svg`}
-                        alt="icon-deny"
-                        style={{ cursor: "pointer" }}
-                        onClick={() => handleOpenModal("Deny", item)}
-                      />
-                    </div>
-                    <div className="card-icon-delete">
-                      <img
-                        src={`${
-                          import.meta.env.BASE_URL
-                        }/dashboardtab/Icon-Delete-orange.svg`}
-                        alt="icon-delete"
-                        style={{ cursor: "pointer" }}
-                        onClick={() => handleOpenModal("Delete", item)}
-                      />
-                    </div>
+                    {currentActiveTab !== "approved" && (
+                      <div className="card-icon-approve">
+                        <img
+                          src={`${
+                            import.meta.env.BASE_URL
+                          }/dashboardtab/Icon_Tick.svg`}
+                          alt="icon-approve"
+                          style={{ cursor: "pointer" }}
+                          onClick={() => handleOpenModal("Approve", item)}
+                        />
+                      </div>
+                    )}
+                    {currentActiveTab !== "rejected" && (
+                      <div className="card-icon-deny">
+                        <img
+                          src={`${
+                            import.meta.env.BASE_URL
+                          }/dashboardtab/Icon_Deny.svg`}
+                          alt="icon-deny"
+                          style={{ cursor: "pointer" }}
+                          onClick={() => handleOpenModal("Deny", item)}
+                        />
+                      </div>
+                    )}
+                    {currentActiveTab !== "deleted" && (
+                      <div className="card-icon-delete">
+                        <img
+                          src={`${
+                            import.meta.env.BASE_URL
+                          }/dashboardtab/Icon-Delete-orange.svg`}
+                          alt="icon-delete"
+                          style={{ cursor: "pointer" }}
+                          onClick={() => handleOpenModal("Delete", item)}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1899,24 +1929,42 @@ const PropertyCardList = ({
             {selectedRows.length} Property selected
           </p>
           <div className="pop-content-divider"></div>
-          <p
-            className="property-approve"
-            onClick={() => handleBulkAction("Approve")}
-          >
-            <img src={tickIcon} alt="Icon_Tick" />
-            Approve
-          </p>
-          <div className="pop-content-divider"></div>
-          <p className="property-deny" onClick={() => handleBulkAction("Deny")}>
-            <img src={denyIcon} alt="Icon_Tick" /> Deny
-          </p>
-          <div className="pop-content-divider"></div>
-          <p
-            className="property-delete"
-            onClick={() => handleBulkAction("Delete")}
-          >
-            Delete
-          </p>
+          {currentActiveTab.toLowerCase() !== "approved" && (
+            <>
+              <p
+                className="property-approve"
+                onClick={() => handleBulkAction("Approve")}
+              >
+                <img src={tickIcon} alt="Approve Icon" />
+                Approve
+              </p>
+              <div className="pop-content-divider"></div>
+            </>
+          )}
+
+          {/* Conditional Deny action - hidden in rejected tab */}
+          {currentActiveTab.toLowerCase() !== "rejected" && (
+            <>
+              <p
+                className="property-deny"
+                onClick={() => handleBulkAction("Deny")}
+              >
+                <img src={denyIcon} alt="Deny Icon" />
+                Deny
+              </p>
+              <div className="pop-content-divider"></div>
+            </>
+          )}
+
+          {/* Conditional Delete action - hidden in deleted tab */}
+          {currentActiveTab.toLowerCase() !== "deleted" && (
+            <p
+              className="property-delete"
+              onClick={() => handleBulkAction("Delete")}
+            >
+              Delete
+            </p>
+          )}
         </div>
       </Popover>
     </Box>

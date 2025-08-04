@@ -20,7 +20,7 @@ const BasicPopover = ({
   selectedLabel,
   onSelect,
 }: BasicPopoverProps) => {
-  const options = ["Newest Property", "Oldest First", "Price: High to Low", "Price: Low to High"];
+  const options = ["Newest", "Oldest", "Price: High to Low", "Price: Low to High"];
 
   return (
     <Popover
