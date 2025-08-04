@@ -32,12 +32,14 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import ViewCarousel from "../../../Common/ViewCarousel/ViewCarousel";
+import { useLocation } from "react-router-dom";
 
 interface PropertyResponse {
   property: CommercialProperty;
 }
 
 const CommercialView = () => {
+  const location = useLocation();
   const { id } = useParams();
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -145,13 +147,28 @@ const CommercialView = () => {
       ? parseFloat(longitudeRaw)
       : undefined;
 
+
+const pathSegments = location.pathname.split("/");
+
+// This assumes structure: /admin/{type}/view/:id
+const propertyType = pathSegments[1]; 
+
+let typeLabel = "-";
+if (propertyType === "residential") {
+  typeLabel = "Residential TYPE";
+} else if (propertyType === "commercial") {
+  typeLabel = "Commercial TYPE";
+} else if (propertyType === "plot") {
+  typeLabel = "Plot TYPE";
+}
+
   return (
     <section className="container pt-4">
       <div className="breadcrumb">
         <button onClick={() => navigate(-1)} className="btn btn-secondary">
           <img src={backIcon} alt="backIcon" />Back
         </button>
-        <DynamicBreadcrumbs />
+        <DynamicBreadcrumbs title={property?.property?.title} />
       </div>
       <div className="slick-carousel">
         <ViewCarousel images={property?.property?.images || []} />
@@ -171,7 +188,7 @@ const CommercialView = () => {
           </p>
           <div className="d-flex align-items-center">
             <img
-              src="../../../../../public/ICON_Location.svg"
+              src={`${import.meta.env.BASE_URL}/ICON_Location.svg`}
               alt="Location Icon"
               className="me-2"
             />
@@ -183,35 +200,61 @@ const CommercialView = () => {
             <div className="text-center">
               <p className="mb-1 caps">Area</p>
               <h3 className="mb-1 user-result-data">
-                {property?.property?.area?.totalArea}
+                {typeof property?.property?.area?.totalArea === "string" ||
+                typeof property.property.rent.agreementTiming === "number"
+                  ? property.property.area.totalArea
+                  : "-"}
               </h3>
-              <p className="text-muted">Sq.Ft</p>
             </div>
             <div className="area-facing-divider"></div>
             <div className=" text-center">
-              <p className="mb-1">Rent</p>
+              <p className="mb-1">Amount</p>
               <h3 className="mb-1 user-result-data">
-                {property?.property?.rent?.rentAmount}
+                {typeof property?.property?.rent?.rentAmount === "number"
+                  ? property?.property?.rent?.rentAmount
+                  : "-"}
               </h3>
-              <p className="text-muted">Per Month</p>
+              {property?.property?.propertyType === "Rent" && (
+                <p className="text-muted">Per Month</p>
+              )}
             </div>
             <div className="area-facing-divider"></div>
-            {property?.property?.propertyType !== "Rent" &&
-              property?.property?.propertyType !== "Sale" && (
+            {property?.property?.propertyType !== "rent" &&
+              property?.property?.propertyType !== "sale" && (
                 <>
                   <div className=" text-center deposit-amount">
                     <p className="mb-1">Deposit Amount</p>
                     <h3 className="mb-1 user-result-data">
-                      {property?.property?.rent?.advanceAmount}
+                      {typeof property?.property?.rent?.advanceAmount ===
+                      "number"
+                        ? property?.property?.rent?.advanceAmount
+                        : "-"}
                     </h3>
                   </div>
+                  <div className="area-facing-divider"></div>
                 </>
               )}
-            {property?.property?.propertyType === "Rent" && (
+            
+            {property?.property?.propertyType === "lease" && (
               <div className=" text-center tenure-days ">
                 <p className="mb-1">AGREEMENT</p>
                 <h3 className="mb-1 user-result-data">
-                  {property?.property?.rent?.agreementTiming}
+                  {(() => {
+                    const timing = property?.property?.rent?.agreementTiming;
+
+                    if (timing === undefined || timing === null) return "-";
+
+                    const timingNum = Number(timing);
+
+                    if (isNaN(timingNum)) {
+                      return timing; // Probably a custom string
+                    }
+
+                    if (timingNum === 12) return "12 Months";
+                    if (timingNum === 1) return "1 Year";
+
+                    return `${timingNum} Years`;
+                  })()}
                 </h3>
               </div>
             )}
@@ -227,12 +270,12 @@ const CommercialView = () => {
             <span>{property?.property?.propertyType}</span>
           </div>
           <div className="col-md-2 row-individual-data">
-            <p>Residential TYPE</p>
-            <span>Shop</span>
+            <p>{typeLabel}</p>
+            <span>{property?.property?.commercialType}</span>
           </div>
           <div className="col-md-2 row-individual-data">
             <p>Negotiable</p>
-            <span>{property?.property?.rent?.negotiable}</span>
+            <span>{property?.property?.rent?.negotiable ? "Yes" : "No"}</span>
           </div>
         </div>
       </section>
@@ -291,7 +334,7 @@ const CommercialView = () => {
                 <p>POSTED ON</p>
                 <span>
                   <img src={dateImage} alt="date" />
-                  {property.property.createdAt}
+                  {property?.property?.createdAt ? new Date(property?.property?.createdAt).toLocaleDateString("en-GB") : "-"}
                 </span>
               </div>
             )}
@@ -315,7 +358,7 @@ const CommercialView = () => {
                 <p>WASHROOM</p>
                 <span>
                   <img src={Icon_Cleaning} alt="Icon_Cleaning" />
-                  {property.property.facility.washRoom }
+                  {property.property.facility.washRoom ? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -325,7 +368,7 @@ const CommercialView = () => {
                 <p>WATER FACILITY</p>
                 <span>
                   <img src={water_full_outline} alt="water_full_outline" />
-                  {property.property.facility.waterFacility}
+                  {property.property.facility.waterFacility? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -335,7 +378,7 @@ const CommercialView = () => {
                 <p>ROAD FACILITY</p>
                 <span>
                   <img src={Icon_Road} alt="Icon_Road" />
-                  {property.property.facility.roadFacility}
+                  {property.property.facility.roadFacility? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -345,7 +388,7 @@ const CommercialView = () => {
                 <p>TILES ON FLOOR</p>
                 <span>
                   <img src={Icon_restroom} alt="Icon_restroom" />
-                  {property.property.facility.tilesOnFloor}
+                  {property.property.facility.tilesOnFloor? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -355,7 +398,7 @@ const CommercialView = () => {
                 <p>PARKING</p>
                 <span>
                   <img src={Icon_Parking} alt="Icon_Parking" />
-                  {property.property.facility.parking}
+                  {property.property.facility.parking? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -365,7 +408,7 @@ const CommercialView = () => {
                 <p>READY TO OCCUPY</p>
                 <span>
                   <img src={Icon_Balcony} alt="Icon_Balcony" />
-                  {property.property.facility.readyToOccupy}
+                  {property.property.facility.readyToOccupy? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -385,7 +428,7 @@ const CommercialView = () => {
                 <p>RAMP ACCESS</p>
                 <span>
                   <img src={ramp_up} alt="ramp_up" />
-                  {property.property.accessibility.ramp}
+                  {property.property.accessibility.ramp? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -396,7 +439,7 @@ const CommercialView = () => {
                 <p>STAIR ACCESS</p>
                 <span>
                   <img src={footStepImg} alt="footStepImg" />
-                  {property.property.accessibility.steps}
+                  {property.property.accessibility.steps? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -407,7 +450,7 @@ const CommercialView = () => {
                 <p>LIFT</p>
                 <span>
                   <img src={footStepImg} alt="footStepImg" />
-                  {property.property.accessibility.lift}
+                  {property.property.accessibility.lift? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -467,8 +510,8 @@ const CommercialView = () => {
                     Bus Stand
                   </h3>
                   <p>
-                    //@ts-ignore
-                    {property?.property?.availability?.transport?.nearbyBusStop}
+                    
+                    {property?.property?.availability?.transport?.nearbyBusStop || "N/A"}
                   </p>
                 </div>
                 <div className="Airport col-md-3">
@@ -477,7 +520,7 @@ const CommercialView = () => {
                     Airport
                   </h3>
                   <p>
-                    {property?.property?.availability?.transport?.nearbyAirport}
+                    {property?.property?.availability?.transport?.nearbyAirport || "N/A"}
                   </p>
                 </div>
                 <div className="Metro col-md-3">
@@ -487,7 +530,7 @@ const CommercialView = () => {
                   </h3>
                   <p>
                     
-                    {property?.property?.availability?.transport?.nearbyPort}
+                    {property?.property?.availability?.transport?.nearbyPort || "N/A"}
                   </p>
                 </div>
                 <div className="Railway col-md-3">
@@ -496,8 +539,8 @@ const CommercialView = () => {
                     Railway
                   </h3>
                   <p>
-                    //@ts-ignore
-                    {property?.property?.availability?.transport?.nearbyBusStop}
+                    
+                    {property?.property?.availability?.transport?.nearbyBusStop || "N/A"}
                   </p>
                 </div>
               </div>
@@ -508,7 +551,7 @@ const CommercialView = () => {
 
       <section className="midDetails">
         <h3>Owner Information</h3>
-        <div className="owner-info row">
+        <div className="owner-info gap-2 row">
           <div className="name inner-div col-md-4">
             <img src={solar_user} alt="solar_user" />
             <p>Name</p>

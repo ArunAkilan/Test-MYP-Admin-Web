@@ -262,7 +262,7 @@ label {
 
     img.preview-img {
       height: 100%;
-      width: auto;
+      width: 100%;
       object-fit: cover;
       border-radius: 4px;
     }
@@ -380,4 +380,11 @@ label {
     // border-width: 3px !important;
     // border-color: #2C62CC !important;
   }
+}
+.chipcard,.firstRow,.secondRow {
+  display: flex;
+  flex-wrap: wrap !important;
+}
+ .input-field {
+  flex: 1 1 270px;
 }

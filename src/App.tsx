@@ -1,17 +1,14 @@
 import Header from "./components/Common/Navbar/Navbar";
 import Sidebar from "./components/Common/Sidebar/Sidebar";
 import {
-  BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
-  // useNavigate,
   useLocation,
   useMatch,
 } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import navbarLogo from "../src/assets/navbar/PRH_Admin-resize.svg";
 import Home from "./components/Dashboard/Dashboard";
 import "./App.scss";
 import { useEffect } from "react";
@@ -22,12 +19,22 @@ import CommercialView from "../src/components/Properties/viewProperties/Commerci
 import ViewProperty from "./components/Properties/viewProperties/ResidentialView/ResidentialViewProperty";
 import PlotView from "./components/Properties/viewProperties/PlotView/PlotViewProperty";
 import Login from "./components/Login/Login";
-import { IconButton, styled, useTheme, type CSSObject, type Theme } from "@mui/material";
-import MuiDrawer from '@mui/material/Drawer';
+import {
+  IconButton,
+  styled,
+  useTheme,
+  type CSSObject,
+  type Theme,
+} from "@mui/material";
+import MuiDrawer from "@mui/material/Drawer";
 import React from "react";
 import { ChevronLeftIcon, ChevronRightIcon, MenuIcon } from "lucide-react";
 import ProtectedRoute from "./components/Login/ProtectedRoute";
-
+import { useMediaQuery } from "@mui/material";
+import CreateProfile from "./components/Profiles/CreateProfile";
+import EditProfile from "./components/Profiles/EditProfile";
+import ViewProfile from "./components/Profiles/ViewProfile";
+import AdminAllProfile from "./components/Profiles/ProfileDashboard/ProfileDashboard";
 
 function AppRoutes() {
   const location = useLocation();
@@ -37,137 +44,140 @@ function AppRoutes() {
   const shouldHideInResidentialCreate = !!useMatch("/residential/create");
   const shouldHideInCommercialCreate = !!useMatch("/commercial/view");
   const shouldHideInPlotCreate = !!useMatch("/plot/view");
+  const theme = useTheme();
+  const [open, setOpen] = React.useState(true);
+  const isMobile = useMediaQuery("(max-width:992px)");
 
-  useEffect(() => {
-    // const noScrollRoutes = [
-    //   "/dashboard",
-    //   "/commercial",
-    //   "/residential",
-    //   "/plots",
-    // ];
- 
-    //const shouldHideScroll = noScrollRoutes.includes(location.pathname);
-    // document.body.style.overflow = shouldHideScroll ? "hidden" : "auto";
-  }, [location.pathname]);
-  // const location = useLocation();
- 
   // Define routes where sidebar should be hidden
   const hideSidebarRoutes = [
     "/residential/view",
     "/commercial/view",
-    "/plots/view",
+    "/plot/view",
     "/login",
-    "/login"
+    "/login",
   ];
- 
+  useEffect(() => {
+    setOpen(!isMobile); // 👈z automatically toggle drawer based on screen width
+  }, [isMobile]);
+
   // Check if the current pathname starts with any of the routes
   const shouldHideSidebar = hideSidebarRoutes.some((route) =>
     location.pathname.startsWith(route)
   );
- 
+
   /***Drawer Component */
   const locationIsAdmin = location.pathname === "/login";
-  locationIsAdmin ? document.body.style.background = '#F0F5FC' :
-    document.body.style.background = '#FFFFFF';
+  if (locationIsAdmin) {
+    document.body.style.background = "#F0F5FC";
+  } else {
+    document.body.style.background = "#FFFFFF";
+  }
 
-  const theme = useTheme();
-  const [open, setOpen] = React.useState(true);
- 
   const handleDrawerOpen = () => {
     setOpen(true);
   };
- 
+
   const handleDrawerClose = () => {
     setOpen(false);
   };
   const drawerWidth = 230;
- 
+
   const openedMixin = (theme: Theme): CSSObject => ({
     width: drawerWidth,
-    transition: theme.transitions.create('width', {
+    transition: theme.transitions.create("width", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
     }),
-    overflowX: 'hidden',
-    marginTop: "61px"
+    overflowX: "hidden",
+    marginTop: "61px",
   });
- 
+
   const closedMixin = (theme: Theme): CSSObject => ({
-    transition: theme.transitions.create('width', {
+    transition: theme.transitions.create("width", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
-    overflowX: 'hidden',
+    overflowX: "hidden",
     width: `calc(${theme.spacing(7)} + 1px)`,
-    [theme.breakpoints.up('sm')]: {
+    [theme.breakpoints.up("sm")]: {
       width: `calc(${theme.spacing(8)} + 1px)`,
     },
-    marginTop: "61px"
+    marginTop: "61px",
   });
 
-  const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
-    ({ theme }) => ({
-      width: drawerWidth,
-      flexShrink: 0,
-      whiteSpace: 'nowrap',
-      boxSizing: 'border-box',
-      variants: [
-        {
-          props: ({ open }) => open,
-          style: {
-            ...openedMixin(theme),
-            '& .MuiDrawer-paper': openedMixin(theme),
-          },
+  const Drawer = styled(MuiDrawer, {
+    shouldForwardProp: (prop) => prop !== "open",
+  })(({ theme }) => ({
+    width: drawerWidth,
+    flexShrink: 0,
+    whiteSpace: "nowrap",
+    boxSizing: "border-box",
+    variants: [
+      {
+        props: ({ open }) => open,
+        style: {
+          ...openedMixin(theme),
+          "& .MuiDrawer-paper": openedMixin(theme),
         },
-        {
-          props: ({ open }) => !open,
-          style: {
-            ...closedMixin(theme),
-            '& .MuiDrawer-paper': closedMixin(theme),
-          },
+      },
+      {
+        props: ({ open }) => !open,
+        style: {
+          ...closedMixin(theme),
+          "& .MuiDrawer-paper": closedMixin(theme),
         },
-      ],
-    }),
-  );
+      },
+    ],
+  }));
   /****Drawer Component */
 
   return (
     <div className="app-container row">
-
-      {
-        !shouldHideInResidentialView &&
+      {!shouldHideInResidentialView &&
         !shouldHideInCommercialView &&
         !shouldHideInPlotView &&
         !shouldHideInResidentialCreate &&
         !shouldHideInCommercialCreate &&
         !shouldHideInPlotCreate &&
-        !locationIsAdmin && <Drawer variant="permanent" open={open} >
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            sx={[
-              {
-                justifyContent: "end",
-                "&:hover": {
-                  backgroundColor: "transparent !important"
-                }
-              },
-              open && { display: 'none' },
-            ]}
-          >
-            <MenuIcon />
-          </IconButton>
-          {open && <IconButton onClick={handleDrawerClose} sx={{
-            justifyContent: "end", "&:hover": {
-              backgroundColor: "transparent !important"
-            }
-          }}>
-            {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-          </IconButton>}
-          {!shouldHideSidebar && <Sidebar />}
-        </Drawer>}
+        !locationIsAdmin && (
+          <Drawer variant="permanent" open={open}>
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              onClick={handleDrawerOpen}
+              edge="start"
+              sx={[
+                {
+                  justifyContent: "end",
+                  "&:hover": {
+                    backgroundColor: "transparent !important",
+                  },
+                },
+                open && { display: "none" },
+              ]}
+            >
+              <MenuIcon />
+            </IconButton>
+            {open && (
+              <IconButton
+                onClick={handleDrawerClose}
+                sx={{
+                  justifyContent: "end",
+                  "&:hover": {
+                    backgroundColor: "transparent !important",
+                  },
+                }}
+              >
+                {theme.direction === "rtl" ? (
+                  <ChevronRightIcon />
+                ) : (
+                  <ChevronLeftIcon />
+                )}
+              </IconButton>
+            )}
+            {!shouldHideSidebar && <Sidebar />}
+          </Drawer>
+        )}
       <div
         // className={`content-area ${!shouldHideSidebar ? "col-md-9 offset-md-3" : "col-md-12"
         //   }`}
@@ -175,7 +185,6 @@ function AppRoutes() {
         style={{ flex: 1, overflowY: "auto" }}
       >
         <Routes>
-
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Navigate to="/login" />} />
           <Route element={<ProtectedRoute />}>
@@ -189,7 +198,7 @@ function AppRoutes() {
               path="/residential"
               element={<Home properties="residentials" />}
             />
-            <Route path="/plots" element={<Home properties="plots" />} />
+            <Route path="/plot" element={<Home properties="plots" />} />
             <Route
               path="/commercial/create"
               element={<CreateCommercialProperty />}
@@ -199,23 +208,24 @@ function AppRoutes() {
             <Route path="/plot/view/:id" element={<PlotView />} />
             <Route path="/residential/view/:id" element={<ViewProperty />} />
             <Route path="/commercial/view/:id" element={<CommercialView />} />
+
+            <Route path="/allProfile" element={<AdminAllProfile />} />
+            <Route path="/allProfile/create" element={<CreateProfile />} />
+            <Route path="/allProfile/edit/:id" element={<EditProfile />} />
+            <Route path="/allProfile/view/:id" element={<ViewProfile />} />
           </Route>
         </Routes>
-
       </div>
     </div>
   );
 }
- 
+
 function App() {
   return (
-    <Router>
-      <LayoutWrapper />
-    </Router>
+  <LayoutWrapper />
   );
 }
- 
- 
+
 function LayoutWrapper() {
   const location = useLocation();
   const isLoginRoute = location.pathname === "/login";
@@ -227,9 +237,9 @@ function LayoutWrapper() {
     <div className="grid-container">
       {!isLoginRoute && (
         <Header
-          MainLogo={navbarLogo}
+          MainLogo={`${import.meta.env.BASE_URL}/navbar/PRH_Admin-resize.svg`}
           Title={parsedLoggedInUserName?.profileInformation?.firstName ?? ""}
-          ProfileLogo="/Ellipse 1.svg"
+          ProfileLogo={`${import.meta.env.BASE_URL}/Ellipse1.svg`}
           Profile={false}
         />
       )}
@@ -239,5 +249,5 @@ function LayoutWrapper() {
     </div>
   );
 }
- 
+
 export default App;

@@ -13,6 +13,7 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import "./imagecarousel.scss";
 import axios from "axios";
+import { useLocation } from "react-router-dom";
 
 type PropertyType = "all" | "residentials" | "commercials" | "plots";
 
@@ -35,6 +36,8 @@ Props) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showThumbnails, setShowThumbnails] = useState(false);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const location = useLocation();
+  const mode = location.state?.mode || "view";
   const [popoverAnchorEl, setPopoverAnchorEl] = useState<HTMLElement | null>(
     null
   );
@@ -81,19 +84,19 @@ Props) {
   const handleAction = async (id: string, status: number) => {
     const singularProperty = getSingularProperty();
     try {
-      const response = await axios.put( 
+      const response = await axios.put(
         `${
           import.meta.env.VITE_BackEndUrl
         }/api/adminpermission/${singularProperty}/${id}`,
         { status: `${status}` },
         {
           headers: {
-            "Authorization":`Bearer ${localStorage.getItem("token")}`
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
       console.log("Status updated:", response.data);
-    } catch  {
+    } catch {
       console.error("Failed to update status");
     }
   };
@@ -116,7 +119,7 @@ Props) {
       setSelectedRows([]); // Clear selection
       handlePopoverClose(); // Close popover
       window.dispatchEvent(new Event("refreshTableData")); // Refresh table
-    } catch  {
+    } catch {
       console.error(`Failed to ${action.toLowerCase()} selected properties`);
     }
   };
@@ -126,7 +129,9 @@ Props) {
       <div className="large-screen-header">
         <span className="large-screen-header-wrap" onClick={onClose}>
           <img
-            src="../src/assets/dashboardtab/weui_arrow-outlined.svg"
+            src={`${
+              import.meta.env.BASE_URL
+            }/dashboardtab/weui_arrow-outlined.svg`}
             alt="arrow"
           />
           <p>Back</p>
@@ -138,7 +143,9 @@ Props) {
           className="Gallery-button"
         >
           <img
-            src="../src/assets/dashboardtab/solar_gallery-linear.svg"
+            src={`${
+              import.meta.env.BASE_URL
+            }/dashboardtab/solar_gallery-linear.svg`}
             alt="gallery"
           />
           <span className="gallery-text">Gallery</span>
@@ -154,60 +161,70 @@ Props) {
             <Grid
               item
               xs={3}
-              sx={{ overflowY: "auto" }}
+              sx={{
+                overflowY: "auto",
+                display: "flex !important",
+                justifyContent: "center !important",
+              }}
               className="left-thumbnail-image"
             >
-              {images && images.map((img, idx) => (
-                <Box
-                  key={idx}
-                  onClick={() => setCurrentIndex(idx)}
-                  sx={{
-                    mb: 2,
-                    mx: "auto",
-                    borderRadius: 2,
-                    overflow: "hidden",
-                    border:
-                      idx === currentIndex
-                        ? "2px solid #00FF80"
-                        : "2px solid transparent",
-                    cursor: "pointer",
-                    width: 225,
-                    height: 125,
-                  }}
-                  className="left-single-image"
-                >
-                  <div className="checkbox-div">
-                  <input
-                    type="checkbox"
-                    className="large-screen-checkbox"
-                    aria-describedby={popoverId}
-                    onClick={handlePopoverClick}
-                    checked={selectedRows.includes(img)}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        setSelectedRows((prev) => [...prev, img]);
-                      } else {
-                        setSelectedRows((prev) =>
-                          prev.filter((id) => id !== img)
-                        );
-                      }
+              {images &&
+                images.map((img, idx) => (
+                  <Box
+                    key={idx}
+                    onClick={() => setCurrentIndex(idx)}
+                    sx={{
+                      mb: 2,
+                      mx: "auto",
+                      borderRadius: 2,
+                      overflow: "hidden",
+                      border:
+                        idx === currentIndex
+                          ? "2px solid #00FF80"
+                          : "2px solid transparent",
+                      cursor: "pointer",
+                      width: 255,
+                      height: 150,
                     }}
-                  />
-                  </div>
-                  <div className="right-delete">
-                    <img src="../src/assets/dashboardtab/Icon_Delete-right.svg" alt="Delete" />
-                  </div>
-                  <img
-                    src={img}
-                    alt={`Thumb ${idx + 1}`}
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                    }}
-                  />
-                </Box>
-              ))}
+                    className="left-single-image"
+                  >
+                    <div className="checkbox-div">
+                      <input
+                        type="checkbox"
+                        className="large-screen-checkbox"
+                        aria-describedby={popoverId}
+                        onClick={handlePopoverClick}
+                        checked={selectedRows.includes(img)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedRows((prev) => [...prev, img]);
+                          } else {
+                            setSelectedRows((prev) =>
+                              prev.filter((id) => id !== img)
+                            );
+                          }
+                        }}
+                      />
+                    </div>
+                    {mode === "edit" && (
+                      <div className="right-delete">
+                        <img
+                          src="../src/assets/dashboardtab/Icon_Delete-right.svg"
+                          alt="Delete"
+                        />
+                      </div>
+                    )}
+                    <img
+                      src={img}
+                      alt={`Thumb ${idx + 1}`}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  </Box>
+                ))}
             </Grid>
           </Slide>
           {/* Main Image Viewer */}
@@ -227,6 +244,9 @@ Props) {
                 zIndex: 1,
                 bgcolor: "rgba(0,0,0,0.5)",
                 color: "#fff",
+                "&:hover": {
+                  bgcolor: "rgba(0,0,0,0.5)", // same as normal
+                },
               }}
             >
               <ArrowBackIosNewIcon />
@@ -243,6 +263,9 @@ Props) {
                 zIndex: 1,
                 bgcolor: "rgba(0,0,0,0.5)",
                 color: "#fff",
+                "&:hover": {
+                  bgcolor: "rgba(0,0,0,0.5)", // same as normal
+                },
               }}
             >
               <ArrowForwardIosIcon />
@@ -260,14 +283,12 @@ Props) {
               }}
             >
               <img
-              //@ts-ignore
+                //@ts-ignore
                 src={images[currentIndex]}
                 alt={`Image ${currentIndex + 1}`}
                 style={{
                   maxHeight: "90%",
                   maxWidth: "90%",
-                  width: "1024px",
-                  height: "768px",
                   objectFit: "contain",
                 }}
               />

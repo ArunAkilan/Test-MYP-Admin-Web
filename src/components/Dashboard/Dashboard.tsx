@@ -1,206 +1,157 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-//import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./Dashboard.scss";
 import GenericButton from "../Common/Button/button";
 import iconAdd from "../../../public/ICO_Add-1.svg";
 import Dashboardtab from "../Common/HorizondalTab/Dashboardtab";
-import { useLocation } from "react-router-dom";
 import type { ResidentialProperty } from "../AdminResidencial/AdminResidencial.model";
-import Box from "@mui/material/Box";
-import Modal from "@mui/material/Modal";
-import Radio from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import FormControl from "@mui/material/FormControl";
-import FormLabel from "@mui/material/FormLabel";
-import { useNavigate } from "react-router-dom";
-import { CircularProgress, Typography, Alert } from "@mui/material";
-import Skeleton from "@mui/material/Skeleton";
- 
+import {
+  Box,
+  Modal,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  FormControl,
+  FormLabel,
+  CircularProgress,
+  Typography,
+  Alert,
+  Skeleton,
+} from "@mui/material";
+
 type PropertyType = "all" | "residentials" | "commercials" | "plots";
- 
-interface HomeProps {
-  properties: PropertyType;
-  onAddNew?: () => void;
-}
- 
 interface PropertyData {
   residential: ResidentialProperty[];
   commercial: ResidentialProperty[];
   plot: ResidentialProperty[];
 }
- 
-const mapKey: Record<PropertyType, keyof PropertyData> = {
-  residentials: "residential",
-  commercials: "commercial",
-  plots: "plot",
-  all: "residential", // not used directly
-};
- 
-interface HomeProps {
-  properties: PropertyType;
-}
- 
-const style = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: 470,
-  bgcolor: "background.paper",
-  boxShadow: 24,
-  px: 5,
-  py: 3,
-  borderRadius: 2,
-};
- 
- 
- 
-// function Home({ properties, onAddNew }: HomeProps)
-function Home({ properties="all" }: HomeProps) {
-  console.log("properties",properties)
+
+function Home({ properties }: { properties: PropertyType }) {
   const [dashboardData, setDashboardData] = useState<PropertyData>({
     residential: [],
     commercial: [],
     plot: [],
   });
-  //dynamic changing :
-  const headingMap: Record<PropertyType, string> = {
-    all: "Dashboard",
-    residentials: "Manage Residential Properties",
-    commercials: "Manage Commercial Properties",
-    plots: "Manage Plots Properties",
-  };
-  const heading = headingMap[properties] || "Properties";
- 
-  const paragMap: Record<PropertyType, string> = {
-    all: "Get a comprehensive view of all the properties",
-    residentials: "Review and track residential property entries easily",
-    commercials: "Review and track commercial property entries easily",
-    plots: "Review and track plots property entries easily",
-  };
-  const para = paragMap[properties] || "Properties";
- 
-  const [loadingBackdrop, setLoadingBackdrop] = useState(false);
+  const [sortOption, setSortOption] = useState("Newest Property");
   const [loading, setLoading] = useState<boolean>(true);
-  console.log("loading",loading)
   const [error, setError] = useState<string | null>(null);
   const [hideHeader, setHideHeader] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
-  const [open, setOpen] = React.useState(false);
- const [isSkeletonLoading, setIsSkeletonLoading] = useState(true);
+  const [open, setOpen] = useState(false);
+  const [selectedPropertyType, setSelectedPropertyType] = useState<
+    string | null
+  >(null);
+  const [isSkeletonLoading, setIsSkeletonLoading] = useState(true);
+
   const location = useLocation();
-  const [selectedPropertyType, setSelectedPropertyType] = useState<string | null>(null);
-  console.log("loadingBackdrop",loadingBackdrop)
- // NEW: Show Backdrop on successful create redirect
- useEffect(() => {
-  if (location.state?.from === "residentialCreateSuccess") {
-    setLoadingBackdrop(true);
- 
-     // Clear the state so backdrop doesn't show again on refresh
-     window.history.replaceState({}, document.title);
- 
-     setTimeout(() => {
-      setLoadingBackdrop(false);
-      window.dispatchEvent(new Event("refreshTableData")); // ✅ triggers table reload
-    }, 2000); // show for 2 seconds
-  }
-}, [location.state]);
- 
-  const handleOpen = () => {
-    if (location?.pathname === "/dashboard") {
-      setOpen(true);
-    } else if (location?.pathname === "/commercial") {
-      navigate("/commercial/create", {
-        state: { mode: "create" },
-      });
-    } else if (location?.pathname === "/residential") {
-      navigate("/residential/create", {
-        state: { mode: "create" },
-      });
-    } else if (location?.pathname === "/plots") {
-      navigate("/plot/create", {
-        state: { mode: "create" },
-      });
-    }
-  };
-  const handleClose = () => setOpen(false);
   const navigate = useNavigate();
-  const handleChildScroll = (scrollTop: number) => {
-    // setIsFixed(scrollTop > 50);
-    const currentScrollY = scrollTop;
- 
-    // Show header when scrolling up
-    if (currentScrollY < lastScrollY || currentScrollY < 20) {
-      setHideHeader(false);
-    } else {
-      setHideHeader(true);
-    }
- 
-    setLastScrollY(currentScrollY);
-  };
- 
- 
- 
-  const propertyData = location.state?.data;
-  console.log("propertyData", propertyData);
- 
- 
- 
+
+  const sideNavTabvalue: PropertyType = useMemo(() => {
+    const pathname = location.pathname.toLowerCase();
+    if (pathname.includes("residential")) return "residentials";
+    if (pathname.includes("commercial")) return "commercials";
+    if (pathname.includes("plot")) return "plots";
+    if (pathname.includes("dashboard")) return "all";
+    return "all";
+  }, [location.pathname]);
+
   useEffect(() => {
     const fetchAllData = async () => {
       setLoading(true);
-      setError(null);
- 
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_BackEndUrl}/api/${properties}`
+          `${import.meta.env.VITE_BackEndUrl}/api/${sideNavTabvalue}`
         );
- 
-        if (properties === "all") {
+        const data = response?.data?.data;
+
+        if (sideNavTabvalue === "all") {
           setDashboardData({
-            residential: response.data.data.residential ?? [],
-            commercial: response.data.data.commercial ?? [],
-            plot: response.data.data.plots ?? [],
+            residential: data?.residential || [],
+            commercial: data?.commercial || [],
+            plot: data?.plot || [],
           });
         } else {
+          const singularType = sideNavTabvalue.replace(/s$/, "");
           setDashboardData((prev) => ({
             ...prev,
-            [mapKey[properties]]: response.data.data ?? [],
+            [singularType]: data || [],
           }));
         }
-        console.log("API data cpmmercial:", response.data.data);
+
         setLoading(false);
       } catch (err) {
-        if (axios.isAxiosError(err) && err.message) {
-          setError(err.message);
-        } else {
-          setError("An unexpected error occurred");
-        }
+        setError(axios.isAxiosError(err) ? err.message : "Unexpected error");
         setLoading(false);
       }
-     
     };
- 
+
     fetchAllData();
- 
-    const handleRefresh = () => fetchAllData(); // refresh handler
- 
+
+    const handleRefresh = () => fetchAllData();
     window.addEventListener("refreshTableData", handleRefresh);
     return () => window.removeEventListener("refreshTableData", handleRefresh);
-  }, [properties]);
- 
-    useEffect(() => {
-    // Simulate API delay
+  }, [sideNavTabvalue]);
+
+  useEffect(() => {
     const timeout = setTimeout(() => {
-      // Here you should fetch actual data and set it
       setIsSkeletonLoading(false);
     }, 2000);
- 
     return () => clearTimeout(timeout);
   }, []);
- 
+
+  const handleOpen = () => {
+    const path = location.pathname;
+    if (path === "/dashboard") setOpen(true);
+    else if (path === "/commercial")
+      navigate("/commercial/create", { state: { mode: "create" } });
+    else if (path === "/residential")
+      navigate("/residential/create", { state: { mode: "create" } });
+    else if (path === "/plot")
+      navigate("/plot/create", { state: { mode: "create" } });
+  };
+
+  const handleClose = () => setOpen(false);
+
+  const handleChildScroll = (scrollTop: number) => {
+    const currentScrollY = scrollTop;
+    setHideHeader(currentScrollY > lastScrollY && currentScrollY >= 20);
+    setLastScrollY(currentScrollY);
+  };
+
+  const tableData = useMemo(() => {
+    switch (sideNavTabvalue) {
+      case "residentials":
+        return { residential: dashboardData.residential };
+      case "commercials":
+        return { commercial: dashboardData.commercial };
+      case "plots":
+        return { plot: dashboardData.plot };
+      case "all":
+      default:
+        return {
+          all: [
+            ...dashboardData.residential.map((item) => ({
+              ...item,
+              type: "Residential",
+            })),
+            ...dashboardData.commercial.map((item) => ({
+              ...item,
+              type: "Commercial",
+            })),
+            ...dashboardData.plot.map((item) => ({ ...item, type: "Plot" })),
+          ],
+        };
+    }
+  }, [dashboardData, sideNavTabvalue]);
+
+const triggerReset = () => {
+  setIsSkeletonLoading(true);
+  setTimeout(() => {
+    setIsSkeletonLoading(false);
+  }, 2000);
+};
+
   if (loading) {
     return (
       <Box display="flex" alignItems="center" justifyContent="center" p={3}>
@@ -211,7 +162,7 @@ function Home({ properties="all" }: HomeProps) {
       </Box>
     );
   }
- 
+
   if (error) {
     return (
       <Box p={3}>
@@ -221,19 +172,27 @@ function Home({ properties="all" }: HomeProps) {
       </Box>
     );
   }
-  const hasData =
-    dashboardData.residential.length > 0 ||
-    dashboardData.commercial.length > 0 ||
-    dashboardData.plot.length > 0;
- 
-  if (!hasData) {
-    return <p>No data found for {properties}</p>;
-  }
- 
+
+  const headingMap = {
+    all: "Dashboard",
+    residentials: "Manage Residential Properties",
+    commercials: "Manage Commercial Properties",
+    plots: "Manage Plots Properties",
+  };
+
+  const paragMap = {
+    all: "Get a comprehensive view of all the properties",
+    residentials: "Review and track residential property entries easily",
+    commercials: "Review and track commercial property entries easily",
+    plots: "Review and track plots property entries easily",
+  };
+
+  const heading = headingMap[properties];
+  const para = paragMap[properties];
+
   return (
     <div className="home-sec">
       {isSkeletonLoading ? (
-        // Entire component skeleton
         <div style={{ padding: "20px" }}>
           <Skeleton variant="rectangular" height={50} width="100%" />
           <Skeleton
@@ -270,31 +229,30 @@ function Home({ properties="all" }: HomeProps) {
                     variant="primary"
                     image={iconAdd}
                     iconPosition="left"
-                    label={"Add New Property"}
+                    label="Add New Property"
                     className="genericNewPostStyles"
-                    onClick={() => {
-                      // onAddNew?.();
-                      handleOpen();
-                      // navigate("/createResidential",
-                      //    { state: { mode: "create" } });
-                    }}
+                    onClick={handleOpen}
                   />
-                  <Modal
-                    open={open}
-                    onClose={handleClose}
-                    aria-labelledby="modal-modal-title"
-                    aria-describedby="modal-modal-description"
-                  >
-                    <Box sx={style}>
+                  <Modal open={open} onClose={handleClose}>
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        width: 470,
+                        bgcolor: "background.paper",
+                        boxShadow: 24,
+                        px: 5,
+                        py: 3,
+                        borderRadius: 2,
+                      }}
+                    >
                       <div className="property-option">
                         <FormControl>
-                          <FormLabel id="demo-row-radio-buttons-group-label">
-                            Add New Property/ Plot
-                          </FormLabel>
+                          <FormLabel>Add New Property/ Plot</FormLabel>
                           <RadioGroup
                             row
-                            aria-labelledby="demo-row-radio-buttons-group-label"
-                            name="row-radio-buttons-group"
                             value={selectedPropertyType}
                             onChange={(e) =>
                               setSelectedPropertyType(e.target.value)
@@ -321,7 +279,7 @@ function Home({ properties="all" }: HomeProps) {
                       <GenericButton
                         image={iconAdd}
                         iconPosition="left"
-                        label={"Continue"}
+                        label="Continue"
                         className="genericContinueButton"
                         onClick={() => {
                           if (selectedPropertyType === "Residential") {
@@ -333,7 +291,7 @@ function Home({ properties="all" }: HomeProps) {
                               state: { mode: "create" },
                             });
                           } else if (selectedPropertyType === "other") {
-                            navigate("/plots/create", {
+                            navigate("/plot/create", {
                               state: { mode: "create" },
                             });
                           } else {
@@ -347,13 +305,16 @@ function Home({ properties="all" }: HomeProps) {
               </div>
             </div>
           </div>
- 
+
           <div className="container">
             <div className="pending-approve">
               <Dashboardtab
-                data={dashboardData}
-                properties={properties}
+                onSortChange={setSortOption} 
+                selectedSort={sortOption}
+                data={tableData}
+                properties={sideNavTabvalue}
                 onScrollChangeParent={handleChildScroll}
+                onReset={triggerReset}
               />
             </div>
           </div>
@@ -362,7 +323,5 @@ function Home({ properties="all" }: HomeProps) {
     </div>
   );
 }
- 
+
 export default Home;
- 
- 

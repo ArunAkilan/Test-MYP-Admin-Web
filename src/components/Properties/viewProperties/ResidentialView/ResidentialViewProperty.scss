@@ -11,7 +11,7 @@
     color: #2E2E2F;
 }
 .breadcrumb button:hover {
-    color: #2E2E2F;
+    color: #fff;
 }
 .address-detail {
     padding: 48px 0 0;
@@ -200,11 +200,9 @@ span.inline-style {
     padding: 24px 0;
     border: 1px solid #D3DDE7;
     border-radius: 6px;
-        max-width: 425px;
+        max-width: 355px;
     width: 100%;
-}
-.number-outer {
-    padding: 0 12px;
+    height: 140px;
 }
 
 .owner-info img {
@@ -256,6 +254,7 @@ span.inline-style {
 }  
 .view-property-icon-inside {
     display: flex;
+    flex-wrap: wrap;
     gap: 16px;
 }
 .view-property-icon .btn {

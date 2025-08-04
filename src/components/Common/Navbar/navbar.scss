@@ -31,7 +31,7 @@
   position: relative;
   text-align: end;
 }
-.admin {
+.header-wrap .admin {
   display: flex;
   justify-content: flex-end;
   width: 100%;
@@ -99,7 +99,6 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  width: 100px;
   text-align: left;
 }
 .bell-image {
@@ -154,11 +153,17 @@
   color: #fff;
 }
 
+.admin-btn-popover {
+  box-shadow: 4px 8px 16px 0px rgba(138, 182, 229, 0.06), 2px 4px 8px 0px rgba(178, 178, 178, 0.04), 1px 2px 4px 0px rgba(178, 178, 178, 0.04), 0px 1px 2px 0px rgba(178, 178, 178, 0.04);
+  border: 1px solid #D3DDE7;
+}
 // notification 
 .notification-popover {
   padding: 16px;
   height: calc(100vh - 128px);
-      border: 1px solid #ddd;
+  border: 1px solid #ddd;
+  box-shadow: 4px 8px 16px 0px rgba(138, 182, 229, 0.06), 2px 4px 8px 0px rgba(178, 178, 178, 0.04), 1px 2px 4px 0px rgba(178, 178, 178, 0.04), 0px 1px 2px 0px rgba(178, 178, 178, 0.04);
+   
 }
 .notify-header {
   display: flex;
@@ -219,12 +224,15 @@
 }
 
 @media only screen and (max-width:992px) {
-      .admin {
+      .header-wrap .admin {
+        flex-direction: column;
+        align-items: center !important;
+        padding: 20px 0px;
         position: absolute;
         width: 100vw;
-        background: #fff;
+        background: #f4f2f2;
         padding: 30px 30px;
-        right: -110px;
+        right: -75px;
         top: 70px;
         justify-content: center;
         box-shadow: 4px 8px 16px 0px rgba(138, 182, 229, 0.06), 2px 4px 8px 0px rgba(178, 178, 178, 0.04), 1px 2px 4px 0px rgba(178, 178, 178, 0.04), 0px 1px 2px 0px rgba(178, 178, 178, 0.04);
@@ -256,9 +264,9 @@
 //   }
 // 
 
-@media only screen and (max-width:440px) {
+@media only screen and (max-width:664px) {
     .logo {
-        padding: 15px !important;
+        padding: 0px !important;
     }
     .admin-wrap {
     padding: 15px;
