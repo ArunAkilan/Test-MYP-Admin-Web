@@ -200,19 +200,27 @@ const formatedData = useMemo(() => {
   //   console.log("Editing item:", item);
   //   navigate(`/commercial/create`, { state: { data: item, mode: "edit" } });};
   const handleEdit = (item: any) => {
-    console.log("item._source =", item);
-
-    // If _source is an object with a type field:
-    const propertyType =
-      typeof item._source === "string"
-        ? item._source
-        : item._source?.type || "residential";
-
+    console.log("Editing item:", item);
+  
+    // Valid types to allow dynamic routing
+    const validTypes = ["commercial", "residential", "plot"];
+  
+    // Fallback chain to extract property type
+    const rawType =
+      item?.type?.toLowerCase?.() ||
+      item?.propertyType?.toLowerCase?.() ||
+      item?._source?.type?.toLowerCase?.() ||
+      item?._source?.propertyType?.toLowerCase?.() ||
+      "residential";
+  
+    const propertyType = validTypes.includes(rawType) ? rawType : "residential";
+  
+    // Navigate to dynamic path
     navigate(`/${propertyType}/create`, {
       state: { data: item, mode: "edit" },
     });
   };
-
+  
  const handleView = (id: string | number) => {
   const selectedItem = formatedData.find(
     (item) => String(item._id) === String(id)
@@ -304,6 +312,10 @@ const formatedData = useMemo(() => {
       Sold: "marked as sold",
     };
 
+    const confirmationMessage = `Are you sure you want to ${action.toLowerCase()} the selected properties?`;
+    const isConfirmed = window.confirm(confirmationMessage);
+  
+    if (!isConfirmed) return; // Exit if user cancels
     
     const statusCode = statusMap[action];
   

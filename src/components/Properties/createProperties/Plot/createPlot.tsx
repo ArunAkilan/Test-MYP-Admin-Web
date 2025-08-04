@@ -372,6 +372,11 @@ export const CreatePlotProperty = () => {
   // Update state when in edit mode
   useEffect(() => {
     if (isEditMode && editData) {
+
+      const expectedPath = `/admin/plot/update/${editId}`;
+    if (window.location.pathname !== expectedPath) {
+      window.history.replaceState(null, "", expectedPath);
+    }
       setFirstName(editData?.propertyOwner?.firstName || "");
       setLastName(editData?.propertyOwner?.lastName || "");
       setEmail(editData?.propertyOwner?.contact?.email || "");
@@ -711,7 +716,9 @@ export const CreatePlotProperty = () => {
               <div className="muiBreadcrumbs">
                 {/* Breadcrumb */}
                 <div className="muiBreadcrumbs">
-                  <DynamicBreadcrumbs title={isEditMode ? "Update" : "Create"} />
+                  <DynamicBreadcrumbs
+                  //  title={isEditMode ? "Update" : "Create"} 
+                   />
                   {/* Rest of your page content */}
                 </div>
 
