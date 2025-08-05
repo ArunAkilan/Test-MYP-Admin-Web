@@ -7,7 +7,7 @@ import { io } from "socket.io-client";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import AutoCompleteWithSelect from "./autoComplete/autoCompleteApi";
-
+import { Link } from 'react-router-dom';
 
 interface HeaderProps {
   Title: string;
@@ -112,7 +112,7 @@ const Header: React.FC<HeaderProps> = ({
    navigate('/profile');
   }
 
-  const handleMyPostsClick = () => {
+   const handleMyPostsClick = () => {
   const event = new CustomEvent("loadMyPosts");
   window.dispatchEvent(event);
   navigate("/postedProperties");
@@ -128,7 +128,9 @@ const Header: React.FC<HeaderProps> = ({
       <div className="container">
         <header className="header  row">
           <div className="logo navbar-brand col-md-3 col-3">
-            <img src={MainLogo} alt="logo image" />
+            <Link to="/dashboard">
+              <img src={MainLogo} alt="logo image" />
+            </Link>
           </div>
 
           <div className="admin-wrap  col-9 col-md-9">
@@ -217,7 +219,7 @@ const Header: React.FC<HeaderProps> = ({
                   }}
                 >
                   <div className="admin-btn-popover">
-                    <div  onClick={gotoProfile} className="row admin-btn-popup-top admin-popup-cmn-div">
+                    <div  onClick={() => { gotoProfile();handleCloseSecond();}} className="row admin-btn-popup-top admin-popup-cmn-div">
                       <img
                         src={`${
                           import.meta.env.BASE_URL
@@ -243,7 +245,8 @@ const Header: React.FC<HeaderProps> = ({
                         className="col-2"
                       />
                       <p className="col-8"
-                      onClick={handleMyPostsClick}
+                      onClick={() => { handleMyPostsClick();handleCloseSecond();}}
+                      
                       // onClick={() => navigate('/postedProperties')}
                       >Posted Properties</p>
                       <img

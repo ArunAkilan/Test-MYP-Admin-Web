@@ -940,7 +940,7 @@ function Table({
                           <td className="plot-type">{item?.plotType}</td>
                         )}
                         <td className="type ">
-                          <div className="rental">{item?.propertyType}</div>
+                          <div className={`${item?.propertyType} prop-type rental`}>{item?.propertyType}</div>
                         </td>
                         <td className="Links">
                           <div className="link-wrap">

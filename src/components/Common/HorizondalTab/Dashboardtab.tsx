@@ -96,7 +96,7 @@ type PropertyData = {
 
 interface DashboardtabProps {
   data: PropertyData; // ✅ Accepts array now
-  properties: "all" | "residentials" | "commercials" | "plots";
+  properties: "all" | "residentials" | "commercials" | "plots" | "postedProperties";
   onScrollChangeParent: (scrollTop: number) => void;
   onReset?: () => void;
   onSortChange: (option: string) => void;
@@ -105,7 +105,6 @@ interface DashboardtabProps {
   setCurrentActiveTab: (
     tab: "pending" | "approved" | "rejected" | "deleted"
   ) => void;
-  
 }
 type TabStatus = "pending" | "approved" | "rejected" | "deleted";
 type PropertyItem = {
@@ -187,9 +186,8 @@ export default function Dashboardtab({
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [selectedLabel, setSelectedLabel] = useState(selectedSort);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const [currentActiveTab, setCurrentActiveTab] = useState<
-   TabStatus
-  >("pending");
+  const [currentActiveTab, setCurrentActiveTab] =
+    useState<TabStatus>("pending");
   // const [sortOption, setSortOption] = useState("Newest Property");
 
   const sortOptions = ["Newest", "Oldest", "Highest Price", "Lowest Price"];
@@ -201,6 +199,34 @@ export default function Dashboardtab({
 
   //const currentStatus = statusByTab[value];
   const filterOptions = {
+    postedProperties: [
+      { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
+      {
+        heading: "Facing",
+        options: [
+          "East",
+          "West",
+          "North",
+          "South",
+          "South East",
+          "South West",
+          "North East",
+          "North West",
+        ],
+      },
+      {
+        heading: "Locality",
+        options: [
+          "Old Bus Stand",
+          "Thuraimangalam",
+          "NH-45 Bypass",
+          "Collector Office Road",
+          "Elambalur",
+          "Sungu Pettai",
+          "V.Kalathur",
+        ],
+      },
+    ],
     all: [
       { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
       {
@@ -759,7 +785,6 @@ export default function Dashboardtab({
           }}
         >
           <Tabs
-          
             value={activeTab}
             onChange={handleChange}
             aria-label="basic tabs example"
@@ -876,7 +901,7 @@ export default function Dashboardtab({
                     {!isExpanded && (
                       <h3 className="result">
                         <span className="resultCount">{getResultCount}</span>{" "}
-                        Filtered Results
+                        {getResultCount <= 1 ? "Property" : "Properties"}
                       </h3>
                     )}
                     {checkListCount !== 0 && (
@@ -949,9 +974,9 @@ export default function Dashboardtab({
                           }/majesticons_filter-line.svg`}
                           alt="filter img"
                         />
-                        Filter{" "}
+                        Filter{" "} &nbsp;
                         {checkListCount > 0 && (
-                          <span className="count-badge">{checkListCount}</span>
+                          <span className="count-badge">({checkListCount})</span>
                         )}
                       </Button>
                     </div>
@@ -998,8 +1023,24 @@ export default function Dashboardtab({
                     {!isExpanded && (
                       <h3 className="result">
                         <span className="resultCount">{getResultCount}</span>{" "}
-                        Filtered Results
+                        {getResultCount <= 1 ? "Property" : "Properties"}
                       </h3>
+                    )}
+                    {checkListCount !== 0 && (
+                      <button
+                        className="clear-btn"
+                        onClick={() => {
+                          filterResetFunction();
+                        }}
+                      >
+                        <img
+                          src={`${
+                            import.meta.env.BASE_URL
+                          }/dashboardtab/ic_round-clear-16.svg`}
+                          alt="close icon"
+                        />
+                        Clear Filter
+                      </button>
                     )}
                   </div>
 
@@ -1104,8 +1145,24 @@ export default function Dashboardtab({
                     {!isExpanded && (
                       <h3 className="result">
                         <span className="resultCount">{getResultCount}</span>{" "}
-                        Filtered Results
+                        {getResultCount <= 1 ? "Property" : "Properties"}
                       </h3>
+                    )}
+                    {checkListCount !== 0 && (
+                      <button
+                        className="clear-btn"
+                        onClick={() => {
+                          filterResetFunction();
+                        }}
+                      >
+                        <img
+                          src={`${
+                            import.meta.env.BASE_URL
+                          }/dashboardtab/ic_round-clear-16.svg`}
+                          alt="close icon"
+                        />
+                        Clear Filter
+                      </button>
                     )}
                   </div>
 
@@ -1210,8 +1267,24 @@ export default function Dashboardtab({
                     {!isExpanded && (
                       <h3 className="result">
                         <span className="resultCount">{getResultCount}</span>{" "}
-                        Filtered Results
+                        {getResultCount <= 1 ? "Property" : "Properties"}
                       </h3>
+                    )}
+                    {checkListCount !== 0 && (
+                      <button
+                        className="clear-btn"
+                        onClick={() => {
+                          filterResetFunction();
+                        }}
+                      >
+                        <img
+                          src={`${
+                            import.meta.env.BASE_URL
+                          }/dashboardtab/ic_round-clear-16.svg`}
+                          alt="close icon"
+                        />
+                        Clear Filter
+                      </button>
                     )}
                   </div>
 
@@ -1350,12 +1423,14 @@ export default function Dashboardtab({
           <Table
             //@ts-ignore
             data={tableValues}
-            properties={properties}
+            properties={properties === "postedProperties" ? "myposts" : properties}
             onScrollChange={handleChildScroll}
             handleOpenModal={handleOpenModal}
             tabType="pending"
             currentActiveTab={currentActiveTab}
-            onTabChange={(tab) => setCurrentActiveTab(tab.toLowerCase() as TabStatus)}
+            onTabChange={(tab) =>
+              setCurrentActiveTab(tab.toLowerCase() as TabStatus)
+            }
           />
         ) : (
           <PropertyCardList
@@ -1374,12 +1449,14 @@ export default function Dashboardtab({
           <Table
             //@ts-ignore
             data={tableValues}
-            properties={properties}
+            properties={properties === "postedProperties" ? "myposts" : properties}
             onScrollChange={handleChildScroll}
             handleOpenModal={handleOpenModal}
             tabType="approved"
             currentActiveTab={currentActiveTab}
-            onTabChange={(tab) => setCurrentActiveTab(tab.toLowerCase() as TabStatus)}
+            onTabChange={(tab) =>
+              setCurrentActiveTab(tab.toLowerCase() as TabStatus)
+            }
           />
         ) : (
           <PropertyCardList
@@ -1398,12 +1475,14 @@ export default function Dashboardtab({
           <Table
             //@ts-ignore
             data={tableValues}
-            properties={properties}
+            properties={properties === "postedProperties" ? "myposts" : properties}
             onScrollChange={handleChildScroll}
             handleOpenModal={handleOpenModal}
             tabType="rejected"
             currentActiveTab={currentActiveTab}
-            onTabChange={(tab) => setCurrentActiveTab(tab.toLowerCase() as TabStatus)}
+            onTabChange={(tab) =>
+              setCurrentActiveTab(tab.toLowerCase() as TabStatus)
+            }
           />
         ) : (
           <PropertyCardList
@@ -1422,12 +1501,14 @@ export default function Dashboardtab({
           <Table
             //@ts-ignore
             data={tableValues}
-            properties={properties}
+            properties={properties === "postedProperties" ? "myposts" : properties}
             onScrollChange={handleChildScroll}
             handleOpenModal={handleOpenModal}
             tabType="deleted"
             currentActiveTab={currentActiveTab}
-            onTabChange={(tab) => setCurrentActiveTab(tab.toLowerCase() as TabStatus)}
+            onTabChange={(tab) =>
+              setCurrentActiveTab(tab.toLowerCase() as TabStatus)
+            }
           />
         ) : (
           <PropertyCardList
@@ -1456,10 +1537,11 @@ export default function Dashboardtab({
               &nbsp; Filter By
             </p>
             <p className="filtercount">
+              
+              Filter{checkListCount > 1 ? "s" : ""} &nbsp;
               {checkListCount > 0 && (
-                <span className="count-badge">{checkListCount}</span>
+                 <span className="count-badge">({checkListCount})</span> 
               )}
-              Filter{checkListCount !== 1 ? "s" : ""}
             </p>
           </div>
           <div className="checklist-content row">

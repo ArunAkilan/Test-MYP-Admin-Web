@@ -177,13 +177,13 @@ const CommercialView = () => {
         <div className="d-flex title-address col-md-6  ">
           <div className="landmark-type">
             <h3 className="mb-0">{property?.property?.title}</h3>
-            <button className="btn detail-type">
+            <button className={`${property?.property?.propertyType} detail-type`}>
               {property?.property?.propertyType}
             </button>
-            <button className="btn detail-status-type">
+            <button className=" detail-status-type">
               {property?.property?.propertyType === "Rent" && "Rented Out"}
               {property?.property?.propertyType === "Lease" && "Leased Out"}
-              {property?.property?.propertyType === "Sold" && "Sold Out"}
+              {property?.property?.propertyType === "Sale" && "Sold Out"}
             </button>
           </div>
 
