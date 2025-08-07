@@ -177,10 +177,14 @@ console.log("Path Segments:", pathSegments);
         <div className="d-flex title-address col-md-6  ">
           <div className="landmark-type">
             <h3 className="mb-0">{property?.property?.title}</h3>
-            <button className="btn detail-type">
+            <button className={` ${property?.property?.propertyType} detail-type`}>
               {property?.property?.propertyType}
             </button>
-            <button className="btn detail-status-type">Rented out</button>
+            <button className=" detail-status-type">
+              {property?.property?.propertyType === "Rent" && "Rented Out"}
+              {property?.property?.propertyType === "Lease" && "Leased Out"}
+              {property?.property?.propertyType === "Sale" && "Sold Out"}
+            </button>
           </div>
  
           <p className="lead mb-3">
@@ -529,21 +533,21 @@ console.log("Path Segments:", pathSegments);
             <img src={solar_user} alt="solar_user" />
             <p>Name</p>
             <h6>
-              {property?.property?.owner?.firstName} &nbsp;
-              {property?.property?.owner?.lastName}
+              {property?.property?.propertyOwner?.firstName} &nbsp;
+              {property?.property?.propertyOwner?.lastName}
             </h6>
           </div>
           <div className="number-outer col-md-4">
             <div className="number inner-div  col-md-4">
               <img src={solar_phone} alt="solar_phone" />
               <p>Phone number</p>
-              <h6>{property?.property?.owner?.contact?.phone1}</h6>
+              <h6>{property?.property?.propertyOwner?.contact?.phone1}</h6>
             </div>
           </div>
           <div className="email inner-div col-md-4">
             <img src={proicons_mail} alt="proicons_mail" />
             <p>Email</p>
-            <h6>{property?.property?.owner?.contact?.email}</h6>
+            <h6>{property?.property?.propertyOwner?.contact?.email}</h6>
           </div>
         </div>
       </section>

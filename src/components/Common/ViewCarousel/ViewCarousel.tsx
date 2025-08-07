@@ -41,7 +41,7 @@ const ViewCarousel: React.FC<ViewCarouselProps> = ({ images, price, area }) => {
   if (!images || images.length === 0) return null;
 
   return (
-    <div className="flex relative row bg-white rounded-lg shadow-lg max-w-[1000px] mx-auto h-[400px]">
+    <div className="flex relative row bg-white rounded-lg max-w-[1000px] mx-auto h-[400px]">
       {/* Main Image (Left side) */}
       <div className="relative large-image-wrapper col-md-8 w-[500px] h-full">
         {/* Image count */}

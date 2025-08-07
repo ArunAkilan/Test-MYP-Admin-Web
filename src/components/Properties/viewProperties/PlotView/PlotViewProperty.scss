@@ -46,6 +46,10 @@
     margin: 0 16px;
 }
 .detail-status-type {
+    width: 145px;
+    display: block;
+    border: none;
+    border-radius: 6px;
     background: #00BFA6;
     font-size: 12px ;
     line-height: 18px;
@@ -267,27 +271,51 @@ span.inline-style {
     font-family: "Raleway";
     line-height: 24px;
     height: 48px;
+    
+}
+.view-property-icon .btn:hover {
     box-shadow: 0 0 2px 0 #B2B2B21A,
     1px 2px 4px 0 #B2B2B217,
     2px 3px 5px 0 #B2B2B214,
     3px 4px 7px 0 #8AB6E51F;
 }
 .edit-btn {
-    border: 1px solid #757575;
-    color: #2E2E2F;
+    background: #FFF !important;
+    border: 1px solid #757575 !important;
+    color: #2E2E2F !important;
 }
 .approve-btn {
     border: 1px solid #214999;
     color: #fff;
     background: #214999;
+    box-shadow: 0 0 2px 0 #B2B2B21A,
+    1px 2px 4px 0 #B2B2B217,
+    2px 3px 5px 0 #B2B2B214,
+    3px 4px 7px 0 #8AB6E51F;
 }
 .deny-btn {
     border: 1px solid #214999;
     color: #214999;
     background: #EBEEF5;
 }
+.deny-btn :hover {
+  color: #214999 !important;
+}
 .delete-btn {
-    border: 1px solid #FE3D3C;
-    color: #FE3D3C;
+    border: 1px solid #FE3D3C !important;
+    color: #FE3D3C !important;
     background: #F5E7E4;
+}
+.approve-btn:hover {
+    background: #EBEEF5;
+}
+.Lease.detail-type {
+    background: #fff;
+    color: #E5A82E;
+    border: 1px solid #E5A82E;
+}
+.Sale.detail-type {
+    background: #fff;
+    color: #5852CC;
+    border: 1px solid #5852CC;
 }

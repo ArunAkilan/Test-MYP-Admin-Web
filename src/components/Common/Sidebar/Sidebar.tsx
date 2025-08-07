@@ -50,7 +50,6 @@ export default function Sidebar() {
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     // Prevent navigation if already on the selected tab
-    console.log(_event,"event");
     if (newValue !== value) {
       setValue(newValue);
       navigate(tabRoutes[newValue]);

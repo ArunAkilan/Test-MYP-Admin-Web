@@ -20,7 +20,7 @@
     padding: 12px 0 ;
 }
 #pending-approval-tabs-wrap button:not(:last-child),.new-listing-wrap button {
-    margin-right: 24px;
+    margin-right: 16px;
 }
 #pending-approval-tab  button:hover {
   background: #F2F6F7;
@@ -181,11 +181,11 @@
   border-radius: 8px;
 }
 #pending-approval-tab .list-card-toggle button {
-  margin-right: 8px !important;
+  margin-right: 0 !important;
   border-radius: 4px;
   border: none;
   min-height: max-content !important;
-  padding: 8px 5px !important;
+  padding: 8px 12px !important;
 }
 .list-card-toggle button.Mui-selected {
   background: #214999 !important;

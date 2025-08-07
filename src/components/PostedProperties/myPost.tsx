@@ -1,11 +1,12 @@
 import  { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
-import "./Dashboard.scss";
+import "./myPost.scss";
 import GenericButton from "../Common/Button/button";
 import iconAdd from "../../../public/ICO_Add-1.svg";
 import Dashboardtab from "../Common/HorizondalTab/Dashboardtab";
 import type { ResidentialProperty } from "../AdminResidencial/AdminResidencial.model";
+
 import {
   Box,
   Modal,
@@ -20,7 +21,18 @@ import {
   Skeleton,
 } from "@mui/material";
 
-type PropertyType = "all" | "residentials" | "commercials" | "plots";
+// Add this helper function at the top of your file
+const parseJwt = (token: string) => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(atob(base64));
+  } catch (e) {
+    console.error("Failed to parse JWT:", e);
+    return null;
+  }
+};
+
 interface PropertyData {
   residential: ResidentialProperty[];
   commercial: ResidentialProperty[];
@@ -28,7 +40,7 @@ interface PropertyData {
   
 }
 
-function Home({ properties }: { properties: PropertyType }) {
+function MyPost() {
   const [currentActiveTab, setCurrentActiveTab] = useState<
   "pending" | "approved" | "rejected" | "deleted"
 >("pending");
@@ -52,60 +64,132 @@ function Home({ properties }: { properties: PropertyType }) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const sideNavTabvalue: PropertyType = useMemo(() => {
-    const pathname = location.pathname.toLowerCase();
-    if (pathname.includes("residential")) return "residentials";
-    if (pathname.includes("commercial")) return "commercials";
-    if (pathname.includes("plot")) return "plots";
-    if (pathname.includes("dashboard")) return "all";
-    return "all";
-  }, [location.pathname]);
+// const sideNavTabvalue = useMemo(() => {
+//   const pathname = location.pathname.toLowerCase();
+//   return pathname.includes("postedproperties") ? "postedProperties" : "postedProperties";
+// }, [location.pathname]);
 
+  // Get user ID from token
+  const getUserId = (): string => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      throw new Error("No token found");
+    }
 
-  useEffect(() => {
-    const fetchAllData = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_BackEndUrl}/api/${sideNavTabvalue}`
-        );
-        const data = response?.data?.data;
+    const payload = parseJwt(token);
+    if (!payload) {
+      navigate("/login");
+      throw new Error("Invalid token");
+    }
 
-        if (sideNavTabvalue === "all") {
-          setDashboardData({
-            residential: data?.residential || [],
-            commercial: data?.commercial || [],
-            plot: data?.plot || [],
-          });
-        } else {
-          const singularType = sideNavTabvalue.replace(/s$/, "");
-          setDashboardData((prev) => ({
-            ...prev,
-            [singularType]: data || [],
-          }));
+    const userId = payload.userId || payload.sub || payload.id || payload.user_id;
+    if (!userId) {
+      console.error("Token payload:", payload);
+      navigate("/login");
+      throw new Error("User ID not found in token");
+    }
+
+    return userId;
+  };
+
+  // 5. Add this fetch function
+   const fetchMyPosts = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const userId = getUserId();
+      const token = localStorage.getItem("token");
+
+      const response = await axios.get(
+        `${import.meta.env.VITE_BackEndUrl}/api/myposts/${userId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          timeout: 10000,
+          validateStatus: (status) => status < 500 // Don't throw for 404
         }
+      );
 
-        setLoading(false);
-      } catch (err) {
-        setError(axios.isAxiosError(err) ? err.message : "Unexpected error");
-        setLoading(false);
+      // Handle API response
+      if (response.status === 404) {
+        setDashboardData({ residential: [], commercial: [], plot: [] });
+        return;
       }
+
+      if (!response.data) {
+        throw new Error("Invalid response from server");
+      }
+
+      // Handle both array and object response formats
+      const responseData = response.data.data || response.data;
+      let normalizedData = {
+        residential: [] as ResidentialProperty[],
+        commercial: [] as ResidentialProperty[],
+        plot: [] as ResidentialProperty[]
+      };
+
+      if (Array.isArray(responseData)) {
+        // If API returns direct array
+        normalizedData.residential = responseData;
+      } else {
+        // If API returns object with categories
+        normalizedData = {
+          residential: responseData.residential || [],
+          commercial: responseData.commercial || [],
+          plot: responseData.plot || []
+        };
+      }
+
+      setDashboardData(normalizedData);
+
+    } catch (err) {
+      let errorMessage = "Failed to load properties";
+      if (axios.isAxiosError(err)) {
+        errorMessage = err.response?.data?.message || err.message;
+        if (err.response?.status === 401) {
+          localStorage.removeItem("token");
+          navigate("/login");
+        }
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+      setIsSkeletonLoading(false);
+    }
+  };
+  
+// Update your useEffect hook for data fetching
+  // 6. Update your useEffect
+  useEffect(() => {
+    fetchMyPosts();
+
+    const handleRefresh = () => {
+      setIsSkeletonLoading(true);
+      fetchMyPosts();
     };
 
-    fetchAllData();
-
-    const handleRefresh = () => fetchAllData();
     window.addEventListener("refreshTableData", handleRefresh);
     return () => window.removeEventListener("refreshTableData", handleRefresh);
-  }, [sideNavTabvalue]);
-
-
+  }, []);
+  
   useEffect(() => {
     const timeout = setTimeout(() => {
       setIsSkeletonLoading(false);
     }, 2000);
     return () => clearTimeout(timeout);
   }, []);
+
+  
+
+const displayContent = {
+    heading: "My Posted Properties",
+    para: "View and manage all properties you've posted"
+  };
+
+
 
   const handleOpen = () => {
     const path = location.pathname;
@@ -126,31 +210,22 @@ function Home({ properties }: { properties: PropertyType }) {
     setLastScrollY(currentScrollY);
   };
 
-  const tableData = useMemo(() => {
-    switch (sideNavTabvalue) {
-      case "residentials":
-        return { residential: dashboardData.residential };
-      case "commercials":
-        return { commercial: dashboardData.commercial };
-      case "plots":
-        return { plot: dashboardData.plot };
-      case "all":
-      default:
-        return {
-          all: [
-            ...dashboardData.residential.map((item) => ({
-              ...item,
-              type: "Residential",
-            })),
-            ...dashboardData.commercial.map((item) => ({
-              ...item,
-              type: "Commercial",
-            })),
-            ...dashboardData.plot.map((item) => ({ ...item, type: "Plot" })),
-          ],
-        };
-    }
-  }, [dashboardData, sideNavTabvalue]);
+const tableData = useMemo(() => ({
+    all: [
+      ...dashboardData.residential.map((item: ResidentialProperty) => ({ 
+        ...item, 
+        type: "Residential" as const 
+      })),
+      ...dashboardData.commercial.map((item: ResidentialProperty) => ({ 
+        ...item, 
+        type: "Commercial" as const 
+      })),
+      ...dashboardData.plot.map((item: ResidentialProperty) => ({ 
+        ...item, 
+        type: "Plot" as const 
+      }))
+    ]
+  }), [dashboardData]);
 
 const triggerReset = () => {
   setIsSkeletonLoading(true);
@@ -159,12 +234,13 @@ const triggerReset = () => {
   }, 2000);
 };
 
+// 7. Render loading/error states
   if (loading) {
     return (
       <Box display="flex" alignItems="center" justifyContent="center" p={3}>
         <CircularProgress size={24} />
         <Typography variant="body1" ml={2}>
-          Loading data for <strong>{properties}</strong>...
+          Loading your properties...
         </Typography>
       </Box>
     );
@@ -179,23 +255,6 @@ const triggerReset = () => {
       </Box>
     );
   }
-
-  const headingMap = {
-    all: "Dashboard",
-    residentials: "Manage Residential Properties",
-    commercials: "Manage Commercial Properties",
-    plots: "Manage Plots Properties",
-  };
-
-  const paragMap = {
-    all: "Get a comprehensive view of all the properties",
-    residentials: "Review and track residential property entries easily",
-    commercials: "Review and track commercial property entries easily",
-    plots: "Review and track plots property entries easily",
-  };
-
-  const heading = headingMap[properties];
-  const para = paragMap[properties];
 
   return (
     <div className="home-sec">
@@ -228,8 +287,8 @@ const triggerReset = () => {
             <div className="container">
               <div className="house-topic">
                 <div className="house-topic-content">
-                  <h3 className="dashboard-title">{heading}</h3>
-                  <p className="dashboard-description">{para}</p>
+                  <h3 className="dashboard-title">{displayContent.heading}</h3>
+                  <p className="dashboard-description">{displayContent.para}</p>
                 </div>
                 <div>
                   <GenericButton
@@ -319,7 +378,7 @@ const triggerReset = () => {
                 onSortChange={setSortOption} 
                 selectedSort={sortOption}
                 data={tableData}
-                properties={sideNavTabvalue}
+                properties="all"
                 onScrollChangeParent={handleChildScroll}
                 onReset={triggerReset}
                 currentActiveTab={currentActiveTab}
@@ -333,4 +392,4 @@ const triggerReset = () => {
   );
 }
 
-export default Home;
+export default MyPost;
