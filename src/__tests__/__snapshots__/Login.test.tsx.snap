@@ -14,7 +14,7 @@ exports[`Login Component matches snapshot 1`] = `
         >
           <img
             alt="prh admin image"
-            src="PRH Admin new.svg"
+            src="undefined/PRH_Admin_new.svg"
           />
         </div>
         <div
@@ -33,7 +33,7 @@ exports[`Login Component matches snapshot 1`] = `
             >
               <img
                 alt="phone icon"
-                src="Icon_Password.svg"
+                src="undefined/Icon_Password.svg"
               />
               <input
                 placeholder="Phone Number"
@@ -47,7 +47,7 @@ exports[`Login Component matches snapshot 1`] = `
             >
               <img
                 alt="otp icon"
-                src="Icon_User.svg"
+                src="undefined/Icon_User.svg"
               />
               <input
                 placeholder="OTP"

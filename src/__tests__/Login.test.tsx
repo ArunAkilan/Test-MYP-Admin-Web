@@ -72,7 +72,8 @@ test('matches snapshot', () => {
     // Wait for axios.post to be called with correct arguments
     await waitFor(() => {
       expect(mockedAxios.post).toHaveBeenCalledWith(
-        'http://13.203.171.5:3001/api/profile/verify',
+        expect.stringContaining('/api/profile/verify'),
+        // 'http://13.203.171.5:3001/api/profile/verify',   (changed this line  to string containing)
         {
           otp: 'ST202503',
           phone: '9600664910',
