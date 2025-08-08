@@ -71,7 +71,7 @@ availability : {
     broadband: boolean;
     securities: boolean;
   }
-  owner: {
+  propertyOwner: {
     _id: string;
     firstName: string;
     lastName: string;

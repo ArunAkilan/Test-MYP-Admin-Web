@@ -35,6 +35,7 @@ import CreateProfile from "./components/Profiles/CreateProfile";
 import EditProfile from "./components/Profiles/EditProfile";
 import ViewProfile from "./components/Profiles/ViewProfile";
 import AdminAllProfile from "./components/Profiles/ProfileDashboard/ProfileDashboard";
+import MyPost from "./components/PostedProperties/myPost";
 
 function AppRoutes() {
   const location = useLocation();
@@ -48,6 +49,7 @@ function AppRoutes() {
   const [open, setOpen] = React.useState(true);
   const isMobile = useMediaQuery("(max-width:992px)");
 
+  
   // Define routes where sidebar should be hidden
   const hideSidebarRoutes = [
     "/residential/view",
@@ -187,6 +189,10 @@ function AppRoutes() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Navigate to="/login" />} />
+          <Route
+            path="/postedProperties"
+            element={<MyPost properties="postedProperties" />}
+          />
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Home properties="all" />} />
 
@@ -221,9 +227,7 @@ function AppRoutes() {
 }
 
 function App() {
-  return (
-  <LayoutWrapper />
-  );
+  return <LayoutWrapper />;
 }
 
 function LayoutWrapper() {
