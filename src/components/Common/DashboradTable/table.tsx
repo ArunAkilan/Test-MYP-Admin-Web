@@ -523,7 +523,7 @@ function Table({
                         Property Name
                         <img
                           src={`${
-                            import.meta.env.BASE_URL
+                            import.meta.env.VITE_BASE_URL
                           }src/assets/table/arrow-up.svg`}
                           alt="arrow"
                           className={
@@ -542,7 +542,7 @@ function Table({
                         Area
                         <img
                           src={`${
-                            import.meta.env.BASE_URL
+                            import.meta.env.VITE_BASE_URL
                           }src/assets/table/arrow-up.svg`}
                           alt="arrow"
                           className={
@@ -561,7 +561,7 @@ function Table({
                         Status
                         <img
                           src={`${
-                            import.meta.env.BASE_URL
+                            import.meta.env.VITE_BASE_URL
                           }src/assets/table/arrow-up.svg`}
                           alt="arrow"
                           className={
@@ -581,7 +581,7 @@ function Table({
                           Floors
                           <img
                             src={`${
-                              import.meta.env.BASE_URL
+                              import.meta.env.VITE_BASE_URL
                             }src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
@@ -602,7 +602,7 @@ function Table({
                           Floors
                           <img
                             src={`${
-                              import.meta.env.BASE_URL
+                              import.meta.env.VITE_BASE_URL
                             }src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
@@ -623,7 +623,7 @@ function Table({
                           Floors
                           <img
                             src={`${
-                              import.meta.env.BASE_URL
+                              import.meta.env.VITE_BASE_URL
                             }src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
@@ -644,7 +644,7 @@ function Table({
                           Facing
                           <img
                             src={`${
-                              import.meta.env.BASE_URL
+                              import.meta.env.VITE_BASE_URL
                             }src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
@@ -665,7 +665,7 @@ function Table({
                           Facing
                           <img
                             src={`${
-                              import.meta.env.BASE_URL
+                              import.meta.env.VITE_BASE_URL
                             }src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
@@ -686,7 +686,7 @@ function Table({
                           Facing
                           <img
                             src={`${
-                              import.meta.env.BASE_URL
+                              import.meta.env.VITE_BASE_URL
                             }src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
@@ -708,7 +708,7 @@ function Table({
                           Furnish
                           <img
                             src={`${
-                              import.meta.env.BASE_URL
+                              import.meta.env.VITE_BASE_URL
                             }src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
@@ -729,7 +729,7 @@ function Table({
                           Furnish
                           <img
                             src={`${
-                              import.meta.env.BASE_URL
+                              import.meta.env.VITE_BASE_URL
                             }src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
@@ -750,7 +750,7 @@ function Table({
                           Wahroom
                           <img
                             src={`${
-                              import.meta.env.BASE_URL
+                              import.meta.env.VITE_BASE_URL
                             }src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
@@ -771,7 +771,7 @@ function Table({
                           Washroom
                           <img
                             src={`${
-                              import.meta.env.BASE_URL
+                              import.meta.env.VITE_BASE_URL
                             }src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
@@ -792,7 +792,7 @@ function Table({
                           Plot Type
                           <img
                             src={`${
-                              import.meta.env.BASE_URL
+                              import.meta.env.VITE_BASE_URL
                             }src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
@@ -813,7 +813,7 @@ function Table({
                           Plot Type
                           <img
                             src={`${
-                              import.meta.env.BASE_URL
+                              import.meta.env.VITE_BASE_URL
                             }src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
@@ -833,7 +833,7 @@ function Table({
                         Type
                         <img
                           src={`${
-                            import.meta.env.BASE_URL
+                            import.meta.env.VITE_BASE_URL
                           }src/assets/table/arrow-up.svg`}
                           alt="arrow"
                           className={
@@ -847,7 +847,7 @@ function Table({
                     <th className="link-h">
                       Link &nbsp;{" "}
                       <img
-                        src={`${import.meta.env.BASE_URL}/table/arrow-up.svg`}
+                        src={`${import.meta.env.VITE_BASE_URL}/table/arrow-up.svg`}
                         alt="arrow"
                       />
                     </th>
@@ -897,7 +897,7 @@ function Table({
                           >
                             <img
                               src={`${
-                                import.meta.env.BASE_URL
+                                import.meta.env.VITE_BASE_URL
                               }/ICON_Location.svg`}
                               alt="location"
                             />
@@ -946,7 +946,7 @@ function Table({
                           <div className="link-wrap">
                             <img
                               src={`${
-                                import.meta.env.BASE_URL
+                                import.meta.env.VITE_BASE_URL
                               }/tabelimg/Eye view.svg`}
                               alt="view"
                               onClick={() => {
@@ -958,7 +958,7 @@ function Table({
                               style={{ cursor: "pointer" }}
                             />
                             <img
-                              src={`${import.meta.env.BASE_URL}/Edit.svg`}
+                              src={`${import.meta.env.VITE_BASE_URL}/Edit.svg`}
                               alt="edit"
                               onClick={() =>
                                 handleEdit(
@@ -969,7 +969,7 @@ function Table({
                             />
                             {currentActiveTab !== "approved" && (
                               <img
-                                src={`${import.meta.env.BASE_URL}/Approve.svg`}
+                                src={`${import.meta.env.VITE_BASE_URL}/Approve.svg`}
                                 alt="Approve"
                                 onClick={() =>
                                   handleOpenModal(
@@ -982,7 +982,7 @@ function Table({
                             )}
                             {currentActiveTab !== "rejected" && (
                               <img
-                                src={`${import.meta.env.BASE_URL}/Deny.svg`}
+                                src={`${import.meta.env.VITE_BASE_URL}/Deny.svg`}
                                 alt="Deny"
                                 onClick={() =>
                                   handleOpenModal(
@@ -995,7 +995,7 @@ function Table({
                             )}
                             {currentActiveTab !== "deleted" && (
                               <img
-                                src={`${import.meta.env.BASE_URL}/Delete.svg`}
+                                src={`${import.meta.env.VITE_BASE_URL}/Delete.svg`}
                                 alt="Delete"
                                 onClick={() =>
                                   handleOpenModal(

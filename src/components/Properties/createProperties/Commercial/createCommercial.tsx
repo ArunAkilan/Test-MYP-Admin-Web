@@ -1146,7 +1146,7 @@ export const CreateCommercialProperty = () => {
                             <span className="transportTitles">BUS STAND</span>
                             <div className="transportCard d-flex gap-2">
                               <img
-                                src={`${import.meta.env.BASE_URL}/createProperty/Icon_Bus.svg`}
+                                src={`${import.meta.env.VITE_BASE_URL}/createProperty/Icon_Bus.svg`}
                                 alt="Bus"
                                 className="transportImg"
                               />
@@ -1162,7 +1162,7 @@ export const CreateCommercialProperty = () => {
                             <span className="transportTitles">AIRPORT</span>
                             <div className="transportCard d-flex gap-2">
                               <img
-                                src={`${import.meta.env.BASE_URL}/createProperty/ph_airplane-in-flight.svg`}
+                                src={`${import.meta.env.VITE_BASE_URL}/createProperty/ph_airplane-in-flight.svg`}
                                 alt="Bus"
                                 className="transportImg"
                               />
@@ -1180,7 +1180,7 @@ export const CreateCommercialProperty = () => {
                             <span className="transportTitles">METRO</span>
                             <div className="transportCard d-flex gap-2">
                               <img
-                                src={`${import.meta.env.BASE_URL}/createProperty/hugeicons_metro.svg`}
+                                src={`${import.meta.env.VITE_BASE_URL}/createProperty/hugeicons_metro.svg`}
                                 alt="Bus"
                                 className="transportImg"
                               />
@@ -1195,7 +1195,7 @@ export const CreateCommercialProperty = () => {
                             <span className="transportTitles">RAILWAY</span>
                             <div className="transportCard d-flex gap-2">
                               <img
-                                src={`${import.meta.env.BASE_URL}/createProperty/material-symbols-light_train-outline.svg`}
+                                src={`${import.meta.env.VITE_BASE_URL}/createProperty/material-symbols-light_train-outline.svg`}
                                 alt="Bus"
                                 className="transportImg"
                               />
@@ -1242,7 +1242,7 @@ export const CreateCommercialProperty = () => {
                           {/* <img src={img.name} alt={img.name} /> */}
                         </div>
                         <button type="button" onClick={() => removeImage(index)} className="remove-btn">
-                          <img src={`${import.meta.env.BASE_URL}/createProperty/material-symbols_close-rounded.svg`} alt="Remove" />
+                          <img src={`${import.meta.env.VITE_BASE_URL}/createProperty/material-symbols_close-rounded.svg`} alt="Remove" />
                         </button>
                       </div>
                     ))}
@@ -1630,7 +1630,7 @@ export const CreateCommercialProperty = () => {
                       icon={
                         <Avatar
                           alt="Lift Access"
-                          src={`${import.meta.env.BASE_URL}/createProperty/Icon_Lift.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL}/createProperty/Icon_Lift.svg`}
                           className="avatarImg"
                         />
                       }
@@ -1650,7 +1650,7 @@ export const CreateCommercialProperty = () => {
                       icon={
                         <Avatar
                           alt="Ramp Access"
-                          src={`${import.meta.env.BASE_URL}/createProperty/guidance_ramp-up.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL}/createProperty/guidance_ramp-up.svg`}
                           className="avatarImg"
                         />
                       }
@@ -1669,7 +1669,7 @@ export const CreateCommercialProperty = () => {
                       icon={
                         <Avatar
                           alt="Only via Stairs"
-                          src={`${import.meta.env.BASE_URL}/createProperty/tabler_stairs.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL}/createProperty/tabler_stairs.svg`}
                           className="avatarImg"
                         />
                       }

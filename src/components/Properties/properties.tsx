@@ -1176,7 +1176,7 @@ export const CreateProperty = () => {
                             <span className="transportTitles">BUS STAND</span>
                             <div className="transportCard d-flex gap-2">
                               <img
-                                src={`${import.meta.env.BASE_URL}/createProperty/Icon_Bus.svg`}
+                                src={`${import.meta.env.VITE_BASE_URL}/createProperty/Icon_Bus.svg`}
                                 alt="Bus"
                                 className="transportImg"
                               />
@@ -1192,7 +1192,7 @@ export const CreateProperty = () => {
                             <span className="transportTitles">AIRPORT</span>
                             <div className="transportCard d-flex gap-2">
                               <img
-                                src={`${import.meta.env.BASE_URL}/createProperty/ph_airplane-in-flight.svg`}
+                                src={`${import.meta.env.VITE_BASE_URL}/createProperty/ph_airplane-in-flight.svg`}
                                 alt="Bus"
                                 className="transportImg"
                               />
@@ -1210,7 +1210,7 @@ export const CreateProperty = () => {
                             <span className="transportTitles">METRO</span>
                             <div className="transportCard d-flex gap-2">
                               <img
-                                src={`${import.meta.env.BASE_URL}/createProperty/hugeicons_metro.svg`}
+                                src={`${import.meta.env.VITE_BASE_URL}/createProperty/hugeicons_metro.svg`}
                                 alt="Bus"
                                 className="transportImg"
                               />
@@ -1225,7 +1225,7 @@ export const CreateProperty = () => {
                             <span className="transportTitles">RAILWAY</span>
                             <div className="transportCard d-flex gap-2">
                               <img
-                                src={`${import.meta.env.BASE_URL}/createProperty/material-symbols-light_train-outline.svg`}
+                                src={`${import.meta.env.VITE_BASE_URL}/createProperty/material-symbols-light_train-outline.svg`}
                                 alt="Bus"
                                 className="transportImg"
                               />
@@ -1272,7 +1272,7 @@ export const CreateProperty = () => {
                           {/* <img src={img.name} alt={img.name} /> */}
                         </div>
                         <button type="button" onClick={() => removeImage(index)} className="remove-btn">
-                          <img src={`${import.meta.env.BASE_URL}/createProperty/material-symbols_close-rounded.svg`} alt="Remove" />
+                          <img src={`${import.meta.env.VITE_BASE_URL}/createProperty/material-symbols_close-rounded.svg`} alt="Remove" />
                         </button>
                       </div>
                     ))}
@@ -1712,7 +1712,7 @@ export const CreateProperty = () => {
                       icon={
                         <Avatar
                           alt="Separate Electricity Billing"
-                          src={`${import.meta.env.BASE_URL}/createProperty/mage_electricity.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL}/createProperty/mage_electricity.svg`}
                           className="avatarImg"
                         />
                       }
@@ -1732,7 +1732,7 @@ export const CreateProperty = () => {
                       icon={
                         <Avatar
                           alt="Public Park"
-                          src={`${import.meta.env.BASE_URL}/createProperty/material-symbols_park-outline-rounded.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL}/createProperty/material-symbols_park-outline-rounded.svg`}
                           className="avatarImg"
                         />
                       }
@@ -1752,7 +1752,7 @@ export const CreateProperty = () => {
                       icon={
                         <Avatar
                           alt="Gym"
-                          src={`${import.meta.env.BASE_URL}/createProperty/hugeicons_equipment-gym-03.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL}/createProperty/hugeicons_equipment-gym-03.svg`}
                           className="avatarImg"
                         />
                       }
@@ -1772,7 +1772,7 @@ export const CreateProperty = () => {
                       icon={
                         <Avatar
                           alt="Movie Theater"
-                          src={`${import.meta.env.BASE_URL}/createProperty/mingcute_movie-line.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL}/createProperty/mingcute_movie-line.svg`}
                           className="avatarImg"
                         />
                       }
@@ -1792,7 +1792,7 @@ export const CreateProperty = () => {
                       icon={
                         <Avatar
                           alt="Shopping Mall"
-                          src={`${import.meta.env.BASE_URL}/createProperty/material-symbols_local-mall-outline.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL}/createProperty/material-symbols_local-mall-outline.svg`}
                           className="avatarImg"
                         />
                       }
@@ -1828,7 +1828,7 @@ export const CreateProperty = () => {
                       icon={
                         <Avatar
                           alt="Lift Access"
-                          src={`${import.meta.env.BASE_URL}/createProperty/Icon_Lift.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL}/createProperty/Icon_Lift.svg`}
                           className="avatarImg"
                         />
                       }
@@ -1849,7 +1849,7 @@ export const CreateProperty = () => {
                       icon={
                         <Avatar
                           alt="Ramp Access"
-                          src={`${import.meta.env.BASE_URL}/createProperty/guidance_ramp-up.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL}/createProperty/guidance_ramp-up.svg`}
                           className="avatarImg"
                         />
                       }
@@ -1870,7 +1870,7 @@ export const CreateProperty = () => {
                       icon={
                         <Avatar
                           alt="Only via Stairs"
-                          src={`${import.meta.env.BASE_URL}/createProperty/tabler_stairs.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL}/createProperty/tabler_stairs.svg`}
                           className="avatarImg"
                         />
                       }
@@ -1906,7 +1906,7 @@ export const CreateProperty = () => {
                       icon={
                         <Avatar
                           alt="Broadband Connection"
-                          src={`${import.meta.env.BASE_URL}/createProperty/Group.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL}/createProperty/Group.svg`}
                           className="avatarImg"
                         />
                       }
@@ -1927,7 +1927,7 @@ export const CreateProperty = () => {
                       icon={
                         <Avatar
                           alt="Security"
-                          src={`${import.meta.env.BASE_URL}/createProperty/mingcute_user-security-line.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL}/createProperty/mingcute_user-security-line.svg`}
                           className="avatarImg"
                         />
                       }
@@ -1965,7 +1965,7 @@ export const CreateProperty = () => {
                         icon={
                           <Avatar
                             alt="Regular Maintenance Included"
-                            src={`${import.meta.env.BASE_URL}/createProperty/Icon_Cleaning.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL}/createProperty/Icon_Cleaning.svg`}
                             className="avatarImg"
                           />
                         }
@@ -1986,7 +1986,7 @@ export const CreateProperty = () => {
                         icon={
                           <Avatar
                             alt="Water Supply Available"
-                            src={`${import.meta.env.BASE_URL}/createProperty/material-symbols_water-full-outline.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL}/createProperty/material-symbols_water-full-outline.svg`}
                             className="avatarImg"
                           />
                         }
@@ -2007,7 +2007,7 @@ export const CreateProperty = () => {
                         icon={
                           <Avatar
                             alt="Good Road Access"
-                            src={`${import.meta.env.BASE_URL}/createProperty/Icon_Road.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL}/createProperty/Icon_Road.svg`}
                             className="avatarImg"
                           />
                         }
@@ -2030,7 +2030,7 @@ export const CreateProperty = () => {
                         icon={
                           <Avatar
                             alt="Sewage Connection Available"
-                            src={`${import.meta.env.BASE_URL}/createProperty/Icon_restroom.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL}/createProperty/Icon_restroom.svg`}
                             className="avatarImg"
                           />
                         }
@@ -2050,7 +2050,7 @@ export const CreateProperty = () => {
                         icon={
                           <Avatar
                             alt="Dedicated Parking Available"
-                            src={`${import.meta.env.BASE_URL}/createProperty/Icon_Parking.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL}/createProperty/Icon_Parking.svg`}
                             className="avatarImg"
                           />
                         }
@@ -2070,7 +2070,7 @@ export const CreateProperty = () => {
                         icon={
                           <Avatar
                             alt="Private Balcony Included"
-                            src={`${import.meta.env.BASE_URL}/createProperty/Icon_Balcony.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL}/createProperty/Icon_Balcony.svg`}
                             className="avatarImg"
                           />
                         }
@@ -2111,7 +2111,7 @@ export const CreateProperty = () => {
                       icon={
                         <Avatar
                           alt="Guests Not Allowed"
-                          src={`${import.meta.env.BASE_URL}/createProperty/solar_user-linear.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL}/createProperty/solar_user-linear.svg`}
                           className="avatarImg"
                           // sx={{ width: 18, height: 18 }}
                         />
@@ -2133,7 +2133,7 @@ export const CreateProperty = () => {
                       icon={
                         <Avatar
                           alt="No Pets Allowed"
-                          src={`${import.meta.env.BASE_URL}/createProperty/streamline_pets-allowed.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL}/createProperty/streamline_pets-allowed.svg`}
                           className="avatarImg"
                         />
                       }
@@ -2154,7 +2154,7 @@ export const CreateProperty = () => {
                       icon={
                         <Avatar
                           alt="No Bachelors Allowed"
-                          src={`${import.meta.env.BASE_URL}/createProperty/Icon_Lift (1).svg`}
+                          src={`${import.meta.env.VITE_BASE_URL}/createProperty/Icon_Lift (1).svg`}
                           className="avatarImg"
                         />
                       }

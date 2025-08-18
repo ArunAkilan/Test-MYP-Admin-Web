@@ -813,7 +813,7 @@ export default function Dashboardtab({
               icon={
                 <Avatar
                   alt="test avatar"
-                  src={`${import.meta.env.BASE_URL}/pending-action.svg`}
+                  src={`${import.meta.env.VITE_BASE_URL}/pending-action.svg`}
                 />
               }
               iconPosition="start"
@@ -837,7 +837,7 @@ export default function Dashboardtab({
               icon={
                 <Avatar
                   alt="test avatar"
-                  src={`${import.meta.env.BASE_URL}/pending-approval.svg`}
+                  src={`${import.meta.env.VITE_BASE_URL}/pending-approval.svg`}
                 />
               }
               iconPosition="start"
@@ -861,7 +861,7 @@ export default function Dashboardtab({
               icon={
                 <Avatar
                   alt="test avatar"
-                  src={`${import.meta.env.BASE_URL}/pending-reject.svg`}
+                  src={`${import.meta.env.VITE_BASE_URL}/pending-reject.svg`}
                 />
               }
               iconPosition="start"
@@ -885,7 +885,7 @@ export default function Dashboardtab({
               icon={
                 <Avatar
                   alt="test avatar"
-                  src={`${import.meta.env.BASE_URL}/pending-delete.svg`}
+                  src={`${import.meta.env.VITE_BASE_URL}/pending-delete.svg`}
                 />
               }
               iconPosition="start"
@@ -913,7 +913,7 @@ export default function Dashboardtab({
                       >
                         <img
                           src={`${
-                            import.meta.env.BASE_URL
+                            import.meta.env.VITE_BASE_URL
                           }/dashboardtab/ic_round-clear-16.svg`}
                           alt="close icon"
                         />
@@ -944,7 +944,7 @@ export default function Dashboardtab({
                         <ToggleButton value="List View">
                           <img
                             src={`${
-                              import.meta.env.BASE_URL
+                              import.meta.env.VITE_BASE_URL
                             }/dashboardtab/solar_list-linear.svg`}
                             alt="list-view"
                           />
@@ -953,7 +953,7 @@ export default function Dashboardtab({
                         <ToggleButton value="Card View">
                           <img
                             src={`${
-                              import.meta.env.BASE_URL
+                              import.meta.env.VITE_BASE_URL
                             }/dashboardtab/system-uicons_card-view.svg`}
                             alt="card-view"
                           />
@@ -970,7 +970,7 @@ export default function Dashboardtab({
                       >
                         <img
                           src={`${
-                            import.meta.env.BASE_URL
+                            import.meta.env.VITE_BASE_URL
                           }/majesticons_filter-line.svg`}
                           alt="filter img"
                         />
@@ -990,7 +990,7 @@ export default function Dashboardtab({
                         >
                           <img
                             src={`${
-                              import.meta.env.BASE_URL
+                              import.meta.env.VITE_BASE_URL
                             }/material-symbols_sort-rounded.svg`}
                             alt="sort icon"
                             style={{ marginRight: 8 }}
@@ -1035,7 +1035,7 @@ export default function Dashboardtab({
                       >
                         <img
                           src={`${
-                            import.meta.env.BASE_URL
+                            import.meta.env.VITE_BASE_URL
                           }/dashboardtab/ic_round-clear-16.svg`}
                           alt="close icon"
                         />
@@ -1051,7 +1051,7 @@ export default function Dashboardtab({
                     >
                       <input type="search" placeholder="Search Properties" />
                       <img
-                        src={`${import.meta.env.BASE_URL}/Search-1.svg`}
+                        src={`${import.meta.env.VITE_BASE_URL}/Search-1.svg`}
                         alt="search svg"
                       />
                     </div>
@@ -1066,7 +1066,7 @@ export default function Dashboardtab({
                         <ToggleButton value="List View">
                           <img
                             src={`${
-                              import.meta.env.BASE_URL
+                              import.meta.env.VITE_BASE_URL
                             }/dashboardtab/solar_list-linear.svg`}
                             alt="list-view"
                           />
@@ -1075,7 +1075,7 @@ export default function Dashboardtab({
                         <ToggleButton value="Card View">
                           <img
                             src={`${
-                              import.meta.env.BASE_URL
+                              import.meta.env.VITE_BASE_URL
                             }/dashboardtab/system-uicons_card-view.svg`}
                             alt="card-view"
                           />
@@ -1092,7 +1092,7 @@ export default function Dashboardtab({
                       >
                         <img
                           src={`${
-                            import.meta.env.BASE_URL
+                            import.meta.env.VITE_BASE_URL
                           }/majesticons_filter-line.svg`}
                           alt="filter img"
                         />
@@ -1112,7 +1112,7 @@ export default function Dashboardtab({
                         >
                           <img
                             src={`${
-                              import.meta.env.BASE_URL
+                              import.meta.env.VITE_BASE_URL
                             }/material-symbols_sort-rounded.svg`}
                             alt="sort icon"
                             style={{ marginRight: 8 }}
@@ -1157,7 +1157,7 @@ export default function Dashboardtab({
                       >
                         <img
                           src={`${
-                            import.meta.env.BASE_URL
+                            import.meta.env.VITE_BASE_URL
                           }/dashboardtab/ic_round-clear-16.svg`}
                           alt="close icon"
                         />
@@ -1173,7 +1173,7 @@ export default function Dashboardtab({
                     >
                       <input type="search" placeholder="Search Properties" />
                       <img
-                        src={`${import.meta.env.BASE_URL}/Search-1.svg`}
+                        src={`${import.meta.env.VITE_BASE_URL}/Search-1.svg`}
                         alt="search svg"
                       />
                     </div>
@@ -1188,7 +1188,7 @@ export default function Dashboardtab({
                         <ToggleButton value="List View">
                           <img
                             src={`${
-                              import.meta.env.BASE_URL
+                              import.meta.env.VITE_BASE_URL
                             }/dashboardtab/solar_list-linear.svg`}
                             alt="list-view"
                           />
@@ -1197,7 +1197,7 @@ export default function Dashboardtab({
                         <ToggleButton value="Card View">
                           <img
                             src={`${
-                              import.meta.env.BASE_URL
+                              import.meta.env.VITE_BASE_URL
                             }/dashboardtab/system-uicons_card-view.svg`}
                             alt="card-view"
                           />
@@ -1214,7 +1214,7 @@ export default function Dashboardtab({
                       >
                         <img
                           src={`${
-                            import.meta.env.BASE_URL
+                            import.meta.env.VITE_BASE_URL
                           }/majesticons_filter-line.svg`}
                           alt="filter img"
                         />
@@ -1234,7 +1234,7 @@ export default function Dashboardtab({
                         >
                           <img
                             src={`${
-                              import.meta.env.BASE_URL
+                              import.meta.env.VITE_BASE_URL
                             }/material-symbols_sort-rounded.svg`}
                             alt="sort icon"
                             style={{ marginRight: 8 }}
@@ -1279,7 +1279,7 @@ export default function Dashboardtab({
                       >
                         <img
                           src={`${
-                            import.meta.env.BASE_URL
+                            import.meta.env.VITE_BASE_URL
                           }/dashboardtab/ic_round-clear-16.svg`}
                           alt="close icon"
                         />
@@ -1307,7 +1307,7 @@ export default function Dashboardtab({
                         <ToggleButton value="List View">
                           <img
                             src={`${
-                              import.meta.env.BASE_URL
+                              import.meta.env.VITE_BASE_URL
                             }/dashboardtab/solar_list-linear.svg`}
                             alt="list-view"
                           />
@@ -1316,7 +1316,7 @@ export default function Dashboardtab({
                         <ToggleButton value="Card View">
                           <img
                             src={`${
-                              import.meta.env.BASE_URL
+                              import.meta.env.VITE_BASE_URL
                             }/dashboardtab/system-uicons_card-view.svg`}
                             alt="card-view"
                           />
@@ -1333,7 +1333,7 @@ export default function Dashboardtab({
                       >
                         <img
                           src={`${
-                            import.meta.env.BASE_URL
+                            import.meta.env.VITE_BASE_URL
                           }/majesticons_filter-line.svg`}
                           alt="filter img"
                         />
@@ -1353,7 +1353,7 @@ export default function Dashboardtab({
                         >
                           <img
                             src={`${
-                              import.meta.env.BASE_URL
+                              import.meta.env.VITE_BASE_URL
                             }/material-symbols_sort-rounded.svg`}
                             alt="sort icon"
                             style={{ marginRight: 8 }}
@@ -1528,7 +1528,7 @@ export default function Dashboardtab({
             <p>
               <img
                 src={`${
-                  import.meta.env.BASE_URL
+                  import.meta.env.VITE_BASE_URL
                 }/dashboardtab/icon-park-outline_down.svg`}
                 alt="icon park"
                 style={{ cursor: "pointer" }}
@@ -1588,7 +1588,7 @@ export default function Dashboardtab({
             >
               <img
                 src={`${
-                  import.meta.env.BASE_URL
+                  import.meta.env.VITE_BASE_URL
                 }/dashboardtab/ic_round-clear-24.svg`}
                 alt="close icon"
               />
@@ -1934,7 +1934,7 @@ const PropertyCardList = ({
                     <div className="card-icon-view">
                       <img
                         src={`${
-                          import.meta.env.BASE_URL
+                          import.meta.env.VITE_BASE_URL
                         }/dashboardtab/view-card.png`}
                         alt="icon-edit"
                         onClick={() => item._id && handleView(item._id)}
@@ -1944,7 +1944,7 @@ const PropertyCardList = ({
                     <div className="card-icon-edit">
                       <img
                         src={`${
-                          import.meta.env.BASE_URL
+                          import.meta.env.VITE_BASE_URL
                         }/dashboardtab/Icon_Edit.svg`}
                         alt="icon-edit"
                         onClick={() => handleEdit(item)}
@@ -1954,7 +1954,7 @@ const PropertyCardList = ({
                       <div className="card-icon-approve">
                         <img
                           src={`${
-                            import.meta.env.BASE_URL
+                            import.meta.env.VITE_BASE_URL
                           }/dashboardtab/Icon_Tick.svg`}
                           alt="icon-approve"
                           style={{ cursor: "pointer" }}
@@ -1966,7 +1966,7 @@ const PropertyCardList = ({
                       <div className="card-icon-deny">
                         <img
                           src={`${
-                            import.meta.env.BASE_URL
+                            import.meta.env.VITE_BASE_URL
                           }/dashboardtab/Icon_Deny.svg`}
                           alt="icon-deny"
                           style={{ cursor: "pointer" }}
@@ -1978,7 +1978,7 @@ const PropertyCardList = ({
                       <div className="card-icon-delete">
                         <img
                           src={`${
-                            import.meta.env.BASE_URL
+                            import.meta.env.VITE_BASE_URL
                           }/dashboardtab/Icon-Delete-orange.svg`}
                           alt="icon-delete"
                           style={{ cursor: "pointer" }}
