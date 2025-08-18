@@ -11,7 +11,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Provider store={store}>
         <GoogleOAuthProvider clientId={import.meta.env.VITE_REACT_ST_OAUTH_DEMO_CLIENT_ID}>
-            <BrowserRouter basename="/admin">
+            <BrowserRouter basename="/">
               <App />
             </BrowserRouter>
         </GoogleOAuthProvider>
