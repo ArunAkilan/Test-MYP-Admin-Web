@@ -243,9 +243,9 @@ function LayoutWrapper() {
     <div className="grid-container">
       {!isLoginRoute && (
         <Header
-          MainLogo={`${import.meta.env.BASE_URL}/navbar/PRH_Admin-resize.svg`}
+          MainLogo={`${import.meta.env.VITE_BASE_URL}/navbar/PRH_Admin-resize.svg`}
           Title={parsedLoggedInUserName?.profileInformation?.firstName ?? ""}
-          ProfileLogo={`${import.meta.env.BASE_URL}/Ellipse1.svg`}
+          ProfileLogo={`${import.meta.env.VITE_BASE_URL}/Ellipse1.svg`}
           Profile={false}
         />
       )}

@@ -130,7 +130,7 @@ Props) {
         <span className="large-screen-header-wrap" onClick={onClose}>
           <img
             src={`${
-              import.meta.env.BASE_URL
+              import.meta.env.VITE_BASE_URL
             }/dashboardtab/weui_arrow-outlined.svg`}
             alt="arrow"
           />
@@ -144,7 +144,7 @@ Props) {
         >
           <img
             src={`${
-              import.meta.env.BASE_URL
+              import.meta.env.VITE_BASE_URL
             }/dashboardtab/solar_gallery-linear.svg`}
             alt="gallery"
           />

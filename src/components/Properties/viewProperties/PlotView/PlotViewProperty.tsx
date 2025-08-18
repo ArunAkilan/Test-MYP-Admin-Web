@@ -192,7 +192,7 @@ console.log("Path Segments:", pathSegments);
           </p>
           <div className="d-flex align-items-center">
             <img
-              src={`${import.meta.env.BASE_URL}/ICON_Location.svg`}
+              src={`${import.meta.env.VITE_BASE_URL}/ICON_Location.svg`}
               alt="Location Icon"
               className="me-2"
             />
