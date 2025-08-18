@@ -39,7 +39,7 @@ const Login = () => {
       <div className="login-wrapper">
         <div className="login container">
           <div className="image">
-            <img src={`${import.meta.env.BASE_URL}/PRH_Admin_new.svg`} alt="prh admin image" />
+            <img src={`${import.meta.env.VITE_BASE_URL}/PRH_Admin_new.svg`} alt="prh admin image" />
           </div>
           <div className="heading container">
             <p>Sign in to your account</p>
@@ -48,7 +48,7 @@ const Login = () => {
             <div className="textinput container">
 
               <div className="password input-cmn">
-                <img src={`${import.meta.env.BASE_URL}/Icon_Password.svg`} alt="phone icon" />
+                <img src={`${import.meta.env.VITE_BASE_URL}/Icon_Password.svg`} alt="phone icon" />
                 <input
                   type="tel"
                   value={phone}
@@ -59,7 +59,7 @@ const Login = () => {
               </div>
 
               <div className="email input-cmn">
-                <img src={`${import.meta.env.BASE_URL}/Icon_User.svg`} alt="otp icon" />
+                <img src={`${import.meta.env.VITE_BASE_URL}/Icon_User.svg`} alt="otp icon" />
                 <input
                   type="text"
                   value={otp}
