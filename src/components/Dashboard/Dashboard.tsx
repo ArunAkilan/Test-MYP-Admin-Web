@@ -73,9 +73,9 @@ function Home({ properties }: { properties: PropertyType }) {
 
         if (sideNavTabvalue === "all") {
           setDashboardData({
-            residential: data?.residential || [],
-            commercial: data?.commercial || [],
-            plot: data?.plot || [],
+            residential: data?.residential?.items || [],
+            commercial: data?.commercial?.items || [],
+            plot: data?.plot?.items|| [],
           });
         } else {
           const singularType = sideNavTabvalue.replace(/s$/, "");
@@ -138,7 +138,7 @@ function Home({ properties }: { properties: PropertyType }) {
       default:
         return {
           all: [
-            ...dashboardData.residential.map((item) => ({
+            ...dashboardData.residential?.map((item) => ({
               ...item,
               type: "Residential",
             })),
