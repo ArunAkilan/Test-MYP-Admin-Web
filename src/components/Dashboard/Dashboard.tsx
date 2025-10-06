@@ -231,7 +231,7 @@ const triggerReset = () => {
                   <h3 className="dashboard-title">{heading}</h3>
                   <p className="dashboard-description">{para}</p>
                 </div>
-                <div>
+                <div data-testid="mock-modal">
                   <GenericButton
                     variant="primary"
                     image={iconAdd}

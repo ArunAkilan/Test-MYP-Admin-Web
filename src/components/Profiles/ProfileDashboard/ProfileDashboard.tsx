@@ -9,14 +9,50 @@ import { Backdrop, CircularProgress } from "@mui/material";
 import { Snackbar, Alert } from "@mui/material";
 import { Skeleton } from "@mui/material";
 
+interface Profile {
+  _id: string;
+  role: string;
+  profileInformation: {
+    firstName: string;
+    lastName: string;
+  };
+  contactInformation: {
+    primaryPhone: string;
+  };
+}
+
 function AdminAllProfile() {
-  const [profiles, setProfiles] = useState<any>([]);
+  //for filtering profile based on roles starts here
+  const storedUser = localStorage.getItem("user");
+let currentUserRole = null;
+
+if (storedUser) {
+  try {
+    const parsedUser = JSON.parse(storedUser);
+    currentUserRole = parsedUser.role;
+  } catch (error) {
+    console.error("Invalid user in localStorage:", error);
+  }
+}
+
+if (currentUserRole?.toLowerCase() !== "superadmin") {
+  return (
+    <div style={{ padding: "20px", textAlign: "center", color: "red" }}>
+      <h2>Access Denied</h2>
+      <p>You do not have permission to view this page.</p>
+    </div>
+  );
+}
+//for filtering profile based on roles ends here
+
+  const [profiles, setProfiles] = useState<Profile[]>([]);
   const navigate = useNavigate();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [sloading, setsLoading] = useState(true);
+  const [selectedRole, setSelectedRole] = useState<string>("All");   //filter by role
 
   useEffect(() => {
     loadProfiles();
@@ -28,6 +64,17 @@ function AdminAllProfile() {
     setProfiles(data.data);
     setsLoading(false);
   };
+
+  const getRoleCounts = () => {
+  const counts: { [key: string]: number } = {};
+
+  profiles.forEach((p: Profile) => {
+    const role = p.role || "Unknown";
+    counts[role] = (counts[role] || 0) + 1;
+  });
+
+  return counts;
+};
 
   const openDeleteDialog = (id: string) => {
     setSelectedId(id);
@@ -50,6 +97,12 @@ function AdminAllProfile() {
       }
     }
   };
+
+  const filteredProfiles = selectedRole === "All"
+  ? profiles
+  : profiles.filter((p: Profile) => p.role === selectedRole);
+
+  const roleCounts = getRoleCounts();
 
   return (
     <div>
@@ -77,6 +130,18 @@ function AdminAllProfile() {
               <PersonIcon style={{ color: "#4CAF50", fontSize: "28px" }} />
               &nbsp; Profiles
             </h2>
+            {/* {filter by Roles} */}
+<select
+  value={selectedRole}
+  onChange={(e) => setSelectedRole(e.target.value)}
+>
+  <option value="All">All ({profiles.length}) </option>
+  <option value="Admin">Admin ({roleCounts["Admin"] || 0})</option>
+  <option value="Marketing">Marketing ({roleCounts["Marketing"] || 0})</option>
+  <option value="User">User  ({roleCounts["User"] || 0})</option>
+  <option value="SuperAdmin">SuperAdmin ({roleCounts["SuperAdmin"] || 0})</option>
+</select>
+
             <button
               onClick={() => navigate("/allprofile/create")}
               className="create-btn"
@@ -95,8 +160,8 @@ function AdminAllProfile() {
               </tr>
             </thead>
             <tbody>
-              {profiles &&
-                profiles.map((p: any) => (
+              {filteredProfiles &&
+                filteredProfiles.map((p: Profile) => (
                   <tr key={p._id}>
                     <td>
                       {p.profileInformation.firstName}{" "}
