@@ -359,6 +359,10 @@ export const CreateCommercialProperty = () => {
   // Update state when in edit mode
   useEffect(() => {
     if (isEditMode && editData) {
+      const expectedPath = `/admin/commercial/update/${editId}`;
+      if (window.location.pathname !== expectedPath) {
+        window.history.replaceState(null, "", expectedPath);
+      }
       setFirstName(editData.propertyOwner?.firstName || "");
       setLastName(editData.propertyOwner?.lastName || "");
       setEmail(editData.propertyOwner?.contact?.email || "");
@@ -514,7 +518,7 @@ export const CreateCommercialProperty = () => {
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length > 0) {
-      toast.error("Please fix the errors in the form.");
+      toast.error("Fill all required fields.");
       setLoading(false);
       return;
     }
@@ -699,7 +703,7 @@ export const CreateCommercialProperty = () => {
               <div className="muiBreadcrumbs">
                 {/* Breadcrumb */}
                 <div className="muiBreadcrumbs">
-                  <DynamicBreadcrumbs />
+                  <DynamicBreadcrumbs/>
                   {/* Rest of your page content */}
                 </div>
 
@@ -730,7 +734,7 @@ export const CreateCommercialProperty = () => {
                     />
 
                     <p className="topInfoAlertP">
-                      Required Fields – 5 fields must be filled before
+                    <span className="star">*</span> Required Fields – 5 fields must be filled before
                       submitting the form.
                     </p>
                   </Alert>
@@ -924,7 +928,7 @@ export const CreateCommercialProperty = () => {
                             />
                           </div>
                           <div className="col-6 mb-3">
-                            <label className="TextLabel" htmlFor="tenure">
+                            <label className="TextLabel text-break text-wrap" htmlFor="tenure">
                               Agreement Timings (Years)
                             </label>
                             <InputField
@@ -1142,7 +1146,7 @@ export const CreateCommercialProperty = () => {
                             <span className="transportTitles">BUS STAND</span>
                             <div className="transportCard d-flex gap-2">
                               <img
-                                src={`${import.meta.env.BASE_URL}/createProperty/Icon_Bus.svg`}
+                                src={`${import.meta.env.VITE_BASE_URL}/createProperty/Icon_Bus.svg`}
                                 alt="Bus"
                                 className="transportImg"
                               />
@@ -1158,7 +1162,7 @@ export const CreateCommercialProperty = () => {
                             <span className="transportTitles">AIRPORT</span>
                             <div className="transportCard d-flex gap-2">
                               <img
-                                src={`${import.meta.env.BASE_URL}/createProperty/ph_airplane-in-flight.svg`}
+                                src={`${import.meta.env.VITE_BASE_URL}/createProperty/ph_airplane-in-flight.svg`}
                                 alt="Bus"
                                 className="transportImg"
                               />
@@ -1176,7 +1180,7 @@ export const CreateCommercialProperty = () => {
                             <span className="transportTitles">METRO</span>
                             <div className="transportCard d-flex gap-2">
                               <img
-                                src={`${import.meta.env.BASE_URL}/createProperty/hugeicons_metro.svg`}
+                                src={`${import.meta.env.VITE_BASE_URL}/createProperty/hugeicons_metro.svg`}
                                 alt="Bus"
                                 className="transportImg"
                               />
@@ -1191,7 +1195,7 @@ export const CreateCommercialProperty = () => {
                             <span className="transportTitles">RAILWAY</span>
                             <div className="transportCard d-flex gap-2">
                               <img
-                                src={`${import.meta.env.BASE_URL}/createProperty/material-symbols-light_train-outline.svg`}
+                                src={`${import.meta.env.VITE_BASE_URL}/createProperty/material-symbols-light_train-outline.svg`}
                                 alt="Bus"
                                 className="transportImg"
                               />
@@ -1238,7 +1242,7 @@ export const CreateCommercialProperty = () => {
                           {/* <img src={img.name} alt={img.name} /> */}
                         </div>
                         <button type="button" onClick={() => removeImage(index)} className="remove-btn">
-                          <img src={`${import.meta.env.BASE_URL}/createProperty/material-symbols_close-rounded.svg`} alt="Remove" />
+                          <img src={`${import.meta.env.VITE_BASE_URL}/createProperty/material-symbols_close-rounded.svg`} alt="Remove" />
                         </button>
                       </div>
                     ))}
@@ -1467,7 +1471,7 @@ export const CreateCommercialProperty = () => {
                       }
                     />
                   </div>
-                  <div className="d-flex flex-d-row gap-3">
+                  <div className="d-flex flex-wrap flex-md-nowrap gap-3">
                     <div className="col-12 col-md-6 mb-3">
                       <label className="TextLabel" htmlFor="totalFloors">
                         Total Floors
@@ -1626,7 +1630,7 @@ export const CreateCommercialProperty = () => {
                       icon={
                         <Avatar
                           alt="Lift Access"
-                          src={`${import.meta.env.BASE_URL}/createProperty/Icon_Lift.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL}/createProperty/Icon_Lift.svg`}
                           className="avatarImg"
                         />
                       }
@@ -1646,7 +1650,7 @@ export const CreateCommercialProperty = () => {
                       icon={
                         <Avatar
                           alt="Ramp Access"
-                          src={`${import.meta.env.BASE_URL}/createProperty/guidance_ramp-up.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL}/createProperty/guidance_ramp-up.svg`}
                           className="avatarImg"
                         />
                       }
@@ -1665,7 +1669,7 @@ export const CreateCommercialProperty = () => {
                       icon={
                         <Avatar
                           alt="Only via Stairs"
-                          src={`${import.meta.env.BASE_URL}/createProperty/tabler_stairs.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL}/createProperty/tabler_stairs.svg`}
                           className="avatarImg"
                         />
                       }

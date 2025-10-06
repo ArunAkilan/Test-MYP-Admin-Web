@@ -98,7 +98,7 @@ export default function Notificationtab() {
             icon={
               <Avatar
                 alt="all-icon avatar"
-                src={`${import.meta.env.BASE_URL}/all-icon.svg`}
+                src={`${import.meta.env.VITE_BASE_URL}/all-icon.svg`}
               />
             }
             iconPosition="start"
@@ -109,7 +109,7 @@ export default function Notificationtab() {
             icon={
               <Avatar
                 alt="update-icon avatar"
-                src={`${import.meta.env.BASE_URL}/update-icon.svg`}
+                src={`${import.meta.env.VITE_BASE_URL}/update-icon.svg`}
               />
             }
             iconPosition="start"
@@ -120,7 +120,7 @@ export default function Notificationtab() {
             icon={
               <Avatar
                 alt="alert-icon avatar"
-                src={`${import.meta.env.BASE_URL}/alert-new-icon.svg`}
+                src={`${import.meta.env.VITE_BASE_URL}/alert-new-icon.svg`}
               />
             }
             iconPosition="start"

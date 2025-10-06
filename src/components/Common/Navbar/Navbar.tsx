@@ -7,6 +7,7 @@ import { io } from "socket.io-client";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import AutoCompleteWithSelect from "./autoComplete/autoCompleteApi";
+import { Link } from 'react-router-dom';
 
 interface HeaderProps {
   Title: string;
@@ -23,6 +24,7 @@ const Header: React.FC<HeaderProps> = ({
   MainLogo,
   // Profile,
 }) => {
+  const navigate = useNavigate();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [firstAnchorEl, setFirstAnchorEl] = useState<HTMLElement | null>(null);
   const [secondAnchorEl, setSecondAnchorEl] = useState<HTMLElement | null>(
@@ -41,8 +43,6 @@ const Header: React.FC<HeaderProps> = ({
     setSecondAnchorEl(event.currentTarget);
     setFirstAnchorEl(null); // Close first popover if open
   };
-
-  const navigate = useNavigate();
 
   const adminLogout = () => {
     localStorage.removeItem("token");
@@ -111,7 +111,14 @@ const Header: React.FC<HeaderProps> = ({
   const gotoProfile = () => {
    navigate('/profile');
   }
+
+   const handleMyPostsClick = () => {
+  const event = new CustomEvent("loadMyPosts");
+  window.dispatchEvent(event);
+  navigate("/postedProperties");
+};
   
+
   return (
     <div
       className={`navbar navbar-expand-lg navbar-light header-wrap ${
@@ -121,7 +128,9 @@ const Header: React.FC<HeaderProps> = ({
       <div className="container">
         <header className="header  row">
           <div className="logo navbar-brand col-md-3 col-3">
-            <img src={MainLogo} alt="logo image" />
+            <Link to="/dashboard">
+              <img src={MainLogo} alt="logo image" />
+            </Link>
           </div>
 
           <div className="admin-wrap  col-9 col-md-9">
@@ -148,14 +157,14 @@ const Header: React.FC<HeaderProps> = ({
               </div>
               <div className="col-4 bell">
                 <img
-                  src={`${import.meta.env.BASE_URL}/Vector.svg`}
+                  src={`${import.meta.env.VITE_BASE_URL}/Vector.svg`}
                   alt="setting svg"
                   className="setting-image"
                 />
                 <div className="bell-image">
                   <button aria-describedby={idFirst} onClick={handleFirstClick}>
                     <img
-                      src={`${import.meta.env.BASE_URL}/BTN_Notification.svg`}
+                      src={`${import.meta.env.VITE_BASE_URL}/BTN_Notification.svg`}
                       alt="Notification svg"
                     />
 
@@ -210,10 +219,10 @@ const Header: React.FC<HeaderProps> = ({
                   }}
                 >
                   <div className="admin-btn-popover">
-                    <div  onClick={gotoProfile} className="row admin-btn-popup-top admin-popup-cmn-div">
+                    <div  onClick={() => { gotoProfile();handleCloseSecond();}} className="row admin-btn-popup-top admin-popup-cmn-div">
                       <img
                         src={`${
-                          import.meta.env.BASE_URL
+                          import.meta.env.VITE_BASE_URL
                         }/navbar/iconamoon_profile-bold.svg`}
                         alt="profile"
                         className="col-2"
@@ -221,7 +230,7 @@ const Header: React.FC<HeaderProps> = ({
                       <p className="col-8">Profile</p>
                       <img
                         src={`${
-                          import.meta.env.BASE_URL
+                          import.meta.env.VITE_BASE_URL
                         }/navbar/icon-park-outline_down.svg`}
                         alt="side-arrow"
                         className="col-2"
@@ -230,15 +239,19 @@ const Header: React.FC<HeaderProps> = ({
                     <div className="row admin-btn-popup-middle admin-popup-cmn-div">
                       <img
                         src={`${
-                          import.meta.env.BASE_URL
+                          import.meta.env.VITE_BASE_URL
                         }/navbar/propertiesIcon.svg`}
                         alt="propertiesIcon"
                         className="col-2"
                       />
-                      <p className="col-8">Posted Properties</p>
+                      <p className="col-8"
+                      onClick={() => { handleMyPostsClick();handleCloseSecond();}}
+                      
+                      // onClick={() => navigate('/postedProperties')}
+                      >Posted Properties</p>
                       <img
                         src={`${
-                          import.meta.env.BASE_URL
+                          import.meta.env.VITE_BASE_URL
                         }/navbar/icon-park-outline_down.svg`}
                         alt="side-arrow"
                         className="col-2"
@@ -250,7 +263,7 @@ const Header: React.FC<HeaderProps> = ({
                     >
                       <img
                         src={`${
-                          import.meta.env.BASE_URL
+                          import.meta.env.VITE_BASE_URL
                         }/navbar/mynaui_logout.svg`}
                         alt="logout"
                         className="col-2"

@@ -75,7 +75,7 @@ export interface ResidentialProperty {
     guestAllowed: boolean;
     bachelorsAllowed: boolean;
       };
-  owner: {
+  propertyOwner: {
     contact: {
       getUpdates: boolean;
       phone1: string;
