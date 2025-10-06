@@ -1,9 +1,9 @@
 import axios from "axios";
 
-const BASE_URL = "http://13.203.171.5:3001/api/profile";
+const BASE_URL = "https://devprofile.myperambalurproperty.com/api/profile";
 
 export const getAllProfiles = async () => {
-  return await axios.get(`http://13.203.171.5:3001/api/profiles`);
+  return await axios.get(`https://devprofile.myperambalurproperty.com/api/profiles`);
 };
 
 export const createProfile = async (profileData: any) => {
