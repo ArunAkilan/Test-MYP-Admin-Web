@@ -125,7 +125,7 @@ function buildPayloadDynamic(
   setNested(payload, "rent.negotiable", !!formState.negotiable);
   const advance = parseFloat(formState.advanceAmount);
   setNested(payload, "rent.advanceAmount", isNaN(advance) ? 0 : advance);
-  setNested(payload, "rent.leaseTenure", formState.leaseTenure);
+  // setNested(payload, "rent.leaseTenure", formState.leaseTenure);
   setNested(payload, "location.landmark", "Near Green Park");
   if (formState.latitude)
     setNested(payload, "location.map.latitude", parseFloat(formState.latitude));
@@ -137,8 +137,8 @@ function buildPayloadDynamic(
     );
   setNested(payload, "location.address", formState.address);
   setNested(payload, "area.totalArea", `${formState.totalArea} sqft`);
-  setNested(payload, "area.length", "50 ft");
-  setNested(payload, "area.width", "30 ft");
+  // setNested(payload, "area.length", "50 ft");
+  // setNested(payload, "area.width", "30 ft");
 
   // const imageUrls = formState.images.map((f) => f.name).filter(Boolean);
 
