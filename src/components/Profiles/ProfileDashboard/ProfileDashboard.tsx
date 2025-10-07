@@ -129,7 +129,7 @@ if (currentUserRole?.toLowerCase() !== "superadmin") {
             <h2 className="page-title">
               <PersonIcon style={{ color: "#4CAF50", fontSize: "28px" }} />
               &nbsp; Profiles
-            </h2>
+            
             {/* {filter by Roles} */}
 <select
   value={selectedRole}
@@ -141,7 +141,7 @@ if (currentUserRole?.toLowerCase() !== "superadmin") {
   <option value="User">User  ({roleCounts["User"] || 0})</option>
   <option value="SuperAdmin">SuperAdmin ({roleCounts["SuperAdmin"] || 0})</option>
 </select>
-
+</h2>
             <button
               onClick={() => navigate("/allprofile/create")}
               className="create-btn"
