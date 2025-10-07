@@ -106,6 +106,13 @@ function CreateProfile() {
         </select>
         
         <input
+  type="password"
+  name="password"
+  placeholder="Password"
+  onChange={handleChange}
+/>
+
+        <input
           name="description"
           placeholder="Description"
           onChange={handleChange}
