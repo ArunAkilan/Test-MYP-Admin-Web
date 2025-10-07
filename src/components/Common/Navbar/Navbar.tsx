@@ -109,7 +109,7 @@ const Header: React.FC<HeaderProps> = ({
   //Socket IO
 
   const gotoProfile = () => {
-   navigate('/profile');
+   navigate('/allprofile');
   }
 
    const handleMyPostsClick = () => {
