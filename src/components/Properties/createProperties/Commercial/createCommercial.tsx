@@ -169,8 +169,8 @@ function buildPayloadDynamic(
 
   // area
   setNested(payload, "area.totalArea", `${formState.area.totalArea} sqft`);
-  setNested(payload, "area.builtUpArea", `${formState.area.builtUpArea} sqft`);
-  setNested(payload, "area.carpetArea", `${formState.area.carpetArea} sqft`);
+  // setNested(payload, "area.builtUpArea", `${formState.area.builtUpArea} sqft`);
+  // setNested(payload, "area.carpetArea", `${formState.area.carpetArea} sqft`);
 
   // floors
   setNested(payload, "totalFloors", Number(formState.totalFloors) || 0);

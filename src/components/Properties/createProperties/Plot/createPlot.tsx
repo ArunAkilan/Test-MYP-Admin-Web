@@ -18,7 +18,7 @@ import type {
   PlotFormState,
   UploadedImage,
 } from "./createPlot.modal";
-import type { Restrictions } from "../../../AdminResidencial/AdminResidencial.model";
+// import type { Restrictions } from "../../../AdminResidencial/AdminResidencial.model";
 import {
   GoogleMap,
   Marker,
@@ -90,13 +90,13 @@ function flattenObject(
 }
 
 // Map chips strings to Restrictions object
-const mapChipsToRestrictions = (chips: string[]): Restrictions => {
-  return {
-    guestAllowed: chips.includes("Guests Not Allowed"),
-    petsAllowed: chips.includes("No Pets Allowed"),
-    bachelorsAllowed: chips.includes("No Bachelors Allowed"),
-  };
-};
+// const mapChipsToRestrictions = (chips: string[]): Restrictions => {
+//   return {
+//     guestAllowed: chips.includes("Guests Not Allowed"),
+//     petsAllowed: chips.includes("No Pets Allowed"),
+//     bachelorsAllowed: chips.includes("No Bachelors Allowed"),
+//   };
+// };
 
 // Build payload dynamically based on form state
 function buildPayloadDynamic(formState: PlotFormState): PlotFormState {
@@ -179,9 +179,9 @@ function buildPayloadDynamic(formState: PlotFormState): PlotFormState {
   setNested(payload, "location.area.acre", formState.location.area?.acre || 0);
 
   // floors
-  setNested(payload, "totalFloors", Number(formState.totalFloors) || 0);
-  setNested(payload, "propertyFloor", Number(formState.propertyFloor) || 0);
-  setNested(payload, "acre", Number(formState.acre) || 0);
+  // setNested(payload, "totalFloors", Number(formState.totalFloors) || 0);
+  // setNested(payload, "propertyFloor", Number(formState.propertyFloor) || 0);
+  // setNested(payload, "acre", Number(formState.acre) || 0);
 
   
 
@@ -190,22 +190,22 @@ function buildPayloadDynamic(formState: PlotFormState): PlotFormState {
   // setNested(payload, "images", imageUrls);
 
   // accessibility – map selected chips → boolean object
-  const restrictions = mapChipsToRestrictions(formState.selectedChips);
-  setNested(payload, "restrictions", restrictions);
+  // const restrictions = mapChipsToRestrictions(formState.selectedChips);
+  // setNested(payload, "restrictions", restrictions);
   setNested(payload, "selectedChips", formState.selectedChips || []);
   // misc
   setNested(payload, "status", "Pending");
-  setNested(payload, "hasWell", formState.hasWell || false);
-  setNested(payload, "hasMotor", formState.hasMotor || false);
-  setNested(payload, "hasEBConnection", formState.hasEBConnection || false);
-  setNested(payload, "hasBorewell", formState.hasBorewell || false);
-  setNested(payload, "uploadedImages", formState.uploadedImages || []);
-  setNested(payload, "isActive", true);
-  setNested(payload, "isVerified", false);
-  setNested(payload, "isFeatured", false);
-  setNested(payload, "isDraft", false);
-  setNested(payload, "isPublished", false);
-  setNested(payload, "isArchived", false);
+  // setNested(payload, "hasWell", formState.hasWell || false);
+  // setNested(payload, "hasMotor", formState.hasMotor || false);
+  // setNested(payload, "hasEBConnection", formState.hasEBConnection || false);
+  // setNested(payload, "hasBorewell", formState.hasBorewell || false);
+  // setNested(payload, "uploadedImages", formState.uploadedImages || []);
+  // setNested(payload, "isActive", true);
+  // setNested(payload, "isVerified", false);
+  // setNested(payload, "isFeatured", false);
+  // setNested(payload, "isDraft", false);
+  // setNested(payload, "isPublished", false);
+  // setNested(payload, "isArchived", false);
   setNested(payload, "isDeleted", false);
   setNested(payload, "description", formState.description ?? "");
 
