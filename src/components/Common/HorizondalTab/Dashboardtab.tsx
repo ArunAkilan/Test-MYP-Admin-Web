@@ -465,8 +465,10 @@ export default function Dashboardtab({
       console.log("Final API URL:", fullUrl);
 
       const response = await axios.get(fullUrl);
-
       const dataObj = response.data.data;
+      console.log("dataObj:", dataObj);
+
+      
       let result: Property[] = [];
 
       if (properties === "residentials") result = dataObj ?? [];

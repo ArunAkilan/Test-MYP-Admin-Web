@@ -10,6 +10,10 @@ export const createProfile = async (profileData: any) => {
   return await axios.post(`${BASE_URL}/create`, profileData);
 };
 
+export const signupProfile = async (profileData: any) => {
+  return await axios.post(`${BASE_URL}/signup`, profileData);
+};
+
 export const getProfileById = async (id: any, token: any) => {
   return await axios.get(`${BASE_URL}/${id}`, {
     headers: {
