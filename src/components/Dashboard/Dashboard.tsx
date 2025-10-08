@@ -138,7 +138,7 @@ function Home({ properties }: { properties: PropertyType }) {
       default:
         return {
           all: [
-            ...dashboardData.residential?.map((item) => ({
+            ...dashboardData.residential.map((item) => ({
               ...item,
               type: "Residential",
             })),
