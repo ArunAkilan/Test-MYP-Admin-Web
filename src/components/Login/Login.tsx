@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import "./Login.css"
+import "./Login.css";
 
 const Login = () => {
-  const [otp, setOtp] = useState('');
+  const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
   const navigate = useNavigate();
 
@@ -12,19 +12,17 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post(`${import.meta.env.VITE_BackEndUrlProfile}/api/profile/verify`, {
-        otp,
-        phone
+      const response = await axios.post(`${import.meta.env.VITE_BackEndUrlProfile}/api/profile/login`, {
+        phone,
+        password, // changed from otp to password
       });
 
       console.log("Response from backend:", response.data);
       console.log("Response keys:", Object.keys(response.data));
 
       if (response.data.token && response.data.profile) {
-        // Store token and profile data
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.profile));
-        // Navigate to dashboard
         navigate('/dashboard');
       } else {
         alert('Invalid credentials');
@@ -59,12 +57,12 @@ const Login = () => {
               </div>
 
               <div className="email input-cmn">
-                <img src={`${import.meta.env.VITE_BASE_URL}/Icon_User.svg`} alt="otp icon" />
+                <img src={`${import.meta.env.VITE_BASE_URL}/Icon_User.svg`} alt="password icon" />
                 <input
-                  type="text"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  placeholder="OTP"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Password"
                   required
                 />
               </div>
