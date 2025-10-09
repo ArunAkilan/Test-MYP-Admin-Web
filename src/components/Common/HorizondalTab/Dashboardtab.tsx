@@ -238,20 +238,16 @@ export default function Dashboardtab({
  // UPDATED FILTER OPTIONS - All the filters you requested
 const filterOptions = {
   all: [
-    { heading: "Property Name", options: [] }, // Dynamic - will be populated from data
     { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
     { heading: "Type", options: ["Residential", "Commercial", "Plot"] },
-    { heading: "Status", options: ["Pending", "Approved", "Rejected", "Deleted"] },
     { heading: "Facing", options: ["North", "East", "West", "South", "North East", "North West", "South East", "South West"] },
     { heading: "Area", options: ["Under 500 sq.ft", "500-1000 sq.ft", "1000-2000 sq.ft", "2000-5000 sq.ft", "Above 5000 sq.ft"] },
     { heading: "Floors", options: ["Ground Floor", "1st Floor", "2nd Floor", "3rd Floor", "4th Floor", "5th Floor", "Above 5th Floor"] },
   ],
   
   residentials: [
-    { heading: "Property Name", options: [] }, // Dynamic
     { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
     { heading: "Residential Type", options: ["Apartment", "House", "Villa", "Shared room", "hostel/PG", "Duplex", "Rooms", "Independent home"] },
-    { heading: "Status", options: ["Pending", "Approved", "Rejected", "Deleted"] },
     { heading: "Rooms", options: ["1 BHK", "2 BHK", "3 BHK", "4 BHK", "5+ BHK"] },
     { heading: "Facing", options: ["North", "East", "West", "South", "North East", "North West", "South East", "South West"] },
     { heading: "Furnishing", options: ["Fully Furnished", "Semi Furnished", "Unfurnished"] },
@@ -263,34 +259,26 @@ const filterOptions = {
   ],
   
   commercials: [
-    { heading: "Property Name", options: [] }, // Dynamic
     { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
     { heading: "Commercial Type", options: ["Office Space", "Co-Working", "Shop", "Showroom", "Godown/Warehouse", "Industrial Building", "Industrial Shed", "Other Business"] },
-    { heading: "Status", options: ["Pending", "Approved", "Rejected", "Deleted"] },
     { heading: "Facing", options: ["North", "East", "West", "South", "North East", "North West", "South East", "South West"] },
     { heading: "Washroom", options: ["None", "Public", "Common", "Private"] },
     { heading: "Area", options: ["Under 500 sq.ft", "500-1000 sq.ft", "1000-2000 sq.ft", "2000-5000 sq.ft", "Above 5000 sq.ft"] },
     { heading: "Floors", options: ["Ground Floor", "1st Floor", "2nd Floor", "3rd Floor", "4th Floor", "5th Floor", "Above 5th Floor"] },
-    { heading: "RTO", options: ["Yes", "No"] },
     { heading: "Parking", options: ["With Parking", "None"] },
     { heading: "Accessibility", options: ["Lift Access", "Ramp Access", "Stair Access"] },
   ],
   
   plots: [
-    { heading: "Property Name", options: [] }, // Dynamic
     { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
     { heading: "Plot Type", options: ["Agriculture", "Business Use", "Commercial Use", "Industrial Use", "Personal Use", "Parking", "Shed/Storage", "Poultry or Livestock", "Events or Functions", "Investment Purpose", "Renewable Energy Projects", "Timber/Tree Plantation", "Nursery/Gardening Business", "Telecom Towers", "None"] },
-    { heading: "Status", options: ["Pending", "Approved", "Rejected", "Deleted"] },
     { heading: "Facing", options: ["North", "East", "West", "South", "North East", "North West", "South East", "South West"] },
     { heading: "Area", options: ["Under 500 sq.ft", "500-1000 sq.ft", "1000-2000 sq.ft", "2000-5000 sq.ft", "Above 5000 sq.ft"] },
-    { heading: "Accessibility", options: ["Lift Access", "Ramp Access", "Stair Access"] },
   ],
   
   postedProperties: [
-    { heading: "Property Name", options: [] }, // Dynamic
     { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
     { heading: "Type", options: ["Residential", "Commercial", "Plot"] },
-    { heading: "Status", options: ["Pending", "Approved", "Rejected", "Deleted"] },
     { heading: "Facing", options: ["North", "East", "West", "South", "North East", "North West", "South East", "South West"] },
     { heading: "Area", options: ["Under 500 sq.ft", "500-1000 sq.ft", "1000-2000 sq.ft", "2000-5000 sq.ft", "Above 5000 sq.ft"] },
     { heading: "Floors", options: ["Ground Floor", "1st Floor", "2nd Floor", "3rd Floor", "4th Floor", "5th Floor", "Above 5th Floor"] },
@@ -440,174 +428,168 @@ const filterOptions = {
       const status = statusByTab[tabIndex];
       const queryParts: string[] = [];
   
-      // COMPREHENSIVE PARAMETER MAPPING - All your requested filters
+      // EXACT MAPPING based on your backend API schema
       const headingToKey: Record<string, string> = {
-        // Core filters
-        "Property Name": "title",
-        "Property Type": "propertyType",
-        "Status": "status",
-        "Facing": "facingDirection",
-        "Area": "area",
-        "Floors": "floors",
+        // Common filters across all APIs
+        "Property Type": "propertyType", // Rent,Lease,Sale
+        "Facing": "facing", // North,East,West,South,North East,North West,South East,South West
         
-        // Type-specific filters
-        "Type": "type", // For distinguishing Residential/Commercial/Plot
-        "Residential Type": "residentialType",
-        "Commercial Type": "commercialType",
-        "Plot Type": "plotType",
+        // Commercial API filters (/api/commercials)
+        "Commercial Type": "commercialType", // Office Space,Co-Working,Shop,Showroom,etc.
+        "Washroom": "washroom", // None,Public,Common,Private
+        "RTO": "rto", // Yes/No -> true/false
+        "Parking": "parking", // With Parking/None -> true/false
         
-        // Residential-specific
-        "Rooms": "rooms",
-        "Furnishing": "furnishingType",
-        "Tenant Preference": "bachelorsAllowed",
+        // Residential API filters (/api/residentials) 
+        "Residential Type": "residentialType", // Apartment,House,Villa,etc.
+        "Rooms": "rooms", // 1 BHK,2 BHK,3 BHK,4 BHK,5+ BHK
+        "Furnishing": "furnishingType", // Fully Furnished,Semi Furnished,Unfurnished
+        "Tenant Preference": "bachelorsAllowed", // true/false (and familyOnly)
+        // Plot API filters (/api/plots)
+        "Plot Type": "plotType", // Agriculture,Business Use,Commercial Use,etc.
         
-        // Commercial-specific
-        "Washroom": "washroom",
-        "RTO": "rto",
+        // Common accessibility filters
+        "Accessibility": "accessibility", // lift,ramp,steps -> liftAccess,rampAccess,stairsAccess
         
-        // Common filters
-        "Parking": "parking",
-        "Accessibility": "accessibility",
-        "Locality": "locality",
+        // Special handling needed for these
+        "Area": "area", // No direct API support - frontend filter
+        "Floors": "floors", // No direct API support - frontend filter  
+        "Type": "type", // Residential/Commercial/Plot - frontend filter
       };
   
+      // API ENDPOINTS - Exact from your schema
+      const apiEndpointMap: Record<string, string> = {
+        "residentials": "residentials",
+        "commercials": "commercials", 
+        "plots": "plots",
+        "all": "all",
+        "postedProperties": "myposts" // For posted properties
+      };
+  
+      const endpoint = apiEndpointMap[properties] || "all";
       const filterSection = filterOptions[properties === "all" ? "all" : properties];
       
       filterSection?.forEach((section: FilterSection) => {
         const key = headingToKey[section.heading];
         const selectedOptions = section.options.filter((opt: string) => filters.includes(opt));
         
-        if (key && selectedOptions.length > 0) {
+        if (selectedOptions.length > 0) {
           
-          // SPECIAL HANDLING for your specific filters
+          // EXACT API PARAMETER MAPPING based on your backend schema
           
-          // Handle Property Name - text search
-          if (section.heading === "Property Name") {
-            queryParts.push(`title=${selectedOptions.join(",")}`);
+          // 1. Property Type - Direct mapping (ALL APIs support this)
+          if (section.heading === "Property Type") {
+            queryParts.push(`propertyType=${selectedOptions.join(",")}`);
           }
           
-          // Handle Area ranges
-          else if (section.heading === "Area") {
-            selectedOptions.forEach((opt: string) => {
-              switch (opt) {
-                case "Under 500 sq.ft":
-                  queryParts.push("maxArea=500");
-                  break;
-                case "500-1000 sq.ft":
-                  queryParts.push("minArea=500&maxArea=1000");
-                  break;
-                case "1000-2000 sq.ft":
-                  queryParts.push("minArea=1000&maxArea=2000");
-                  break;
-                case "2000-5000 sq.ft":
-                  queryParts.push("minArea=2000&maxArea=5000");
-                  break;
-                case "Above 5000 sq.ft":
-                  queryParts.push("minArea=5000");
-                  break;
-              }
-            });
-          }
-          
-          // Handle Floors
-          else if (section.heading === "Floors") {
-            selectedOptions.forEach((opt: string) => {
-              switch (opt) {
-                case "Ground Floor":
-                  queryParts.push("propertyFloor=0");
-                  break;
-                case "1st Floor":
-                  queryParts.push("propertyFloor=1");
-                  break;
-                case "2nd Floor":
-                  queryParts.push("propertyFloor=2");
-                  break;
-                case "3rd Floor":
-                  queryParts.push("propertyFloor=3");
-                  break;
-                case "4th Floor":
-                  queryParts.push("propertyFloor=4");
-                  break;
-                case "5th Floor":
-                  queryParts.push("propertyFloor=5");
-                  break;
-                case "Above 5th Floor":
-                  queryParts.push("minFloor=6");
-                  break;
-              }
-            });
-          }
-          
-          // Handle Status
-          else if (section.heading === "Status") {
-            queryParts.push(`status=${selectedOptions.join(",")}`);
-          }
-          
-          // Handle Facing Direction
+          // 2. Facing - Only for Commercial and Dashboard APIs
           else if (section.heading === "Facing") {
-            queryParts.push(`facingDirection=${selectedOptions.join(",")}`);
+            if (endpoint === "commercials" || endpoint === "all") {
+              queryParts.push(`facing=${selectedOptions.join(",")}`);
+            }
+            // For residential and plots, this will be handled by frontend filtering
           }
           
-          // Handle Furnishing (Residential)
+          // 3. Commercial Type - Only for Commercial API
+          else if (section.heading === "Commercial Type") {
+            if (endpoint === "commercials") {
+              queryParts.push(`commercialType=${selectedOptions.join(",")}`);
+            }
+          }
+          
+          // 4. Residential Type - Only for Residential API
+          else if (section.heading === "Residential Type") {
+            if (endpoint === "residentials") {
+              queryParts.push(`residentialType=${selectedOptions.join(",")}`);
+            }
+          }
+          
+          // 5. Plot Type - Only for Plot API
+          else if (section.heading === "Plot Type") {
+            if (endpoint === "plots") {
+              queryParts.push(`plotType=${selectedOptions.join(",")}`);
+            }
+          }
+          
+          // 6. Rooms - Only for Residential API
+          else if (section.heading === "Rooms") {
+            if (endpoint === "residentials") {
+              queryParts.push(`rooms=${selectedOptions.join(",")}`);
+            }
+          }
+          
+          // 7. Furnishing - Only for Residential API
           else if (section.heading === "Furnishing") {
-            queryParts.push(`furnishingType=${selectedOptions.join(",")}`);
+            if (endpoint === "residentials") {
+              queryParts.push(`furnishingType=${selectedOptions.join(",")}`);
+            }
           }
           
-          // Handle Washroom (Commercial)
+          // 8. Washroom - Only for Commercial API
           else if (section.heading === "Washroom") {
-            queryParts.push(`washroom=${selectedOptions.join(",")}`);
-          }
-          
-          // Handle Parking - convert to boolean
-          else if (section.heading === "Parking") {
-            const parkingValue = selectedOptions.includes("With Parking") ? "true" : "false";
-            queryParts.push(`parking=${parkingValue}`);
-          }
-          
-          // Handle Accessibility - convert to individual boolean parameters
-          else if (section.heading === "Accessibility") {
-            selectedOptions.forEach((opt: string) => {
-              if (opt === "Lift Access") queryParts.push("liftAccess=true");
-              if (opt === "Ramp Access") queryParts.push("rampAccess=true");
-              if (opt === "Stair Access") queryParts.push("stairsAccess=true");
-            });
-          }
-          
-          // Handle Tenant Preference
-          else if (section.heading === "Tenant Preference") {
-            if (selectedOptions.includes("Bachelor")) {
-              queryParts.push("bachelorsAllowed=true");
-            }
-            if (selectedOptions.includes("Family Only")) {
-              queryParts.push("bachelorsAllowed=false");
+            if (endpoint === "commercials") {
+              queryParts.push(`washroom=${selectedOptions.join(",")}`);
             }
           }
           
-          // Handle RTO
+          // 9. RTO - Only for Commercial API
           else if (section.heading === "RTO") {
-            const rtoValue = selectedOptions.includes("Yes") ? "true" : "false";
-            queryParts.push(`rto=${rtoValue}`);
+            if (endpoint === "commercials") {
+              if (selectedOptions.includes("Yes")) {
+                queryParts.push("rto=true");
+              } else if (selectedOptions.includes("No")) {
+                queryParts.push("rto=false");
+              }
+            }
           }
           
-          // Handle Type (for all properties - Residential/Commercial/Plot)
-          else if (section.heading === "Type") {
-            // This is for frontend filtering, not API filtering
-            // We'll handle this in the response parsing
+          // 10. Parking - Commercial and Residential APIs
+          else if (section.heading === "Parking") {
+            if (endpoint === "commercials" || endpoint === "residentials") {
+              if (selectedOptions.includes("With Parking")) {
+                queryParts.push("parking=true");
+              } else if (selectedOptions.includes("None")) {
+                queryParts.push("parking=false");
+              }
+            }
           }
           
-          // Handle all other filters normally
-          else {
-            queryParts.push(`${key}=${selectedOptions.join(",")}`);
+          // 11. Tenant Preference - Only for Residential API
+          else if (section.heading === "Tenant Preference") {
+            if (endpoint === "residentials") {
+              if (selectedOptions.includes("Bachelor")) {
+                queryParts.push("bachelorsAllowed=true");
+              }
+              if (selectedOptions.includes("Family Only")) {
+                queryParts.push("familyOnly=true");
+              }
+            }
           }
+          
+          // 12. Accessibility - Commercial and Residential APIs
+          else if (section.heading === "Accessibility") {
+            if (endpoint === "commercials") {
+              selectedOptions.forEach((opt: string) => {
+                if (opt === "Lift Access") queryParts.push("liftAccess=true");
+                if (opt === "Ramp Access") queryParts.push("rampAccess=true");
+                if (opt === "Stair Access") queryParts.push("stairsAccess=true");
+              });
+            } else if (endpoint === "residentials") {
+              selectedOptions.forEach((opt: string) => {
+                if (opt === "Lift Access") queryParts.push("lift=true");
+                if (opt === "Ramp Access") queryParts.push("ramp=true");
+                if (opt === "Stair Access") queryParts.push("steps=true");
+              });
+            }
+          }
+          
+          // Filters that need frontend handling (not supported by API)
+          // Area, Floors, Type will be handled after API response
         }
       });
   
-      // Add current tab status if not overridden by Status filter
-      const hasStatusFilter = filters.some(filter => 
-        filterSection?.find(section => section.heading === "Status")?.options.includes(filter)
-      );
-      
-      if (status && !hasStatusFilter) {
+      // Add status filter from tab
+      if (status) {
         const statusFormatted = status.charAt(0).toUpperCase() + status.slice(1);
         queryParts.push(`status=${statusFormatted}`);
       }
@@ -616,21 +598,13 @@ const filterOptions = {
       queryParts.push("page=1");
       queryParts.push("limit=100");
   
-      // API ENDPOINTS
-      const apiEndpointMap: Record<string, string> = {
-        "residentials": "residentials",
-        "commercials": "commercials", 
-        "plots": "plots",
-        "all": "all"
-      };
-  
-      const endpoint = apiEndpointMap[properties] || "all";
       const baseUrl = `${import.meta.env.VITE_BackEndUrl}/api/${endpoint}`;
       const queryString = queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
       const fullUrl = baseUrl + queryString;
       
-      console.log("Final API URL:", fullUrl);
       console.log("Applied Filters:", filters);
+      console.log("Final API URL:", fullUrl);
+      console.log("Query Parameters:", queryParts);
   
       const response = await axios.get(fullUrl, {
         headers: {
@@ -640,10 +614,11 @@ const filterOptions = {
   
       console.log("Raw API Response:", response.data);
   
-      // RESPONSE PARSING with frontend filtering
+      // RESPONSE PARSING based on your API response structure
       let result: Property[] = [];
       
       if (endpoint === "all") {
+        // For /api/all - based on your response structure
         const dataObj = response.data;
         
         if (dataObj?.success && dataObj?.data) {
@@ -652,38 +627,91 @@ const filterOptions = {
           const plotItems: Property[] = dataObj.data.plot?.items || [];
           
           result = [...residentialItems, ...commercialItems, ...plotItems];
+          console.log("Combined properties:", result.length);
         }
       } else {
+        // For individual endpoints - based on your API schema response
         const dataObj = response.data;
         
         if (dataObj?.success && dataObj?.data) {
           result = Array.isArray(dataObj.data) ? dataObj.data : [];
+          console.log(`${endpoint} properties:`, result.length);
         }
       }
   
-      // FRONTEND FILTERING for filters not handled by API
+      // FRONTEND FILTERING for filters not supported by API
+      
+      // Filter by Facing (for Residential and Plot since API doesn't support it)
+      const facingFilters = filters.filter(filter => 
+        ["North", "East", "West", "South", "North East", "North West", "South East", "South West"].includes(filter)
+      );
+      
+      if (facingFilters.length > 0 && (endpoint === "residentials" || endpoint === "plots")) {
+        result = result.filter((item: Property) => {
+          return facingFilters.includes(item.facingDirection);
+        });
+        console.log(`Frontend Facing filter applied for ${endpoint}:`, result.length);
+      }
+      
+      // Filter by Type (Residential/Commercial/Plot)
       const typeFilter = filters.find(filter => 
-        filterSection?.find(section => section.heading === "Type")?.options.includes(filter)
+        ["Residential", "Commercial", "Plot"].includes(filter)
       );
       
       if (typeFilter) {
         result = result.filter((item: Property) => {
-          if (typeFilter === "Residential") return "residentialType" in item;
-          if (typeFilter === "Commercial") return "commercialType" in item;
-          if (typeFilter === "Plot") return "plotType" in item;
+          if (typeFilter === "Residential") return "residentialType" in item && item.residentialType;
+          if (typeFilter === "Commercial") return "commercialType" in item && item.commercialType;
+          if (typeFilter === "Plot") return "plotType" in item && item.plotType;
           return true;
         });
       }
-  
-      // Additional frontend filtering for property name if needed
-      const nameFilter = filters.find(filter => 
-        filterSection?.find(section => section.heading === "Property Name")?.options.includes(filter)
+      
+      // Filter by Area (frontend filtering)
+      const areaFilters = filters.filter(filter => 
+        ["Under 500 sq.ft", "500-1000 sq.ft", "1000-2000 sq.ft", "2000-5000 sq.ft", "Above 5000 sq.ft"].includes(filter)
       );
       
-      if (nameFilter) {
-        result = result.filter((item: Property) => 
-          item.title?.toLowerCase().includes(nameFilter.toLowerCase())
-        );
+      if (areaFilters.length > 0) {
+        result = result.filter((item: Property) => {
+          const areaText = item.area?.totalArea || "0";
+          const areaNum = parseInt(areaText.replace(/[^0-9]/g, ""));
+          
+          return areaFilters.some(filter => {
+            switch (filter) {
+              case "Under 500 sq.ft": return areaNum < 500;
+              case "500-1000 sq.ft": return areaNum >= 500 && areaNum <= 1000;
+              case "1000-2000 sq.ft": return areaNum > 1000 && areaNum <= 2000;
+              case "2000-5000 sq.ft": return areaNum > 2000 && areaNum <= 5000;
+              case "Above 5000 sq.ft": return areaNum > 5000;
+              default: return true;
+            }
+          });
+        });
+      }
+      
+      // Filter by Floors (frontend filtering)
+      const floorFilters = filters.filter(filter => 
+        ["Ground Floor", "1st Floor", "2nd Floor", "3rd Floor", "4th Floor", "5th Floor", "Above 5th Floor"].includes(filter)
+      );
+      
+      if (floorFilters.length > 0) {
+        result = result.filter((item: Property) => {
+          const floor = item.propertyFloor || 0;
+          
+          return floorFilters.some(filter => {
+            switch (filter) {
+              case "Ground Floor": return floor === 0;
+              case "1st Floor": return floor === 1;
+              case "2nd Floor": return floor === 2;
+              case "3rd Floor": return floor === 3;
+              case "4th Floor": return floor === 4;
+              case "5th Floor": return floor === 5;
+              case "Above 5th Floor": return floor > 5;
+              default: return true;
+            }
+          });
+        });
       }
   
       console.log("Final filtered result:", result.length, "properties");
@@ -700,9 +728,7 @@ const filterOptions = {
     }
   };
   
-
-
-
+  
   const handleApply = () => {
     setIsFiltered(true); // Enable filtered mode
     fetchFilteredData(currentCheckList, value); // Uses correct API and query logic
