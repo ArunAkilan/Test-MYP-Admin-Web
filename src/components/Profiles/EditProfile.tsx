@@ -85,6 +85,7 @@ function EditProfile() {
             <option value="Admin">Admin</option>
             <option value="Marketing">Marketing</option>
             <option value="User">User</option>
+           <option value="SuperAdmin">Super Admin</option>
           </select>
           <input
             name="description"

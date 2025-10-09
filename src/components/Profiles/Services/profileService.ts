@@ -1,10 +1,20 @@
 import axios from "axios";
 
-const BASE_URL = "https://devprofile.myperambalurproperty.com/api/profile";
+const BASE_URL = `${import.meta.env.VITE_BackEndUrlProfile}/api/profile`;
 
 export const getAllProfiles = async () => {
-  return await axios.get(`https://devprofile.myperambalurproperty.com/api/profiles`);
+  const token = localStorage.getItem("token");
+
+  return await axios.get(`${import.meta.env.VITE_BackEndUrlProfile}/api/profiles`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 };
+
+// export const getAllProfiles = async () => {
+//   return await axios.get(`${BASE_URL}/api/profiles`);
+// };
 
 export const createProfile = async (profileData: any) => {
   return await axios.post(`${BASE_URL}/create`, profileData);
