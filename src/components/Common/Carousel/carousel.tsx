@@ -106,6 +106,7 @@ const Carousel: React.FC<CarouselProps> = ({ images}) => {
                 <img
                   src={img}
                   alt={`Slide ${index + 1}`}
+                  crossOrigin="anonymous"
                   style={{
                     width: "100%",
                     height: "100%",
