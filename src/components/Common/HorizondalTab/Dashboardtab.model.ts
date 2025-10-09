@@ -1,3 +1,5 @@
+// components/common/Horizondaltab/Dashbordtab.model.ts
+
 export const TabStatus = {
   Pending: 0,
   Rejected: 1,
@@ -46,3 +48,4 @@ export interface PropertyViewWithSource {
   owner?: string;
 
 }
+
