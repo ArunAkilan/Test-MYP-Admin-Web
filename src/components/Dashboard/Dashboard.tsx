@@ -14,8 +14,6 @@ import {
   FormControlLabel,
   FormControl,
   FormLabel,
-  CircularProgress,
-  Typography,
   Alert,
   Skeleton,
 } from "@mui/material";
@@ -39,14 +37,16 @@ function Home({ properties }: { properties: PropertyType }) {
   const [sortOption, setSortOption] = useState("Newest");
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+    //@ts-ignore
   const [hideHeader, setHideHeader] = useState(false);
+    //@ts-ignore
   const [lastScrollY, setLastScrollY] = useState(0);
   const [open, setOpen] = useState(false);
   const [selectedPropertyType, setSelectedPropertyType] = useState<string | null>(null);
   const [isSkeletonLoading, setIsSkeletonLoading] = useState(true);
   const [responseData, setResponseData] = useState<any>(null);
 
-
+  //@ts-ignore
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
@@ -179,11 +179,11 @@ const singularType = sideNavTabvalue.replace(/s$/, "") as keyof PropertyData;
 
   const handleClose = () => setOpen(false);
 
-  const handleChildScroll = (scrollTop: number) => {
-    const currentScrollY = scrollTop;
-    setHideHeader(currentScrollY > lastScrollY && currentScrollY >= 20);
-    setLastScrollY(currentScrollY);
-  };
+  // const handleChildScroll = (scrollTop: number) => {
+  //   const currentScrollY = scrollTop;
+  //   setHideHeader(currentScrollY > lastScrollY && currentScrollY >= 20);
+  //   setLastScrollY(currentScrollY);
+  // };
 
   const tableData = useMemo(() => {
     switch (sideNavTabvalue) {

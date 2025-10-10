@@ -97,10 +97,10 @@ type PropertyData = {
 interface DashboardtabProps {
   data: PropertyData;
   properties: "all" | "residentials" | "commercials" | "plots" | "postedProperties";
-  onScrollLoadMore: () => void;
-  loading: boolean;
-  hasMore: boolean;
-  totalCount: number;
+  onScrollLoadMore?: () => void;
+  loading?: boolean;
+  hasMore?: boolean;
+  totalCount?: number;
   onScrollChangeParent?: (scrollTop: number) => void;
   onReset?: () => void;
   onSortChange: (option: string) => void;
@@ -478,7 +478,7 @@ export default function Dashboardtab({
       const filterSection = filterOptions[properties === "all" ? "all" : properties];
 
       filterSection?.forEach((section: FilterSection) => {
-
+  //@ts-ignore
         const key = headingToKey[section.heading];
         const selectedOptions = section.options.filter((opt: string) => filters.includes(opt));
 
@@ -1679,9 +1679,9 @@ export default function Dashboardtab({
               description: item.description || ""
             }))}
             properties={properties === "postedProperties" ? "myposts" : properties}
-            onScrollLoadMore={onScrollLoadMore}
-            loading={loading}
-            hasMore={hasMore}
+            onScrollLoadMore={onScrollLoadMore ?? (() => {})} 
+            loading={loading ?? false} 
+            hasMore={hasMore ?? false} 
             //@ts-ignore
             handleOpenModal={handleOpenModal as (action: "Approve" | "Deny" | "Delete", item: Property) => void}
             tabType="pending"
@@ -1698,9 +1698,9 @@ export default function Dashboardtab({
             onScrollChange={handleChildScroll}
             handleOpenModal={handleOpenModal}
             currentActiveTab={currentActiveTab}
-            onScrollLoadMore={onScrollLoadMore}
-            loading={loading}
-            hasMore={hasMore}
+            onScrollLoadMore={onScrollLoadMore ?? (() => {})} 
+            loading={loading ?? false} 
+            hasMore={hasMore ?? false} 
           />
         )}
       </CustomTabPanel>
@@ -1715,9 +1715,9 @@ export default function Dashboardtab({
               description: item.description || "" 
             }))}
             properties={properties === "postedProperties" ? "myposts" : properties}
-            onScrollLoadMore={onScrollLoadMore}
-            loading={loading}
-            hasMore={hasMore}
+            onScrollLoadMore={onScrollLoadMore ?? (() => {})} 
+            loading={loading ?? false} 
+            hasMore={hasMore ?? false} 
             //@ts-ignore
             handleOpenModal={handleOpenModal as (action: "Approve" | "Deny" | "Delete", item: Property) => void}
             tabType="approved"
@@ -1734,9 +1734,9 @@ export default function Dashboardtab({
             formatData={formatData}
             handleOpenModal={handleOpenModal}
             currentActiveTab={currentActiveTab}
-            onScrollLoadMore={onScrollLoadMore}
-            loading={loading}
-            hasMore={hasMore}
+            onScrollLoadMore={onScrollLoadMore ?? (() => {})} 
+            loading={loading ?? false} 
+            hasMore={hasMore ?? false} 
           />
         )}
       </CustomTabPanel>
@@ -1751,9 +1751,9 @@ export default function Dashboardtab({
               description: item.description || "" 
             }))}
             properties={properties === "postedProperties" ? "myposts" : properties}
-            onScrollLoadMore={onScrollLoadMore}
-            loading={loading}
-            hasMore={hasMore}
+            onScrollLoadMore={onScrollLoadMore ?? (() => {})} 
+            loading={loading ?? false} 
+            hasMore={hasMore ?? false} 
             //@ts-ignore
             handleOpenModal={handleOpenModal as (action: "Approve" | "Deny" | "Delete", item: Property) => void}
             tabType="rejected"
@@ -1770,9 +1770,9 @@ export default function Dashboardtab({
             formatData={formatData}
             handleOpenModal={handleOpenModal}
             currentActiveTab={currentActiveTab}
-            onScrollLoadMore={onScrollLoadMore}
-            loading={loading}
-            hasMore={hasMore}
+            onScrollLoadMore={onScrollLoadMore ?? (() => {})} 
+            loading={loading ?? false} 
+            hasMore={hasMore ?? false} 
           />
         )}
       </CustomTabPanel>
@@ -1787,9 +1787,9 @@ export default function Dashboardtab({
               description: item.description || "" 
             }))}
             properties={properties === "postedProperties" ? "myposts" : properties}
-            onScrollLoadMore={onScrollLoadMore}
-            loading={loading}
-            hasMore={hasMore}
+            onScrollLoadMore={onScrollLoadMore ?? (() => {})} 
+            loading={loading ?? false} 
+            hasMore={hasMore ?? false} 
             //@ts-ignore
             handleOpenModal={handleOpenModal as (action: "Approve" | "Deny" | "Delete", item: Property) => void}
             tabType="deleted"
@@ -1806,9 +1806,9 @@ export default function Dashboardtab({
             formatData={formatData}
             handleOpenModal={handleOpenModal}
             currentActiveTab={currentActiveTab}
-            onScrollLoadMore={onScrollLoadMore}
-            loading={loading}
-            hasMore={hasMore}
+            onScrollLoadMore={onScrollLoadMore ?? (() => {})} 
+            loading={loading ?? false} 
+            hasMore={hasMore ?? false} 
           />
 
         )}

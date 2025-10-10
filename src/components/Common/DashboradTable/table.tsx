@@ -131,6 +131,7 @@ function Table({
   const location = useLocation();
   const propertyData = location.state?.data;
   console.log("propertyData", propertyData);
+  //@ts-ignore
   const lastScrollYRef = useRef(0);
   const [sortConfig, setSortConfig] = useState<{
     key: SortableColumn;
