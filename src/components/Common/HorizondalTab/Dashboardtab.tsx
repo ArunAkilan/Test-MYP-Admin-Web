@@ -2085,6 +2085,7 @@ const PropertyCardList = ({
   };
 
   const handleAction = async (id: string, status: number) => {
+    
     const singularProperty = getSingularPropertyType(); // fix here
     try {
       const response = await axios.put(
@@ -2133,8 +2134,8 @@ const PropertyCardList = ({
   }, [selectedRows]);
 
   return (
-    <Box sx={{ flexGrow: 1, p: 2 }}>
-      <Grid container spacing={2}>
+    <Box sx={{ flexGrow: 1, p: 2 }} className="container-fluid">
+      <Grid container spacing={2} className="row g-2">
         <Box
           ref={containerRef}
           sx={
@@ -2154,8 +2155,8 @@ const PropertyCardList = ({
           )}
           {(sortedData as ExtendedProperty[]).map((item: ExtendedProperty, index: number) => (
             <Grid item xs={12} sm={12} md={12} key={item._id || `property-${index}`}>
-              <div className="card-view-wrapper row">
-                <div className="card-view-img col-md-6">
+              <div className="card-view-wrapper row g-0 mb-3">
+                <div className="card-view-img col-md-6 col-12">
                   <Carousel
                     images={item?.images}
                     price="£15,000 pcm"
@@ -2180,9 +2181,9 @@ const PropertyCardList = ({
                   />
                 </div>
 
-                <div className="card-view-content col-md-6">
-                  <div className="card-view-address-bar">
-                    <div className="cardview-address-detail">
+                <div className="card-view-content col-12 col-md-6">
+                <div className="card-view-address-bar d-flex flex-column flex-sm-row justify-content-between align-items-start">
+                <div className="cardview-address-detailflex-fill mb-2 mb-sm-0">
                       <h6>{item.title || "No Landmark"}</h6>
                       <p>{item?.location?.address}</p>
                     </div>
@@ -2203,8 +2204,8 @@ const PropertyCardList = ({
                       {item.postOwner?.userName || "Unknown"} | {item.createdAt || "N/A"}
                     </span>
                   </div>
-                  <div className="card-view-icon-wrapper">
-                    <div className="card-icon-view">
+                  <div className="card-view-icon-wrapper d-flex justify-content-center justify-content-sm-start gap-3 flex-wrap">
+                  <div className="card-icon-view">
                       <img
                         src={`${import.meta.env.VITE_BASE_URL}/dashboardtab/view-card.png`}
                         alt="icon-edit"
@@ -2269,7 +2270,7 @@ const PropertyCardList = ({
           style: { pointerEvents: "auto", zIndex: 1400 }, // ensure above table
         }}
       >
-        <div className="checkbox-popover-content">
+        <div className="checkbox-popover-content ">
           <p className="property-select">
             {selectedRows.length} Property selected
           </p>
