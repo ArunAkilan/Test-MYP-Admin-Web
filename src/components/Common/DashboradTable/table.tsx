@@ -256,38 +256,6 @@ function Table({
     }
   };
 
-  //@ts-ignore
-  const formatedData = useMemo(() => {
-    if (Array.isArray(data)) {
-      return data.map((item) => ({
-        ...item,
-        type:
-          item?.type?.toLowerCase() ||
-          (properties === "residentials"
-            ? "residential"
-            : properties === "commercials"
-              ? "commercial"
-              : properties === "plots"
-                ? "plot"
-                : "residential"), // default fallback if everything is missing
-      }));
-    }
-
-    return [
-      ...(data?.residentials?.map((item) => ({
-        ...item,
-        type: "residential",
-      })) ?? []),
-      ...(data?.commercials?.map((item) => ({
-        ...item,
-        type: "commercial",
-      })) ?? []),
-      ...(data?.plots?.map((item) => ({
-        ...item,
-        type: "plot",
-      })) ?? []),
-    ];
-  }, [data, properties]);
 
   // Modal state
   const [open, setOpen] = React.useState(false);
@@ -506,8 +474,8 @@ function Table({
       window.removeEventListener("resize", checkScroll);
     };
   }, []);
-  
-  const formattedData = useMemo(() => {
+
+   const formattedData = useMemo(() => {
     if (!Array.isArray(data)) {
       const fallback = data?.residential || data?.commercial || data?.plot;
       return Array.isArray(fallback) ? fallback : [];
