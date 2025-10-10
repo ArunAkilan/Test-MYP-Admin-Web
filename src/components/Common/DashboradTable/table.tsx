@@ -23,6 +23,7 @@ import type {
   SortableColumn,
 } from "./table.model";
 import EmptyState from "../Emptystate/EmptyState";
+import { useCallback } from "react";
 
 // type EmptyStateProps = {
 //   tabType: 'pending' | 'approved' | 'rejected' | 'deleted';
@@ -50,6 +51,9 @@ interface TableProps {
   onAction?: () => void;
   currentActiveTab: string;
   onTabChange: (tab: "pending" | "approved" | "rejected" | "deleted") => void;
+  onScrollLoadMore: () => void; 
+  loading: boolean;
+  hasMore: boolean;
 }
 
 export interface Property {
@@ -76,16 +80,50 @@ const modalStyle = {
   p: 4,
 };
 
+function useDebounceCallback(callback: () => void, delay: number) {
+  const callbackRef = useRef(callback);
+const timeoutRef = useRef<number | undefined>(undefined);
+
+  useEffect(() => {
+    callbackRef.current = callback;
+  }, [callback]);
+
+  const debouncedFn = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    timeoutRef.current = window.setTimeout(() => {
+      callbackRef.current();
+    }, delay);
+  }, [delay]);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  return debouncedFn;
+}
+
+
 function Table({
   data,
   properties,
-  onScrollChange,
+  onScrollLoadMore,
+  loading,
+  hasMore,
+
   tabType,
-  currentActiveTab
+  currentActiveTab,
 }: TableProps) {
-  console.log("currentActiveTab", currentActiveTab);
+
+  const containerRef = useRef<HTMLDivElement>(null);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
-  const [isBackdropLoading, setIsBackdropLoading] = useState(false);
+    const [isBackdropLoading, setIsBackdropLoading] = useState(false);
   const [popoverAnchorEl, setPopoverAnchorEl] = useState<HTMLElement | null>(
     null
   );
@@ -93,28 +131,83 @@ function Table({
   const location = useLocation();
   const propertyData = location.state?.data;
   console.log("propertyData", propertyData);
-  const containerRef = React.useRef<HTMLDivElement | null>(null);
-  // const [hideHeader, setHideHeader] = React.useState(false);
-  // const [lastScrollY, setLastScrollY] = React.useState(0);
   const lastScrollYRef = useRef(0);
   const [sortConfig, setSortConfig] = useState<{
     key: SortableColumn;
     direction: SortDirection;
   } | null>(null);
 
+  //@ts-ignore
+  const formatedData = useMemo(() => {
+    if (Array.isArray(data)) {
+      return data.map((item) => ({
+        ...item,
+        type:
+          item?.type?.toLowerCase() ||
+          (properties === "residentials"
+            ? "residential"
+            : properties === "commercials"
+            ? "commercial"
+            : properties === "plots"
+            ? "plot"
+            : "residential"),
+      }));
+    }
+
+    return [
+      ...(data?.residentials?.map((item) => ({
+        ...item,
+        type: "residential",
+      })) ?? []),
+      ...(data?.commercials?.map((item) => ({
+        ...item,
+        type: "commercial",
+      })) ?? []),
+      ...(data?.plots?.map((item) => ({
+        ...item,
+        type: "plot",
+      })) ?? []),
+    ];
+  }, [data, properties]);
+
+  // Debounced scroll handler with comprehensive logging
+  const debouncedScroll = useDebounceCallback(() => {
+    const container = containerRef.current;
+    if (!container) {
+      return;
+    }
+
+    const scrollTop = container.scrollTop;
+    const clientHeight = container.clientHeight;
+    const scrollHeight = container.scrollHeight;
+    const threshold = 150;
+    const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
+
+    if (distanceFromBottom <= threshold && !loading && hasMore) {
+      onScrollLoadMore();
+    } else {
+      console.log("Not triggering:", {
+        tooFarFromBottom: distanceFromBottom > threshold,
+        isLoading: loading,
+        noMoreData: !hasMore
+      });
+    }
+  }, 200);
+
   useEffect(() => {
     const container = containerRef.current;
+    if (!container) {
+      return;
+    }
     const handleScroll = () => {
-      const currentScrollY = container?.scrollTop || 0;
-      onScrollChange(currentScrollY);
-
-      // Use ref instead of state
-      lastScrollYRef.current = currentScrollY;
+      debouncedScroll();
     };
 
-    container?.addEventListener("scroll", handleScroll);
-    return () => container?.removeEventListener("scroll", handleScroll);
-  }, [onScrollChange]);
+    container.addEventListener("scroll", handleScroll);
+    return () => {
+      container.removeEventListener("scroll", handleScroll);
+    };
+  }, [debouncedScroll, formatedData.length]);
 
   useEffect(() => {
     if (selectedRows.length === 0) {
@@ -162,39 +255,6 @@ function Table({
       console.error("Failed to update status");
     }
   };
-
-  //@ts-ignore
-  const formatedData = useMemo(() => {
-    if (Array.isArray(data)) {
-      return data.map((item) => ({
-        ...item,
-        type:
-          item?.type?.toLowerCase() ||
-          (properties === "residentials"
-            ? "residential"
-            : properties === "commercials"
-            ? "commercial"
-            : properties === "plots"
-            ? "plot"
-            : "residential"), // default fallback if everything is missing
-      }));
-    }
-
-    return [
-      ...(data?.residentials?.map((item) => ({
-        ...item,
-        type: "residential",
-      })) ?? []),
-      ...(data?.commercials?.map((item) => ({
-        ...item,
-        type: "commercial",
-      })) ?? []),
-      ...(data?.plots?.map((item) => ({
-        ...item,
-        type: "plot",
-      })) ?? []),
-    ];
-  }, [data, properties]);
 
   // Modal state
   const [open, setOpen] = React.useState(false);
@@ -413,7 +473,7 @@ function Table({
       window.removeEventListener("resize", checkScroll);
     };
   }, []);
-
+  
   const formattedData = useMemo(() => {
     if (!Array.isArray(data)) {
       const fallback = data?.residential || data?.commercial || data?.plot;
@@ -431,7 +491,7 @@ function Table({
           : "residential",
     }));
   }, [data, properties]);
-
+  
   const sortedData = useMemo(() => {
     if (!sortConfig) return formatedData;
 
@@ -463,12 +523,11 @@ function Table({
   if (formattedData.length === 0) {
     return <p>No data available</p>; // Now this is safe
   }
-  
+    
 
   return (
     <>
       <div
-        ref={containerRef}
         style={
           {
             // height: hideHeader ? "450px" : "315px",
@@ -489,10 +548,10 @@ function Table({
               ◀
             </button>
           )}
-          {Array.isArray(formatedData) && formatedData.length === 0 ? (
-            <EmptyState tabType={tabType} />
-          ) : (
-            <div ref={scrollRef} className="table-scroll">
+          <div ref={containerRef} style={{ maxHeight: "400px", overflowY: "auto" }}>
+            {Array.isArray(formatedData) && formatedData.length === 0 ? (
+              <EmptyState tabType={tabType} />
+            ) : (
               <table className="horizontal-table">
                 <thead>
                   <tr>
@@ -853,7 +912,7 @@ function Table({
                     </th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody  >
                   {sortedData.length === 0 && (
                     <div
                       style={{
@@ -1068,8 +1127,8 @@ function Table({
                   </div>
                 </Popover>
               </table>
-            </div>
-          )}
+            )}
+          </div>
           {canScrollRight && (
             <button
               className="scroll-button right"

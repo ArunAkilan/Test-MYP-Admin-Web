@@ -1,4 +1,4 @@
-import  { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./Dashboard.scss";
@@ -25,29 +25,30 @@ interface PropertyData {
   residential: ResidentialProperty[];
   commercial: ResidentialProperty[];
   plot: ResidentialProperty[];
-  
 }
 
 function Home({ properties }: { properties: PropertyType }) {
   const [currentActiveTab, setCurrentActiveTab] = useState<
-  "pending" | "approved" | "rejected" | "deleted"
->("pending");
+    "pending" | "approved" | "rejected" | "deleted"
+  >("pending");
   const [dashboardData, setDashboardData] = useState<PropertyData>({
     residential: [],
     commercial: [],
     plot: [],
-    
   });
   const [sortOption, setSortOption] = useState("Newest");
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [hideHeader, setHideHeader] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [open, setOpen] = useState(false);
-  const [selectedPropertyType, setSelectedPropertyType] = useState<
-    string | null
-  >(null);
+  const [selectedPropertyType, setSelectedPropertyType] = useState<string | null>(null);
   const [isSkeletonLoading, setIsSkeletonLoading] = useState(true);
+  const [responseData, setResponseData] = useState<any>(null);
+
+
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -61,44 +62,102 @@ function Home({ properties }: { properties: PropertyType }) {
     return "all";
   }, [location.pathname]);
 
+  const fetchAllData = async (pageNum: number = 1) => {
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BackEndUrl}/api/${sideNavTabvalue}?page=${pageNum}&limit=10`
+      );
+      const data = response?.data?.data;
+      setResponseData(response?.data);
+      const backendHasMore = response?.data?.hasMore;
+      
+      const hasMoreData = backendHasMore !== undefined ? backendHasMore : true;
+      
+      setHasMore(hasMoreData);
+
+      if (sideNavTabvalue === "all") {
+        setDashboardData((prev) => ({
+          residential:
+            pageNum === 1
+              ? data?.residential?.items || []
+              : [...prev.residential, ...(data?.residential?.items || [])],
+          commercial:
+            pageNum === 1
+              ? data?.commercial?.items || []
+              : [...prev.commercial, ...(data?.commercial?.items || [])],
+          plot:
+            pageNum === 1
+              ? data?.plot?.items || []
+              : [...prev.plot, ...(data?.plot?.items || [])],
+        }));
+      } else {
+const singularType = sideNavTabvalue.replace(/s$/, "") as keyof PropertyData;
+        setDashboardData((prev) => ({
+          ...prev,
+          [singularType]:
+            pageNum === 1 ? data || [] : [...(prev[singularType] || []), ...(data || [])],
+        }));
+      }
+      setLoading(false);
+    } catch (err) {
+      setError(axios.isAxiosError(err) ? err.message : "Unexpected error");
+      setLoading(false);
+    }
+  };
+  console.log("responseData",responseData)
+
+     const totalCount = useMemo(() => {
+  if (!responseData) return 0;
+
+  switch (properties) {
+    case "residentials":
+      return responseData.total ?? 0;
+    case "commercials":
+      return responseData.total ?? 0;
+    case "plots":
+      return responseData.total ?? 0;
+    case "all":
+    default:
+      return (
+        (responseData.data.residential?.total ?? 0) +
+        (responseData.data.commercial?.total ?? 0) +
+        (responseData.data.plot?.total ?? 0)
+      );
+  }
+}, [responseData, properties]);
+
+  const handleScrollLoadMore = () => {
+    if (!loading && hasMore) {
+      setPage((prev) => {
+        const nextPage = prev + 1;
+        fetchAllData(nextPage);
+        return nextPage;
+      });
+    }
+  };
 
   useEffect(() => {
-    const fetchAllData = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_BackEndUrl}/api/${sideNavTabvalue}`
-        );
-        const data = response?.data?.data;
+    setPage(1);
+    setHasMore(true);
+    setDashboardData({
+      residential: [],
+      commercial: [],
+      plot: [],
+    });
+    
+    fetchAllData(1);
 
-        if (sideNavTabvalue === "all") {
-          setDashboardData({
-            residential: data?.residential?.items || [],
-            commercial: data?.commercial?.items || [],
-            plot: data?.plot?.items|| [],
-          });
-        } else {
-          const singularType = sideNavTabvalue.replace(/s$/, "");
-          setDashboardData((prev) => ({
-            ...prev,
-            [singularType]: data || [],
-          }));
-        }
-
-        setLoading(false);
-      } catch (err) {
-        setError(axios.isAxiosError(err) ? err.message : "Unexpected error");
-        setLoading(false);
-      }
+    // Listen for refresh events
+    const handleRefresh = () => {
+      setPage(1);
+      setHasMore(true);
+      fetchAllData(1);
     };
-
-    fetchAllData();
-
-    const handleRefresh = () => fetchAllData();
+    
     window.addEventListener("refreshTableData", handleRefresh);
     return () => window.removeEventListener("refreshTableData", handleRefresh);
-  }, [sideNavTabvalue]);
-
+  }, [sideNavTabvalue, currentActiveTab]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -138,37 +197,29 @@ function Home({ properties }: { properties: PropertyType }) {
       default:
         return {
           all: [
-            ...dashboardData.residential?.map((item) => ({
+            ...(dashboardData.residential?.map((item) => ({
               ...item,
               type: "Residential",
-            })),
-            ...dashboardData.commercial.map((item) => ({
+            })) || []),
+            ...(dashboardData.commercial?.map((item) => ({
               ...item,
               type: "Commercial",
-            })),
-            ...dashboardData.plot.map((item) => ({ ...item, type: "Plot" })),
+            })) || []),
+            ...(dashboardData.plot?.map((item) => ({ ...item, type: "Plot" })) || []),
           ],
         };
     }
   }, [dashboardData, sideNavTabvalue]);
 
-const triggerReset = () => {
-  setIsSkeletonLoading(true);
-  setTimeout(() => {
-    setIsSkeletonLoading(false);
-  }, 2000);
-};
-
-  if (loading) {
-    return (
-      <Box display="flex" alignItems="center" justifyContent="center" p={3}>
-        <CircularProgress size={24} />
-        <Typography variant="body1" ml={2}>
-          Loading data for <strong>{properties}</strong>...
-        </Typography>
-      </Box>
-    );
-  }
+  const triggerReset = () => {
+    setIsSkeletonLoading(true);
+    setPage(1);
+    setHasMore(true);
+    fetchAllData(1);
+    setTimeout(() => {
+      setIsSkeletonLoading(false);
+    }, 2000);
+  };
 
   if (error) {
     return (
@@ -316,11 +367,14 @@ const triggerReset = () => {
           <div className="container">
             <div className="pending-approve">
               <Dashboardtab
-                onSortChange={setSortOption} 
+                onSortChange={setSortOption}
                 selectedSort={sortOption}
                 data={tableData}
+                  totalCount={totalCount} 
                 properties={sideNavTabvalue}
-                onScrollChangeParent={handleChildScroll}
+                onScrollLoadMore={handleScrollLoadMore}
+                loading={loading}
+                hasMore={hasMore}
                 onReset={triggerReset}
                 currentActiveTab={currentActiveTab}
                 setCurrentActiveTab={setCurrentActiveTab}

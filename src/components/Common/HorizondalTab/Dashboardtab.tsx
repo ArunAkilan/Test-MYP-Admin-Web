@@ -85,19 +85,23 @@ type PropertyData = {
   plot?: Property[];
   all?: Property[];
   properties?:
-    | "all"
-    | "residential"
-    | "residentials"
-    | "commercial"
-    | "commercials"
-    | "plot"
-    | "plots";
+  | "all"
+  | "residential"
+  | "residentials"
+  | "commercial"
+  | "commercials"
+  | "plot"
+  | "plots";
 };
 
 interface DashboardtabProps {
-  data: PropertyData; // ✅ Accepts array now
+  data: PropertyData;
   properties: "all" | "residentials" | "commercials" | "plots" | "postedProperties";
-  onScrollChangeParent: (scrollTop: number) => void;
+  onScrollLoadMore: () => void;
+  loading: boolean;
+  hasMore: boolean;
+  totalCount: number;
+  onScrollChangeParent?: (scrollTop: number) => void;
   onReset?: () => void;
   onSortChange: (option: string) => void;
   selectedSort: string;
@@ -160,7 +164,11 @@ function a11yProps(index: number) {
 export default function Dashboardtab({
   data,
   properties,
+  onScrollLoadMore,
   onScrollChangeParent,
+  loading,
+  hasMore,
+  totalCount,
   onReset,
   onSortChange,
   selectedSort,
@@ -468,7 +476,7 @@ export default function Dashboardtab({
       const dataObj = response.data.data;
       console.log("dataObj:", dataObj);
 
-      
+
       let result: Property[] = [];
 
       if (properties === "residentials") result = dataObj ?? [];
@@ -619,19 +627,19 @@ export default function Dashboardtab({
 
   const toggleDrawer =
     (drawerOpen: boolean) =>
-    (event: React.KeyboardEvent | React.MouseEvent | {}) => {
-      if (
-        event &&
-        "type" in event &&
-        event.type === "keydown" &&
-        ((event as React.KeyboardEvent).key === "Tab" ||
-          (event as React.KeyboardEvent).key === "Shift")
-      ) {
-        return;
-      }
+      (event: React.KeyboardEvent | React.MouseEvent | {}) => {
+        if (
+          event &&
+          "type" in event &&
+          event.type === "keydown" &&
+          ((event as React.KeyboardEvent).key === "Tab" ||
+            (event as React.KeyboardEvent).key === "Shift")
+        ) {
+          return;
+        }
 
-      setDrawerOpen(drawerOpen);
-    };
+        setDrawerOpen(drawerOpen);
+      };
 
   // card view
   const [cardView, setCardView] = useState(false);
@@ -661,7 +669,7 @@ export default function Dashboardtab({
     }
 
     setLastScrollY(currentScrollY);
-    onScrollChangeParent(scrollTop);
+    onScrollChangeParent?.(scrollTop);
   };
   const checkListCount = currentCheckList.length;
 
@@ -669,27 +677,27 @@ export default function Dashboardtab({
   //@ts-ignore
   const formatData: PropertyItem[] = Array.isArray(data)
     ? data.map((item) => ({
-        _id: item._id ?? "",
-        propertyType: item.propertyType ?? "",
-        location: {
-          landmark: item.location?.landmark ?? "",
-          address: item.location?.address ?? "",
-        },
-        rent: item.rent ?? {},
-      }))
+      _id: item._id ?? "",
+      propertyType: item.propertyType ?? "",
+      location: {
+        landmark: item.location?.landmark ?? "",
+        address: item.location?.address ?? "",
+      },
+      rent: item.rent ?? {},
+    }))
     : [
-        ...(data?.residential ?? []),
-        ...(data?.commercial ?? []),
-        ...(data?.plot ?? []),
-      ].map((item) => ({
-        _id: item._id ?? "",
-        propertyType: item.propertyType ?? "",
-        location: {
-          landmark: item.location?.landmark ?? "",
-          address: item.location?.address ?? "",
-        },
-        rent: item.rent ?? {},
-      }));
+      ...(data?.residential ?? []),
+      ...(data?.commercial ?? []),
+      ...(data?.plot ?? []),
+    ].map((item) => ({
+      _id: item._id ?? "",
+      propertyType: item.propertyType ?? "",
+      location: {
+        landmark: item.location?.landmark ?? "",
+        address: item.location?.address ?? "",
+      },
+      rent: item.rent ?? {},
+    }));
   // handlemodal
   const handleOpenModal = (
     action: "Approve" | "Deny" | "Delete",
@@ -901,9 +909,10 @@ export default function Dashboardtab({
                 <div className="new-listing">
                   <div className="new-listing-wrap-list">
                     {!isExpanded && (
-                      <h3 className="result">
+                      <h3>
                         <span className="resultCount">{getResultCount}</span>{" "}
-                        {getResultCount <= 1 ? "Property" : "Properties"}
+                        {getResultCount === 1 ? "Property" : "Properties"} of
+                        <span className="ms-2">{totalCount}</span>
                       </h3>
                     )}
                     {checkListCount !== 0 && (
@@ -914,9 +923,8 @@ export default function Dashboardtab({
                         }}
                       >
                         <img
-                          src={`${
-                            import.meta.env.VITE_BASE_URL
-                          }/dashboardtab/ic_round-clear-16.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL
+                            }/dashboardtab/ic_round-clear-16.svg`}
                           alt="close icon"
                         />
                         Clear Filter
@@ -945,18 +953,16 @@ export default function Dashboardtab({
                       >
                         <ToggleButton value="List View">
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }/dashboardtab/solar_list-linear.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }/dashboardtab/solar_list-linear.svg`}
                             alt="list-view"
                           />
                           List
                         </ToggleButton>
                         <ToggleButton value="Card View">
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }/dashboardtab/system-uicons_card-view.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }/dashboardtab/system-uicons_card-view.svg`}
                             alt="card-view"
                           />
                           Card
@@ -971,9 +977,8 @@ export default function Dashboardtab({
                         onClick={toggleDrawer(true)}
                       >
                         <img
-                          src={`${
-                            import.meta.env.VITE_BASE_URL
-                          }/majesticons_filter-line.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL
+                            }/majesticons_filter-line.svg`}
                           alt="filter img"
                         />
                         Filter{" "} &nbsp;
@@ -991,9 +996,8 @@ export default function Dashboardtab({
                           variant="outlined"
                         >
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }/material-symbols_sort-rounded.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }/material-symbols_sort-rounded.svg`}
                             alt="sort icon"
                             style={{ marginRight: 8 }}
                           />
@@ -1023,9 +1027,10 @@ export default function Dashboardtab({
                 <div className="new-listing">
                   <div className="new-listing-wrap-list">
                     {!isExpanded && (
-                      <h3 className="result">
+                      <h3>
                         <span className="resultCount">{getResultCount}</span>{" "}
-                        {getResultCount <= 1 ? "Property" : "Properties"}
+                        {getResultCount === 1 ? "Property" : "Properties"} of
+                        <span className="ms-2">{totalCount}</span>
                       </h3>
                     )}
                     {checkListCount !== 0 && (
@@ -1036,9 +1041,8 @@ export default function Dashboardtab({
                         }}
                       >
                         <img
-                          src={`${
-                            import.meta.env.VITE_BASE_URL
-                          }/dashboardtab/ic_round-clear-16.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL
+                            }/dashboardtab/ic_round-clear-16.svg`}
                           alt="close icon"
                         />
                         Clear Filter
@@ -1067,18 +1071,16 @@ export default function Dashboardtab({
                       >
                         <ToggleButton value="List View">
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }/dashboardtab/solar_list-linear.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }/dashboardtab/solar_list-linear.svg`}
                             alt="list-view"
                           />
                           List View
                         </ToggleButton>
                         <ToggleButton value="Card View">
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }/dashboardtab/system-uicons_card-view.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }/dashboardtab/system-uicons_card-view.svg`}
                             alt="card-view"
                           />
                           Card View
@@ -1093,9 +1095,8 @@ export default function Dashboardtab({
                         onClick={toggleDrawer(true)}
                       >
                         <img
-                          src={`${
-                            import.meta.env.VITE_BASE_URL
-                          }/majesticons_filter-line.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL
+                            }/majesticons_filter-line.svg`}
                           alt="filter img"
                         />
                         Filter{" "}
@@ -1113,9 +1114,8 @@ export default function Dashboardtab({
                           variant="outlined"
                         >
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }/material-symbols_sort-rounded.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }/material-symbols_sort-rounded.svg`}
                             alt="sort icon"
                             style={{ marginRight: 8 }}
                           />
@@ -1145,9 +1145,10 @@ export default function Dashboardtab({
                 <div className="new-listing">
                   <div className="new-listing-wrap-list">
                     {!isExpanded && (
-                      <h3 className="result">
+                      <h3>
                         <span className="resultCount">{getResultCount}</span>{" "}
-                        {getResultCount <= 1 ? "Property" : "Properties"}
+                        {getResultCount === 1 ? "Property" : "Properties"} of
+                        <span className="ms-2">{totalCount}</span>
                       </h3>
                     )}
                     {checkListCount !== 0 && (
@@ -1158,9 +1159,8 @@ export default function Dashboardtab({
                         }}
                       >
                         <img
-                          src={`${
-                            import.meta.env.VITE_BASE_URL
-                          }/dashboardtab/ic_round-clear-16.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL
+                            }/dashboardtab/ic_round-clear-16.svg`}
                           alt="close icon"
                         />
                         Clear Filter
@@ -1189,18 +1189,16 @@ export default function Dashboardtab({
                       >
                         <ToggleButton value="List View">
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }/dashboardtab/solar_list-linear.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }/dashboardtab/solar_list-linear.svg`}
                             alt="list-view"
                           />
                           List View
                         </ToggleButton>
                         <ToggleButton value="Card View">
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }/dashboardtab/system-uicons_card-view.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }/dashboardtab/system-uicons_card-view.svg`}
                             alt="card-view"
                           />
                           Card View
@@ -1215,9 +1213,8 @@ export default function Dashboardtab({
                         onClick={toggleDrawer(true)}
                       >
                         <img
-                          src={`${
-                            import.meta.env.VITE_BASE_URL
-                          }/majesticons_filter-line.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL
+                            }/majesticons_filter-line.svg`}
                           alt="filter img"
                         />
                         Filter{" "}
@@ -1235,9 +1232,8 @@ export default function Dashboardtab({
                           variant="outlined"
                         >
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }/material-symbols_sort-rounded.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }/material-symbols_sort-rounded.svg`}
                             alt="sort icon"
                             style={{ marginRight: 8 }}
                           />
@@ -1267,9 +1263,10 @@ export default function Dashboardtab({
                 <div className="new-listing">
                   <div className="new-listing-wrap-list">
                     {!isExpanded && (
-                      <h3 className="result">
+                      <h3>
                         <span className="resultCount">{getResultCount}</span>{" "}
-                        {getResultCount <= 1 ? "Property" : "Properties"}
+                        {getResultCount === 1 ? "Property" : "Properties"} of
+                        <span className="ms-2">{totalCount}</span>
                       </h3>
                     )}
                     {checkListCount !== 0 && (
@@ -1280,9 +1277,8 @@ export default function Dashboardtab({
                         }}
                       >
                         <img
-                          src={`${
-                            import.meta.env.VITE_BASE_URL
-                          }/dashboardtab/ic_round-clear-16.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL
+                            }/dashboardtab/ic_round-clear-16.svg`}
                           alt="close icon"
                         />
                         Clear Filter
@@ -1308,18 +1304,16 @@ export default function Dashboardtab({
                       >
                         <ToggleButton value="List View">
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }/dashboardtab/solar_list-linear.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }/dashboardtab/solar_list-linear.svg`}
                             alt="list-view"
                           />
                           List View
                         </ToggleButton>
                         <ToggleButton value="Card View">
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }/dashboardtab/system-uicons_card-view.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }/dashboardtab/system-uicons_card-view.svg`}
                             alt="card-view"
                           />
                           Card View
@@ -1334,9 +1328,8 @@ export default function Dashboardtab({
                         onClick={toggleDrawer(true)}
                       >
                         <img
-                          src={`${
-                            import.meta.env.VITE_BASE_URL
-                          }/majesticons_filter-line.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL
+                            }/majesticons_filter-line.svg`}
                           alt="filter img"
                         />
                         Filter{" "}
@@ -1354,9 +1347,8 @@ export default function Dashboardtab({
                           variant="outlined"
                         >
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }/material-symbols_sort-rounded.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }/material-symbols_sort-rounded.svg`}
                             alt="sort icon"
                             style={{ marginRight: 8 }}
                           />
@@ -1426,13 +1418,13 @@ export default function Dashboardtab({
             //@ts-ignore
             data={tableValues}
             properties={properties === "postedProperties" ? "myposts" : properties}
-            onScrollChange={handleChildScroll}
+            onScrollLoadMore={onScrollLoadMore}
+            loading={loading}
+            hasMore={hasMore}
             handleOpenModal={handleOpenModal}
             tabType="pending"
             currentActiveTab={currentActiveTab}
-            onTabChange={(tab) =>
-              setCurrentActiveTab(tab.toLowerCase() as TabStatus)
-            }
+            onTabChange={(tab) => setCurrentActiveTab(tab.toLowerCase() as TabStatus)}
           />
         ) : (
           <PropertyCardList
@@ -1452,13 +1444,13 @@ export default function Dashboardtab({
             //@ts-ignore
             data={tableValues}
             properties={properties === "postedProperties" ? "myposts" : properties}
-            onScrollChange={handleChildScroll}
+            onScrollLoadMore={onScrollLoadMore}
+            loading={loading}
+            hasMore={hasMore}
             handleOpenModal={handleOpenModal}
             tabType="approved"
             currentActiveTab={currentActiveTab}
-            onTabChange={(tab) =>
-              setCurrentActiveTab(tab.toLowerCase() as TabStatus)
-            }
+            onTabChange={(tab) => setCurrentActiveTab(tab.toLowerCase() as TabStatus)}
           />
         ) : (
           <PropertyCardList
@@ -1478,13 +1470,13 @@ export default function Dashboardtab({
             //@ts-ignore
             data={tableValues}
             properties={properties === "postedProperties" ? "myposts" : properties}
-            onScrollChange={handleChildScroll}
+            onScrollLoadMore={onScrollLoadMore}
+            loading={loading}
+            hasMore={hasMore}
             handleOpenModal={handleOpenModal}
             tabType="rejected"
             currentActiveTab={currentActiveTab}
-            onTabChange={(tab) =>
-              setCurrentActiveTab(tab.toLowerCase() as TabStatus)
-            }
+            onTabChange={(tab) => setCurrentActiveTab(tab.toLowerCase() as TabStatus)}
           />
         ) : (
           <PropertyCardList
@@ -1504,7 +1496,9 @@ export default function Dashboardtab({
             //@ts-ignore
             data={tableValues}
             properties={properties === "postedProperties" ? "myposts" : properties}
-            onScrollChange={handleChildScroll}
+            onScrollLoadMore={onScrollLoadMore}
+            loading={loading}
+            hasMore={hasMore}
             handleOpenModal={handleOpenModal}
             tabType="deleted"
             currentActiveTab={currentActiveTab}
@@ -1529,9 +1523,8 @@ export default function Dashboardtab({
           <div className="filter-header">
             <p>
               <img
-                src={`${
-                  import.meta.env.VITE_BASE_URL
-                }/dashboardtab/icon-park-outline_down.svg`}
+                src={`${import.meta.env.VITE_BASE_URL
+                  }/dashboardtab/icon-park-outline_down.svg`}
                 alt="icon park"
                 style={{ cursor: "pointer" }}
                 onClick={() => setDrawerOpen(false)}
@@ -1539,10 +1532,10 @@ export default function Dashboardtab({
               &nbsp; Filter By
             </p>
             <p className="filtercount">
-              
+
               Filter{checkListCount > 1 ? "s" : ""} &nbsp;
               {checkListCount > 0 && (
-                 <span className="count-badge">({checkListCount})</span> 
+                <span className="count-badge">({checkListCount})</span>
               )}
             </p>
           </div>
@@ -1589,9 +1582,8 @@ export default function Dashboardtab({
               }}
             >
               <img
-                src={`${
-                  import.meta.env.VITE_BASE_URL
-                }/dashboardtab/ic_round-clear-24.svg`}
+                src={`${import.meta.env.VITE_BASE_URL
+                  }/dashboardtab/ic_round-clear-24.svg`}
                 alt="close icon"
               />
               Clear
@@ -1816,8 +1808,7 @@ const PropertyCardList = ({
     const singularProperty = getSingularPropertyType(); // fix here
     try {
       const response = await axios.put(
-        `${
-          import.meta.env.VITE_BackEndUrl
+        `${import.meta.env.VITE_BackEndUrl
         }/api/adminpermission/${singularProperty}/${id}`,
         { status: `${status}` },
         {
@@ -1935,9 +1926,8 @@ const PropertyCardList = ({
                   <div className="card-view-icon-wrapper">
                     <div className="card-icon-view">
                       <img
-                        src={`${
-                          import.meta.env.VITE_BASE_URL
-                        }/dashboardtab/view-card.png`}
+                        src={`${import.meta.env.VITE_BASE_URL
+                          }/dashboardtab/view-card.png`}
                         alt="icon-edit"
                         onClick={() => item._id && handleView(item._id)}
                         style={{ cursor: "pointer" }}
@@ -1945,9 +1935,8 @@ const PropertyCardList = ({
                     </div>
                     <div className="card-icon-edit">
                       <img
-                        src={`${
-                          import.meta.env.VITE_BASE_URL
-                        }/dashboardtab/Icon_Edit.svg`}
+                        src={`${import.meta.env.VITE_BASE_URL
+                          }/dashboardtab/Icon_Edit.svg`}
                         alt="icon-edit"
                         onClick={() => handleEdit(item)}
                       />
@@ -1955,9 +1944,8 @@ const PropertyCardList = ({
                     {currentActiveTab !== "approved" && (
                       <div className="card-icon-approve">
                         <img
-                          src={`${
-                            import.meta.env.VITE_BASE_URL
-                          }/dashboardtab/Icon_Tick.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL
+                            }/dashboardtab/Icon_Tick.svg`}
                           alt="icon-approve"
                           style={{ cursor: "pointer" }}
                           onClick={() => handleOpenModal("Approve", item)}
@@ -1967,9 +1955,8 @@ const PropertyCardList = ({
                     {currentActiveTab !== "rejected" && (
                       <div className="card-icon-deny">
                         <img
-                          src={`${
-                            import.meta.env.VITE_BASE_URL
-                          }/dashboardtab/Icon_Deny.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL
+                            }/dashboardtab/Icon_Deny.svg`}
                           alt="icon-deny"
                           style={{ cursor: "pointer" }}
                           onClick={() => handleOpenModal("Deny", item)}
@@ -1979,9 +1966,8 @@ const PropertyCardList = ({
                     {currentActiveTab !== "deleted" && (
                       <div className="card-icon-delete">
                         <img
-                          src={`${
-                            import.meta.env.VITE_BASE_URL
-                          }/dashboardtab/Icon-Delete-orange.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL
+                            }/dashboardtab/Icon-Delete-orange.svg`}
                           alt="icon-delete"
                           style={{ cursor: "pointer" }}
                           onClick={() => handleOpenModal("Delete", item)}
