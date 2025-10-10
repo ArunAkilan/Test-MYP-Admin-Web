@@ -87,6 +87,11 @@
   white-space: nowrap;
 }
 
+.role-tag.user span {
+  background-color: #e3f2fd;
+  color: green;
+}
+
 .role-tag.admin span {
   background-color: #e3f2fd;
   color: #1976d2;
