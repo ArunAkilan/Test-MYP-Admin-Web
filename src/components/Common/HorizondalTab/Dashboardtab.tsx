@@ -272,7 +272,6 @@ const filterOptions = {
   plots: [
     { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
     { heading: "Plot Type", options: ["Agriculture", "Business Use", "Commercial Use", "Industrial Use", "Personal Use", "Parking", "Shed/Storage", "Poultry or Livestock", "Events or Functions", "Investment Purpose", "Renewable Energy Projects", "Timber/Tree Plantation", "Nursery/Gardening Business", "Telecom Towers", "None"] },
-    { heading: "Facing", options: ["North", "East", "West", "South", "North East", "North West", "South East", "South West"] },
     { heading: "Area", options: ["Under 500 sq.ft", "500-1000 sq.ft", "1000-2000 sq.ft", "2000-5000 sq.ft", "Above 5000 sq.ft"] },
   ],
   
