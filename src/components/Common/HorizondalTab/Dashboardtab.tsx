@@ -2079,13 +2079,13 @@ const PropertyCardList = ({
     }
 
     const routeBase = getSingularPropertyType();
+    
     navigate(`/${routeBase}/view/${id}`, {
       state: { data: selectedItem, mode: "view" },
     });
   };
 
   const handleAction = async (id: string, status: number) => {
-    
     const singularProperty = getSingularPropertyType(); // fix here
     try {
       const response = await axios.put(

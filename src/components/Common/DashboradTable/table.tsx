@@ -140,7 +140,7 @@ function Table({
       const token = localStorage.getItem("token"); // Safely retrieve the auth token
 
       await axios.put(
-        `${import.meta.env.VITE_BackEndUrl}/api/adminpermission`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/adminpermission`,
         {
           status: status.toString(),
           properties: [

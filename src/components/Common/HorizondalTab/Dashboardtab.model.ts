@@ -9,6 +9,9 @@ export const TabStatus = {
 
 export type TabStatusKey = keyof typeof TabStatus; // "Pending" | "Rejected" | ...
 export type TabStatusValue = typeof TabStatus[TabStatusKey]; // 0 | 1 | 2 | 3
+export type PropertyStatus = "Pending" | "Approved" | "Rejected" | "Deleted";
+export type PropertyType = "Rent" | "Lease" | "Sale";
+export type PropertyCategory = 'residential' | 'commercial' | 'plot';
 
 // Base property interface matching your API response
 export interface BaseProperty {
