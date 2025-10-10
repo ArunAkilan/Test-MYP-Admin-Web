@@ -103,17 +103,34 @@ const Carousel: React.FC<CarouselProps> = ({ images}) => {
                   position: "relative",
                 }}
               >
-                <img
+               
+
+<img
+  src={
+    process.env.NODE_ENV === "development"
+      ? img.replace(/^https:/, "http:")
+      : img
+  }
+  alt={`Slide ${index + 1}`}
+  style={{
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    display: "block",
+  }}
+/>
+
+
+                {/* <img
                   src={img}
                   alt={`Slide ${index + 1}`}
-                  crossOrigin="anonymous"
                   style={{
                     width: "100%",
                     height: "100%",
                     objectFit: "cover",
                     display: "block",
                   }}
-                />
+                /> */}
 
                 {/* Badge for image count */}
                 {index === currentIndex && (
