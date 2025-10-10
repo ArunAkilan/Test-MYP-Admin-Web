@@ -85,28 +85,38 @@ type PropertyData = {
   plot?: Property[];
   all?: Property[];
   properties?:
-    | "all"
-    | "residential"
-    | "residentials"
-    | "commercial"
-    | "commercials"
-    | "plot"
-    | "plots";
+  | "all"
+  | "residential"
+  | "residentials"
+  | "commercial"
+  | "commercials"
+  | "plot"
+  | "plots";
 };
 
 interface DashboardtabProps {
-  data: PropertyData; // ✅ Accepts array now
+  data: PropertyData; // Accepts array now
   properties: "all" | "residentials" | "commercials" | "plots" | "postedProperties";
   onScrollChangeParent: (scrollTop: number) => void;
   onReset?: () => void;
   onSortChange: (option: string) => void;
   selectedSort: string;
-  currentActiveTab: "pending" | "approved" | "rejected" | "deleted";
-  setCurrentActiveTab: (
-    tab: "pending" | "approved" | "rejected" | "deleted"
-  ) => void;
+  currentActiveTab: TabStatusType;
+  setCurrentActiveTab: (tab: TabStatusType) => void;
 }
-type TabStatus = "pending" | "approved" | "rejected" | "deleted";
+
+// Tab Status Type
+type TabStatusType = "pending" | "approved" | "rejected" | "deleted";
+
+
+// Filter Section Interface  
+interface FilterSection {
+  heading: string;
+  options: string[];
+}
+
+
+// Property Item Interface
 type PropertyItem = {
   _id: string;
   createdAt?: string;
@@ -132,6 +142,32 @@ interface TabPanelProps {
   children?: React.ReactNode;
   value: number;
   index: number;
+}
+
+// COMPREHENSIVE DRAWER EVENT INTERFACE
+interface DrawerEvent {
+  type?: string;
+  key?: string;
+  target?: EventTarget | null;
+  currentTarget?: EventTarget | null;
+  preventDefault?: () => void;
+  stopPropagation?: () => void;
+}
+
+interface ExtendedProperty extends Property {
+  postOwner?: {
+    id?: string;
+    role?: string;
+    userName?: string;
+  };
+  title?: string;
+  createdAt?: string;
+}
+
+interface EditableProperty {
+  _id?: string;
+  propertyType?: string;
+  [key: string]: unknown; // Allow additional properties
 }
 
 function CustomTabPanel(props: TabPanelProps) {
@@ -187,184 +223,66 @@ export default function Dashboardtab({
   const [selectedLabel, setSelectedLabel] = useState(selectedSort);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [currentActiveTab, setCurrentActiveTab] =
-    useState<TabStatus>("pending");
+    useState<TabStatusType>("pending");
   // const [sortOption, setSortOption] = useState("Newest Property");
+
 
   const sortOptions = ["Newest", "Oldest", "Highest Price", "Lowest Price"];
 
   const handleSortSelect = (option: string) => {
     setSelectedLabel(option); // Update UI label
-    onSortChange(option); // ✅ Send to Home, which updates PropertyCardList
+    onSortChange(option); // Send to Home, which updates PropertyCardList
   };
 
   //const currentStatus = statusByTab[value];
-  const filterOptions = {
-    postedProperties: [
-      { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
-      {
-        heading: "Facing",
-        options: [
-          "East",
-          "West",
-          "North",
-          "South",
-          "South East",
-          "South West",
-          "North East",
-          "North West",
-        ],
-      },
-      {
-        heading: "Locality",
-        options: [
-          "Old Bus Stand",
-          "Thuraimangalam",
-          "NH-45 Bypass",
-          "Collector Office Road",
-          "Elambalur",
-          "Sungu Pettai",
-          "V.Kalathur",
-        ],
-      },
-    ],
-    all: [
-      { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
-      {
-        heading: "Facing",
-        options: [
-          "East",
-          "West",
-          "North",
-          "South",
-          "South East",
-          "South West",
-          "North East",
-          "North West",
-        ],
-      },
-      {
-        heading: "Locality",
-        options: [
-          "Old Bus Stand",
-          "Thuraimangalam",
-          "NH-45 Bypass",
-          "Collector Office Road",
-          "Elambalur",
-          "Sungu Pettai",
-          "V.Kalathur",
-        ],
-      },
-    ],
-    residentials: [
-      { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
-      { heading: "Residential Type", options: ["House", "Apartment", "Villa"] },
-      {
-        heading: "Rooms",
-        options: ["1 BHK", "2 BHK", "3 BHK", "4 BHK", "5+ BHK"],
-      },
-      {
-        heading: "Locality",
-        options: [
-          "Old Bus Stand",
-          "Thuraimangalam",
-          "NH-45 Bypass",
-          "Collector Office Road",
-          "Elambalur",
-          "Sungu Pettai",
-          "V.Kalathur",
-        ],
-      },
-      {
-        heading: "FurnishingType",
-        options: ["Fully Furnished", "Semi Furnished", "Unfurnished"],
-      },
-      { heading: "Parking", options: ["None", "With Parking"] },
-      { heading: "Tenant Preference", options: ["Bachelor", "Family Only"] },
-      {
-        heading: "Accessibility",
-        options: ["Lift Access", "Ramp Access", "Stair Access"],
-      },
-    ],
-    commercials: [
-      { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
-      {
-        heading: "Commercial Type",
-        options: [
-          "Building",
-          "Shop",
-          "Co- working",
-          "Office Space",
-          "Showrrom",
-          "Shed",
-        ],
-      },
-      {
-        heading: "Facing",
-        options: [
-          "East",
-          "West",
-          "North",
-          "South",
-          "South East",
-          "South West",
-          "North East",
-          "North West",
-        ],
-      },
-      {
-        heading: "Locality",
-        options: [
-          "Old Bus Stand",
-          "Thuraimangalam",
-          "NH-45 Bypass",
-          "Collector Office Road",
-          "Elambalur",
-          "Sungu Pettai",
-          "V.Kalathur",
-        ],
-      },
-      { heading: "RTO", options: ["Yes", "No"] },
-      { heading: "Parking", options: ["None", "With Parking"] },
-      { heading: "Washroom", options: ["None", "Private", "Common"] },
-      {
-        heading: "Accessibility",
-        options: ["Lift Access", "Ramp Access", "Stair Access"],
-      },
-    ],
-    plots: [
-      { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
-      {
-        heading: "Plot Type",
-        options: [
-          "Commercial Use",
-          "Agriculture",
-          " Industrial Use",
-          "Personal Use",
-          "Parking",
-          "Shed/Storage",
-          "Poultry or Livestock",
-          "Events or Functions",
-          "Investment Purpose",
-          "Renewable Energy Projects",
-          "Timber/Tree Plantation",
-          "Nursery/Gardening Business",
-          "Telecom Towers",
-        ],
-      },
-      {
-        heading: "Locality",
-        options: [
-          "Old Bus Stand",
-          "Thuraimangalam",
-          "NH-45 Bypass",
-          "Collector Office Road",
-          "Elambalur",
-          "Sungu Pettai",
-          "V.Kalathur",
-        ],
-      },
-    ],
-  };
+ // UPDATED FILTER OPTIONS - All the filters you requested
+const filterOptions = {
+  all: [
+    { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
+    { heading: "Type", options: ["Residential", "Commercial", "Plot"] },
+    { heading: "Facing", options: ["North", "East", "West", "South", "North East", "North West", "South East", "South West"] },
+    { heading: "Area", options: ["Under 500 sq.ft", "500-1000 sq.ft", "1000-2000 sq.ft", "2000-5000 sq.ft", "Above 5000 sq.ft"] },
+    { heading: "Property On Floor", options: ["Ground Floor", "1st Floor", "2nd Floor", "3rd Floor", "4th Floor", "5th Floor", "Above 5th Floor"] },
+  ],
+  
+  residentials: [
+    { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
+    { heading: "Residential Type", options: ["Apartment", "House", "Villa", "Shared room", "hostel/PG", "Duplex", "Rooms", "Independent home"] },
+    { heading: "Rooms", options: ["1 BHK", "2 BHK", "3 BHK", "4 BHK", "5+ BHK"] },
+    { heading: "Facing", options: ["North", "East", "West", "South", "North East", "North West", "South East", "South West"] },
+    { heading: "Furnishing", options: ["Fully Furnished", "Semi Furnished", "Unfurnished"] },
+    { heading: "Area", options: ["Under 500 sq.ft", "500-1000 sq.ft", "1000-2000 sq.ft", "2000-5000 sq.ft", "Above 5000 sq.ft"] },
+    { heading: "Property On Floor", options: ["Ground Floor", "1st Floor", "2nd Floor", "3rd Floor", "4th Floor", "5th Floor", "Above 5th Floor"] },
+    { heading: "Parking", options: ["With Parking", "None"] },
+    { heading: "Tenant Preference", options: ["Bachelor", "Family Only"] },
+    { heading: "Accessibility", options: ["Lift Access", "Ramp Access", "Stair Access"] },
+  ],
+  
+  commercials: [
+    { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
+    { heading: "Commercial Type", options: ["Office Space", "Co-Working", "Shop", "Showroom", "Godown/Warehouse", "Industrial Building", "Industrial Shed", "Other Business"] },
+    { heading: "Facing", options: ["North", "East", "West", "South", "North East", "North West", "South East", "South West"] },
+    { heading: "Washroom", options: ["None", "Public", "Common", "Private"] },
+    { heading: "Area", options: ["Under 500 sq.ft", "500-1000 sq.ft", "1000-2000 sq.ft", "2000-5000 sq.ft", "Above 5000 sq.ft"] },
+    { heading: "Property On Floor", options: ["Ground Floor", "1st Floor", "2nd Floor", "3rd Floor", "4th Floor", "5th Floor", "Above 5th Floor"] },
+    { heading: "Parking", options: ["With Parking", "None"] },
+    { heading: "Accessibility", options: ["Lift Access", "Ramp Access", "Stair Access"] },
+  ],
+  
+  plots: [
+    { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
+    { heading: "Plot Type", options: ["Agriculture", "Business Use", "Commercial Use", "Industrial Use", "Personal Use", "Parking", "Shed/Storage", "Poultry or Livestock", "Events or Functions", "Investment Purpose", "Renewable Energy Projects", "Timber/Tree Plantation", "Nursery/Gardening Business", "Telecom Towers", "None"] },
+    { heading: "Area", options: ["Under 500 sq.ft", "500-1000 sq.ft", "1000-2000 sq.ft", "2000-5000 sq.ft", "Above 5000 sq.ft"] },
+  ],
+  
+  postedProperties: [
+    { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
+    { heading: "Type", options: ["Residential", "Commercial", "Plot"] },
+    { heading: "Facing", options: ["North", "East", "West", "South", "North East", "North West", "South East", "South West"] },
+    { heading: "Area", options: ["Under 500 sq.ft", "500-1000 sq.ft", "1000-2000 sq.ft", "2000-5000 sq.ft", "Above 5000 sq.ft"] },
+    { heading: "Property On Floor", options: ["Ground Floor", "1st Floor", "2nd Floor", "3rd Floor", "4th Floor", "5th Floor", "Above 5th Floor"] },
+  ]
+};
 
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
@@ -394,11 +312,14 @@ export default function Dashboardtab({
     dispatch(setActiveTab(0));
     setIsFiltered(false);
     setCurrentCheckList([]);
+
+    // CORRECTLY PARSE INITIAL DATA
     const pendingItems = allItems.filter(
       (item) => item.status?.toLowerCase() === "pending"
     );
     setTableValues(pendingItems);
-  }, [properties, allItems]);
+    setCurrentActiveTab("pending");
+  }, [properties, allItems, dispatch]);
 
   // Handle tab change
   const handleChange = (_: React.SyntheticEvent, newValue: number) => {
@@ -406,6 +327,16 @@ export default function Dashboardtab({
     dispatch(setActiveTab(newValue));
     setIsFiltered(false);
     setCurrentCheckList([]);
+
+    // AUTOMATICALLY FILTER FOR NEW TAB
+    const newStatus = statusByTab[newValue];
+    const newTabItems = allItems.filter(
+      (item: Property) => item.status?.toLowerCase() === newStatus.toLowerCase()
+    );
+    setTableValues(newTabItems);
+
+    // Update current active tab state
+    setCurrentActiveTab(newStatus.toLowerCase() as TabStatusType);
   };
 
   useEffect(() => {
@@ -425,73 +356,379 @@ export default function Dashboardtab({
 
   // filter function
 
+  // const fetchFilteredData = async (filters: string[], tabIndex: number) => {
+  //   try {
+  //     const status = statusByTab[tabIndex];
+  //     // Create the dynamic query string
+  //     const queryParts: string[] = [];
+
+  //     // Mapping UI headings to API keys
+  //     const headingToKey: Record<string, string> = {
+  //       "Property Type": "propertyType",
+  //       FurnishingType: "furnishingType",
+  //       "Commercial Type": "commercialType",
+  //       Washroom: "washroom",
+  //       "Plot Type": "plotType",
+  //       Facing: "facing",
+  //     };
+
+  //     const filterSection =
+  //       filterOptions[properties === "all" ? "all" : properties] || [];
+  //     filterSection.forEach((section) => {
+  //       const key = headingToKey[section.heading];
+  //       const selectedOptions = section.options.filter((opt) =>
+  //         filters.includes(opt)
+  //       );
+  //       if (key && selectedOptions.length) {
+  //         queryParts.push(`${key}=${selectedOptions.join(",")}`);
+  //       }
+  //     });
+
+  //     if (status) {
+  //       queryParts.push(`status=${status}`);
+  //     }
+
+  //     const baseUrl = `${import.meta.env.VITE_BackEndUrl}/api/${properties}`;
+  //     const queryString =
+  //       queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
+  //     const fullUrl = `${baseUrl}${queryString}`;
+
+  //     console.log("Final API URL:", fullUrl);
+
+  //     const response = await axios.get(fullUrl);
+
+  //     const dataObj = response.data.data;
+  //     let result: Property[] = [];
+
+  //     if (properties === "residentials") result = dataObj ?? [];
+  //     else if (properties === "commercials") result = dataObj ?? [];
+  //     else if (properties === "plots") result = dataObj ?? [];
+  //     else if (properties === "all") {
+  //       result = [
+  //         ...(dataObj.residential ?? []),
+  //         ...(dataObj.commercial ?? []),
+  //         ...(dataObj.plot ?? []),
+  //       ];
+  //     }
+  //     const filteredByStatus = result.filter(
+  //       (item) => item.status?.toLowerCase() === status.toLowerCase()
+  //     );
+
+  //     setTableValues(filteredByStatus);
+  //   } catch (error) {
+  //     console.error("Fetch error:", error);
+  //     setTableValues([]);
+  //   }
+  // };
+
+  // COMPLETELY FIXED FILTER FUNCTION - All type errors resolved
   const fetchFilteredData = async (filters: string[], tabIndex: number) => {
     try {
       const status = statusByTab[tabIndex];
-      // Create the dynamic query string
       const queryParts: string[] = [];
-
-      // Mapping UI headings to API keys
+  
+      // EXACT MAPPING based on your backend API schema
       const headingToKey: Record<string, string> = {
-        "Property Type": "propertyType",
-        FurnishingType: "furnishingType",
-        "Commercial Type": "commercialType",
-        Washroom: "washroom",
-        "Plot Type": "plotType",
-        Facing: "facing",
+        // Common filters across all APIs
+        "Property Type": "propertyType", // Rent,Lease,Sale
+        "Facing": "facing", // North,East,West,South,North East,North West,South East,South West
+        
+        // Commercial API filters (/api/commercials)
+        "Commercial Type": "commercialType", // Office Space,Co-Working,Shop,Showroom,etc.
+        "Washroom": "washroom", // None,Public,Common,Private
+        "RTO": "rto", // Yes/No -> true/false
+        "Parking": "parking", // With Parking/None -> true/false
+        
+        // Residential API filters (/api/residentials) 
+        "Residential Type": "residentialType", // Apartment,House,Villa,etc.
+        "Rooms": "rooms", // 1 BHK,2 BHK,3 BHK,4 BHK,5+ BHK
+        "Furnishing": "furnishingType", // Fully Furnished,Semi Furnished,Unfurnished
+        "Tenant Preference": "bachelorsAllowed", // true/false (and familyOnly)
+        // Plot API filters (/api/plots)
+        "Plot Type": "plotType", // Agriculture,Business Use,Commercial Use,etc.
+        
+        // Common accessibility filters
+        "Accessibility": "accessibility", // lift,ramp,steps -> liftAccess,rampAccess,stairsAccess
+        
+        // Special handling needed for these
+        "Area": "area", // No direct API support - frontend filter
+        "Property On Floor": "floors", // No direct API support - frontend filter  
+        "Type": "type", // Residential/Commercial/Plot - frontend filter
       };
-
-      const filterSection =
-        filterOptions[properties === "all" ? "all" : properties] || [];
-      filterSection.forEach((section) => {
+  
+      // API ENDPOINTS - Exact from your schema
+      const apiEndpointMap: Record<string, string> = {
+        "residentials": "residentials",
+        "commercials": "commercials", 
+        "plots": "plots",
+        "all": "all",
+        "postedProperties": "myposts" // For posted properties
+      };
+  
+      const endpoint = apiEndpointMap[properties] || "all";
+      const filterSection = filterOptions[properties === "all" ? "all" : properties];
+      
+      filterSection?.forEach((section: FilterSection) => {
+        
         const key = headingToKey[section.heading];
-        const selectedOptions = section.options.filter((opt) =>
-          filters.includes(opt)
-        );
-        if (key && selectedOptions.length) {
-          queryParts.push(`${key}=${selectedOptions.join(",")}`);
+        const selectedOptions = section.options.filter((opt: string) => filters.includes(opt));
+        
+        if (selectedOptions.length > 0) {
+          
+          // EXACT API PARAMETER MAPPING based on your backend schema
+          
+          // 1. Property Type - Direct mapping (ALL APIs support this)
+          if (section.heading === "Property Type") {
+            queryParts.push(`propertyType=${selectedOptions.join(",")}`);
+          }
+          
+          // 2. Facing - Only for Commercial and Dashboard APIs
+          else if (section.heading === "Facing") {
+            if (endpoint === "commercials" || endpoint === "all") {
+              queryParts.push(`facing=${selectedOptions.join(",")}`);
+            }
+            // For residential and plots, this will be handled by frontend filtering
+          }
+          
+          // 3. Commercial Type - Only for Commercial API
+          else if (section.heading === "Commercial Type") {
+            if (endpoint === "commercials") {
+              queryParts.push(`commercialType=${selectedOptions.join(",")}`);
+            }
+          }
+          
+          // 4. Residential Type - Only for Residential API
+          else if (section.heading === "Residential Type") {
+            if (endpoint === "residentials") {
+              queryParts.push(`residentialType=${selectedOptions.join(",")}`);
+            }
+          }
+          
+          // 5. Plot Type - Only for Plot API
+          else if (section.heading === "Plot Type") {
+            if (endpoint === "plots") {
+              queryParts.push(`plotType=${selectedOptions.join(",")}`);
+            }
+          }
+          
+          // 6. Rooms - Only for Residential API
+          else if (section.heading === "Rooms") {
+            if (endpoint === "residentials") {
+              queryParts.push(`rooms=${selectedOptions.join(",")}`);
+            }
+          }
+          
+          // 7. Furnishing - Only for Residential API
+          else if (section.heading === "Furnishing") {
+            if (endpoint === "residentials") {
+              queryParts.push(`furnishingType=${selectedOptions.join(",")}`);
+            }
+          }
+          
+          // 8. Washroom - Only for Commercial API
+          else if (section.heading === "Washroom") {
+            if (endpoint === "commercials") {
+              queryParts.push(`washroom=${selectedOptions.join(",")}`);
+            }
+          }
+          
+          // 9. RTO - Only for Commercial API
+          else if (section.heading === "RTO") {
+            if (endpoint === "commercials") {
+              if (selectedOptions.includes("Yes")) {
+                queryParts.push("rto=true");
+              } else if (selectedOptions.includes("No")) {
+                queryParts.push("rto=false");
+              }
+            }
+          }
+          
+          // 10. Parking - Commercial and Residential APIs
+          else if (section.heading === "Parking") {
+            if (endpoint === "commercials" || endpoint === "residentials") {
+              if (selectedOptions.includes("With Parking")) {
+                queryParts.push("parking=true");
+              } else if (selectedOptions.includes("None")) {
+                queryParts.push("parking=false");
+              }
+            }
+          }
+          
+          // 11. Tenant Preference - Only for Residential API
+          else if (section.heading === "Tenant Preference") {
+            if (endpoint === "residentials") {
+              if (selectedOptions.includes("Bachelor")) {
+                queryParts.push("bachelorsAllowed=true");
+              }
+              if (selectedOptions.includes("Family Only")) {
+                queryParts.push("familyOnly=true");
+              }
+            }
+          }
+          
+          // 12. Accessibility - Commercial and Residential APIs
+          else if (section.heading === "Accessibility") {
+            if (endpoint === "commercials") {
+              selectedOptions.forEach((opt: string) => {
+                if (opt === "Lift Access") queryParts.push("liftAccess=true");
+                if (opt === "Ramp Access") queryParts.push("rampAccess=true");
+                if (opt === "Stair Access") queryParts.push("stairsAccess=true");
+              });
+            } else if (endpoint === "residentials") {
+              selectedOptions.forEach((opt: string) => {
+                if (opt === "Lift Access") queryParts.push("lift=true");
+                if (opt === "Ramp Access") queryParts.push("ramp=true");
+                if (opt === "Stair Access") queryParts.push("steps=true");
+              });
+            }
+          }
+          
+          // Filters that need frontend handling (not supported by API)
+          // Area, Floors, Type will be handled after API response
         }
       });
-
+  
+      // Add status filter from tab
       if (status) {
-        queryParts.push(`status=${status}`);
+        const statusFormatted = status.charAt(0).toUpperCase() + status.slice(1);
+        queryParts.push(`status=${statusFormatted}`);
       }
-
-      const baseUrl = `${import.meta.env.VITE_BackEndUrl}/api/${properties}`;
-      const queryString =
-        queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
-      const fullUrl = `${baseUrl}${queryString}`;
-
-      console.log("Final API URL:", fullUrl);
-
-      const response = await axios.get(fullUrl);
-      const dataObj = response.data.data;
-      console.log("dataObj:", dataObj);
-
+  
+      // Add pagination
+      queryParts.push("page=1");
+      queryParts.push("limit=100");
+  
+      const baseUrl = `${import.meta.env.VITE_BackEndUrl}/api/${endpoint}`;
+      const queryString = queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
+      const fullUrl = baseUrl + queryString;
       
+      console.log("Applied Filters:", filters);
+      console.log("Final API URL:", fullUrl);
+      console.log("Query Parameters:", queryParts);
+  
+      const response = await axios.get(fullUrl, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+  
+      console.log("Raw API Response:", response.data);
+  
+      // RESPONSE PARSING based on your API response structure
       let result: Property[] = [];
-
-      if (properties === "residentials") result = dataObj ?? [];
-      else if (properties === "commercials") result = dataObj ?? [];
-      else if (properties === "plots") result = dataObj ?? [];
-      else if (properties === "all") {
-        result = [
-          ...(dataObj.residential ?? []),
-          ...(dataObj.commercial ?? []),
-          ...(dataObj.plot ?? []),
-        ];
+      
+      if (endpoint === "all") {
+        // For /api/all - based on your response structure
+        const dataObj = response.data;
+        
+        if (dataObj?.success && dataObj?.data) {
+          const residentialItems: Property[] = dataObj.data.residential?.items || [];
+          const commercialItems: Property[] = dataObj.data.commercial?.items || [];
+          const plotItems: Property[] = dataObj.data.plot?.items || [];
+          
+          result = [...residentialItems, ...commercialItems, ...plotItems];
+          console.log("Combined properties:", result.length);
+        }
+      } else {
+        // For individual endpoints - based on your API schema response
+        const dataObj = response.data;
+        
+        if (dataObj?.success && dataObj?.data) {
+          result = Array.isArray(dataObj.data) ? dataObj.data : [];
+          console.log(`${endpoint} properties:`, result.length);
+        }
       }
-      const filteredByStatus = result.filter(
-        (item) => item.status?.toLowerCase() === status.toLowerCase()
+  
+      // FRONTEND FILTERING for filters not supported by API
+      
+      // Filter by Facing (for Residential and Plot since API doesn't support it)
+      const facingFilters = filters.filter(filter => 
+        ["North", "East", "West", "South", "North East", "North West", "South East", "South West"].includes(filter)
       );
-
-      setTableValues(filteredByStatus);
+      
+      if (facingFilters.length > 0 && (endpoint === "residentials" || endpoint === "plots")) {
+        result = result.filter((item: Property) => {
+          return item.facingDirection !== undefined && facingFilters.includes(item.facingDirection);
+        });
+        console.log(`Frontend Facing filter applied for ${endpoint}:`, result.length);
+      }
+      
+      // Filter by Type (Residential/Commercial/Plot)
+      const typeFilter = filters.find(filter => 
+        ["Residential", "Commercial", "Plot"].includes(filter)
+      );
+      
+      if (typeFilter) {
+        result = result.filter((item: Property) => {
+          if (typeFilter === "Residential") return "residentialType" in item && item.residentialType;
+          if (typeFilter === "Commercial") return "commercialType" in item && item.commercialType;
+          if (typeFilter === "Plot") return "plotType" in item && item.plotType;
+          return true;
+        });
+      }
+      
+      // Filter by Area (frontend filtering)
+      const areaFilters = filters.filter(filter => 
+        ["Under 500 sq.ft", "500-1000 sq.ft", "1000-2000 sq.ft", "2000-5000 sq.ft", "Above 5000 sq.ft"].includes(filter)
+      );
+      
+      if (areaFilters.length > 0) {
+        result = result.filter((item: Property) => {
+          const areaText = item.area?.totalArea || "0";
+          const areaNum = parseInt(areaText.replace(/[^0-9]/g, ""));
+          
+          return areaFilters.some(filter => {
+            switch (filter) {
+              case "Under 500 sq.ft": return areaNum < 500;
+              case "500-1000 sq.ft": return areaNum >= 500 && areaNum <= 1000;
+              case "1000-2000 sq.ft": return areaNum > 1000 && areaNum <= 2000;
+              case "2000-5000 sq.ft": return areaNum > 2000 && areaNum <= 5000;
+              case "Above 5000 sq.ft": return areaNum > 5000;
+              default: return true;
+            }
+          });
+        });
+      }
+      
+      // Filter by Floors (frontend filtering)
+      const floorFilters = filters.filter(filter => 
+        ["Ground Floor", "1st Floor", "2nd Floor", "3rd Floor", "4th Floor", "5th Floor", "Above 5th Floor"].includes(filter)
+      );
+      
+      if (floorFilters.length > 0) {
+        result = result.filter((item: Property) => {
+          const floor = item.propertyFloor || 0;
+          
+          return floorFilters.some(filter => {
+            switch (filter) {
+              case "Ground Floor": return floor === 0;
+              case "1st Floor": return floor === 1;
+              case "2nd Floor": return floor === 2;
+              case "3rd Floor": return floor === 3;
+              case "4th Floor": return floor === 4;
+              case "5th Floor": return floor === 5;
+              case "Above 5th Floor": return floor > 5;
+              default: return true;
+            }
+          });
+        });
+      }
+  
+      console.log("Final filtered result:", result.length, "properties");
+      setTableValues(result);
+      
     } catch (error) {
       console.error("Fetch error:", error);
+      if (axios.isAxiosError(error)) {
+        console.error("Response data:", error.response?.data);
+        console.error("Response status:", error.response?.status);
+        console.error("Request URL:", error.config?.url);
+      }
       setTableValues([]);
     }
   };
-
+  
+  
   const handleApply = () => {
     setIsFiltered(true); // Enable filtered mode
     fetchFilteredData(currentCheckList, value); // Uses correct API and query logic
@@ -619,19 +856,19 @@ export default function Dashboardtab({
 
   const toggleDrawer =
     (drawerOpen: boolean) =>
-    (event: React.KeyboardEvent | React.MouseEvent | {}) => {
-      if (
-        event &&
-        "type" in event &&
-        event.type === "keydown" &&
-        ((event as React.KeyboardEvent).key === "Tab" ||
-          (event as React.KeyboardEvent).key === "Shift")
-      ) {
-        return;
-      }
+      (event: React.KeyboardEvent | React.MouseEvent | DrawerEvent) => {
+        if (
+          event &&
+          "type" in event &&
+          event.type === "keydown" &&
+          ((event as React.KeyboardEvent).key === "Tab" ||
+            (event as React.KeyboardEvent).key === "Shift")
+        ) {
+          return;
+        }
 
-      setDrawerOpen(drawerOpen);
-    };
+        setDrawerOpen(drawerOpen);
+      };
 
   // card view
   const [cardView, setCardView] = useState(false);
@@ -666,39 +903,57 @@ export default function Dashboardtab({
   const checkListCount = currentCheckList.length;
 
   //format data
-  //@ts-ignore
   const formatData: PropertyItem[] = Array.isArray(data)
     ? data.map((item) => ({
-        _id: item._id ?? "",
-        propertyType: item.propertyType ?? "",
-        location: {
-          landmark: item.location?.landmark ?? "",
-          address: item.location?.address ?? "",
-        },
-        rent: item.rent ?? {},
-      }))
+      _id: item._id ?? "",
+      propertyType: item.propertyType ?? "",
+      location: {
+        landmark: item.location?.landmark ?? "",
+        address: item.location?.address ?? "",
+      },
+      rent: item.rent ?? {},
+    }))
     : [
-        ...(data?.residential ?? []),
-        ...(data?.commercial ?? []),
-        ...(data?.plot ?? []),
-      ].map((item) => ({
-        _id: item._id ?? "",
-        propertyType: item.propertyType ?? "",
-        location: {
-          landmark: item.location?.landmark ?? "",
-          address: item.location?.address ?? "",
-        },
-        rent: item.rent ?? {},
-      }));
+      ...(data?.residential ?? []),
+      ...(data?.commercial ?? []),
+      ...(data?.plot ?? []),
+    ].map((item) => ({
+      _id: item._id ?? "",
+      propertyType: item.propertyType ?? "",
+      location: {
+        landmark: item.location?.landmark ?? "",
+        address: item.location?.address ?? "",
+      },
+      rent: item.rent ?? {},
+    }));
   // handlemodal
+  // REPLACE YOUR FUNCTION WITH THIS - No more 'any'
   const handleOpenModal = (
     action: "Approve" | "Deny" | "Delete",
-    item: any
+    item: Property
   ) => {
     setSelectedAction(action);
-    setSelectedItem(item);
+    setSelectedItem({
+      _id: item._id ?? "",
+      propertyType: item.propertyType ?? "",
+      location: {
+        landmark: item.location?.landmark ?? "",
+        address: item.location?.address ?? "",
+      },
+      rent: item.rent ? {
+        rentAmount: item.rent.rentAmount?.toString()
+      } : undefined,
+      images: item.images,
+      createdAt: item.createdAt,
+      //@ts-ignore
+      postOwner: 'postOwner' in item ? item.postOwner : undefined,
+      area: 'area' in item ? item.area : undefined,
+      title: 'title' in item ? item.title : undefined,
+      commercialType: 'commercialType' in item ? item.commercialType : undefined,
+    });
     setOpen(true);
   };
+
   // const statusMap: Record<"Approve" | "Deny" | "Delete", number> = {
   //   Approve: 1,
   //   Deny: 0,
@@ -764,7 +1019,7 @@ export default function Dashboardtab({
     } catch (e) {
       console.error("Error performing action:", e);
     } finally {
-      setIsBackdropLoading(false); // ✅ hide loading
+      setIsBackdropLoading(false); // hide loading
     }
   };
 
@@ -819,7 +1074,7 @@ export default function Dashboardtab({
                 />
               }
               iconPosition="start"
-              onClick={() => setCurrentActiveTab("pending")}
+              onClick={() => setCurrentActiveTab("pending")} // This uses the string literal
               className={currentActiveTab === "pending" ? "active" : ""}
             />
 
@@ -914,9 +1169,8 @@ export default function Dashboardtab({
                         }}
                       >
                         <img
-                          src={`${
-                            import.meta.env.VITE_BASE_URL
-                          }/dashboardtab/ic_round-clear-16.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL
+                            }/dashboardtab/ic_round-clear-16.svg`}
                           alt="close icon"
                         />
                         Clear Filter
@@ -945,18 +1199,16 @@ export default function Dashboardtab({
                       >
                         <ToggleButton value="List View">
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }/dashboardtab/solar_list-linear.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }/dashboardtab/solar_list-linear.svg`}
                             alt="list-view"
                           />
                           List
                         </ToggleButton>
                         <ToggleButton value="Card View">
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }/dashboardtab/system-uicons_card-view.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }/dashboardtab/system-uicons_card-view.svg`}
                             alt="card-view"
                           />
                           Card
@@ -971,9 +1223,8 @@ export default function Dashboardtab({
                         onClick={toggleDrawer(true)}
                       >
                         <img
-                          src={`${
-                            import.meta.env.VITE_BASE_URL
-                          }/majesticons_filter-line.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL
+                            }/majesticons_filter-line.svg`}
                           alt="filter img"
                         />
                         Filter{" "} &nbsp;
@@ -991,9 +1242,8 @@ export default function Dashboardtab({
                           variant="outlined"
                         >
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }/material-symbols_sort-rounded.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }/material-symbols_sort-rounded.svg`}
                             alt="sort icon"
                             style={{ marginRight: 8 }}
                           />
@@ -1008,7 +1258,7 @@ export default function Dashboardtab({
                           selectedLabel={selectedLabel}
                           onSelect={handleSortSelect}
                           onSortChange={handleSortSelect}
-                          options={sortOptions} // ✅ also pass this or remove from props interface
+                          options={sortOptions} // also pass this or remove from props interface
                         />
                       </div>
                     )}
@@ -1036,9 +1286,8 @@ export default function Dashboardtab({
                         }}
                       >
                         <img
-                          src={`${
-                            import.meta.env.VITE_BASE_URL
-                          }/dashboardtab/ic_round-clear-16.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL
+                            }/dashboardtab/ic_round-clear-16.svg`}
                           alt="close icon"
                         />
                         Clear Filter
@@ -1067,18 +1316,16 @@ export default function Dashboardtab({
                       >
                         <ToggleButton value="List View">
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }/dashboardtab/solar_list-linear.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }/dashboardtab/solar_list-linear.svg`}
                             alt="list-view"
                           />
                           List View
                         </ToggleButton>
                         <ToggleButton value="Card View">
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }/dashboardtab/system-uicons_card-view.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }/dashboardtab/system-uicons_card-view.svg`}
                             alt="card-view"
                           />
                           Card View
@@ -1093,9 +1340,8 @@ export default function Dashboardtab({
                         onClick={toggleDrawer(true)}
                       >
                         <img
-                          src={`${
-                            import.meta.env.VITE_BASE_URL
-                          }/majesticons_filter-line.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL
+                            }/majesticons_filter-line.svg`}
                           alt="filter img"
                         />
                         Filter{" "}
@@ -1113,9 +1359,8 @@ export default function Dashboardtab({
                           variant="outlined"
                         >
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }/material-symbols_sort-rounded.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }/material-symbols_sort-rounded.svg`}
                             alt="sort icon"
                             style={{ marginRight: 8 }}
                           />
@@ -1130,7 +1375,7 @@ export default function Dashboardtab({
                           selectedLabel={selectedLabel}
                           onSelect={handleSortSelect}
                           onSortChange={handleSortSelect}
-                          options={sortOptions} // ✅ also pass this or remove from props interface
+                          options={sortOptions} // also pass this or remove from props interface
                         />
                       </div>
                     )}
@@ -1158,9 +1403,8 @@ export default function Dashboardtab({
                         }}
                       >
                         <img
-                          src={`${
-                            import.meta.env.VITE_BASE_URL
-                          }/dashboardtab/ic_round-clear-16.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL
+                            }/dashboardtab/ic_round-clear-16.svg`}
                           alt="close icon"
                         />
                         Clear Filter
@@ -1189,18 +1433,16 @@ export default function Dashboardtab({
                       >
                         <ToggleButton value="List View">
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }/dashboardtab/solar_list-linear.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }/dashboardtab/solar_list-linear.svg`}
                             alt="list-view"
                           />
                           List View
                         </ToggleButton>
                         <ToggleButton value="Card View">
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }/dashboardtab/system-uicons_card-view.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }/dashboardtab/system-uicons_card-view.svg`}
                             alt="card-view"
                           />
                           Card View
@@ -1215,9 +1457,8 @@ export default function Dashboardtab({
                         onClick={toggleDrawer(true)}
                       >
                         <img
-                          src={`${
-                            import.meta.env.VITE_BASE_URL
-                          }/majesticons_filter-line.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL
+                            }/majesticons_filter-line.svg`}
                           alt="filter img"
                         />
                         Filter{" "}
@@ -1235,9 +1476,8 @@ export default function Dashboardtab({
                           variant="outlined"
                         >
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }/material-symbols_sort-rounded.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }/material-symbols_sort-rounded.svg`}
                             alt="sort icon"
                             style={{ marginRight: 8 }}
                           />
@@ -1252,7 +1492,7 @@ export default function Dashboardtab({
                           selectedLabel={selectedLabel}
                           onSelect={handleSortSelect}
                           onSortChange={handleSortSelect}
-                          options={sortOptions} // ✅ also pass this or remove from props interface
+                          options={sortOptions} // also pass this or remove from props interface
                         />
                       </div>
                     )}
@@ -1280,9 +1520,8 @@ export default function Dashboardtab({
                         }}
                       >
                         <img
-                          src={`${
-                            import.meta.env.VITE_BASE_URL
-                          }/dashboardtab/ic_round-clear-16.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL
+                            }/dashboardtab/ic_round-clear-16.svg`}
                           alt="close icon"
                         />
                         Clear Filter
@@ -1308,18 +1547,16 @@ export default function Dashboardtab({
                       >
                         <ToggleButton value="List View">
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }/dashboardtab/solar_list-linear.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }/dashboardtab/solar_list-linear.svg`}
                             alt="list-view"
                           />
                           List View
                         </ToggleButton>
                         <ToggleButton value="Card View">
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }/dashboardtab/system-uicons_card-view.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }/dashboardtab/system-uicons_card-view.svg`}
                             alt="card-view"
                           />
                           Card View
@@ -1334,9 +1571,8 @@ export default function Dashboardtab({
                         onClick={toggleDrawer(true)}
                       >
                         <img
-                          src={`${
-                            import.meta.env.VITE_BASE_URL
-                          }/majesticons_filter-line.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL
+                            }/majesticons_filter-line.svg`}
                           alt="filter img"
                         />
                         Filter{" "}
@@ -1354,9 +1590,8 @@ export default function Dashboardtab({
                           variant="outlined"
                         >
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }/material-symbols_sort-rounded.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }/material-symbols_sort-rounded.svg`}
                             alt="sort icon"
                             style={{ marginRight: 8 }}
                           />
@@ -1371,7 +1606,7 @@ export default function Dashboardtab({
                           selectedLabel={selectedLabel}
                           onSelect={handleSortSelect}
                           onSortChange={handleSortSelect}
-                          options={sortOptions} // ✅ also pass this or remove from props interface
+                          options={sortOptions} // also pass this or remove from props interface
                         />
                       </div>
                     )}
@@ -1423,15 +1658,20 @@ export default function Dashboardtab({
       <CustomTabPanel value={value} index={0}>
         {!cardView ? (
           <Table
-            //@ts-ignore
-            data={tableValues}
+          //@ts-ignore
+            data={tableValues.map(item => ({
+              ...item,
+              price: 0,
+              description: item.description || ""
+            }))}
             properties={properties === "postedProperties" ? "myposts" : properties}
             onScrollChange={handleChildScroll}
-            handleOpenModal={handleOpenModal}
+            //@ts-ignore
+            handleOpenModal={handleOpenModal as (action: "Approve" | "Deny" | "Delete", item: Property) => void}
             tabType="pending"
             currentActiveTab={currentActiveTab}
             onTabChange={(tab) =>
-              setCurrentActiveTab(tab.toLowerCase() as TabStatus)
+              setCurrentActiveTab(tab.toLowerCase() as TabStatusType)
             }
           />
         ) : (
@@ -1449,15 +1689,20 @@ export default function Dashboardtab({
       <CustomTabPanel value={value} index={1}>
         {!cardView ? (
           <Table
-            //@ts-ignore
-            data={tableValues}
+          //@ts-ignore
+            data={tableValues.map(item => ({
+              ...item,
+              price: 0,
+              description: item.description || "" 
+            }))}
             properties={properties === "postedProperties" ? "myposts" : properties}
             onScrollChange={handleChildScroll}
-            handleOpenModal={handleOpenModal}
+            //@ts-ignore
+            handleOpenModal={handleOpenModal as (action: "Approve" | "Deny" | "Delete", item: Property) => void}
             tabType="approved"
             currentActiveTab={currentActiveTab}
             onTabChange={(tab) =>
-              setCurrentActiveTab(tab.toLowerCase() as TabStatus)
+              setCurrentActiveTab(tab.toLowerCase() as TabStatusType)
             }
           />
         ) : (
@@ -1475,15 +1720,20 @@ export default function Dashboardtab({
       <CustomTabPanel value={value} index={2}>
         {!cardView ? (
           <Table
-            //@ts-ignore
-            data={tableValues}
+          //@ts-ignore
+            data={tableValues.map(item => ({
+              ...item,
+              price: 0,
+              description: item.description || "" 
+            }))}
             properties={properties === "postedProperties" ? "myposts" : properties}
             onScrollChange={handleChildScroll}
-            handleOpenModal={handleOpenModal}
+            //@ts-ignore
+            handleOpenModal={handleOpenModal as (action: "Approve" | "Deny" | "Delete", item: Property) => void}
             tabType="rejected"
             currentActiveTab={currentActiveTab}
             onTabChange={(tab) =>
-              setCurrentActiveTab(tab.toLowerCase() as TabStatus)
+              setCurrentActiveTab(tab.toLowerCase() as TabStatusType)
             }
           />
         ) : (
@@ -1501,15 +1751,20 @@ export default function Dashboardtab({
       <CustomTabPanel value={value} index={3}>
         {!cardView ? (
           <Table
-            //@ts-ignore
-            data={tableValues}
+          //@ts-ignore
+            data={tableValues.map(item => ({
+              ...item,
+              price: 0,
+              description: item.description || "" 
+            }))}
             properties={properties === "postedProperties" ? "myposts" : properties}
             onScrollChange={handleChildScroll}
-            handleOpenModal={handleOpenModal}
+            //@ts-ignore
+            handleOpenModal={handleOpenModal as (action: "Approve" | "Deny" | "Delete", item: Property) => void}
             tabType="deleted"
             currentActiveTab={currentActiveTab}
             onTabChange={(tab) =>
-              setCurrentActiveTab(tab.toLowerCase() as TabStatus)
+              setCurrentActiveTab(tab.toLowerCase() as TabStatusType)
             }
           />
         ) : (
@@ -1524,14 +1779,14 @@ export default function Dashboardtab({
         )}
       </CustomTabPanel>
 
+
       <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
         <div className="filter-div-wrapper">
           <div className="filter-header">
             <p>
               <img
-                src={`${
-                  import.meta.env.VITE_BASE_URL
-                }/dashboardtab/icon-park-outline_down.svg`}
+                src={`${import.meta.env.VITE_BASE_URL
+                  }/dashboardtab/icon-park-outline_down.svg`}
                 alt="icon park"
                 style={{ cursor: "pointer" }}
                 onClick={() => setDrawerOpen(false)}
@@ -1539,17 +1794,17 @@ export default function Dashboardtab({
               &nbsp; Filter By
             </p>
             <p className="filtercount">
-              
+
               Filter{checkListCount > 1 ? "s" : ""} &nbsp;
               {checkListCount > 0 && (
-                 <span className="count-badge">({checkListCount})</span> 
+                <span className="count-badge">({checkListCount})</span>
               )}
             </p>
           </div>
           <div className="checklist-content row">
             {(
               filterOptions[properties === "all" ? "all" : properties] ?? []
-            ).map((section: any, index: any) => (
+            ).map((section: FilterSection, index: number) => (
               <div className="checklist-list col-md-12" key={index}>
                 <Accordion>
                   <AccordionSummary
@@ -1562,7 +1817,7 @@ export default function Dashboardtab({
 
                   <AccordionDetails key={resetCounter}>
                     <div className="label-wrapper">
-                      {section.options.map((opt: any, i: any) => (
+                      {section.options.map((opt: string, i: number) => (
                         <FormControlLabel
                           key={i}
                           control={
@@ -1589,9 +1844,8 @@ export default function Dashboardtab({
               }}
             >
               <img
-                src={`${
-                  import.meta.env.VITE_BASE_URL
-                }/dashboardtab/ic_round-clear-24.svg`}
+                src={`${import.meta.env.VITE_BASE_URL
+                  }/dashboardtab/ic_round-clear-24.svg`}
                 alt="close icon"
               />
               Clear
@@ -1614,12 +1868,12 @@ export default function Dashboardtab({
 }
 
 interface ProCardProps {
-  properties: any;
+  properties: Property[];
   onScrollChange: (scrollTop: number) => void;
-  formatData: any;
-  handleOpenModal: (action: "Approve" | "Deny" | "Delete", item: any) => void;
+  formatData: PropertyItem[];
+  handleOpenModal: (action: "Approve" | "Deny" | "Delete", item: Property) => void;
   sortOption: string;
-  currentActiveTab: "pending" | "approved" | "rejected" | "deleted";
+  currentActiveTab: TabStatusType;
 }
 const modalStyle = {
   position: "absolute",
@@ -1646,8 +1900,26 @@ const PropertyCardList = ({
   const [popoverAnchorEl, setPopoverAnchorEl] = useState<HTMLElement | null>(
     null
   );
-  const formatedData: (PropertyItem & PropertyViewWithSource)[] = properties;
-  const [sortedData, setSortedData] = useState(properties);
+  const formatedData: (PropertyItem & PropertyViewWithSource)[] = properties.map(
+    (prop: Property): PropertyItem & PropertyViewWithSource => ({
+      _source: 'commercialType' in prop ? 'commercial' :
+        'plotType' in prop ? 'plot' : 'residential',
+      _id: prop._id ?? "",
+      propertyType: prop.propertyType ?? "",
+      location: prop.location,
+      rent: prop.rent ? {
+        rentAmount: prop.rent.rentAmount?.toString()
+      } : undefined,
+      images: prop.images,
+      createdAt: ('createdAt' in prop ? prop.createdAt : undefined),
+      //@ts-ignore
+      postOwner: ('postOwner' in prop ? prop.postOwner : undefined),
+      area: ('area' in prop ? prop.area : undefined),
+      title: ('title' in prop ? prop.title : undefined),
+      commercialType: ('commercialType' in prop ? prop.commercialType : undefined),
+    })
+  );
+  const [sortedData, setSortedData] = useState<Property[]>(properties);
 
   // const allIds = formatedData.map((data: PropertyItem) => data._id);
   // const [visibleCount, setVisibleCount] = useState<number>(5);
@@ -1664,8 +1936,8 @@ const PropertyCardList = ({
   }, 200);
 
   useEffect(() => {
-    setSortedData(formatedData); // sync when new props arrive
-  }, [formatedData]);
+    setSortedData(properties); // sync when new props arrive
+  }, [properties]);
 
   useEffect(() => {
     let sorted = [...properties];
@@ -1674,29 +1946,29 @@ const PropertyCardList = ({
       case "Newest":
         sorted.sort(
           (a, b) =>
-            new Date(b.createdAt ?? 0).getTime() -
-            new Date(a.createdAt ?? 0).getTime()
+            new Date(('createdAt' in b ? b.createdAt : '') ?? 0).getTime() -
+            new Date(('createdAt' in a ? a.createdAt : '') ?? 0).getTime()
         );
         break;
       case "Oldest":
         sorted.sort(
           (a, b) =>
-            new Date(a.createdAt ?? 0).getTime() -
-            new Date(b.createdAt ?? 0).getTime()
+            new Date(('createdAt' in a ? a.createdAt : '') ?? 0).getTime() -
+            new Date(('createdAt' in b ? b.createdAt : '') ?? 0).getTime()
         );
         break;
       case "Price: High to Low":
         sorted.sort(
           (a, b) =>
-            parseFloat(String(b?.rent?.rentAmount ?? "0")) -
-            parseFloat(String(a?.rent?.rentAmount ?? "0"))
+            parseFloat(String(a?.rent?.rentAmount ?? "0")) -
+            parseFloat(String(b?.rent?.rentAmount ?? "0"))
         );
         break;
       case "Price: Low to High":
         sorted.sort(
           (a, b) =>
-            parseFloat(String(a?.rent?.rentAmount ?? "0")) -
-            parseFloat(String(b?.rent?.rentAmount ?? "0"))
+            parseFloat(String(b?.rent?.rentAmount ?? "0")) -
+            parseFloat(String(a?.rent?.rentAmount ?? "0"))
         );
         break;
       default:
@@ -1711,8 +1983,8 @@ const PropertyCardList = ({
     if (!container) return;
 
     container.addEventListener("scroll", handleScroll);
-    //return () => container.removeEventListener('scroll', handleScroll);
-  }, []);
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]); //handleScroll to dependencies
 
   useEffect(() => {
     const container = containerRef.current;
@@ -1779,7 +2051,7 @@ const PropertyCardList = ({
     }
   };
 
-  const handleEdit = (item: any) => {
+  const handleEdit = (item: EditableProperty) => {
     // console.log(item,"start")
     // const singularProperty = getSingularPropertyType();
     // console.log("type",properties, singularProperty)
@@ -1816,8 +2088,7 @@ const PropertyCardList = ({
     const singularProperty = getSingularPropertyType(); // fix here
     try {
       const response = await axios.put(
-        `${
-          import.meta.env.VITE_BackEndUrl
+        `${import.meta.env.VITE_BackEndUrl
         }/api/adminpermission/${singularProperty}/${id}`,
         { status: `${status}` },
         {
@@ -1881,12 +2152,11 @@ const PropertyCardList = ({
               No properties available...
             </div>
           )}
-          {sortedData.map((item: PropertyItem) => (
-            <Grid item xs={12} sm={12} md={12} key={item._id}>
-              <div className="card-view-wrapper row" key={item._id}>
+          {(sortedData as ExtendedProperty[]).map((item: ExtendedProperty, index: number) => (
+            <Grid item xs={12} sm={12} md={12} key={item._id || `property-${index}`}>
+              <div className="card-view-wrapper row">
                 <div className="card-view-img col-md-6">
                   <Carousel
-                    //@ts-ignore
                     images={item?.images}
                     price="£15,000 pcm"
                     area="485,700 sq. ft."
@@ -1896,13 +2166,14 @@ const PropertyCardList = ({
                     className="cardview-checkbox"
                     aria-describedby={popoverId}
                     onClick={handlePopoverClick}
-                    checked={selectedRows.includes(item._id)}
+                    checked={selectedRows.includes(item._id ?? "")}
                     onChange={(e) => {
-                      if (e.target.checked) {
-                        setSelectedRows((prev) => [...prev, item._id]);
-                      } else {
+                      const itemId = item._id;
+                      if (e.target.checked && itemId) {
+                        setSelectedRows((prev) => [...prev, itemId]);
+                      } else if (itemId) {
                         setSelectedRows((prev) =>
-                          prev.filter((id) => id !== item._id)
+                          prev.filter((id) => id !== itemId)
                         );
                       }
                     }}
@@ -1912,7 +2183,7 @@ const PropertyCardList = ({
                 <div className="card-view-content col-md-6">
                   <div className="card-view-address-bar">
                     <div className="cardview-address-detail">
-                      <h6>{item?.title || "No Landmark"}</h6>
+                      <h6>{item.title || "No Landmark"}</h6>
                       <p>{item?.location?.address}</p>
                     </div>
                     <div className="cardview-rent">
@@ -1929,15 +2200,13 @@ const PropertyCardList = ({
 
                   <div className="cardview-posted-detail">
                     <span className="posted-span">
-                      {item?.postOwner?.userName} | {item?.createdAt}
+                      {item.postOwner?.userName || "Unknown"} | {item.createdAt || "N/A"}
                     </span>
                   </div>
                   <div className="card-view-icon-wrapper">
                     <div className="card-icon-view">
                       <img
-                        src={`${
-                          import.meta.env.VITE_BASE_URL
-                        }/dashboardtab/view-card.png`}
+                        src={`${import.meta.env.VITE_BASE_URL}/dashboardtab/view-card.png`}
                         alt="icon-edit"
                         onClick={() => item._id && handleView(item._id)}
                         style={{ cursor: "pointer" }}
@@ -1945,19 +2214,15 @@ const PropertyCardList = ({
                     </div>
                     <div className="card-icon-edit">
                       <img
-                        src={`${
-                          import.meta.env.VITE_BASE_URL
-                        }/dashboardtab/Icon_Edit.svg`}
+                        src={`${import.meta.env.VITE_BASE_URL}/dashboardtab/Icon_Edit.svg`}
                         alt="icon-edit"
-                        onClick={() => handleEdit(item)}
+                        onClick={() => handleEdit(item as EditableProperty)}
                       />
                     </div>
                     {currentActiveTab !== "approved" && (
                       <div className="card-icon-approve">
                         <img
-                          src={`${
-                            import.meta.env.VITE_BASE_URL
-                          }/dashboardtab/Icon_Tick.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL}/dashboardtab/Icon_Tick.svg`}
                           alt="icon-approve"
                           style={{ cursor: "pointer" }}
                           onClick={() => handleOpenModal("Approve", item)}
@@ -1967,9 +2232,7 @@ const PropertyCardList = ({
                     {currentActiveTab !== "rejected" && (
                       <div className="card-icon-deny">
                         <img
-                          src={`${
-                            import.meta.env.VITE_BASE_URL
-                          }/dashboardtab/Icon_Deny.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL}/dashboardtab/Icon_Deny.svg`}
                           alt="icon-deny"
                           style={{ cursor: "pointer" }}
                           onClick={() => handleOpenModal("Deny", item)}
@@ -1979,9 +2242,7 @@ const PropertyCardList = ({
                     {currentActiveTab !== "deleted" && (
                       <div className="card-icon-delete">
                         <img
-                          src={`${
-                            import.meta.env.VITE_BASE_URL
-                          }/dashboardtab/Icon-Delete-orange.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL}/dashboardtab/Icon-Delete-orange.svg`}
                           alt="icon-delete"
                           style={{ cursor: "pointer" }}
                           onClick={() => handleOpenModal("Delete", item)}
