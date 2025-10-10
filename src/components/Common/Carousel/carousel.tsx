@@ -20,6 +20,15 @@ interface CarouselProps {
   area?: string;
 }
 
+//overrides https in live
+const getImageUrl = (url: string): string => {
+  if (process.env.NODE_ENV === "development") {
+    return url.replace(/^https:/, "http:");
+  }
+  return url;
+};
+//override ends
+
 const ImageCountBadge = styled(Badge)(() => ({
   position: "absolute",
   top: 8,
@@ -104,13 +113,9 @@ const Carousel: React.FC<CarouselProps> = ({ images}) => {
                 }}
               >
                
-
+{/* overrides starts here */}
 <img
-  src={
-    process.env.NODE_ENV === "development"
-      ? img.replace(/^https:/, "http:")
-      : img
-  }
+  src={getImageUrl(img)}
   alt={`Slide ${index + 1}`}
   style={{
     width: "100%",
@@ -119,7 +124,7 @@ const Carousel: React.FC<CarouselProps> = ({ images}) => {
     display: "block",
   }}
 />
-
+{/* override ends */}
 
                 {/* <img
                   src={img}
