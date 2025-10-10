@@ -18,6 +18,7 @@ export interface Profile {
     address?: string;
   };
   profilePicture?: string;
-  role: "Admin" | "Marketing" | "User";
+  role: "Admin" | "Marketing" | "User" | "SuperAdmin";
   description?: string;
+  password?: string;
 }

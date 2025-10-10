@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { createProfile } from "./Services/profileService";
+import { createProfile, signupProfile } from "./Services/profileService";
 import type { Profile } from "./ProfileDashboard/ProfileDashboard.model";
 import "./Services/service.scss"
 import { Link } from "react-router-dom";
@@ -52,9 +52,17 @@ function CreateProfile() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await createProfile(form);
+    try {
+    if (form.role === "User") {
+      await createProfile(form);
+    } else {
+      await signupProfile(form);
+    }
     navigate("/allprofile");
-  };
+  } catch (error) {
+    console.error("Error creating profile:", error);
+  }
+};
 
   return (
   <div className="create-profile-wrapper">
@@ -110,6 +118,7 @@ function CreateProfile() {
   name="password"
   placeholder="Password"
   onChange={handleChange}
+  disabled={form.role === "User"}
 />
 
         <input

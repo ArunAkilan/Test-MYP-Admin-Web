@@ -53,6 +53,7 @@ if (currentUserRole?.toLowerCase() !== "superadmin") {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [sloading, setsLoading] = useState(true);
   const [selectedRole, setSelectedRole] = useState<string>("All");   //filter by role
+  const [superAdminDeleteAttempt, setSuperAdminDeleteAttempt] = useState(false); //for superadmin delete warning
 
   useEffect(() => {
     loadProfiles();
@@ -76,10 +77,19 @@ if (currentUserRole?.toLowerCase() !== "superadmin") {
   return counts;
 };
 
-  const openDeleteDialog = (id: string) => {
-    setSelectedId(id);
-    setConfirmOpen(true);
-  };
+const openDeleteDialog = (id: string, role: string) => {
+  if (role.toLowerCase() === "superadmin") {
+    setSuperAdminDeleteAttempt(true);
+    return;
+  }
+  setSelectedId(id);
+  setConfirmOpen(true);
+};
+
+  // const openDeleteDialog = (id: string) => {
+  //   setSelectedId(id);
+  //   setConfirmOpen(true);
+  // };
 
   const confirmDelete = async () => {
     if (selectedId) {
@@ -186,12 +196,19 @@ if (currentUserRole?.toLowerCase() !== "superadmin") {
                         Edit
                       </button>
                       <div className="delete-confirmation">
+
                         <button
-                          className="delete-btn"
-                          onClick={() => openDeleteDialog(p._id)}
-                        >
-                          Delete
-                        </button>
+  className="delete-btn"
+  onClick={() => openDeleteDialog(p._id, p.role)}
+  title={
+    p.role.toLowerCase() === "superadmin"
+      ? "SuperAdmin profiles cannot be deleted"
+      : "Delete Profile"
+  }
+>
+  Delete
+</button>
+
                       </div>
                     </td>
                   </tr>
@@ -226,6 +243,22 @@ if (currentUserRole?.toLowerCase() !== "superadmin") {
               Profile deleted successfully!
             </Alert>
           </Snackbar>
+          <Snackbar
+  open={superAdminDeleteAttempt}
+  autoHideDuration={3000}
+  onClose={() => setSuperAdminDeleteAttempt(false)}
+  anchorOrigin={{ vertical: "top", horizontal: "center" }}
+>
+  <Alert
+    onClose={() => setSuperAdminDeleteAttempt(false)}
+    severity="warning"
+    variant="filled"
+    sx={{ width: "100%" }}
+  >
+    SuperAdmin profiles cannot be deleted!
+  </Alert>
+</Snackbar>
+
         </div>
       )}
     </div>
