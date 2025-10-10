@@ -164,6 +164,8 @@ td  {
 
 .table-scroll {
   overflow-x: auto;
+  overflow-y: auto;
+  max-height: 400px;
   scroll-behavior: smooth;
   white-space: nowrap;
 }
@@ -206,6 +208,8 @@ td  {
 
 .table-scroll {
   overflow-x: auto;
+  overflow-y: auto;
+  max-height: 60vh;
   pointer-events: auto;
 }
 
