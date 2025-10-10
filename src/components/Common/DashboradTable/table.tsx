@@ -32,15 +32,15 @@ interface TableProps {
   //data: ResidentialProperty[];
   data: PropertyDataResponse | ResidentialProperty[];
   properties?:
-    | "all"
-    | "residential"
-    | "residentials"
-    | "commercial"
-    | "commercials"
-    | "plot"
-    | "plots"
-    | "myposts"
-    | undefined;
+  | "all"
+  | "residential"
+  | "residentials"
+  | "commercial"
+  | "commercials"
+  | "plot"
+  | "plots"
+  | "myposts"
+  | undefined;
   onScrollChange: (scrollTop: number) => void;
   handleOpenModal: (
     action: "Approve" | "Deny" | "Delete",
@@ -140,7 +140,7 @@ function Table({
       const token = localStorage.getItem("token"); // Safely retrieve the auth token
 
       await axios.put(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/adminpermission`,
+        `${import.meta.env.VITE_BackEndUrl}/api/adminpermission`,
         {
           status: status.toString(),
           properties: [
@@ -173,10 +173,10 @@ function Table({
           (properties === "residentials"
             ? "residential"
             : properties === "commercials"
-            ? "commercial"
-            : properties === "plots"
-            ? "plot"
-            : "residential"), // default fallback if everything is missing
+              ? "commercial"
+              : properties === "plots"
+                ? "plot"
+                : "residential"), // default fallback if everything is missing
       }));
     }
 
@@ -209,10 +209,10 @@ function Table({
   //   navigate(`/commercial/create`, { state: { data: item, mode: "edit" } });};
   const handleEdit = (item: any) => {
     console.log("Editing item:", item);
-  
+
     // Valid types to allow dynamic routing
     const validTypes = ["commercial", "residential", "plot"];
-  
+
     // Fallback chain to extract property type
     const rawType =
       item?.type?.toLowerCase?.() ||
@@ -220,9 +220,9 @@ function Table({
       item?._source?.type?.toLowerCase?.() ||
       item?._source?.propertyType?.toLowerCase?.() ||
       "residential";
-  
+
     const propertyType = validTypes.includes(rawType) ? rawType : "residential";
-  
+
     // Navigate to dynamic path
     navigate(`/${propertyType}/create`, {
       state: { data: item, mode: "edit" },
@@ -324,20 +324,20 @@ function Table({
 
     const confirmationMessage = `Are you sure you want to ${action.toLowerCase()} the selected properties?`;
     const isConfirmed = window.confirm(confirmationMessage);
-  
+
     if (!isConfirmed) return; // Exit if user cancels
-    
+
     const statusCode = statusMap[action];
-  
+
     const properties = selectedRows.map((id) => {
       const item = formatedData.find((itm) => itm._id === id);
-  
+
       return {
         id,
         type: item?.type || item?.propertyType || item?._source || "unknown", // dynamic fallback chain
       };
     });
-  
+
     try {
       setIsBackdropLoading(true);
       const token = localStorage.getItem("token");
@@ -372,7 +372,7 @@ function Table({
       setIsBackdropLoading(false);
     }
   };
-  
+
   const truncateWords = (text: string = "", wordLimit: number): string => {
     const words = text.trim().split(/\s+/);
     return words.length > wordLimit
@@ -425,10 +425,10 @@ function Table({
         properties === "residentials"
           ? "residential"
           : properties === "commercials"
-          ? "commercial"
-          : properties === "plots"
-          ? "plot"
-          : "residential",
+            ? "commercial"
+            : properties === "plots"
+              ? "plot"
+              : "residential",
     }));
   }, [data, properties]);
 
@@ -463,7 +463,7 @@ function Table({
   if (formattedData.length === 0) {
     return <p>No data available</p>; // Now this is safe
   }
-  
+
 
   return (
     <>
@@ -489,7 +489,7 @@ function Table({
               ◀
             </button>
           )}
-          
+
           {Array.isArray(formatedData) && formatedData.length === 0 ? (
             <EmptyState tabType={tabType} />
           ) : (
@@ -523,9 +523,8 @@ function Table({
                       >
                         Property Name
                         <img
-                          src={`${
-                            import.meta.env.VITE_BASE_URL
-                          }src/assets/table/arrow-up.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL
+                            }src/assets/table/arrow-up.svg`}
                           alt="arrow"
                           className={
                             sortConfig?.key === "title"
@@ -542,9 +541,8 @@ function Table({
                       >
                         Area
                         <img
-                          src={`${
-                            import.meta.env.VITE_BASE_URL
-                          }src/assets/table/arrow-up.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL
+                            }src/assets/table/arrow-up.svg`}
                           alt="arrow"
                           className={
                             sortConfig?.key === "totalArea"
@@ -561,9 +559,8 @@ function Table({
                       >
                         Status
                         <img
-                          src={`${
-                            import.meta.env.VITE_BASE_URL
-                          }src/assets/table/arrow-up.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL
+                            }src/assets/table/arrow-up.svg`}
                           alt="arrow"
                           className={
                             sortConfig?.key === "status"
@@ -581,9 +578,8 @@ function Table({
                         >
                           Floors
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }src/assets/table/arrow-up.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
                               sortConfig?.key === "totalFloors"
@@ -602,9 +598,8 @@ function Table({
                         >
                           Floors
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }src/assets/table/arrow-up.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
                               sortConfig?.key === "totalFloors"
@@ -623,9 +618,8 @@ function Table({
                         >
                           Floors
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }src/assets/table/arrow-up.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
                               sortConfig?.key === "totalFloors"
@@ -644,9 +638,8 @@ function Table({
                         >
                           Facing
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }src/assets/table/arrow-up.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
                               sortConfig?.key === "facingDirection"
@@ -665,9 +658,8 @@ function Table({
                         >
                           Facing
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }src/assets/table/arrow-up.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
                               sortConfig?.key === "facingDirection"
@@ -686,9 +678,8 @@ function Table({
                         >
                           Facing
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }src/assets/table/arrow-up.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
                               sortConfig?.key === "facingDirection"
@@ -708,9 +699,8 @@ function Table({
                         >
                           Furnish
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }src/assets/table/arrow-up.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
                               sortConfig?.key === "furnishingType"
@@ -729,9 +719,8 @@ function Table({
                         >
                           Furnish
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }src/assets/table/arrow-up.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
                               sortConfig?.key === "furnishingType"
@@ -750,9 +739,8 @@ function Table({
                         >
                           Wahroom
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }src/assets/table/arrow-up.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
                               sortConfig?.key === "washroom"
@@ -771,9 +759,8 @@ function Table({
                         >
                           Washroom
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }src/assets/table/arrow-up.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
                               sortConfig?.key === "washroom"
@@ -792,9 +779,8 @@ function Table({
                         >
                           Plot Type
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }src/assets/table/arrow-up.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
                               sortConfig?.key === "plotType"
@@ -813,9 +799,8 @@ function Table({
                         >
                           Plot Type
                           <img
-                            src={`${
-                              import.meta.env.VITE_BASE_URL
-                            }src/assets/table/arrow-up.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL
+                              }src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
                               sortConfig?.key === "plotType"
@@ -833,9 +818,8 @@ function Table({
                       >
                         Type
                         <img
-                          src={`${
-                            import.meta.env.VITE_BASE_URL
-                          }src/assets/table/arrow-up.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL
+                            }src/assets/table/arrow-up.svg`}
                           alt="arrow"
                           className={
                             sortConfig?.key === "propertyType"
@@ -897,9 +881,8 @@ function Table({
                             title={item?.location?.address}
                           >
                             <img
-                              src={`${
-                                import.meta.env.VITE_BASE_URL
-                              }/ICON_Location.svg`}
+                              src={`${import.meta.env.VITE_BASE_URL
+                                }/ICON_Location.svg`}
                               alt="location"
                             />
                             <span className="truncate-text">
@@ -913,30 +896,30 @@ function Table({
                         {(properties === "commercials" ||
                           properties === "residentials" ||
                           properties === "all") && (
-                          <>
-                            <td>{item?.totalFloors}</td>
-                            <td>{item?.facingDirection}</td>
-                          </>
-                        )}
+                            <>
+                              <td>{item?.totalFloors}</td>
+                              <td>{item?.facingDirection}</td>
+                            </>
+                          )}
 
                         {(properties === "residentials" ||
                           properties === "all") && (
-                          <td
-                            className="furnish"
-                            data-bs-toggle="tooltip"
-                            data-bs-placement="bottom"
-                            title={item?.furnishingType}
-                          >
-                            <span className="truncate-text">
-                              {truncateWords(item?.furnishingType, 12)}
-                            </span>
-                          </td>
-                        )}
+                            <td
+                              className="furnish"
+                              data-bs-toggle="tooltip"
+                              data-bs-placement="bottom"
+                              title={item?.furnishingType}
+                            >
+                              <span className="truncate-text">
+                                {truncateWords(item?.furnishingType, 12)}
+                              </span>
+                            </td>
+                          )}
 
                         {(properties === "commercials" ||
                           properties === "all") && (
-                          <td className="washroom">{item?.washroom}</td>
-                        )}
+                            <td className="washroom">{item?.washroom}</td>
+                          )}
                         {(properties === "plots" || properties === "all") && (
                           <td className="plot-type">{item?.plotType}</td>
                         )}
@@ -946,9 +929,8 @@ function Table({
                         <td className="Links">
                           <div className="link-wrap">
                             <img
-                              src={`${
-                                import.meta.env.VITE_BASE_URL
-                              }/tabelimg/Eye view.svg`}
+                              src={`${import.meta.env.VITE_BASE_URL
+                                }/tabelimg/Eye view.svg`}
                               alt="view"
                               onClick={() => {
                                 console.log("item.id", item._id);
