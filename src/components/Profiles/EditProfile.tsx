@@ -80,12 +80,23 @@ function EditProfile() {
             name="contactInformation.primaryPhone"
             value={form.contactInformation?.primaryPhone || ""}
             onChange={handleChange}
+            disabled={form.role === "SuperAdmin"} 
           />
-          <select name="role" onChange={handleChange} value={form.role}>
+          
+          <select name="role" onChange={handleChange} value={form.role} disabled={form.role === "SuperAdmin"} >
             <option value="Admin">Admin</option>
             <option value="Marketing">Marketing</option>
             <option value="User">User</option>
+           <option value="SuperAdmin">Super Admin</option>
           </select>
+          
+<input
+  type="text"
+  value="Password"
+  disabled
+/>
+
+
           <input
             name="description"
             value={form.description || ""}

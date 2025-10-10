@@ -20,4 +20,5 @@ export interface Profile {
   profilePicture?: string;
   role: "Admin" | "Marketing" | "User" | "SuperAdmin";
   description?: string;
+  password?: string;
 }
