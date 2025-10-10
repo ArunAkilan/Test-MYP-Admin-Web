@@ -242,7 +242,7 @@ const filterOptions = {
     { heading: "Type", options: ["Residential", "Commercial", "Plot"] },
     { heading: "Facing", options: ["North", "East", "West", "South", "North East", "North West", "South East", "South West"] },
     { heading: "Area", options: ["Under 500 sq.ft", "500-1000 sq.ft", "1000-2000 sq.ft", "2000-5000 sq.ft", "Above 5000 sq.ft"] },
-    { heading: "Floors", options: ["Ground Floor", "1st Floor", "2nd Floor", "3rd Floor", "4th Floor", "5th Floor", "Above 5th Floor"] },
+    { heading: "Property On Floor", options: ["Ground Floor", "1st Floor", "2nd Floor", "3rd Floor", "4th Floor", "5th Floor", "Above 5th Floor"] },
   ],
   
   residentials: [
@@ -252,7 +252,7 @@ const filterOptions = {
     { heading: "Facing", options: ["North", "East", "West", "South", "North East", "North West", "South East", "South West"] },
     { heading: "Furnishing", options: ["Fully Furnished", "Semi Furnished", "Unfurnished"] },
     { heading: "Area", options: ["Under 500 sq.ft", "500-1000 sq.ft", "1000-2000 sq.ft", "2000-5000 sq.ft", "Above 5000 sq.ft"] },
-    { heading: "Floors", options: ["Ground Floor", "1st Floor", "2nd Floor", "3rd Floor", "4th Floor", "5th Floor", "Above 5th Floor"] },
+    { heading: "Property On Floor", options: ["Ground Floor", "1st Floor", "2nd Floor", "3rd Floor", "4th Floor", "5th Floor", "Above 5th Floor"] },
     { heading: "Parking", options: ["With Parking", "None"] },
     { heading: "Tenant Preference", options: ["Bachelor", "Family Only"] },
     { heading: "Accessibility", options: ["Lift Access", "Ramp Access", "Stair Access"] },
@@ -264,7 +264,7 @@ const filterOptions = {
     { heading: "Facing", options: ["North", "East", "West", "South", "North East", "North West", "South East", "South West"] },
     { heading: "Washroom", options: ["None", "Public", "Common", "Private"] },
     { heading: "Area", options: ["Under 500 sq.ft", "500-1000 sq.ft", "1000-2000 sq.ft", "2000-5000 sq.ft", "Above 5000 sq.ft"] },
-    { heading: "Floors", options: ["Ground Floor", "1st Floor", "2nd Floor", "3rd Floor", "4th Floor", "5th Floor", "Above 5th Floor"] },
+    { heading: "Property On Floor", options: ["Ground Floor", "1st Floor", "2nd Floor", "3rd Floor", "4th Floor", "5th Floor", "Above 5th Floor"] },
     { heading: "Parking", options: ["With Parking", "None"] },
     { heading: "Accessibility", options: ["Lift Access", "Ramp Access", "Stair Access"] },
   ],
@@ -281,7 +281,7 @@ const filterOptions = {
     { heading: "Type", options: ["Residential", "Commercial", "Plot"] },
     { heading: "Facing", options: ["North", "East", "West", "South", "North East", "North West", "South East", "South West"] },
     { heading: "Area", options: ["Under 500 sq.ft", "500-1000 sq.ft", "1000-2000 sq.ft", "2000-5000 sq.ft", "Above 5000 sq.ft"] },
-    { heading: "Floors", options: ["Ground Floor", "1st Floor", "2nd Floor", "3rd Floor", "4th Floor", "5th Floor", "Above 5th Floor"] },
+    { heading: "Property On Floor", options: ["Ground Floor", "1st Floor", "2nd Floor", "3rd Floor", "4th Floor", "5th Floor", "Above 5th Floor"] },
   ]
 };
 
@@ -453,7 +453,7 @@ const filterOptions = {
         
         // Special handling needed for these
         "Area": "area", // No direct API support - frontend filter
-        "Floors": "floors", // No direct API support - frontend filter  
+        "Property On Floor": "floors", // No direct API support - frontend filter  
         "Type": "type", // Residential/Commercial/Plot - frontend filter
       };
   
@@ -470,6 +470,7 @@ const filterOptions = {
       const filterSection = filterOptions[properties === "all" ? "all" : properties];
       
       filterSection?.forEach((section: FilterSection) => {
+        
         const key = headingToKey[section.heading];
         const selectedOptions = section.options.filter((opt: string) => filters.includes(opt));
         
@@ -648,7 +649,7 @@ const filterOptions = {
       
       if (facingFilters.length > 0 && (endpoint === "residentials" || endpoint === "plots")) {
         result = result.filter((item: Property) => {
-          return facingFilters.includes(item.facingDirection);
+          return item.facingDirection !== undefined && facingFilters.includes(item.facingDirection);
         });
         console.log(`Frontend Facing filter applied for ${endpoint}:`, result.length);
       }
@@ -945,6 +946,7 @@ const filterOptions = {
       } : undefined,
       images: item.images,
       createdAt: item.createdAt,
+      //@ts-ignore
       postOwner: 'postOwner' in item ? item.postOwner : undefined,
       area: 'area' in item ? item.area : undefined,
       title: 'title' in item ? item.title : undefined,
@@ -1657,6 +1659,7 @@ const filterOptions = {
       <CustomTabPanel value={value} index={0}>
         {!cardView ? (
           <Table
+          //@ts-ignore
             data={tableValues.map(item => ({
               ...item,
               price: 0,
@@ -1664,6 +1667,7 @@ const filterOptions = {
             }))}
             properties={properties === "postedProperties" ? "myposts" : properties}
             onScrollChange={handleChildScroll}
+            //@ts-ignore
             handleOpenModal={handleOpenModal as (action: "Approve" | "Deny" | "Delete", item: Property) => void}
             tabType="pending"
             currentActiveTab={currentActiveTab}
@@ -1686,14 +1690,16 @@ const filterOptions = {
       <CustomTabPanel value={value} index={1}>
         {!cardView ? (
           <Table
+          //@ts-ignore
             data={tableValues.map(item => ({
               ...item,
               price: 0,
-              description: item.description || "" // ✅ Fix: Ensure description is string
+              description: item.description || "" 
             }))}
             properties={properties === "postedProperties" ? "myposts" : properties}
             onScrollChange={handleChildScroll}
-            handleOpenModal={handleOpenModal as (action: "Approve" | "Deny" | "Delete", item: any) => void}
+            //@ts-ignore
+            handleOpenModal={handleOpenModal as (action: "Approve" | "Deny" | "Delete", item: Property) => void}
             tabType="approved"
             currentActiveTab={currentActiveTab}
             onTabChange={(tab) =>
@@ -1715,14 +1721,16 @@ const filterOptions = {
       <CustomTabPanel value={value} index={2}>
         {!cardView ? (
           <Table
+          //@ts-ignore
             data={tableValues.map(item => ({
               ...item,
               price: 0,
-              description: item.description || "" // ✅ Fix: Ensure description is string
+              description: item.description || "" 
             }))}
             properties={properties === "postedProperties" ? "myposts" : properties}
             onScrollChange={handleChildScroll}
-            handleOpenModal={handleOpenModal as (action: "Approve" | "Deny" | "Delete", item: any) => void}
+            //@ts-ignore
+            handleOpenModal={handleOpenModal as (action: "Approve" | "Deny" | "Delete", item: Property) => void}
             tabType="rejected"
             currentActiveTab={currentActiveTab}
             onTabChange={(tab) =>
@@ -1744,14 +1752,16 @@ const filterOptions = {
       <CustomTabPanel value={value} index={3}>
         {!cardView ? (
           <Table
+          //@ts-ignore
             data={tableValues.map(item => ({
               ...item,
               price: 0,
-              description: item.description || "" // ✅ Fix: Ensure description is string
+              description: item.description || "" 
             }))}
             properties={properties === "postedProperties" ? "myposts" : properties}
             onScrollChange={handleChildScroll}
-            handleOpenModal={handleOpenModal as (action: "Approve" | "Deny" | "Delete", item: any) => void}
+            //@ts-ignore
+            handleOpenModal={handleOpenModal as (action: "Approve" | "Deny" | "Delete", item: Property) => void}
             tabType="deleted"
             currentActiveTab={currentActiveTab}
             onTabChange={(tab) =>
@@ -1795,7 +1805,7 @@ const filterOptions = {
           <div className="checklist-content row">
             {(
               filterOptions[properties === "all" ? "all" : properties] ?? []
-            ).map((section: any, index: any) => (
+            ).map((section: FilterSection, index: number) => (
               <div className="checklist-list col-md-12" key={index}>
                 <Accordion>
                   <AccordionSummary
@@ -1808,7 +1818,7 @@ const filterOptions = {
 
                   <AccordionDetails key={resetCounter}>
                     <div className="label-wrapper">
-                      {section.options.map((opt: any, i: any) => (
+                      {section.options.map((opt: string, i: number) => (
                         <FormControlLabel
                           key={i}
                           control={
@@ -1903,6 +1913,7 @@ const PropertyCardList = ({
       } : undefined,
       images: prop.images,
       createdAt: ('createdAt' in prop ? prop.createdAt : undefined),
+      //@ts-ignore
       postOwner: ('postOwner' in prop ? prop.postOwner : undefined),
       area: ('area' in prop ? prop.area : undefined),
       title: ('title' in prop ? prop.title : undefined),
@@ -2206,7 +2217,7 @@ const PropertyCardList = ({
                       <img
                         src={`${import.meta.env.VITE_BASE_URL}/dashboardtab/Icon_Edit.svg`}
                         alt="icon-edit"
-                        onClick={() => handleEdit(item)}
+                        onClick={() => handleEdit(item as EditableProperty)}
                       />
                     </div>
                     {currentActiveTab !== "approved" && (

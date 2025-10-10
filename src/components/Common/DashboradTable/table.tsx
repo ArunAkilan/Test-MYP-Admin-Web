@@ -489,6 +489,7 @@ function Table({
               ◀
             </button>
           )}
+          
           {Array.isArray(formatedData) && formatedData.length === 0 ? (
             <EmptyState tabType={tabType} />
           ) : (
