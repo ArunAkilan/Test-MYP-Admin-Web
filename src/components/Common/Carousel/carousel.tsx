@@ -21,12 +21,9 @@ interface CarouselProps {
 }
 
 //overrides https in live
-const getImageUrl = (url: string): string => {
-  if (process.env.NODE_ENV === "development") {
-    return url.replace(/^https:/, "http:");
-  }
-  return url;
-};
+const getImageUrl = (url: string): string =>
+  url.replace(/^https:/, "http:");
+
 //override ends
 
 const ImageCountBadge = styled(Badge)(() => ({
