@@ -45,6 +45,12 @@ function Home({ properties }: { properties: PropertyType }) {
   const [selectedPropertyType, setSelectedPropertyType] = useState<string | null>(null);
   const [isSkeletonLoading, setIsSkeletonLoading] = useState(true);
   const [responseData, setResponseData] = useState<any>(null);
+  const [statusTotals, setStatusTotals] = useState<{
+    pending: number;
+    approved: number;
+    rejected: number;
+    deleted: number;
+  }>({ pending: -1, approved: -1, rejected: -1, deleted: -1 });
 
   //@ts-ignore
   const [page, setPage] = useState(1);
@@ -73,11 +79,43 @@ function Home({ properties }: { properties: PropertyType }) {
       );
       const data = response?.data?.data;
       setResponseData(response?.data);
-      const backendHasMore = response?.data?.hasMore;
-      
-      const hasMoreData = backendHasMore !== undefined ? backendHasMore : true;
-      
-      setHasMore(hasMoreData);
+
+      // compute totals for current status and cache per-status totals
+      const computedTotal =
+        sideNavTabvalue === "all"
+          ? ((data?.residential?.total ?? 0) +
+             (data?.commercial?.total ?? 0) +
+             (data?.plot?.total ?? 0))
+          : (response?.data?.total ?? 0);
+
+      setStatusTotals((prev) => ({
+        ...prev,
+        [currentActiveTab]: computedTotal,
+      }));
+
+      // compute hasMore based on accumulated lengths vs totals
+      if (sideNavTabvalue === "all") {
+        const prevResLen = dashboardData.residential.length;
+        const prevComLen = dashboardData.commercial.length;
+        const prevPlotLen = dashboardData.plot.length;
+
+        const newRes = data?.residential?.items ?? [];
+        const newCom = data?.commercial?.items ?? [];
+        const newPlot = data?.plot?.items ?? [];
+
+        const nextResLen = pageNum === 1 ? newRes.length : prevResLen + newRes.length;
+        const nextComLen = pageNum === 1 ? newCom.length : prevComLen + newCom.length;
+        const nextPlotLen = pageNum === 1 ? newPlot.length : prevPlotLen + newPlot.length;
+
+        const loadedSum = nextResLen + nextComLen + nextPlotLen;
+        setHasMore(loadedSum < computedTotal);
+      } else {
+        const singularKey = sideNavTabvalue.replace(/s$/, "") as keyof PropertyData;
+        const prevLen = (dashboardData[singularKey] as ResidentialProperty[] | undefined)?.length ?? 0;
+        const newItems = Array.isArray(data) ? data : [];
+        const nextLen = pageNum === 1 ? newItems.length : prevLen + newItems.length;
+        setHasMore(nextLen < computedTotal);
+      }
 
       if (sideNavTabvalue === "all") {
         setDashboardData((prev) => ({
@@ -140,6 +178,7 @@ const singularType = sideNavTabvalue.replace(/s$/, "") as keyof PropertyData;
     }
   };
 
+  // Route change effect: reset lists and totals, fetch first page for default tab
   useEffect(() => {
     setPage(1);
     setHasMore(true);
@@ -148,7 +187,10 @@ const singularType = sideNavTabvalue.replace(/s$/, "") as keyof PropertyData;
       commercial: [],
       plot: [],
     });
-    
+
+    // reset totals to sentinel so badges can fallback to local counts until fetched
+    setStatusTotals({ pending: -1, approved: -1, rejected: -1, deleted: -1 });
+
     fetchAllData(1);
 
     // Listen for refresh events
@@ -157,10 +199,22 @@ const singularType = sideNavTabvalue.replace(/s$/, "") as keyof PropertyData;
       setHasMore(true);
       fetchAllData(1);
     };
-    
+
     window.addEventListener("refreshTableData", handleRefresh);
     return () => window.removeEventListener("refreshTableData", handleRefresh);
-  }, [sideNavTabvalue, currentActiveTab]);
+  }, [sideNavTabvalue]);
+
+  // Tab change effect: fetch data for the selected status without resetting cached totals
+  useEffect(() => {
+    setPage(1);
+    setHasMore(true);
+    setDashboardData({
+      residential: [],
+      commercial: [],
+      plot: [],
+    });
+    fetchAllData(1);
+  }, [currentActiveTab]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -381,6 +435,7 @@ const singularType = sideNavTabvalue.replace(/s$/, "") as keyof PropertyData;
                 onReset={triggerReset}
                 currentActiveTab={currentActiveTab}
                 setCurrentActiveTab={setCurrentActiveTab}
+                statusTotals={statusTotals}
               />
             </div>
           </div>

@@ -107,6 +107,7 @@ interface DashboardtabProps {
   selectedSort: string;
   currentActiveTab: TabStatusType;
   setCurrentActiveTab: (tab: TabStatusType) => void;
+  statusTotals?: { pending: number; approved: number; rejected: number; deleted: number };
 }
 
 // Tab Status Type
@@ -210,6 +211,7 @@ export default function Dashboardtab({
   selectedSort,
   currentActiveTab,
   setCurrentActiveTab,
+  statusTotals,
 }: DashboardtabProps) {
   console.log("totalCount", totalCount)
   const [isFiltered, setIsFiltered] = useState(false);
@@ -789,49 +791,60 @@ export default function Dashboardtab({
   };
 
   // count function
+  const totalsReady = useMemo(() => {
+    return !!statusTotals &&
+      ((statusTotals.pending ?? 0) + (statusTotals.approved ?? 0) + (statusTotals.rejected ?? 0) + (statusTotals.deleted ?? 0)) > 0;
+  }, [statusTotals]);
+
   const handlePendingCount = useMemo((): number => {
+    if (totalsReady && statusTotals) return statusTotals.pending;
     const allItems = [
       ...(data.residential || []),
       ...(data.commercial || []),
       ...(data.plot || []),
       ...(data.all || []),
     ];
-    return allItems.filter((item) => item.status?.toLowerCase() === "pending")
-      .length;
-  }, [data]);
+    return allItems.filter((item) => item.status?.toLowerCase() === "pending").length;
+  }, [data, totalsReady, statusTotals]);
+
+  console.log("handlepending",handlePendingCount)
 
   const handleApprovedCount = useMemo((): number => {
+    if (totalsReady && statusTotals) return statusTotals.approved;
     const allItems = [
       ...(data.residential || []),
       ...(data.commercial || []),
       ...(data.plot || []),
       ...(data.all || []),
     ];
-    return allItems.filter((item) => item.status?.toLowerCase() === "approved")
-      .length;
-  }, [data]);
+    return allItems.filter((item) => item.status?.toLowerCase() === "approved").length;
+  }, [data, totalsReady, statusTotals]);
 
   const handleRejectedCount = useMemo((): number => {
+    if (totalsReady && statusTotals) return statusTotals.rejected;
     const allItems = [
       ...(data.residential || []),
       ...(data.commercial || []),
       ...(data.plot || []),
       ...(data.all || []),
     ];
-    return allItems.filter((item) => item.status?.toLowerCase() === "rejected")
-      .length;
-  }, [data]);
+    return allItems.filter((item) => item.status?.toLowerCase() === "rejected").length;
+  }, [data, totalsReady, statusTotals]);
 
   const handleDeletedCount = useMemo((): number => {
+    if (totalsReady && statusTotals) return statusTotals.deleted;
     const allItems = [
       ...(data.residential || []),
       ...(data.commercial || []),
       ...(data.plot || []),
       ...(data.all || []),
     ];
-    return allItems.filter((item) => item.status?.toLowerCase() === "deleted")
-      .length;
-  }, [data]);
+    return allItems.filter((item) => item.status?.toLowerCase() === "deleted").length;
+  }, [data, totalsReady, statusTotals]);
+
+  function formatCount(count: number): string {
+  return count === -1 ? "..." : `${count}`;
+}
 
   //resultcount
   const handleFilteredCount = useMemo(() => {
@@ -839,28 +852,9 @@ export default function Dashboardtab({
   }, [tableValues]);
 
   const getResultCount = useMemo(() => {
-    if (isFiltered) return handleFilteredCount;
-    switch (value) {
-      case 0:
-        return handlePendingCount;
-      case 1:
-        return handleApprovedCount;
-      case 2:
-        return handleRejectedCount;
-      case 3:
-        return handleDeletedCount;
-      default:
-        return 0;
-    }
-  }, [
-    isFiltered,
-    handleFilteredCount,
-    value,
-    handlePendingCount,
-    handleApprovedCount,
-    handleRejectedCount,
-    handleDeletedCount,
-  ]);
+    // Always reflect the number of items currently visible for the active tab
+    return tableValues.length;
+  }, [tableValues]);
   // filter drawer
 
   const toggleDrawer =
@@ -1071,7 +1065,7 @@ export default function Dashboardtab({
                   Pending &nbsp;
                   {value !== 0 && (
                     <span style={{ fontSize: "smaller" }}>
-                      ({handlePendingCount})
+                      ({formatCount(handlePendingCount)})
                     </span>
                   )}
                 </React.Fragment>
@@ -1094,7 +1088,7 @@ export default function Dashboardtab({
                   Approved &nbsp;
                   {value !== 1 && (
                     <span style={{ fontSize: "smaller" }}>
-                      ({handleApprovedCount})
+                      ({formatCount(handleApprovedCount)})
                     </span>
                   )}
                 </React.Fragment>
@@ -1117,7 +1111,7 @@ export default function Dashboardtab({
                   Rejected &nbsp;
                   {value !== 2 && (
                     <span style={{ fontSize: "smaller" }}>
-                      ({handleRejectedCount})
+                      ({formatCount(handleRejectedCount)})
                     </span>
                   )}
                 </React.Fragment>
@@ -1140,7 +1134,7 @@ export default function Dashboardtab({
                   Deleted &nbsp;
                   {value !== 3 && (
                     <span style={{ fontSize: "smaller" }}>
-                      ({handleDeletedCount})
+                      ({formatCount(handleDeletedCount)})
                     </span>
                   )}
                 </React.Fragment>
