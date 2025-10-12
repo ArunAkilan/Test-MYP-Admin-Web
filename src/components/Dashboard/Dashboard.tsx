@@ -65,8 +65,11 @@ function Home({ properties }: { properties: PropertyType }) {
   const fetchAllData = async (pageNum: number = 1) => {
     setLoading(true);
     try {
+      const statusQuery = currentActiveTab
+        ? `&status=${currentActiveTab.charAt(0).toUpperCase()}${currentActiveTab.slice(1)}`
+        : "";
       const response = await axios.get(
-        `${import.meta.env.VITE_BackEndUrl}/api/${sideNavTabvalue}?page=${pageNum}&limit=10`
+        `${import.meta.env.VITE_BackEndUrl}/api/${sideNavTabvalue}?page=${pageNum}&limit=10${statusQuery}`
       );
       const data = response?.data?.data;
       setResponseData(response?.data);

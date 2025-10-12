@@ -208,6 +208,8 @@ export default function Dashboardtab({
   onReset,
   onSortChange,
   selectedSort,
+  currentActiveTab,
+  setCurrentActiveTab,
 }: DashboardtabProps) {
   console.log("totalCount", totalCount)
   const [isFiltered, setIsFiltered] = useState(false);
@@ -231,9 +233,7 @@ export default function Dashboardtab({
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [selectedLabel, setSelectedLabel] = useState(selectedSort);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const [currentActiveTab, setCurrentActiveTab] =
-    useState<TabStatusType>("pending");
-  // const [sortOption, setSortOption] = useState("Newest Property");
+    // const [sortOption, setSortOption] = useState("Newest Property");
 
 
   const sortOptions = ["Newest", "Oldest", "Highest Price", "Lowest Price"];
@@ -328,7 +328,7 @@ export default function Dashboardtab({
     );
     setTableValues(pendingItems);
     setCurrentActiveTab("pending");
-  }, [properties, allItems, dispatch]);
+  }, [properties]);
 
   // Handle tab change
   const handleChange = (_: React.SyntheticEvent, newValue: number) => {
@@ -1052,7 +1052,7 @@ export default function Dashboardtab({
           }}
         >
           <Tabs
-            value={activeTab}
+            value={value}
             onChange={handleChange}
             aria-label="basic tabs example"
             sx={{
@@ -1065,7 +1065,7 @@ export default function Dashboardtab({
             id="pending-approval-tabs-wrap"
           >
             <Tab
-              value={TabStatus.Pending}
+              value={0}
               label={
                 <React.Fragment>
                   Pending &nbsp;
@@ -1084,12 +1084,11 @@ export default function Dashboardtab({
                 />
               }
               iconPosition="start"
-              onClick={() => setCurrentActiveTab("pending")} // This uses the string literal
               className={currentActiveTab === "pending" ? "active" : ""}
             />
 
             <Tab
-              value={TabStatus.Rejected}
+              value={1}
               label={
                 <React.Fragment>
                   Approved &nbsp;
@@ -1108,12 +1107,11 @@ export default function Dashboardtab({
                 />
               }
               iconPosition="start"
-              onClick={() => setCurrentActiveTab("approved")}
               className={currentActiveTab === "approved" ? "active" : ""}
             />
 
             <Tab
-              value={TabStatus.Approved}
+              value={2}
               label={
                 <React.Fragment>
                   Rejected &nbsp;
@@ -1132,12 +1130,11 @@ export default function Dashboardtab({
                 />
               }
               iconPosition="start"
-              onClick={() => setCurrentActiveTab("rejected")}
               className={currentActiveTab === "rejected" ? "active" : ""}
             />
 
             <Tab
-              value={TabStatus.Deleted}
+              value={3}
               label={
                 <React.Fragment>
                   Deleted &nbsp;
@@ -1156,7 +1153,6 @@ export default function Dashboardtab({
                 />
               }
               iconPosition="start"
-              onClick={() => setCurrentActiveTab("deleted")}
               className={currentActiveTab === "deleted" ? "active" : ""}
             />
           </Tabs>

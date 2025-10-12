@@ -120,7 +120,7 @@ function Table({
   tabType,
   currentActiveTab,
 }: TableProps) {
-
+console.log("properties",properties,"tabtype",tabType)
   const containerRef = useRef<HTMLDivElement>(null);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
     const [isBackdropLoading, setIsBackdropLoading] = useState(false);
@@ -551,7 +551,7 @@ function Table({
               ◀
             </button>
           )}
-          <div ref={containerRef} style={{ maxHeight: "400px", overflowY: "auto" }}>
+          <div ref={containerRef} style={{ maxHeight: "70vh", overflowY: "scroll" }}>
             {Array.isArray(formatedData) && formatedData.length === 0 ? (
               <EmptyState tabType={tabType} />
             ) : (
