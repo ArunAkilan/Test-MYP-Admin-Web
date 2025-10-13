@@ -374,7 +374,7 @@ export const CreateProperty = () => {
     
     if (isEditMode && editData) {
 
-      const expectedPath = `/admin/plot/update/${editId}`;
+      const expectedPath = `/admin/residential/update/${editId}`;
       if (window.location.pathname !== expectedPath) {
         window.history.replaceState(null, "", expectedPath);
       }
