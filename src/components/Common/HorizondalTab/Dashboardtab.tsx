@@ -1037,14 +1037,14 @@ export default function Dashboardtab({
     <div id="pending-approval-tab">
       <div>
         <Box
-          // sx={{
-          //   //display: hideHeader ? "block" : "none",
-          //   position: hideHeader ? "fixed" : "static",
-          //   zIndex: "99",
-          //   width: hideHeader ? "66%" : "100%",
-          //   backgroundColor: "#ffffff",
-          //   top: hideHeader ? "0px" : "124px",
-          // }}
+        // sx={{
+        //   //display: hideHeader ? "block" : "none",
+        //   position: hideHeader ? "fixed" : "static",
+        //   zIndex: "99",
+        //   width: hideHeader ? "66%" : "100%",
+        //   backgroundColor: "#ffffff",
+        //   top: hideHeader ? "0px" : "124px",
+        // }}
         >
           <Tabs
             value={value}

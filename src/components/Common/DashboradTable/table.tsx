@@ -22,6 +22,7 @@ import type {
   SortDirection,
   SortableColumn,
 } from "./table.model";
+//@ts-ignore
 import EmptyState from "../Emptystate/EmptyState";
 import { useCallback } from "react";
 
@@ -476,24 +477,6 @@ function Table({
     };
   }, []);
 
-  const formattedData = useMemo(() => {
-    if (!Array.isArray(data)) {
-      const fallback = data?.residential || data?.commercial || data?.plot;
-      return Array.isArray(fallback) ? fallback : [];
-    }
-    return data.map((item) => ({
-      ...item,
-      _source:
-        properties === "residentials"
-          ? "residential"
-          : properties === "commercials"
-            ? "commercial"
-            : properties === "plots"
-              ? "plot"
-              : "residential",
-    }));
-  }, [data, properties]);
-
   const sortedData = useMemo(() => {
     if (!sortConfig) return formatedData;
 
@@ -521,13 +504,6 @@ function Table({
     setSortConfig({ key, direction });
   };
 
-  // 3. Then do conditional rendering
-  if (formattedData.length === 0) {
-    return <p>No data available</p>; // Now this is safe
-  }
-
-
-
   return (
     <>
       <div
@@ -553,7 +529,8 @@ function Table({
           )}
           <div ref={containerRef} style={{ maxHeight: "50vh", overflowY: "scroll" }}>
             {Array.isArray(formatedData) && formatedData.length === 0 ? (
-              <EmptyState tabType={tabType} />
+              // <EmptyState tabType={tabType} />
+              <p style={{ padding: "20px", margin: "auto", textAlign: "center" }}>No property data found</p>
             ) : (
               <table className="horizontal-table">
                 <thead>
