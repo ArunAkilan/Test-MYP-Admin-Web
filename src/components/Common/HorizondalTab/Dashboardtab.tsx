@@ -42,7 +42,6 @@ import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useAppDispatch, useAppSelector } from "../../../hook";
 import { setActiveTab } from "../../../slicers/tabsSlice";
-import { TabStatus } from "./Dashboardtab.model";
 import type { Property } from "../../AdminResidencial/AdminResidencial.model";
 import type { PropertyViewWithSource } from "./Dashboardtab.model";
 
@@ -220,6 +219,7 @@ export default function Dashboardtab({
   const statusByTab = ["pending", "approved", "rejected", "deleted"];
   const [value, setValue] = useState(0);
   const dispatch = useAppDispatch();
+  // @ts-ignore
   const activeTab = useAppSelector((state) => state.tabs.currentTab);
   const [tableValues, setTableValues] = useState<Property[]>([]);
   const [resetCounter, setResetCounter] = useState(0);
@@ -847,6 +847,7 @@ export default function Dashboardtab({
   }
 
   //resultcount
+  // @ts-ignore
   const handleFilteredCount = useMemo(() => {
     return tableValues.length;
   }, [tableValues]);
