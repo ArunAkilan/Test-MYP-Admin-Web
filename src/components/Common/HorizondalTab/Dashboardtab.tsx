@@ -42,7 +42,6 @@ import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useAppDispatch, useAppSelector } from "../../../hook";
 import { setActiveTab } from "../../../slicers/tabsSlice";
-import { TabStatus } from "./Dashboardtab.model";
 import type { Property } from "../../AdminResidencial/AdminResidencial.model";
 import type { PropertyViewWithSource } from "./Dashboardtab.model";
 
@@ -107,6 +106,7 @@ interface DashboardtabProps {
   selectedSort: string;
   currentActiveTab: TabStatusType;
   setCurrentActiveTab: (tab: TabStatusType) => void;
+  statusTotals?: { pending: number; approved: number; rejected: number; deleted: number };
 }
 
 // Tab Status Type
@@ -208,6 +208,9 @@ export default function Dashboardtab({
   onReset,
   onSortChange,
   selectedSort,
+  currentActiveTab,
+  setCurrentActiveTab,
+  statusTotals,
 }: DashboardtabProps) {
   console.log("totalCount", totalCount)
   const [isFiltered, setIsFiltered] = useState(false);
@@ -216,6 +219,7 @@ export default function Dashboardtab({
   const statusByTab = ["pending", "approved", "rejected", "deleted"];
   const [value, setValue] = useState(0);
   const dispatch = useAppDispatch();
+  // @ts-ignore
   const activeTab = useAppSelector((state) => state.tabs.currentTab);
   const [tableValues, setTableValues] = useState<Property[]>([]);
   const [resetCounter, setResetCounter] = useState(0);
@@ -231,8 +235,6 @@ export default function Dashboardtab({
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [selectedLabel, setSelectedLabel] = useState(selectedSort);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const [currentActiveTab, setCurrentActiveTab] =
-    useState<TabStatusType>("pending");
   // const [sortOption, setSortOption] = useState("Newest Property");
 
 
@@ -328,7 +330,7 @@ export default function Dashboardtab({
     );
     setTableValues(pendingItems);
     setCurrentActiveTab("pending");
-  }, [properties, allItems, dispatch]);
+  }, [properties]);
 
   // Handle tab change
   const handleChange = (_: React.SyntheticEvent, newValue: number) => {
@@ -478,7 +480,7 @@ export default function Dashboardtab({
       const filterSection = filterOptions[properties === "all" ? "all" : properties];
 
       filterSection?.forEach((section: FilterSection) => {
-  //@ts-ignore
+        //@ts-ignore
         const key = headingToKey[section.heading];
         const selectedOptions = section.options.filter((opt: string) => filters.includes(opt));
 
@@ -789,78 +791,71 @@ export default function Dashboardtab({
   };
 
   // count function
+  const totalsReady = useMemo(() => {
+    return !!statusTotals &&
+      ((statusTotals.pending ?? 0) + (statusTotals.approved ?? 0) + (statusTotals.rejected ?? 0) + (statusTotals.deleted ?? 0)) > 0;
+  }, [statusTotals]);
+
   const handlePendingCount = useMemo((): number => {
+    if (totalsReady && statusTotals) return statusTotals.pending;
     const allItems = [
       ...(data.residential || []),
       ...(data.commercial || []),
       ...(data.plot || []),
       ...(data.all || []),
     ];
-    return allItems.filter((item) => item.status?.toLowerCase() === "pending")
-      .length;
-  }, [data]);
+    return allItems.filter((item) => item.status?.toLowerCase() === "pending").length;
+  }, [data, totalsReady, statusTotals]);
+
+  console.log("handlepending", handlePendingCount)
 
   const handleApprovedCount = useMemo((): number => {
+    if (totalsReady && statusTotals) return statusTotals.approved;
     const allItems = [
       ...(data.residential || []),
       ...(data.commercial || []),
       ...(data.plot || []),
       ...(data.all || []),
     ];
-    return allItems.filter((item) => item.status?.toLowerCase() === "approved")
-      .length;
-  }, [data]);
+    return allItems.filter((item) => item.status?.toLowerCase() === "approved").length;
+  }, [data, totalsReady, statusTotals]);
 
   const handleRejectedCount = useMemo((): number => {
+    if (totalsReady && statusTotals) return statusTotals.rejected;
     const allItems = [
       ...(data.residential || []),
       ...(data.commercial || []),
       ...(data.plot || []),
       ...(data.all || []),
     ];
-    return allItems.filter((item) => item.status?.toLowerCase() === "rejected")
-      .length;
-  }, [data]);
+    return allItems.filter((item) => item.status?.toLowerCase() === "rejected").length;
+  }, [data, totalsReady, statusTotals]);
 
   const handleDeletedCount = useMemo((): number => {
+    if (totalsReady && statusTotals) return statusTotals.deleted;
     const allItems = [
       ...(data.residential || []),
       ...(data.commercial || []),
       ...(data.plot || []),
       ...(data.all || []),
     ];
-    return allItems.filter((item) => item.status?.toLowerCase() === "deleted")
-      .length;
-  }, [data]);
+    return allItems.filter((item) => item.status?.toLowerCase() === "deleted").length;
+  }, [data, totalsReady, statusTotals]);
+
+  function formatCount(count: number): string {
+    return count === -1 ? "..." : `${count}`;
+  }
 
   //resultcount
+  // @ts-ignore
   const handleFilteredCount = useMemo(() => {
     return tableValues.length;
   }, [tableValues]);
 
   const getResultCount = useMemo(() => {
-    if (isFiltered) return handleFilteredCount;
-    switch (value) {
-      case 0:
-        return handlePendingCount;
-      case 1:
-        return handleApprovedCount;
-      case 2:
-        return handleRejectedCount;
-      case 3:
-        return handleDeletedCount;
-      default:
-        return 0;
-    }
-  }, [
-    isFiltered,
-    handleFilteredCount,
-    value,
-    handlePendingCount,
-    handleApprovedCount,
-    handleRejectedCount,
-    handleDeletedCount,
-  ]);
+    // Always reflect the number of items currently visible for the active tab
+    return tableValues.length;
+  }, [tableValues]);
   // filter drawer
 
   const toggleDrawer =
@@ -1042,36 +1037,36 @@ export default function Dashboardtab({
     <div id="pending-approval-tab">
       <div>
         <Box
-          sx={{
-            //display: hideHeader ? "block" : "none",
-            position: hideHeader ? "fixed" : "static",
-            zIndex: "99",
-            width: hideHeader ? "66%" : "100%",
-            backgroundColor: "#ffffff",
-            top: hideHeader ? "0px" : "124px",
-          }}
+          // sx={{
+          //   //display: hideHeader ? "block" : "none",
+          //   position: hideHeader ? "fixed" : "static",
+          //   zIndex: "99",
+          //   width: hideHeader ? "66%" : "100%",
+          //   backgroundColor: "#ffffff",
+          //   top: hideHeader ? "0px" : "124px",
+          // }}
         >
           <Tabs
-            value={activeTab}
+            value={value}
             onChange={handleChange}
             aria-label="basic tabs example"
             sx={{
-              paddingBottom: hideHeader ? "0" : "24px",
+              // paddingBottom: hideHeader ? "0" : "24px",
               display: hideHeader ? "block" : "true",
-              "& .MuiTabs-flexContainer": {
-                flexWrap: "wrap",
-              },
+              // "& .MuiTabs-flexContainer": {
+              //   flexWrap: "wrap",
+              // },
             }}
             id="pending-approval-tabs-wrap"
           >
             <Tab
-              value={TabStatus.Pending}
+              value={0}
               label={
                 <React.Fragment>
                   Pending &nbsp;
                   {value !== 0 && (
                     <span style={{ fontSize: "smaller" }}>
-                      ({handlePendingCount})
+                      ({formatCount(handlePendingCount)})
                     </span>
                   )}
                 </React.Fragment>
@@ -1084,18 +1079,17 @@ export default function Dashboardtab({
                 />
               }
               iconPosition="start"
-              onClick={() => setCurrentActiveTab("pending")} // This uses the string literal
               className={currentActiveTab === "pending" ? "active" : ""}
             />
 
             <Tab
-              value={TabStatus.Rejected}
+              value={1}
               label={
                 <React.Fragment>
                   Approved &nbsp;
                   {value !== 1 && (
                     <span style={{ fontSize: "smaller" }}>
-                      ({handleApprovedCount})
+                      ({formatCount(handleApprovedCount)})
                     </span>
                   )}
                 </React.Fragment>
@@ -1108,18 +1102,17 @@ export default function Dashboardtab({
                 />
               }
               iconPosition="start"
-              onClick={() => setCurrentActiveTab("approved")}
               className={currentActiveTab === "approved" ? "active" : ""}
             />
 
             <Tab
-              value={TabStatus.Approved}
+              value={2}
               label={
                 <React.Fragment>
                   Rejected &nbsp;
                   {value !== 2 && (
                     <span style={{ fontSize: "smaller" }}>
-                      ({handleRejectedCount})
+                      ({formatCount(handleRejectedCount)})
                     </span>
                   )}
                 </React.Fragment>
@@ -1132,18 +1125,17 @@ export default function Dashboardtab({
                 />
               }
               iconPosition="start"
-              onClick={() => setCurrentActiveTab("rejected")}
               className={currentActiveTab === "rejected" ? "active" : ""}
             />
 
             <Tab
-              value={TabStatus.Deleted}
+              value={3}
               label={
                 <React.Fragment>
                   Deleted &nbsp;
                   {value !== 3 && (
                     <span style={{ fontSize: "smaller" }}>
-                      ({handleDeletedCount})
+                      ({formatCount(handleDeletedCount)})
                     </span>
                   )}
                 </React.Fragment>
@@ -1156,7 +1148,6 @@ export default function Dashboardtab({
                 />
               }
               iconPosition="start"
-              onClick={() => setCurrentActiveTab("deleted")}
               className={currentActiveTab === "deleted" ? "active" : ""}
             />
           </Tabs>
@@ -1679,9 +1670,9 @@ export default function Dashboardtab({
               description: item.description || ""
             }))}
             properties={properties === "postedProperties" ? "myposts" : properties}
-            onScrollLoadMore={onScrollLoadMore ?? (() => {})} 
-            loading={loading ?? false} 
-            hasMore={hasMore ?? false} 
+            onScrollLoadMore={onScrollLoadMore ?? (() => { })}
+            loading={loading ?? false}
+            hasMore={hasMore ?? false}
             //@ts-ignore
             handleOpenModal={handleOpenModal as (action: "Approve" | "Deny" | "Delete", item: Property) => void}
             tabType="pending"
@@ -1698,9 +1689,9 @@ export default function Dashboardtab({
             onScrollChange={handleChildScroll}
             handleOpenModal={handleOpenModal}
             currentActiveTab={currentActiveTab}
-            onScrollLoadMore={onScrollLoadMore ?? (() => {})} 
-            loading={loading ?? false} 
-            hasMore={hasMore ?? false} 
+            onScrollLoadMore={onScrollLoadMore ?? (() => { })}
+            loading={loading ?? false}
+            hasMore={hasMore ?? false}
           />
         )}
       </CustomTabPanel>
@@ -1712,12 +1703,12 @@ export default function Dashboardtab({
             data={tableValues.map(item => ({
               ...item,
               price: 0,
-              description: item.description || "" 
+              description: item.description || ""
             }))}
             properties={properties === "postedProperties" ? "myposts" : properties}
-            onScrollLoadMore={onScrollLoadMore ?? (() => {})} 
-            loading={loading ?? false} 
-            hasMore={hasMore ?? false} 
+            onScrollLoadMore={onScrollLoadMore ?? (() => { })}
+            loading={loading ?? false}
+            hasMore={hasMore ?? false}
             //@ts-ignore
             handleOpenModal={handleOpenModal as (action: "Approve" | "Deny" | "Delete", item: Property) => void}
             tabType="approved"
@@ -1734,9 +1725,9 @@ export default function Dashboardtab({
             formatData={formatData}
             handleOpenModal={handleOpenModal}
             currentActiveTab={currentActiveTab}
-            onScrollLoadMore={onScrollLoadMore ?? (() => {})} 
-            loading={loading ?? false} 
-            hasMore={hasMore ?? false} 
+            onScrollLoadMore={onScrollLoadMore ?? (() => { })}
+            loading={loading ?? false}
+            hasMore={hasMore ?? false}
           />
         )}
       </CustomTabPanel>
@@ -1745,15 +1736,15 @@ export default function Dashboardtab({
         {!cardView ? (
           <Table
             //@ts-ignore
-                        data={tableValues.map(item => ({
+            data={tableValues.map(item => ({
               ...item,
               price: 0,
-              description: item.description || "" 
+              description: item.description || ""
             }))}
             properties={properties === "postedProperties" ? "myposts" : properties}
-            onScrollLoadMore={onScrollLoadMore ?? (() => {})} 
-            loading={loading ?? false} 
-            hasMore={hasMore ?? false} 
+            onScrollLoadMore={onScrollLoadMore ?? (() => { })}
+            loading={loading ?? false}
+            hasMore={hasMore ?? false}
             //@ts-ignore
             handleOpenModal={handleOpenModal as (action: "Approve" | "Deny" | "Delete", item: Property) => void}
             tabType="rejected"
@@ -1770,9 +1761,9 @@ export default function Dashboardtab({
             formatData={formatData}
             handleOpenModal={handleOpenModal}
             currentActiveTab={currentActiveTab}
-            onScrollLoadMore={onScrollLoadMore ?? (() => {})} 
-            loading={loading ?? false} 
-            hasMore={hasMore ?? false} 
+            onScrollLoadMore={onScrollLoadMore ?? (() => { })}
+            loading={loading ?? false}
+            hasMore={hasMore ?? false}
           />
         )}
       </CustomTabPanel>
@@ -1784,12 +1775,12 @@ export default function Dashboardtab({
             data={tableValues.map(item => ({
               ...item,
               price: 0,
-              description: item.description || "" 
+              description: item.description || ""
             }))}
             properties={properties === "postedProperties" ? "myposts" : properties}
-            onScrollLoadMore={onScrollLoadMore ?? (() => {})} 
-            loading={loading ?? false} 
-            hasMore={hasMore ?? false} 
+            onScrollLoadMore={onScrollLoadMore ?? (() => { })}
+            loading={loading ?? false}
+            hasMore={hasMore ?? false}
             //@ts-ignore
             handleOpenModal={handleOpenModal as (action: "Approve" | "Deny" | "Delete", item: Property) => void}
             tabType="deleted"
@@ -1806,9 +1797,9 @@ export default function Dashboardtab({
             formatData={formatData}
             handleOpenModal={handleOpenModal}
             currentActiveTab={currentActiveTab}
-            onScrollLoadMore={onScrollLoadMore ?? (() => {})} 
-            loading={loading ?? false} 
-            hasMore={hasMore ?? false} 
+            onScrollLoadMore={onScrollLoadMore ?? (() => { })}
+            loading={loading ?? false}
+            hasMore={hasMore ?? false}
           />
 
         )}
@@ -2185,7 +2176,7 @@ const PropertyCardList = ({
         <Box
           ref={containerRef}
           sx={{
-            maxHeight: "60vh",
+            maxHeight: "50vh",
             overflowY: "auto",
             overflowX: "hidden",
             width: "100%",
