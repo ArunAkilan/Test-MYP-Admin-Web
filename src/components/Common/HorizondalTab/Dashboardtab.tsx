@@ -95,9 +95,13 @@ type PropertyData = {
 };
 
 interface DashboardtabProps {
-  data: PropertyData; // Accepts array now
+  data: PropertyData;
   properties: "all" | "residentials" | "commercials" | "plots" | "postedProperties";
-  onScrollChangeParent: (scrollTop: number) => void;
+  onScrollLoadMore?: () => void;
+  loading?: boolean;
+  hasMore?: boolean;
+  totalCount?: number;
+  onScrollChangeParent?: (scrollTop: number) => void;
   onReset?: () => void;
   onSortChange: (option: string) => void;
   selectedSort: string;
@@ -196,11 +200,16 @@ function a11yProps(index: number) {
 export default function Dashboardtab({
   data,
   properties,
+  onScrollLoadMore,
   onScrollChangeParent,
+  loading,
+  hasMore,
+  totalCount,
   onReset,
   onSortChange,
   selectedSort,
 }: DashboardtabProps) {
+  console.log("totalCount", totalCount)
   const [isFiltered, setIsFiltered] = useState(false);
   const [currentCheckList, setCurrentCheckList] = useState<string[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -235,54 +244,54 @@ export default function Dashboardtab({
   };
 
   //const currentStatus = statusByTab[value];
- // UPDATED FILTER OPTIONS - All the filters you requested
-const filterOptions = {
-  all: [
-    { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
-    { heading: "Type", options: ["Residential", "Commercial", "Plot"] },
-    { heading: "Facing", options: ["North", "East", "West", "South", "North East", "North West", "South East", "South West"] },
-    { heading: "Area", options: ["Under 500 sq.ft", "500-1000 sq.ft", "1000-2000 sq.ft", "2000-5000 sq.ft", "Above 5000 sq.ft"] },
-    { heading: "Property On Floor", options: ["Ground Floor", "1st Floor", "2nd Floor", "3rd Floor", "4th Floor", "5th Floor", "Above 5th Floor"] },
-  ],
-  
-  residentials: [
-    { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
-    { heading: "Residential Type", options: ["Apartment", "House", "Villa", "Shared room", "hostel/PG", "Duplex", "Rooms", "Independent home"] },
-    { heading: "Rooms", options: ["1 BHK", "2 BHK", "3 BHK", "4 BHK", "5+ BHK"] },
-    { heading: "Facing", options: ["North", "East", "West", "South", "North East", "North West", "South East", "South West"] },
-    { heading: "Furnishing", options: ["Fully Furnished", "Semi Furnished", "Unfurnished"] },
-    { heading: "Area", options: ["Under 500 sq.ft", "500-1000 sq.ft", "1000-2000 sq.ft", "2000-5000 sq.ft", "Above 5000 sq.ft"] },
-    { heading: "Property On Floor", options: ["Ground Floor", "1st Floor", "2nd Floor", "3rd Floor", "4th Floor", "5th Floor", "Above 5th Floor"] },
-    { heading: "Parking", options: ["With Parking", "None"] },
-    { heading: "Tenant Preference", options: ["Bachelor", "Family Only"] },
-    { heading: "Accessibility", options: ["Lift Access", "Ramp Access", "Stair Access"] },
-  ],
-  
-  commercials: [
-    { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
-    { heading: "Commercial Type", options: ["Office Space", "Co-Working", "Shop", "Showroom", "Godown/Warehouse", "Industrial Building", "Industrial Shed", "Other Business"] },
-    { heading: "Facing", options: ["North", "East", "West", "South", "North East", "North West", "South East", "South West"] },
-    { heading: "Washroom", options: ["None", "Public", "Common", "Private"] },
-    { heading: "Area", options: ["Under 500 sq.ft", "500-1000 sq.ft", "1000-2000 sq.ft", "2000-5000 sq.ft", "Above 5000 sq.ft"] },
-    { heading: "Property On Floor", options: ["Ground Floor", "1st Floor", "2nd Floor", "3rd Floor", "4th Floor", "5th Floor", "Above 5th Floor"] },
-    { heading: "Parking", options: ["With Parking", "None"] },
-    { heading: "Accessibility", options: ["Lift Access", "Ramp Access", "Stair Access"] },
-  ],
-  
-  plots: [
-    { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
-    { heading: "Plot Type", options: ["Agriculture", "Business Use", "Commercial Use", "Industrial Use", "Personal Use", "Parking", "Shed/Storage", "Poultry or Livestock", "Events or Functions", "Investment Purpose", "Renewable Energy Projects", "Timber/Tree Plantation", "Nursery/Gardening Business", "Telecom Towers", "None"] },
-    { heading: "Area", options: ["Under 500 sq.ft", "500-1000 sq.ft", "1000-2000 sq.ft", "2000-5000 sq.ft", "Above 5000 sq.ft"] },
-  ],
-  
-  postedProperties: [
-    { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
-    { heading: "Type", options: ["Residential", "Commercial", "Plot"] },
-    { heading: "Facing", options: ["North", "East", "West", "South", "North East", "North West", "South East", "South West"] },
-    { heading: "Area", options: ["Under 500 sq.ft", "500-1000 sq.ft", "1000-2000 sq.ft", "2000-5000 sq.ft", "Above 5000 sq.ft"] },
-    { heading: "Property On Floor", options: ["Ground Floor", "1st Floor", "2nd Floor", "3rd Floor", "4th Floor", "5th Floor", "Above 5th Floor"] },
-  ]
-};
+  // UPDATED FILTER OPTIONS - All the filters you requested
+  const filterOptions = {
+    all: [
+      { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
+      { heading: "Type", options: ["Residential", "Commercial", "Plot"] },
+      { heading: "Facing", options: ["North", "East", "West", "South", "North East", "North West", "South East", "South West"] },
+      { heading: "Area", options: ["Under 500 sq.ft", "500-1000 sq.ft", "1000-2000 sq.ft", "2000-5000 sq.ft", "Above 5000 sq.ft"] },
+      { heading: "Property On Floor", options: ["Ground Floor", "1st Floor", "2nd Floor", "3rd Floor", "4th Floor", "5th Floor", "Above 5th Floor"] },
+    ],
+
+    residentials: [
+      { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
+      { heading: "Residential Type", options: ["Apartment", "House", "Villa", "Shared room", "hostel/PG", "Duplex", "Rooms", "Independent home"] },
+      { heading: "Rooms", options: ["1 BHK", "2 BHK", "3 BHK", "4 BHK", "5+ BHK"] },
+      { heading: "Facing", options: ["North", "East", "West", "South", "North East", "North West", "South East", "South West"] },
+      { heading: "Furnishing", options: ["Fully Furnished", "Semi Furnished", "Unfurnished"] },
+      { heading: "Area", options: ["Under 500 sq.ft", "500-1000 sq.ft", "1000-2000 sq.ft", "2000-5000 sq.ft", "Above 5000 sq.ft"] },
+      { heading: "Property On Floor", options: ["Ground Floor", "1st Floor", "2nd Floor", "3rd Floor", "4th Floor", "5th Floor", "Above 5th Floor"] },
+      { heading: "Parking", options: ["With Parking", "None"] },
+      { heading: "Tenant Preference", options: ["Bachelor", "Family Only"] },
+      { heading: "Accessibility", options: ["Lift Access", "Ramp Access", "Stair Access"] },
+    ],
+
+    commercials: [
+      { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
+      { heading: "Commercial Type", options: ["Office Space", "Co-Working", "Shop", "Showroom", "Godown/Warehouse", "Industrial Building", "Industrial Shed", "Other Business"] },
+      { heading: "Facing", options: ["North", "East", "West", "South", "North East", "North West", "South East", "South West"] },
+      { heading: "Washroom", options: ["None", "Public", "Common", "Private"] },
+      { heading: "Area", options: ["Under 500 sq.ft", "500-1000 sq.ft", "1000-2000 sq.ft", "2000-5000 sq.ft", "Above 5000 sq.ft"] },
+      { heading: "Property On Floor", options: ["Ground Floor", "1st Floor", "2nd Floor", "3rd Floor", "4th Floor", "5th Floor", "Above 5th Floor"] },
+      { heading: "Parking", options: ["With Parking", "None"] },
+      { heading: "Accessibility", options: ["Lift Access", "Ramp Access", "Stair Access"] },
+    ],
+
+    plots: [
+      { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
+      { heading: "Plot Type", options: ["Agriculture", "Business Use", "Commercial Use", "Industrial Use", "Personal Use", "Parking", "Shed/Storage", "Poultry or Livestock", "Events or Functions", "Investment Purpose", "Renewable Energy Projects", "Timber/Tree Plantation", "Nursery/Gardening Business", "Telecom Towers", "None"] },
+      { heading: "Area", options: ["Under 500 sq.ft", "500-1000 sq.ft", "1000-2000 sq.ft", "2000-5000 sq.ft", "Above 5000 sq.ft"] },
+    ],
+
+    postedProperties: [
+      { heading: "Property Type", options: ["Rent", "Lease", "Sale"] },
+      { heading: "Type", options: ["Residential", "Commercial", "Plot"] },
+      { heading: "Facing", options: ["North", "East", "West", "South", "North East", "North West", "South East", "South West"] },
+      { heading: "Area", options: ["Under 500 sq.ft", "500-1000 sq.ft", "1000-2000 sq.ft", "2000-5000 sq.ft", "Above 5000 sq.ft"] },
+      { heading: "Property On Floor", options: ["Ground Floor", "1st Floor", "2nd Floor", "3rd Floor", "4th Floor", "5th Floor", "Above 5th Floor"] },
+    ]
+  };
 
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
@@ -426,19 +435,19 @@ const filterOptions = {
     try {
       const status = statusByTab[tabIndex];
       const queryParts: string[] = [];
-  
+
       // EXACT MAPPING based on your backend API schema
       const headingToKey: Record<string, string> = {
         // Common filters across all APIs
         "Property Type": "propertyType", // Rent,Lease,Sale
         "Facing": "facing", // North,East,West,South,North East,North West,South East,South West
-        
+
         // Commercial API filters (/api/commercials)
         "Commercial Type": "commercialType", // Office Space,Co-Working,Shop,Showroom,etc.
         "Washroom": "washroom", // None,Public,Common,Private
         "RTO": "rto", // Yes/No -> true/false
         "Parking": "parking", // With Parking/None -> true/false
-        
+
         // Residential API filters (/api/residentials) 
         "Residential Type": "residentialType", // Apartment,House,Villa,etc.
         "Rooms": "rooms", // 1 BHK,2 BHK,3 BHK,4 BHK,5+ BHK
@@ -446,42 +455,42 @@ const filterOptions = {
         "Tenant Preference": "bachelorsAllowed", // true/false (and familyOnly)
         // Plot API filters (/api/plots)
         "Plot Type": "plotType", // Agriculture,Business Use,Commercial Use,etc.
-        
+
         // Common accessibility filters
         "Accessibility": "accessibility", // lift,ramp,steps -> liftAccess,rampAccess,stairsAccess
-        
+
         // Special handling needed for these
         "Area": "area", // No direct API support - frontend filter
         "Property On Floor": "floors", // No direct API support - frontend filter  
         "Type": "type", // Residential/Commercial/Plot - frontend filter
       };
-  
+
       // API ENDPOINTS - Exact from your schema
       const apiEndpointMap: Record<string, string> = {
         "residentials": "residentials",
-        "commercials": "commercials", 
+        "commercials": "commercials",
         "plots": "plots",
         "all": "all",
         "postedProperties": "myposts" // For posted properties
       };
-  
+
       const endpoint = apiEndpointMap[properties] || "all";
       const filterSection = filterOptions[properties === "all" ? "all" : properties];
-      
+
       filterSection?.forEach((section: FilterSection) => {
-        
+  //@ts-ignore
         const key = headingToKey[section.heading];
         const selectedOptions = section.options.filter((opt: string) => filters.includes(opt));
-        
+
         if (selectedOptions.length > 0) {
-          
+
           // EXACT API PARAMETER MAPPING based on your backend schema
-          
+
           // 1. Property Type - Direct mapping (ALL APIs support this)
           if (section.heading === "Property Type") {
             queryParts.push(`propertyType=${selectedOptions.join(",")}`);
           }
-          
+
           // 2. Facing - Only for Commercial and Dashboard APIs
           else if (section.heading === "Facing") {
             if (endpoint === "commercials" || endpoint === "all") {
@@ -489,49 +498,49 @@ const filterOptions = {
             }
             // For residential and plots, this will be handled by frontend filtering
           }
-          
+
           // 3. Commercial Type - Only for Commercial API
           else if (section.heading === "Commercial Type") {
             if (endpoint === "commercials") {
               queryParts.push(`commercialType=${selectedOptions.join(",")}`);
             }
           }
-          
+
           // 4. Residential Type - Only for Residential API
           else if (section.heading === "Residential Type") {
             if (endpoint === "residentials") {
               queryParts.push(`residentialType=${selectedOptions.join(",")}`);
             }
           }
-          
+
           // 5. Plot Type - Only for Plot API
           else if (section.heading === "Plot Type") {
             if (endpoint === "plots") {
               queryParts.push(`plotType=${selectedOptions.join(",")}`);
             }
           }
-          
+
           // 6. Rooms - Only for Residential API
           else if (section.heading === "Rooms") {
             if (endpoint === "residentials") {
               queryParts.push(`rooms=${selectedOptions.join(",")}`);
             }
           }
-          
+
           // 7. Furnishing - Only for Residential API
           else if (section.heading === "Furnishing") {
             if (endpoint === "residentials") {
               queryParts.push(`furnishingType=${selectedOptions.join(",")}`);
             }
           }
-          
+
           // 8. Washroom - Only for Commercial API
           else if (section.heading === "Washroom") {
             if (endpoint === "commercials") {
               queryParts.push(`washroom=${selectedOptions.join(",")}`);
             }
           }
-          
+
           // 9. RTO - Only for Commercial API
           else if (section.heading === "RTO") {
             if (endpoint === "commercials") {
@@ -542,7 +551,7 @@ const filterOptions = {
               }
             }
           }
-          
+
           // 10. Parking - Commercial and Residential APIs
           else if (section.heading === "Parking") {
             if (endpoint === "commercials" || endpoint === "residentials") {
@@ -553,7 +562,7 @@ const filterOptions = {
               }
             }
           }
-          
+
           // 11. Tenant Preference - Only for Residential API
           else if (section.heading === "Tenant Preference") {
             if (endpoint === "residentials") {
@@ -565,7 +574,7 @@ const filterOptions = {
               }
             }
           }
-          
+
           // 12. Accessibility - Commercial and Residential APIs
           else if (section.heading === "Accessibility") {
             if (endpoint === "commercials") {
@@ -582,82 +591,82 @@ const filterOptions = {
               });
             }
           }
-          
+
           // Filters that need frontend handling (not supported by API)
           // Area, Floors, Type will be handled after API response
         }
       });
-  
+
       // Add status filter from tab
       if (status) {
         const statusFormatted = status.charAt(0).toUpperCase() + status.slice(1);
         queryParts.push(`status=${statusFormatted}`);
       }
-  
+
       // Add pagination
       queryParts.push("page=1");
       queryParts.push("limit=100");
-  
+
       const baseUrl = `${import.meta.env.VITE_BackEndUrl}/api/${endpoint}`;
       const queryString = queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
       const fullUrl = baseUrl + queryString;
-      
+
       console.log("Applied Filters:", filters);
       console.log("Final API URL:", fullUrl);
       console.log("Query Parameters:", queryParts);
-  
+
       const response = await axios.get(fullUrl, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-  
+
       console.log("Raw API Response:", response.data);
-  
+
       // RESPONSE PARSING based on your API response structure
       let result: Property[] = [];
-      
+
       if (endpoint === "all") {
         // For /api/all - based on your response structure
         const dataObj = response.data;
-        
+
         if (dataObj?.success && dataObj?.data) {
           const residentialItems: Property[] = dataObj.data.residential?.items || [];
           const commercialItems: Property[] = dataObj.data.commercial?.items || [];
           const plotItems: Property[] = dataObj.data.plot?.items || [];
-          
+
           result = [...residentialItems, ...commercialItems, ...plotItems];
           console.log("Combined properties:", result.length);
         }
       } else {
         // For individual endpoints - based on your API schema response
         const dataObj = response.data;
-        
+
         if (dataObj?.success && dataObj?.data) {
           result = Array.isArray(dataObj.data) ? dataObj.data : [];
           console.log(`${endpoint} properties:`, result.length);
         }
       }
-  
+
       // FRONTEND FILTERING for filters not supported by API
-      
+
       // Filter by Facing (for Residential and Plot since API doesn't support it)
-      const facingFilters = filters.filter(filter => 
+      const facingFilters = filters.filter(filter =>
         ["North", "East", "West", "South", "North East", "North West", "South East", "South West"].includes(filter)
       );
-      
+
       if (facingFilters.length > 0 && (endpoint === "residentials" || endpoint === "plots")) {
         result = result.filter((item: Property) => {
           return item.facingDirection !== undefined && facingFilters.includes(item.facingDirection);
         });
         console.log(`Frontend Facing filter applied for ${endpoint}:`, result.length);
       }
-      
+
       // Filter by Type (Residential/Commercial/Plot)
-      const typeFilter = filters.find(filter => 
+      const typeFilter = filters.find(filter =>
         ["Residential", "Commercial", "Plot"].includes(filter)
       );
-      
+
       if (typeFilter) {
         result = result.filter((item: Property) => {
           if (typeFilter === "Residential") return "residentialType" in item && item.residentialType;
@@ -666,17 +675,17 @@ const filterOptions = {
           return true;
         });
       }
-      
+
       // Filter by Area (frontend filtering)
-      const areaFilters = filters.filter(filter => 
+      const areaFilters = filters.filter(filter =>
         ["Under 500 sq.ft", "500-1000 sq.ft", "1000-2000 sq.ft", "2000-5000 sq.ft", "Above 5000 sq.ft"].includes(filter)
       );
-      
+
       if (areaFilters.length > 0) {
         result = result.filter((item: Property) => {
           const areaText = item.area?.totalArea || "0";
           const areaNum = parseInt(areaText.replace(/[^0-9]/g, ""));
-          
+
           return areaFilters.some(filter => {
             switch (filter) {
               case "Under 500 sq.ft": return areaNum < 500;
@@ -689,16 +698,16 @@ const filterOptions = {
           });
         });
       }
-      
+
       // Filter by Floors (frontend filtering)
-      const floorFilters = filters.filter(filter => 
+      const floorFilters = filters.filter(filter =>
         ["Ground Floor", "1st Floor", "2nd Floor", "3rd Floor", "4th Floor", "5th Floor", "Above 5th Floor"].includes(filter)
       );
-      
+
       if (floorFilters.length > 0) {
         result = result.filter((item: Property) => {
           const floor = item.propertyFloor || 0;
-          
+
           return floorFilters.some(filter => {
             switch (filter) {
               case "Ground Floor": return floor === 0;
@@ -713,10 +722,10 @@ const filterOptions = {
           });
         });
       }
-  
+
       console.log("Final filtered result:", result.length, "properties");
       setTableValues(result);
-      
+
     } catch (error) {
       console.error("Fetch error:", error);
       if (axios.isAxiosError(error)) {
@@ -727,8 +736,8 @@ const filterOptions = {
       setTableValues([]);
     }
   };
-  
-  
+
+
   const handleApply = () => {
     setIsFiltered(true); // Enable filtered mode
     fetchFilteredData(currentCheckList, value); // Uses correct API and query logic
@@ -898,6 +907,7 @@ const filterOptions = {
     }
 
     setLastScrollY(currentScrollY);
+    //@ts-ignore
     onScrollChangeParent(scrollTop);
   };
   const checkListCount = currentCheckList.length;
@@ -1156,9 +1166,10 @@ const filterOptions = {
                 <div className="new-listing">
                   <div className="new-listing-wrap-list">
                     {!isExpanded && (
-                      <h3 className="result">
+                      <h3>
                         <span className="resultCount">{getResultCount}</span>{" "}
-                        {getResultCount <= 1 ? "Property" : "Properties"}
+                        {getResultCount === 1 ? "Property" : "Properties"} of
+                        <span className="ms-2">{totalCount}</span>
                       </h3>
                     )}
                     {checkListCount !== 0 && (
@@ -1273,9 +1284,10 @@ const filterOptions = {
                 <div className="new-listing">
                   <div className="new-listing-wrap-list">
                     {!isExpanded && (
-                      <h3 className="result">
+                      <h3>
                         <span className="resultCount">{getResultCount}</span>{" "}
-                        {getResultCount <= 1 ? "Property" : "Properties"}
+                        {getResultCount === 1 ? "Property" : "Properties"} of
+                        <span className="ms-2">{totalCount}</span>
                       </h3>
                     )}
                     {checkListCount !== 0 && (
@@ -1390,9 +1402,10 @@ const filterOptions = {
                 <div className="new-listing">
                   <div className="new-listing-wrap-list">
                     {!isExpanded && (
-                      <h3 className="result">
+                      <h3>
                         <span className="resultCount">{getResultCount}</span>{" "}
-                        {getResultCount <= 1 ? "Property" : "Properties"}
+                        {getResultCount === 1 ? "Property" : "Properties"} of
+                        <span className="ms-2">{totalCount}</span>
                       </h3>
                     )}
                     {checkListCount !== 0 && (
@@ -1507,9 +1520,10 @@ const filterOptions = {
                 <div className="new-listing">
                   <div className="new-listing-wrap-list">
                     {!isExpanded && (
-                      <h3 className="result">
+                      <h3>
                         <span className="resultCount">{getResultCount}</span>{" "}
-                        {getResultCount <= 1 ? "Property" : "Properties"}
+                        {getResultCount === 1 ? "Property" : "Properties"} of
+                        <span className="ms-2">{totalCount}</span>
                       </h3>
                     )}
                     {checkListCount !== 0 && (
@@ -1658,14 +1672,16 @@ const filterOptions = {
       <CustomTabPanel value={value} index={0}>
         {!cardView ? (
           <Table
-          //@ts-ignore
+            //@ts-ignore
             data={tableValues.map(item => ({
               ...item,
               price: 0,
               description: item.description || ""
             }))}
             properties={properties === "postedProperties" ? "myposts" : properties}
-            onScrollChange={handleChildScroll}
+            onScrollLoadMore={onScrollLoadMore ?? (() => {})} 
+            loading={loading ?? false} 
+            hasMore={hasMore ?? false} 
             //@ts-ignore
             handleOpenModal={handleOpenModal as (action: "Approve" | "Deny" | "Delete", item: Property) => void}
             tabType="pending"
@@ -1682,6 +1698,9 @@ const filterOptions = {
             onScrollChange={handleChildScroll}
             handleOpenModal={handleOpenModal}
             currentActiveTab={currentActiveTab}
+            onScrollLoadMore={onScrollLoadMore ?? (() => {})} 
+            loading={loading ?? false} 
+            hasMore={hasMore ?? false} 
           />
         )}
       </CustomTabPanel>
@@ -1689,14 +1708,16 @@ const filterOptions = {
       <CustomTabPanel value={value} index={1}>
         {!cardView ? (
           <Table
-          //@ts-ignore
+            //@ts-ignore
             data={tableValues.map(item => ({
               ...item,
               price: 0,
               description: item.description || "" 
             }))}
             properties={properties === "postedProperties" ? "myposts" : properties}
-            onScrollChange={handleChildScroll}
+            onScrollLoadMore={onScrollLoadMore ?? (() => {})} 
+            loading={loading ?? false} 
+            hasMore={hasMore ?? false} 
             //@ts-ignore
             handleOpenModal={handleOpenModal as (action: "Approve" | "Deny" | "Delete", item: Property) => void}
             tabType="approved"
@@ -1713,6 +1734,9 @@ const filterOptions = {
             formatData={formatData}
             handleOpenModal={handleOpenModal}
             currentActiveTab={currentActiveTab}
+            onScrollLoadMore={onScrollLoadMore ?? (() => {})} 
+            loading={loading ?? false} 
+            hasMore={hasMore ?? false} 
           />
         )}
       </CustomTabPanel>
@@ -1720,14 +1744,16 @@ const filterOptions = {
       <CustomTabPanel value={value} index={2}>
         {!cardView ? (
           <Table
-          //@ts-ignore
-            data={tableValues.map(item => ({
+            //@ts-ignore
+                        data={tableValues.map(item => ({
               ...item,
               price: 0,
               description: item.description || "" 
             }))}
             properties={properties === "postedProperties" ? "myposts" : properties}
-            onScrollChange={handleChildScroll}
+            onScrollLoadMore={onScrollLoadMore ?? (() => {})} 
+            loading={loading ?? false} 
+            hasMore={hasMore ?? false} 
             //@ts-ignore
             handleOpenModal={handleOpenModal as (action: "Approve" | "Deny" | "Delete", item: Property) => void}
             tabType="rejected"
@@ -1744,6 +1770,9 @@ const filterOptions = {
             formatData={formatData}
             handleOpenModal={handleOpenModal}
             currentActiveTab={currentActiveTab}
+            onScrollLoadMore={onScrollLoadMore ?? (() => {})} 
+            loading={loading ?? false} 
+            hasMore={hasMore ?? false} 
           />
         )}
       </CustomTabPanel>
@@ -1751,14 +1780,16 @@ const filterOptions = {
       <CustomTabPanel value={value} index={3}>
         {!cardView ? (
           <Table
-          //@ts-ignore
+            //@ts-ignore
             data={tableValues.map(item => ({
               ...item,
               price: 0,
               description: item.description || "" 
             }))}
             properties={properties === "postedProperties" ? "myposts" : properties}
-            onScrollChange={handleChildScroll}
+            onScrollLoadMore={onScrollLoadMore ?? (() => {})} 
+            loading={loading ?? false} 
+            hasMore={hasMore ?? false} 
             //@ts-ignore
             handleOpenModal={handleOpenModal as (action: "Approve" | "Deny" | "Delete", item: Property) => void}
             tabType="deleted"
@@ -1775,7 +1806,11 @@ const filterOptions = {
             formatData={formatData}
             handleOpenModal={handleOpenModal}
             currentActiveTab={currentActiveTab}
+            onScrollLoadMore={onScrollLoadMore ?? (() => {})} 
+            loading={loading ?? false} 
+            hasMore={hasMore ?? false} 
           />
+
         )}
       </CustomTabPanel>
 
@@ -1874,6 +1909,9 @@ interface ProCardProps {
   handleOpenModal: (action: "Approve" | "Deny" | "Delete", item: Property) => void;
   sortOption: string;
   currentActiveTab: TabStatusType;
+  onScrollLoadMore: () => void;
+  loading: boolean;
+  hasMore: boolean;
 }
 const modalStyle = {
   position: "absolute",
@@ -1893,6 +1931,9 @@ const PropertyCardList = ({
   onScrollChange,
   handleOpenModal,
   sortOption,
+  onScrollLoadMore,
+  loading,
+  hasMore,
 }: ProCardProps) => {
   const navigate = useNavigate();
 
@@ -1925,14 +1966,20 @@ const PropertyCardList = ({
   // const [visibleCount, setVisibleCount] = useState<number>(5);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  // Debounced scroll handler
+  // Debounced scroll handler for infinite scroll
   const handleScroll = debounce(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    // if (scrollTop + clientHeight >= scrollHeight - 50) {
-    //   setVisibleCount((prev) => Math.min(prev + 5, formatedData.length));
-    // }
+    const scrollTop = container.scrollTop;
+    const clientHeight = container.clientHeight;
+    const scrollHeight = container.scrollHeight;
+    const threshold = 150;
+    const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
+
+    if (distanceFromBottom <= threshold && !loading && hasMore) {
+      onScrollLoadMore();
+    }
   }, 200);
 
   useEffect(() => {
@@ -2020,7 +2067,6 @@ const PropertyCardList = ({
     container?.addEventListener("scroll", handleScroll);
     return () => container?.removeEventListener("scroll", handleScroll);
   }, [onScrollChange, lastScrollY, formatedData.length]);
-  console.log("formatedData", formatedData);
 
   // popover
   const handlePopoverClick = (event: React.MouseEvent<HTMLInputElement>) => {
@@ -2079,7 +2125,7 @@ const PropertyCardList = ({
     }
 
     const routeBase = getSingularPropertyType();
-    
+
     navigate(`/${routeBase}/view/${id}`, {
       state: { data: selectedItem, mode: "view" },
     });
@@ -2138,13 +2184,12 @@ const PropertyCardList = ({
       <Grid container spacing={2} className="row g-2">
         <Box
           ref={containerRef}
-          sx={
-            {
-              // height: "400px",
-              // overflowY: "auto",
-              // marginBottom: "50px",
-            }
-          }
+          sx={{
+            maxHeight: "60vh",
+            overflowY: "auto",
+            overflowX: "hidden",
+            width: "100%",
+          }}
         >
           {sortedData.length === 0 && (
             <div
@@ -2182,8 +2227,8 @@ const PropertyCardList = ({
                 </div>
 
                 <div className="card-view-content col-12 col-md-6">
-                <div className="card-view-address-bar d-flex flex-column flex-sm-row justify-content-between align-items-start">
-                <div className="cardview-address-detailflex-fill mb-2 mb-sm-0">
+                  <div className="card-view-address-bar d-flex flex-column flex-sm-row justify-content-between align-items-start">
+                    <div className="cardview-address-detailflex-fill mb-2 mb-sm-0">
                       <h6>{item.title || "No Landmark"}</h6>
                       <p>{item?.location?.address}</p>
                     </div>
@@ -2205,7 +2250,7 @@ const PropertyCardList = ({
                     </span>
                   </div>
                   <div className="card-view-icon-wrapper d-flex justify-content-center justify-content-sm-start gap-3 flex-wrap">
-                  <div className="card-icon-view">
+                    <div className="card-icon-view">
                       <img
                         src={`${import.meta.env.VITE_BASE_URL}/dashboardtab/view-card.png`}
                         alt="icon-edit"

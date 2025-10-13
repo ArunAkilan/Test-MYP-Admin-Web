@@ -20,12 +20,6 @@ interface CarouselProps {
   area?: string;
 }
 
-//overrides https in live
-const getImageUrl = (url: string): string =>
-  url.replace(/^https:/, "http:");
-
-//override ends
-
 const ImageCountBadge = styled(Badge)(() => ({
   position: "absolute",
   top: 8,
@@ -109,21 +103,7 @@ const Carousel: React.FC<CarouselProps> = ({ images}) => {
                   position: "relative",
                 }}
               >
-               
-{/* overrides starts here */}
-<img
-  src={getImageUrl(img)}
-  alt={`Slide ${index + 1}`}
-  style={{
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
-    display: "block",
-  }}
-/>
-{/* override ends */}
-
-                {/* <img
+                <img
                   src={img}
                   alt={`Slide ${index + 1}`}
                   style={{
@@ -132,7 +112,7 @@ const Carousel: React.FC<CarouselProps> = ({ images}) => {
                     objectFit: "cover",
                     display: "block",
                   }}
-                /> */}
+                />
 
                 {/* Badge for image count */}
                 {index === currentIndex && (
