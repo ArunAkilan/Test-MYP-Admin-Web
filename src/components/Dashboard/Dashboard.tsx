@@ -58,9 +58,9 @@ function Home({ properties }: { properties: PropertyType }) {
 
   const location = useLocation();
   const navigate = useNavigate();
-
+ 
+  //@ts-ignore
   const isFetchingRef = useRef(false);
-
 
   const sideNavTabvalue: PropertyType = useMemo(() => {
     const pathname = location.pathname.toLowerCase();
@@ -71,90 +71,105 @@ function Home({ properties }: { properties: PropertyType }) {
     return "all";
   }, [location.pathname]);
 
-  const fetchAllData = async (pageNum: number = 1) => {
-    if (isFetchingRef.current) return;
-    isFetchingRef.current = true;
-    setLoading(true);
-    try {
-      const statusQuery = currentActiveTab
-        ? `&status=${currentActiveTab.charAt(0).toUpperCase()}${currentActiveTab.slice(1)}`
-        : "";
-      const response = await axios.get(
-        `${import.meta.env.VITE_BackEndUrl}/api/${sideNavTabvalue}?page=${pageNum}&limit=10${statusQuery}`
-      );
-      const data = response?.data?.data;
-      setResponseData(response?.data);
+const fetchIdRef = useRef(0);
 
-      // compute totals for current status and cache per-status totals
-      const computedTotal =
-        sideNavTabvalue === "all"
-          ? ((data?.residential?.total ?? 0) +
-            (data?.commercial?.total ?? 0) +
-            (data?.plot?.total ?? 0))
-          : (response?.data?.total ?? 0);
+const fetchAllData = async (pageNum: number = 1, statusParam?: string) => {
+  const localFetchId = ++fetchIdRef.current;
+  setLoading(true);
 
-      setStatusTotals((prev) => ({
-        ...prev,
-        [currentActiveTab]: computedTotal,
+  try {
+    const statusToUse = statusParam ?? currentActiveTab;
+    const statusQuery = statusToUse
+      ? `&status=${statusToUse.charAt(0).toUpperCase()}${statusToUse.slice(1)}`
+      : "";
+
+    const response = await axios.get(
+      `${import.meta.env.VITE_BackEndUrl}/api/${sideNavTabvalue}?page=${pageNum}&limit=10${statusQuery}`
+    );
+
+    if (localFetchId !== fetchIdRef.current) return;
+
+    const data = response?.data?.data;
+    setResponseData(response?.data);
+
+    const computedTotal =
+      sideNavTabvalue === "all"
+        ? ((data?.residential?.total ?? 0) +
+           (data?.commercial?.total ?? 0) +
+           (data?.plot?.total ?? 0))
+        : (response?.data?.total ?? 0);
+
+    setStatusTotals((prev) => ({
+      ...prev,
+      [statusToUse]: computedTotal,
+    }));
+
+    if (sideNavTabvalue === "all") {
+      const prevResLen = dashboardData.residential.length;
+      const prevComLen = dashboardData.commercial.length;
+      const prevPlotLen = dashboardData.plot.length;
+
+      const newRes = data?.residential?.items ?? [];
+      const newCom = data?.commercial?.items ?? [];
+      const newPlot = data?.plot?.items ?? [];
+
+      const nextResLen = pageNum === 1 ? newRes.length : prevResLen + newRes.length;
+      const nextComLen = pageNum === 1 ? newCom.length : prevComLen + newCom.length;
+      const nextPlotLen = pageNum === 1 ? newPlot.length : prevPlotLen + newPlot.length;
+
+      const loadedSum = nextResLen + nextComLen + nextPlotLen;
+      setHasMore(loadedSum < computedTotal);
+
+      setDashboardData((prev) => ({
+        residential: pageNum === 1 ? newRes : [...prev.residential, ...newRes],
+        commercial: pageNum === 1 ? newCom : [...prev.commercial, ...newCom],
+        plot: pageNum === 1 ? newPlot : [...prev.plot, ...newPlot],
       }));
+    } else {
+      const singularType = sideNavTabvalue.replace(/s$/, "") as keyof PropertyData;
+      const prevLen = (dashboardData[singularType] as ResidentialProperty[] | undefined)?.length ?? 0;
+      const newItems = Array.isArray(data) ? data : [];
+      const nextLen = pageNum === 1 ? newItems.length : prevLen + newItems.length;
 
-      // compute hasMore based on accumulated lengths vs totals
+      setHasMore(nextLen < computedTotal);
+
+      setDashboardData((prev) => ({
+        ...prev,
+        [singularType]: pageNum === 1 ? newItems : [...(prev[singularType] || []), ...newItems],
+      }));
+    }
+  } catch (err) {
+    const axiosError = axios.isAxiosError(err) ? err : null;
+    const status = axiosError?.response?.status;
+
+    if (status === 404) {
       if (sideNavTabvalue === "all") {
-        const prevResLen = dashboardData.residential.length;
-        const prevComLen = dashboardData.commercial.length;
-        const prevPlotLen = dashboardData.plot.length;
-
-        const newRes = data?.residential?.items ?? [];
-        const newCom = data?.commercial?.items ?? [];
-        const newPlot = data?.plot?.items ?? [];
-
-        const nextResLen = pageNum === 1 ? newRes.length : prevResLen + newRes.length;
-        const nextComLen = pageNum === 1 ? newCom.length : prevComLen + newCom.length;
-        const nextPlotLen = pageNum === 1 ? newPlot.length : prevPlotLen + newPlot.length;
-
-        const loadedSum = nextResLen + nextComLen + nextPlotLen;
-        setHasMore(loadedSum < computedTotal);
-      } else {
-        const singularKey = sideNavTabvalue.replace(/s$/, "") as keyof PropertyData;
-        const prevLen = (dashboardData[singularKey] as ResidentialProperty[] | undefined)?.length ?? 0;
-        const newItems = Array.isArray(data) ? data : [];
-        const nextLen = pageNum === 1 ? newItems.length : prevLen + newItems.length;
-        setHasMore(nextLen < computedTotal);
-      }
-
-      if (sideNavTabvalue === "all") {
-        setDashboardData((prev) => ({
-          residential:
-            pageNum === 1
-              ? data?.residential?.items || []
-              : [...prev.residential, ...(data?.residential?.items || [])],
-          commercial:
-            pageNum === 1
-              ? data?.commercial?.items || []
-              : [...prev.commercial, ...(data?.commercial?.items || [])],
-          plot:
-            pageNum === 1
-              ? data?.plot?.items || []
-              : [...prev.plot, ...(data?.plot?.items || [])],
-        }));
+        setDashboardData({
+          residential: [],
+          commercial: [],
+          plot: [],
+        });
       } else {
         const singularType = sideNavTabvalue.replace(/s$/, "") as keyof PropertyData;
         setDashboardData((prev) => ({
           ...prev,
-          [singularType]:
-            pageNum === 1 ? data || [] : [...(prev[singularType] || []), ...(data || [])],
+          [singularType]: [],
         }));
       }
-      setLoading(false);
-    } catch (err) {
+
+      setHasMore(false);
+      setStatusTotals((prev) => ({
+        ...prev,
+        [currentActiveTab]: 0,
+      }));
+      setResponseData(null);
+    } else {
       setError(axios.isAxiosError(err) ? err.message : "Unexpected error");
-      setLoading(false);
-    } finally {
-      setLoading(false);
-      isFetchingRef.current = false;
     }
-  };
-  console.log("responseData", responseData)
+  } finally {
+    setLoading(false);
+  }
+};
 
   const totalCount = useMemo(() => {
     if (!responseData) return 0;
@@ -177,53 +192,50 @@ function Home({ properties }: { properties: PropertyType }) {
   }, [responseData, properties]);
 
 const handleScrollLoadMore = useCallback(() => {
-  if (!loading && hasMore && !isFetchingRef.current) {
+  if (!loading && hasMore) {
     setPage((prev) => {
       const nextPage = prev + 1;
-      fetchAllData(nextPage);
+      fetchAllData(nextPage, currentActiveTab);
       return nextPage;
     });
   }
-}, [hasMore, loading]);
+}, [hasMore, loading, currentActiveTab]);
 
 
   // Route change effect: reset lists and totals, fetch first page for default tab
-  useEffect(() => {
+ 
+useEffect(() => {
+  setPage(1);
+  setHasMore(true);
+  setDashboardData({
+    residential: [],
+    commercial: [],
+    plot: [],
+  });
+
+  setStatusTotals({ pending: -1, approved: -1, rejected: -1, deleted: -1 });
+
+  const handleRefresh = () => {
     setPage(1);
     setHasMore(true);
-    setDashboardData({
-      residential: [],
-      commercial: [],
-      plot: [],
-    });
+    fetchAllData(1, currentActiveTab);
+  };
 
-    // reset totals to sentinel so badges can fallback to local counts until fetched
-    setStatusTotals({ pending: -1, approved: -1, rejected: -1, deleted: -1 });
-
-    fetchAllData(1);
-
-    // Listen for refresh events
-    const handleRefresh = () => {
-      setPage(1);
-      setHasMore(true);
-      fetchAllData(1);
-    };
-
-    window.addEventListener("refreshTableData", handleRefresh);
-    return () => window.removeEventListener("refreshTableData", handleRefresh);
-  }, [sideNavTabvalue]);
+  window.addEventListener("refreshTableData", handleRefresh);
+  return () => window.removeEventListener("refreshTableData", handleRefresh);
+}, [sideNavTabvalue]);
 
   // Tab change effect: fetch data for the selected status without resetting cached totals
-  useEffect(() => {
-    setPage(1);
-    setHasMore(true);
-    setDashboardData({
-      residential: [],
-      commercial: [],
-      plot: [],
-    });
-    fetchAllData(1);
-  }, [currentActiveTab]);
+useEffect(() => {
+  setPage(1);
+  setHasMore(true);
+  setDashboardData({
+    residential: [],
+    commercial: [],
+    plot: [],
+  });
+  fetchAllData(1, currentActiveTab);
+}, [currentActiveTab, sideNavTabvalue]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
