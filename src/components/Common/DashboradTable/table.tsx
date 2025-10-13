@@ -51,7 +51,7 @@ interface TableProps {
   onAction?: () => void;
   currentActiveTab: string;
   onTabChange: (tab: "pending" | "approved" | "rejected" | "deleted") => void;
-  onScrollLoadMore: () => void; 
+  onScrollLoadMore: () => void;
   loading: boolean;
   hasMore: boolean;
 }
@@ -82,7 +82,7 @@ const modalStyle = {
 
 function useDebounceCallback(callback: () => void, delay: number) {
   const callbackRef = useRef(callback);
-const timeoutRef = useRef<number | undefined>(undefined);
+  const timeoutRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     callbackRef.current = callback;
@@ -120,10 +120,10 @@ function Table({
   tabType,
   currentActiveTab,
 }: TableProps) {
-console.log("properties",properties,"tabtype",tabType)
+  console.log("properties", properties, "tabtype", tabType)
   const containerRef = useRef<HTMLDivElement>(null);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
-    const [isBackdropLoading, setIsBackdropLoading] = useState(false);
+  const [isBackdropLoading, setIsBackdropLoading] = useState(false);
   const [popoverAnchorEl, setPopoverAnchorEl] = useState<HTMLElement | null>(
     null
   );
@@ -148,10 +148,10 @@ console.log("properties",properties,"tabtype",tabType)
           (properties === "residentials"
             ? "residential"
             : properties === "commercials"
-            ? "commercial"
-            : properties === "plots"
-            ? "plot"
-            : "residential"),
+              ? "commercial"
+              : properties === "plots"
+                ? "plot"
+                : "residential"),
       }));
     }
 
@@ -476,7 +476,7 @@ console.log("properties",properties,"tabtype",tabType)
     };
   }, []);
 
-   const formattedData = useMemo(() => {
+  const formattedData = useMemo(() => {
     if (!Array.isArray(data)) {
       const fallback = data?.residential || data?.commercial || data?.plot;
       return Array.isArray(fallback) ? fallback : [];
@@ -493,7 +493,7 @@ console.log("properties",properties,"tabtype",tabType)
               : "residential",
     }));
   }, [data, properties]);
-  
+
   const sortedData = useMemo(() => {
     if (!sortConfig) return formatedData;
 
@@ -526,7 +526,7 @@ console.log("properties",properties,"tabtype",tabType)
     return <p>No data available</p>; // Now this is safe
   }
 
-    
+
 
   return (
     <>
@@ -551,7 +551,7 @@ console.log("properties",properties,"tabtype",tabType)
               ◀
             </button>
           )}
-          <div ref={containerRef} style={{ maxHeight: "70vh", overflowY: "scroll" }}>
+          <div ref={containerRef} style={{ maxHeight: "50vh", overflowY: "scroll" }}>
             {Array.isArray(formatedData) && formatedData.length === 0 ? (
               <EmptyState tabType={tabType} />
             ) : (

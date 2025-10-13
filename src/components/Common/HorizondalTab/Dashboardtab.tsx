@@ -235,7 +235,7 @@ export default function Dashboardtab({
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [selectedLabel, setSelectedLabel] = useState(selectedSort);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-    // const [sortOption, setSortOption] = useState("Newest Property");
+  // const [sortOption, setSortOption] = useState("Newest Property");
 
 
   const sortOptions = ["Newest", "Oldest", "Highest Price", "Lowest Price"];
@@ -480,7 +480,7 @@ export default function Dashboardtab({
       const filterSection = filterOptions[properties === "all" ? "all" : properties];
 
       filterSection?.forEach((section: FilterSection) => {
-  //@ts-ignore
+        //@ts-ignore
         const key = headingToKey[section.heading];
         const selectedOptions = section.options.filter((opt: string) => filters.includes(opt));
 
@@ -807,7 +807,7 @@ export default function Dashboardtab({
     return allItems.filter((item) => item.status?.toLowerCase() === "pending").length;
   }, [data, totalsReady, statusTotals]);
 
-  console.log("handlepending",handlePendingCount)
+  console.log("handlepending", handlePendingCount)
 
   const handleApprovedCount = useMemo((): number => {
     if (totalsReady && statusTotals) return statusTotals.approved;
@@ -843,8 +843,8 @@ export default function Dashboardtab({
   }, [data, totalsReady, statusTotals]);
 
   function formatCount(count: number): string {
-  return count === -1 ? "..." : `${count}`;
-}
+    return count === -1 ? "..." : `${count}`;
+  }
 
   //resultcount
   const handleFilteredCount = useMemo(() => {
@@ -1036,25 +1036,25 @@ export default function Dashboardtab({
     <div id="pending-approval-tab">
       <div>
         <Box
-          sx={{
-            //display: hideHeader ? "block" : "none",
-            position: hideHeader ? "fixed" : "static",
-            zIndex: "99",
-            width: hideHeader ? "66%" : "100%",
-            backgroundColor: "#ffffff",
-            top: hideHeader ? "0px" : "124px",
-          }}
+          // sx={{
+          //   //display: hideHeader ? "block" : "none",
+          //   position: hideHeader ? "fixed" : "static",
+          //   zIndex: "99",
+          //   width: hideHeader ? "66%" : "100%",
+          //   backgroundColor: "#ffffff",
+          //   top: hideHeader ? "0px" : "124px",
+          // }}
         >
           <Tabs
             value={value}
             onChange={handleChange}
             aria-label="basic tabs example"
             sx={{
-              paddingBottom: hideHeader ? "0" : "24px",
+              // paddingBottom: hideHeader ? "0" : "24px",
               display: hideHeader ? "block" : "true",
-              "& .MuiTabs-flexContainer": {
-                flexWrap: "wrap",
-              },
+              // "& .MuiTabs-flexContainer": {
+              //   flexWrap: "wrap",
+              // },
             }}
             id="pending-approval-tabs-wrap"
           >
@@ -1669,9 +1669,9 @@ export default function Dashboardtab({
               description: item.description || ""
             }))}
             properties={properties === "postedProperties" ? "myposts" : properties}
-            onScrollLoadMore={onScrollLoadMore ?? (() => {})} 
-            loading={loading ?? false} 
-            hasMore={hasMore ?? false} 
+            onScrollLoadMore={onScrollLoadMore ?? (() => { })}
+            loading={loading ?? false}
+            hasMore={hasMore ?? false}
             //@ts-ignore
             handleOpenModal={handleOpenModal as (action: "Approve" | "Deny" | "Delete", item: Property) => void}
             tabType="pending"
@@ -1688,9 +1688,9 @@ export default function Dashboardtab({
             onScrollChange={handleChildScroll}
             handleOpenModal={handleOpenModal}
             currentActiveTab={currentActiveTab}
-            onScrollLoadMore={onScrollLoadMore ?? (() => {})} 
-            loading={loading ?? false} 
-            hasMore={hasMore ?? false} 
+            onScrollLoadMore={onScrollLoadMore ?? (() => { })}
+            loading={loading ?? false}
+            hasMore={hasMore ?? false}
           />
         )}
       </CustomTabPanel>
@@ -1702,12 +1702,12 @@ export default function Dashboardtab({
             data={tableValues.map(item => ({
               ...item,
               price: 0,
-              description: item.description || "" 
+              description: item.description || ""
             }))}
             properties={properties === "postedProperties" ? "myposts" : properties}
-            onScrollLoadMore={onScrollLoadMore ?? (() => {})} 
-            loading={loading ?? false} 
-            hasMore={hasMore ?? false} 
+            onScrollLoadMore={onScrollLoadMore ?? (() => { })}
+            loading={loading ?? false}
+            hasMore={hasMore ?? false}
             //@ts-ignore
             handleOpenModal={handleOpenModal as (action: "Approve" | "Deny" | "Delete", item: Property) => void}
             tabType="approved"
@@ -1724,9 +1724,9 @@ export default function Dashboardtab({
             formatData={formatData}
             handleOpenModal={handleOpenModal}
             currentActiveTab={currentActiveTab}
-            onScrollLoadMore={onScrollLoadMore ?? (() => {})} 
-            loading={loading ?? false} 
-            hasMore={hasMore ?? false} 
+            onScrollLoadMore={onScrollLoadMore ?? (() => { })}
+            loading={loading ?? false}
+            hasMore={hasMore ?? false}
           />
         )}
       </CustomTabPanel>
@@ -1735,15 +1735,15 @@ export default function Dashboardtab({
         {!cardView ? (
           <Table
             //@ts-ignore
-                        data={tableValues.map(item => ({
+            data={tableValues.map(item => ({
               ...item,
               price: 0,
-              description: item.description || "" 
+              description: item.description || ""
             }))}
             properties={properties === "postedProperties" ? "myposts" : properties}
-            onScrollLoadMore={onScrollLoadMore ?? (() => {})} 
-            loading={loading ?? false} 
-            hasMore={hasMore ?? false} 
+            onScrollLoadMore={onScrollLoadMore ?? (() => { })}
+            loading={loading ?? false}
+            hasMore={hasMore ?? false}
             //@ts-ignore
             handleOpenModal={handleOpenModal as (action: "Approve" | "Deny" | "Delete", item: Property) => void}
             tabType="rejected"
@@ -1760,9 +1760,9 @@ export default function Dashboardtab({
             formatData={formatData}
             handleOpenModal={handleOpenModal}
             currentActiveTab={currentActiveTab}
-            onScrollLoadMore={onScrollLoadMore ?? (() => {})} 
-            loading={loading ?? false} 
-            hasMore={hasMore ?? false} 
+            onScrollLoadMore={onScrollLoadMore ?? (() => { })}
+            loading={loading ?? false}
+            hasMore={hasMore ?? false}
           />
         )}
       </CustomTabPanel>
@@ -1774,12 +1774,12 @@ export default function Dashboardtab({
             data={tableValues.map(item => ({
               ...item,
               price: 0,
-              description: item.description || "" 
+              description: item.description || ""
             }))}
             properties={properties === "postedProperties" ? "myposts" : properties}
-            onScrollLoadMore={onScrollLoadMore ?? (() => {})} 
-            loading={loading ?? false} 
-            hasMore={hasMore ?? false} 
+            onScrollLoadMore={onScrollLoadMore ?? (() => { })}
+            loading={loading ?? false}
+            hasMore={hasMore ?? false}
             //@ts-ignore
             handleOpenModal={handleOpenModal as (action: "Approve" | "Deny" | "Delete", item: Property) => void}
             tabType="deleted"
@@ -1796,9 +1796,9 @@ export default function Dashboardtab({
             formatData={formatData}
             handleOpenModal={handleOpenModal}
             currentActiveTab={currentActiveTab}
-            onScrollLoadMore={onScrollLoadMore ?? (() => {})} 
-            loading={loading ?? false} 
-            hasMore={hasMore ?? false} 
+            onScrollLoadMore={onScrollLoadMore ?? (() => { })}
+            loading={loading ?? false}
+            hasMore={hasMore ?? false}
           />
 
         )}
@@ -2175,7 +2175,7 @@ const PropertyCardList = ({
         <Box
           ref={containerRef}
           sx={{
-            maxHeight: "60vh",
+            maxHeight: "50vh",
             overflowY: "auto",
             overflowX: "hidden",
             width: "100%",

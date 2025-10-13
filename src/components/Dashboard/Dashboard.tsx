@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./Dashboard.scss";
@@ -37,9 +37,9 @@ function Home({ properties }: { properties: PropertyType }) {
   const [sortOption, setSortOption] = useState("Newest");
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-    //@ts-ignore
+  //@ts-ignore
   const [hideHeader, setHideHeader] = useState(false);
-    //@ts-ignore
+  //@ts-ignore
   const [lastScrollY, setLastScrollY] = useState(0);
   const [open, setOpen] = useState(false);
   const [selectedPropertyType, setSelectedPropertyType] = useState<string | null>(null);
@@ -59,6 +59,9 @@ function Home({ properties }: { properties: PropertyType }) {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const isFetchingRef = useRef(false);
+
+
   const sideNavTabvalue: PropertyType = useMemo(() => {
     const pathname = location.pathname.toLowerCase();
     if (pathname.includes("residential")) return "residentials";
@@ -69,6 +72,8 @@ function Home({ properties }: { properties: PropertyType }) {
   }, [location.pathname]);
 
   const fetchAllData = async (pageNum: number = 1) => {
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
     setLoading(true);
     try {
       const statusQuery = currentActiveTab
@@ -84,8 +89,8 @@ function Home({ properties }: { properties: PropertyType }) {
       const computedTotal =
         sideNavTabvalue === "all"
           ? ((data?.residential?.total ?? 0) +
-             (data?.commercial?.total ?? 0) +
-             (data?.plot?.total ?? 0))
+            (data?.commercial?.total ?? 0) +
+            (data?.plot?.total ?? 0))
           : (response?.data?.total ?? 0);
 
       setStatusTotals((prev) => ({
@@ -133,7 +138,7 @@ function Home({ properties }: { properties: PropertyType }) {
               : [...prev.plot, ...(data?.plot?.items || [])],
         }));
       } else {
-const singularType = sideNavTabvalue.replace(/s$/, "") as keyof PropertyData;
+        const singularType = sideNavTabvalue.replace(/s$/, "") as keyof PropertyData;
         setDashboardData((prev) => ({
           ...prev,
           [singularType]:
@@ -144,39 +149,43 @@ const singularType = sideNavTabvalue.replace(/s$/, "") as keyof PropertyData;
     } catch (err) {
       setError(axios.isAxiosError(err) ? err.message : "Unexpected error");
       setLoading(false);
+    } finally {
+      setLoading(false);
+      isFetchingRef.current = false;
     }
   };
-  console.log("responseData",responseData)
+  console.log("responseData", responseData)
 
-     const totalCount = useMemo(() => {
-  if (!responseData) return 0;
+  const totalCount = useMemo(() => {
+    if (!responseData) return 0;
 
-  switch (properties) {
-    case "residentials":
-      return responseData.total ?? 0;
-    case "commercials":
-      return responseData.total ?? 0;
-    case "plots":
-      return responseData.total ?? 0;
-    case "all":
-    default:
-      return (
-        (responseData.data.residential?.total ?? 0) +
-        (responseData.data.commercial?.total ?? 0) +
-        (responseData.data.plot?.total ?? 0)
-      );
+    switch (properties) {
+      case "residentials":
+        return responseData.total ?? 0;
+      case "commercials":
+        return responseData.total ?? 0;
+      case "plots":
+        return responseData.total ?? 0;
+      case "all":
+      default:
+        return (
+          (responseData.data.residential?.total ?? 0) +
+          (responseData.data.commercial?.total ?? 0) +
+          (responseData.data.plot?.total ?? 0)
+        );
+    }
+  }, [responseData, properties]);
+
+const handleScrollLoadMore = useCallback(() => {
+  if (!loading && hasMore && !isFetchingRef.current) {
+    setPage((prev) => {
+      const nextPage = prev + 1;
+      fetchAllData(nextPage);
+      return nextPage;
+    });
   }
-}, [responseData, properties]);
+}, [hasMore, loading]);
 
-  const handleScrollLoadMore = () => {
-    if (!loading && hasMore) {
-      setPage((prev) => {
-        const nextPage = prev + 1;
-        fetchAllData(nextPage);
-        return nextPage;
-      });
-    }
-  };
 
   // Route change effect: reset lists and totals, fetch first page for default tab
   useEffect(() => {
@@ -427,7 +436,7 @@ const singularType = sideNavTabvalue.replace(/s$/, "") as keyof PropertyData;
                 onSortChange={setSortOption}
                 selectedSort={sortOption}
                 data={tableData}
-                totalCount={totalCount} 
+                totalCount={totalCount}
                 properties={sideNavTabvalue}
                 onScrollLoadMore={handleScrollLoadMore}
                 loading={loading}
