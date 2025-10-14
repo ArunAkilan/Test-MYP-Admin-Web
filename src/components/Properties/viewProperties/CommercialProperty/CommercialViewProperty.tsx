@@ -1,7 +1,16 @@
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { DynamicBreadcrumbs } from "../../../Common/input";
-import type { CommercialProperty } from "./CommercialViewProperty.modal";
+import type { 
+  CommercialPropertyResponse,
+  AmountInfoInterface,
+  StatusInfoInterface,
+  CoordinatesInterface,
+  TransportDataInterface,
+  NegotiableInfoInterface,
+  TimeDisplayInterface,
+  StatusActionInterface
+} from "./CommercialViewProperty.modal";
 import "./CommercialViewProperty.scss";
 import SqrtImage from "../../../../assets/viewProperty/radix-icons_dimensions.svg";
 import facingImage from "../../../../assets/viewProperty/Icon_Facing.svg";
@@ -34,19 +43,14 @@ import axios from "axios";
 import ViewCarousel from "../../../Common/ViewCarousel/ViewCarousel";
 import { useLocation } from "react-router-dom";
 
-interface PropertyResponse {
-  property: CommercialProperty;
-}
-
 const CommercialView = () => {
   const location = useLocation();
   const { id } = useParams();
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  // const location = useLocation();
-  // const propertyData = location.state?.data as CommercialProperty;
 
-  const [property, setProperty] = useState<PropertyResponse | null>(null);
+  const [property, setProperty] = useState<CommercialPropertyResponse | null>(null);
+  const [isProcessing, setIsProcessing] = useState<string>("");
 
   useEffect(() => {
     console.log(
@@ -66,100 +70,122 @@ const CommercialView = () => {
       });
   }, [id, token]);
 
-  const handleEdit = () => {
-    if (!property) {
-      toast.error("Property data not available");
-      return;
-    }
+  if (!property) return <div className="loading-container">Loading...</div>;
 
-    const cleanItem = JSON.parse(JSON.stringify(property.property)); // sanitize any Date objects
-
-    navigate(`/commercial/create`, {
-      state: { data: cleanItem, mode: "edit" },
-    });
-  };
-
-  // Unified status update function for approve, deny, delete, sold
-  const updateCommercialPermissionStatus = async (
-    status: "0" | "1" | "2" | "3"
-  ) => {
-    if (!token) {
-      toast.error("Authentication token missing");
-      return;
-    }
-
-    try {
-      await axios.put(
-        `${import.meta.env.VITE_BackEndUrl}/api/adminpermission`,
-        {
-          status, // 0=Rejected, 1=Approved, 2=Deleted, 3=Sold
-          properties: [
-            {
-              type: "commercial",
-              id: property?.property._id,
-            },
-          ],
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      const actionMap: Record<string, { label: string; route: string }> = {
-        "0": { label: "Denied", route: "/commercial" },
-        "1": { label: "Approved", route: "/commercial" },
-        "2": { label: "Deleted", route: "/commercial" },
-        "3": { label: "Sold", route: "/commercial/sold" },
-      };
-
-      const { label, route } = actionMap[status] || {
-        label: "Unknown",
-        route: "/",
-      };
-
-      toast.success(`Property ${label.toLowerCase()} successfully`);
-      navigate(route);
-    } catch (error) {
-      toast.error("Action failed");
-      console.error(error);
-    }
-  };
-
-  if (!property) return <div>Loading...</div>;
-
+  // Dynamic coordinates processing
   const latitudeRaw = property?.property?.location?.map?.latitude;
   const longitudeRaw = property?.property?.location?.map?.longitude;
-
-  const latitude =
-    typeof latitudeRaw === "number"
+  const coordinates: CoordinatesInterface = {
+    latitude: typeof latitudeRaw === "number"
       ? latitudeRaw
       : typeof latitudeRaw === "string" && !isNaN(parseFloat(latitudeRaw))
       ? parseFloat(latitudeRaw)
-      : undefined;
-
-  const longitude =
-    typeof longitudeRaw === "number"
+      : undefined,
+    longitude: typeof longitudeRaw === "number"
       ? longitudeRaw
       : typeof longitudeRaw === "string" && !isNaN(parseFloat(longitudeRaw))
       ? parseFloat(longitudeRaw)
-      : undefined;
+      : undefined
+  };
 
+  // Dynamic path processing
   const pathSegments = location.pathname.split("/");
-
-  // This assumes structure: /admin/{type}/view/:id
   const propertyType = pathSegments[1];
+  const typeLabel: string = 
+    propertyType === "residential" ? "Residential TYPE" :
+    propertyType === "commercial" ? "Commercial TYPE" :
+    propertyType === "plot" ? "Plot TYPE" : "PROPERTY TYPE";
 
-  let typeLabel = "-";
-  if (propertyType === "residential") {
-    typeLabel = "Residential TYPE";
-  } else if (propertyType === "commercial") {
-    typeLabel = "Commercial TYPE";
-  } else if (propertyType === "plot") {
-    typeLabel = "Plot TYPE";
-  }
+  // Dynamic amount information processing
+  const amountInfo: AmountInfoInterface = 
+    property?.property?.propertyType === "Rent" ? {
+      amount: property?.property?.rent?.rentAmount || 0,
+      label: "Per Month",
+      showDeposit: true,
+      deposit: property?.property?.rent?.advanceAmount || 0,
+      agreement: property?.property?.rent?.agreementTiming,
+    } : property?.property?.propertyType === "Lease" ? {
+      amount: property?.property?.lease?.leaseAmount || 0,
+      label: "Lease Amount",
+      showDeposit: false,
+      deposit: 0,
+      tenure: property?.property?.lease?.leaseTenure,
+    } : property?.property?.propertyType === "Sale" ? {
+      amount: property?.property?.sale?.saleAmount || 0,
+      label: "Sale Price",
+      showDeposit: false,
+      deposit: 0,
+    } : { amount: 0, label: "Amount", showDeposit: false, deposit: 0 };
+
+  // Dynamic status information processing
+  const statusInfo: StatusInfoInterface = 
+    property?.property?.status === "Approved" ? { label: "Available", class: "available" } :
+    property?.property?.status === "Pending" ? { label: "Under Review", class: "pending" } :
+    property?.property?.status === "Rejected" ? { label: "Rejected", class: "rejected" } :
+    property?.property?.status === "Deleted" ? { label: "Deleted", class: "deleted" } :
+    property?.property?.propertyType === "Rent" && property?.property?.status === "Rented Out" ? 
+      { label: "Rented Out", class: "rented-out" } :
+    property?.property?.propertyType === "Lease" && property?.property?.status === "Leased Out" ? 
+      { label: "Leased Out", class: "leased-out" } :
+    property?.property?.propertyType === "Sale" && property?.property?.status === "Sold Out" ? 
+      { label: "Sold Out", class: "sold-out" } :
+    { label: property?.property?.status || "Unknown", class: "unknown" };
+
+  // Dynamic negotiable information processing
+  const negotiableInfo: NegotiableInfoInterface = 
+    property?.property?.propertyType === "Rent" ? {
+      isNegotiable: property?.property?.rent?.negotiable || false,
+      label: property?.property?.rent?.negotiable ? "Yes" : "No"
+    } : property?.property?.propertyType === "Lease" ? {
+      isNegotiable: property?.property?.lease?.negotiable || false,
+      label: property?.property?.lease?.negotiable ? "Yes" : "No"
+    } : property?.property?.propertyType === "Sale" ? {
+      isNegotiable: property?.property?.sale?.negotiable || false,
+      label: property?.property?.sale?.negotiable ? "Yes" : "No"
+    } : { isNegotiable: false, label: "No" };
+
+  // Dynamic time display processing
+  const agreementTimeDisplay: TimeDisplayInterface = {
+    value: amountInfo.agreement || "",
+    formatted: !amountInfo.agreement ? "-" :
+      isNaN(Number(amountInfo.agreement)) ? amountInfo.agreement :
+      Number(amountInfo.agreement) === 12 ? "12 Months" :
+      Number(amountInfo.agreement) === 1 ? "1 Year" :
+      `${Number(amountInfo.agreement)} Years`
+  };
+
+  const tenureTimeDisplay: TimeDisplayInterface = {
+    value: amountInfo.tenure || "",
+    formatted: !amountInfo.tenure ? "-" :
+      isNaN(Number(amountInfo.tenure)) ? amountInfo.tenure :
+      Number(amountInfo.tenure) === 12 ? "12 Months" :
+      Number(amountInfo.tenure) === 1 ? "1 Year" :
+      `${Number(amountInfo.tenure)} Years`
+  };
+
+  // Dynamic transport data processing
+  const transportData: TransportDataInterface = {
+    busStop: typeof property?.property?.availability?.transport?.nearbyBusStop === "string"
+      ? property.property.availability.transport.nearbyBusStop
+      : property?.property?.availability?.transport?.nearbyBusStop ? "Available" : "0 KM",
+    airport: typeof property?.property?.availability?.transport?.nearbyAirport === "string"
+      ? property.property.availability.transport.nearbyAirport
+      : property?.property?.availability?.transport?.nearbyAirport ? "Available" : "0 KM",
+    metro: typeof property?.property?.availability?.transport?.nearbyPort === "string"
+      ? property.property.availability.transport.nearbyPort
+      : property?.property?.availability?.transport?.nearbyPort ? "Available" : "0 KM",
+    railway: "0 KM" // This appears to be static in backend
+  };
+
+  // Dynamic status action mapping
+  const statusActionMap: Record<string, StatusActionInterface> = {
+    "0": { status: "0", label: "Rejected", route: "/commercial" },
+    "1": { status: "1", label: "Approved", route: "/commercial" },
+    "2": { status: "2", label: "Deleted", route: "/commercial" },
+    "3": { status: "3", label: "Sold Out", route: "/commercial/sold" },
+    "4": { status: "4", label: "Leased Out", route: "/commercial/leased" },
+    "5": { status: "5", label: "Rented Out", route: "/commercial/rented" },
+  };
 
   return (
     <section className="container pt-4">
@@ -170,20 +196,20 @@ const CommercialView = () => {
         </button>
         <DynamicBreadcrumbs title={property?.property?.title} />
       </div>
+      
       <div className="slick-carousel">
         <ViewCarousel images={property?.property?.images || []} />
       </div>
+
       <section className="row address-detail">
-        <div className="d-flex title-address col-md-6  ">
+        <div className="d-flex title-address col-md-6">
           <div className="landmark-type">
             <h3 className="mb-0">{property?.property?.title}</h3>
             <button className={`${property?.property?.propertyType} detail-type`}>
               {property?.property?.propertyType}
             </button>
-            <button className=" detail-status-type">
-              {property?.property?.propertyType === "Rent" && "Rented Out"}
-              {property?.property?.propertyType === "Lease" && "Leased Out"}
-              {property?.property?.propertyType === "Sale" && "Sold Out"}
+            <button className={`detail-status-type ${statusInfo.class}`}>
+              {statusInfo.label}
             </button>
           </div>
 
@@ -199,68 +225,57 @@ const CommercialView = () => {
             <p className="mb-0">{property?.property?.location?.address}</p>
           </div>
         </div>
+
         <div className="d-flex col-md-6 align-items-start area-facing-detail flex-wrap gap-4">
           <div className="area-facing-detail-inner-div w-100 mt-2">
             <div className="text-center">
               <p className="mb-1 caps">Area</p>
               <h3 className="mb-1 user-result-data">
-                {typeof property?.property?.area?.totalArea === "string" ||
-                typeof property.property.rent.agreementTiming === "number"
-                  ? property.property.area.totalArea
-                  : "-"}
+                {property?.property?.area?.totalArea || "-"}
               </h3>
             </div>
             <div className="area-facing-divider"></div>
-            <div className=" text-center">
+            <div className="text-center">
               <p className="mb-1">Amount</p>
               <h3 className="mb-1 user-result-data">
-                {typeof property?.property?.rent?.rentAmount === "number"
-                  ? property?.property?.rent?.rentAmount
-                  : "-"}
+                ₹{amountInfo.amount.toLocaleString()}
               </h3>
-              {property?.property?.propertyType === "Rent" && (
-                <p className="text-muted">Per Month</p>
+              {amountInfo.label && (
+                <p className="text-muted">{amountInfo.label}</p>
               )}
             </div>
-            <div className="area-facing-divider"></div>
-            {property?.property?.propertyType !== "rent" &&
-              property?.property?.propertyType !== "sale" && (
-                <>
-                  <div className=" text-center deposit-amount">
-                    <p className="mb-1">Deposit Amount</p>
-                    <h3 className="mb-1 user-result-data">
-                      {typeof property?.property?.rent?.advanceAmount ===
-                      "number"
-                        ? property?.property?.rent?.advanceAmount
-                        : "-"}
-                    </h3>
-                  </div>
-                  <div className="area-facing-divider"></div>
-                </>
-              )}
-
-            {property?.property?.propertyType === "lease" && (
-              <div className=" text-center tenure-days ">
-                <p className="mb-1">AGREEMENT</p>
-                <h3 className="mb-1 user-result-data">
-                  {(() => {
-                    const timing = property?.property?.rent?.agreementTiming;
-
-                    if (timing === undefined || timing === null) return "-";
-
-                    const timingNum = Number(timing);
-
-                    if (isNaN(timingNum)) {
-                      return timing; // Probably a custom string
-                    }
-
-                    if (timingNum === 12) return "12 Months";
-                    if (timingNum === 1) return "1 Year";
-
-                    return `${timingNum} Years`;
-                  })()}
-                </h3>
-              </div>
+            {amountInfo.showDeposit && (
+              <>
+                <div className="area-facing-divider"></div>
+                <div className="text-center deposit-amount">
+                  <p className="mb-1">Deposit Amount</p>
+                  <h3 className="mb-1 user-result-data">
+                    ₹{amountInfo.deposit.toLocaleString()}
+                  </h3>
+                </div>
+              </>
+            )}
+            {agreementTimeDisplay.value && (
+              <>
+                <div className="area-facing-divider"></div>
+                <div className="text-center tenure-days">
+                  <p className="mb-1">AGREEMENT</p>
+                  <h3 className="mb-1 user-result-data">
+                    {agreementTimeDisplay.formatted}
+                  </h3>
+                </div>
+              </>
+            )}
+            {tenureTimeDisplay.value && (
+              <>
+                <div className="area-facing-divider"></div>
+                <div className="text-center tenure-days">
+                  <p className="mb-1">LEASE TENURE</p>
+                  <h3 className="mb-1 user-result-data">
+                    {tenureTimeDisplay.formatted}
+                  </h3>
+                </div>
+              </>
             )}
           </div>
         </div>
@@ -279,11 +294,19 @@ const CommercialView = () => {
           </div>
           <div className="col-md-2 row-individual-data">
             <p>Negotiable</p>
-            <span>{property?.property?.rent?.negotiable ? "Yes" : "No"}</span>
+            <span>{negotiableInfo.label}</span>
+          </div>
+          <div className="col-md-2 row-individual-data">
+            <p>STATUS</p>
+            <span className={`status-badge ${statusInfo.class}`}>
+              {statusInfo.label}
+            </span>
           </div>
         </div>
       </section>
+
       {(property?.property?.area?.totalArea ||
+        property?.property?.area?.carpetArea ||
         property?.property?.facingDirection ||
         property?.property?.createdAt ||
         property?.property?.totalFloors ||
@@ -295,8 +318,18 @@ const CommercialView = () => {
               <div className="col-md-2 row-individual-data">
                 <p>TOTAL AREA</p>
                 <span>
-                  <img src={SqrtImage} alt="dimention" />
+                  <img src={SqrtImage} alt="dimension" />
                   {property.property.area.totalArea}
+                </span>
+              </div>
+            )}
+
+            {property?.property?.area?.carpetArea && (
+              <div className="col-md-2 row-individual-data">
+                <p>CARPET AREA</p>
+                <span>
+                  <img src={SqrtImage} alt="dimension" />
+                  {property.property.area.carpetArea}
                 </span>
               </div>
             )}
@@ -315,7 +348,7 @@ const CommercialView = () => {
               <div className="col-md-2 row-individual-data">
                 <p>TOTAL FLOORS</p>
                 <span>
-                  <img src={footStepImg} alt="Facing" />
+                  <img src={footStepImg} alt="Floors" />
                   {property.property.totalFloors}
                 </span>
               </div>
@@ -325,7 +358,7 @@ const CommercialView = () => {
               <div className="col-md-2 row-individual-data">
                 <p>PROPERTY ON</p>
                 <span>
-                  <img src={footStepImg} alt="Facing" />
+                  <img src={footStepImg} alt="Floor" />
                   {property.property.propertyFloor}
                 </span>
               </div>
@@ -336,11 +369,7 @@ const CommercialView = () => {
                 <p>POSTED ON</p>
                 <span>
                   <img src={dateImage} alt="date" />
-                  {property?.property?.createdAt
-                    ? new Date(
-                        property?.property?.createdAt
-                      ).toLocaleDateString("en-GB")
-                    : "-"}
+                  {new Date(property?.property?.createdAt).toLocaleDateString("en-GB")}
                 </span>
               </div>
             )}
@@ -348,31 +377,31 @@ const CommercialView = () => {
         </section>
       )}
 
-      {(property?.property?.facility?.washRoom ||
-        property?.property?.facility?.waterFacility ||
+      {(property?.property?.washroom ||
+        property?.property?.facility?.waterFacility !== undefined ||
         property?.property?.facility?.roadFacility ||
-        property?.property?.facility?.tilesOnFloor ||
-        property?.property?.facility?.parking ||
-        property?.property?.facility?.readyToOccupy) && (
+        property?.property?.facility?.tilesOnFloor !== undefined ||
+        property?.property?.facility?.parking !== undefined ||
+        property?.property?.readyToOccupy !== undefined) && (
         <section className="midDetails">
           <h3>Facilities Provided</h3>
           <div className="row gap-4 data-detail-row">
-            {property?.property?.facility?.washRoom && (
+            {property?.property?.washroom && (
               <div className="col-md-2 row-individual-data">
                 <p>WASHROOM</p>
                 <span>
-                  <img src={Icon_Cleaning} alt="Icon_Cleaning" />
-                  {property.property.facility.washRoom ? "Yes" : "No"}
+                  <img src={Icon_restroom} alt="Washroom" />
+                  {property.property.washroom}
                 </span>
               </div>
             )}
 
-            {property?.property?.facility?.waterFacility && (
+            {property?.property?.facility?.waterFacility !== undefined && (
               <div className="col-md-2 row-individual-data">
                 <p>WATER FACILITY</p>
                 <span>
-                  <img src={water_full_outline} alt="water_full_outline" />
-                  {property.property.facility.waterFacility ? "Yes" : "No"}
+                  <img src={water_full_outline} alt="Water" />
+                  {property.property.facility.waterFacility ? "Available" : "Not Available"}
                 </span>
               </div>
             )}
@@ -381,38 +410,38 @@ const CommercialView = () => {
               <div className="col-md-2 row-individual-data">
                 <p>ROAD FACILITY</p>
                 <span>
-                  <img src={Icon_Road} alt="Icon_Road" />
-                  {property.property.facility.roadFacility ? "Yes" : "No"}
+                  <img src={Icon_Road} alt="Road" />
+                  {property.property.facility.roadFacility}
                 </span>
               </div>
             )}
 
-            {property?.property?.facility?.tilesOnFloor && (
+            {property?.property?.facility?.tilesOnFloor !== undefined && (
               <div className="col-md-2 row-individual-data">
                 <p>TILES ON FLOOR</p>
                 <span>
-                  <img src={Icon_restroom} alt="Icon_restroom" />
-                  {property.property.facility.tilesOnFloor ? "Yes" : "No"}
+                  <img src={Icon_Cleaning} alt="Tiles" />
+                  {property.property.facility.tilesOnFloor ? "Available" : "Not Available"}
                 </span>
               </div>
             )}
 
-            {property?.property?.facility?.parking && (
+            {property?.property?.facility?.parking !== undefined && (
               <div className="col-md-2 row-individual-data">
                 <p>PARKING</p>
                 <span>
-                  <img src={Icon_Parking} alt="Icon_Parking" />
-                  {property.property.facility.parking ? "Yes" : "No"}
+                  <img src={Icon_Parking} alt="Parking" />
+                  {property.property.facility.parking ? "Available" : "Not Available"}
                 </span>
               </div>
             )}
 
-            {property?.property?.facility?.readyToOccupy && (
+            {property?.property?.readyToOccupy !== undefined && (
               <div className="col-md-2 row-individual-data">
                 <p>READY TO OCCUPY</p>
                 <span>
-                  <img src={Icon_Balcony} alt="Icon_Balcony" />
-                  {property.property.facility.readyToOccupy ? "Yes" : "No"}
+                  <img src={Icon_Balcony} alt="Ready" />
+                  {property.property.readyToOccupy ? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -420,74 +449,59 @@ const CommercialView = () => {
         </section>
       )}
 
-      {(property?.property?.accessibility?.ramp ||
-        property?.property?.accessibility?.steps ||
-        property?.property?.accessibility?.lift) && (
+      {(property?.property?.accessibility?.steps !== undefined ||
+        property?.property?.accessibility?.lift !== undefined ||
+        property?.property?.accessibility?.ramp !== undefined) && (
         <section className="midDetails">
           <h3>Move-In Accessibility</h3>
           <div className="row gap-4 data-detail-row">
-            {/* RAMP ACCESS */}
-            {property?.property?.accessibility?.ramp && (
+            {property?.property?.accessibility?.ramp !== undefined && (
               <div className="col-md-2 row-individual-data">
                 <p>RAMP ACCESS</p>
                 <span>
-                  <img src={ramp_up} alt="ramp_up" />
-                  {property.property.accessibility.ramp ? "Yes" : "No"}
+                  <img src={ramp_up} alt="Ramp" />
+                  {property.property.accessibility.ramp ? "Available" : "Not Available"}
                 </span>
               </div>
             )}
 
-            {/* STAIR ACCESS */}
-            {property?.property?.accessibility?.steps && (
+            {property?.property?.accessibility?.steps !== undefined && (
               <div className="col-md-2 row-individual-data">
                 <p>STAIR ACCESS</p>
                 <span>
-                  <img src={footStepImg} alt="footStepImg" />
-                  {property.property.accessibility.steps ? "Yes" : "No"}
+                  <img src={footStepImg} alt="Steps" />
+                  {property.property.accessibility.steps ? "Available" : "Not Available"}
                 </span>
               </div>
             )}
 
-            {/* LIFT */}
-            {property?.property?.accessibility?.lift && (
+            {property?.property?.accessibility?.lift !== undefined && (
               <div className="col-md-2 row-individual-data">
                 <p>LIFT</p>
                 <span>
-                  <img src={footStepImg} alt="footStepImg" />
-                  {property.property.accessibility.lift ? "Yes" : "No"}
+                  <img src={footStepImg} alt="Lift" />
+                  {property.property.accessibility.lift ? "Available" : "Not Available"}
                 </span>
               </div>
             )}
           </div>
         </section>
       )}
+
       <section className="propertyDes">
         <h3 className="mb-4">Description</h3>
         <div>
-          <p>
-            Discover comfortable urban living in this 2BHK unit located in the
-            well-connected Perambalur Green Enclave. Spanning 1,200 sq ft of
-            total area with a built-up space of 950 sq ft, this 2nd-floor
-            apartment offers a carpet area of 800 sq ft, ensuring ample room for
-            cozy living.
-          </p>
-
-          <p className="mb-0">
-            This South-facing home invites natural light throughout the day and
-            features unfurnished interiors—ideal for tenants who prefer to style
-            their space from scratch. Located just minutes from schools,
-            markets, and public transport, it’s an excellent choice for families
-            or working professionals.
-          </p>
+          <p>{property?.property?.description || "No description available."}</p>
         </div>
       </section>
+
       <section className="google-location">
         <h3 className="mb-4 google-top">Location & Address</h3>
         <div className="map-row row">
           <div className="map-location col-md-6">
             <h3>Location</h3>
             <GoogleMapsWrapper>
-              <MapComponent latitude={latitude} longitude={longitude} />
+              <MapComponent latitude={coordinates.latitude} longitude={coordinates.longitude} />
             </GoogleMapsWrapper>
           </div>
           <div className="location-detail col-md-6">
@@ -497,56 +511,44 @@ const CommercialView = () => {
             </div>
             <div className="lat-long row">
               <div className="lat col-md-6">
-                <h3>latitude</h3>
+                <h3>Latitude</h3>
                 <p>{property?.property?.location?.map?.latitude}</p>
               </div>
               <div className="long col-md-6">
-                <h3>longitude</h3>
+                <h3>Longitude</h3>
                 <p>{property?.property?.location?.map?.longitude}</p>
               </div>
             </div>
-            <div className="transport ">
+            <div className="transport">
               <h3 className="Nearby">Nearby Transportation</h3>
               <div className="transport-row row">
                 <div className="busstand col-md-3">
                   <h3>
-                    <img src={Icon_Bus} alt="Icon_Bus" />
+                    <img src={Icon_Bus} alt="Bus" />
                     Bus Stand
                   </h3>
-                  <p>
-                    {property?.property?.availability?.transport
-                      ?.nearbyBusStop || "N/A"}
-                  </p>
+                  <p>{transportData.busStop}</p>
                 </div>
                 <div className="Airport col-md-3">
                   <h3>
-                    <img src={ph_airplane} alt="ph_airplane" />
+                    <img src={ph_airplane} alt="Airport" />
                     Airport
                   </h3>
-                  <p>
-                    {property?.property?.availability?.transport
-                      ?.nearbyAirport || "N/A"}
-                  </p>
+                  <p>{transportData.airport}</p>
                 </div>
                 <div className="Metro col-md-3">
                   <h3>
-                    <img src={metro} alt="" />
+                    <img src={metro} alt="Metro" />
                     Metro
                   </h3>
-                  <p>
-                    {property?.property?.availability?.transport?.nearbyPort ||
-                      "N/A"}
-                  </p>
+                  <p>{transportData.metro}</p>
                 </div>
                 <div className="Railway col-md-3">
                   <h3>
-                    <img src={light_train} alt="light_train" />
+                    <img src={light_train} alt="Railway" />
                     Railway
                   </h3>
-                  <p>
-                    {property?.property?.availability?.transport
-                      ?.nearbyBusStop || "N/A"}
-                  </p>
+                  <p>{transportData.railway}</p>
                 </div>
               </div>
             </div>
@@ -558,7 +560,7 @@ const CommercialView = () => {
         <h3>Owner Information</h3>
         <div className="owner-info gap-2 row">
           <div className="name inner-div col-md-4">
-            <img src={solar_user} alt="solar_user" />
+            <img src={solar_user} alt="User" />
             <p>Name</p>
             <h6>
               {property?.property?.propertyOwner?.firstName} &nbsp;
@@ -566,52 +568,406 @@ const CommercialView = () => {
             </h6>
           </div>
           <div className="number-outer col-md-4">
-            <div className="number inner-div  col-md-4">
-              <img src={solar_phone} alt="solar_phone" />
-              <p>Phone number</p>
+            <div className="number inner-div col-md-4">
+              <img src={solar_phone} alt="Phone" />
+              <p>Phone Number</p>
               <h6>{property?.property?.propertyOwner?.contact?.phone1}</h6>
             </div>
           </div>
           <div className="email inner-div col-md-4">
-            <img src={proicons_mail} alt="proicons_mail" />
+            <img src={proicons_mail} alt="Email" />
             <p>Email</p>
             <h6>{property?.property?.propertyOwner?.contact?.email}</h6>
           </div>
         </div>
       </section>
+
       <section className="midDetails">
-        <div className="area-icon ">
-          <div className="view-property-icon ">
-            <h3>Action</h3>
+        <div className="area-icon">
+          <div className="view-property-icon">
+            <h3>Quick Actions</h3>
             <div className="view-property-icon-inside">
               <button
                 className="btn edit-btn d-flex align-items-center gap-1"
-                onClick={handleEdit}
+                onClick={() => {
+                  if (!property) {
+                    toast.error("Property data not available");
+                    return;
+                  }
+                  const cleanItem = JSON.parse(JSON.stringify(property.property));
+                  navigate(`/commercial/create`, {
+                    state: { data: cleanItem, mode: "edit" },
+                  });
+                }}
+                disabled={isProcessing !== ""}
               >
-                <img src={Icon_edit} alt="Edit Icon" />
+                <img src={Icon_edit} alt="Edit" />
                 <p className="mb-0">Edit</p>
               </button>
+
               <button
-                className="btn approve-btn d-flex align-items-center gap-1"
-                onClick={() => updateCommercialPermissionStatus("1")}
+                className={`btn approve-btn d-flex align-items-center gap-1 ${
+                  isProcessing === "Approve" ? "processing" : ""
+                }`}
+                onClick={async () => {
+                  const statusAction = statusActionMap["1"];
+                  if (!token) {
+                    toast.error("Authentication token missing");
+                    return;
+                  }
+                  if (isProcessing) {
+                    toast.warning("Please wait, another action is in progress");
+                    return;
+                  }
+                  setIsProcessing("Approve");
+                  try {
+                    const response = await axios.put(
+                      `${import.meta.env.VITE_BackEndUrl}/api/adminpermission`,
+                      {
+                        status: statusAction.status,
+                        properties: [
+                          {
+                            type: "commercial",
+                            id: property?.property._id,
+                          },
+                        ],
+                      },
+                      {
+                        headers: {
+                          Authorization: `Bearer ${token}`,
+                          "Content-Type": "application/json",
+                        },
+                      }
+                    );
+                    if (property) {
+                      const updatedProperty = { ...property };
+                      updatedProperty.property.status = statusAction.label;
+                      setProperty(updatedProperty);
+                    }
+                    toast.success(`Property ${statusAction.label.toLowerCase()} successfully! ${response.data.message}`);
+                    setTimeout(() => {
+                      navigate(statusAction.route);
+                    }, 1500);
+                  } catch (error: any) {
+                    const errorMessage = error?.response?.data?.message || "Action failed";
+                    toast.error(errorMessage);
+                    console.error("Approve failed:", error);
+                  } finally {
+                    setIsProcessing("");
+                  }
+                }}
+                disabled={isProcessing !== ""}
               >
-                <img src={Icon_Tick} alt="Approve Icon" />
-                <p className="mb-0">Approve</p>
+                <img src={Icon_Tick} alt="Approve" />
+                <p className="mb-0">
+                  {isProcessing === "Approve" ? "Processing..." : "Approve"}
+                </p>
               </button>
+
               <button
-                className="btn deny-btn d-flex align-items-center gap-1"
-                onClick={() => updateCommercialPermissionStatus("0")}
+                className={`btn deny-btn d-flex align-items-center gap-1 ${
+                  isProcessing === "Deny" ? "processing" : ""
+                }`}
+                onClick={async () => {
+                  const statusAction = statusActionMap["0"];
+                  if (!token) {
+                    toast.error("Authentication token missing");
+                    return;
+                  }
+                  if (isProcessing) {
+                    toast.warning("Please wait, another action is in progress");
+                    return;
+                  }
+                  setIsProcessing("Deny");
+                  try {
+                    const response = await axios.put(
+                      `${import.meta.env.VITE_BackEndUrl}/api/adminpermission`,
+                      {
+                        status: statusAction.status,
+                        properties: [
+                          {
+                            type: "commercial",
+                            id: property?.property._id,
+                          },
+                        ],
+                      },
+                      {
+                        headers: {
+                          Authorization: `Bearer ${token}`,
+                          "Content-Type": "application/json",
+                        },
+                      }
+                    );
+                    if (property) {
+                      const updatedProperty = { ...property };
+                      updatedProperty.property.status = statusAction.label;
+                      setProperty(updatedProperty);
+                    }
+                    toast.success(`Property ${statusAction.label.toLowerCase()} successfully! ${response.data.message}`);
+                    setTimeout(() => {
+                      navigate(statusAction.route);
+                    }, 1500);
+                  } catch (error: any) {
+                    const errorMessage = error?.response?.data?.message || "Action failed";
+                    toast.error(errorMessage);
+                    console.error("Deny failed:", error);
+                  } finally {
+                    setIsProcessing("");
+                  }
+                }}
+                disabled={isProcessing !== ""}
               >
-                <img src={Icon_Deny} alt="Deny Icon" />
-                <p className="mb-0">Deny</p>
+                <img src={Icon_Deny} alt="Deny" />
+                <p className="mb-0">
+                  {isProcessing === "Deny" ? "Processing..." : "Deny"}
+                </p>
               </button>
+
               <button
-                className="btn delete-btn d-flex align-items-center gap-1"
-                onClick={() => updateCommercialPermissionStatus("2")}
+                className={`btn delete-btn d-flex align-items-center gap-1 ${
+                  isProcessing === "Delete" ? "processing" : ""
+                }`}
+                onClick={async () => {
+                  const statusAction = statusActionMap["2"];
+                  if (!token) {
+                    toast.error("Authentication token missing");
+                    return;
+                  }
+                  if (isProcessing) {
+                    toast.warning("Please wait, another action is in progress");
+                    return;
+                  }
+                  setIsProcessing("Delete");
+                  try {
+                    const response = await axios.put(
+                      `${import.meta.env.VITE_BackEndUrl}/api/adminpermission`,
+                      {
+                        status: statusAction.status,
+                        properties: [
+                          {
+                            type: "commercial",
+                            id: property?.property._id,
+                          },
+                        ],
+                      },
+                      {
+                        headers: {
+                          Authorization: `Bearer ${token}`,
+                          "Content-Type": "application/json",
+                        },
+                      }
+                    );
+                    if (property) {
+                      const updatedProperty = { ...property };
+                      updatedProperty.property.status = statusAction.label;
+                      setProperty(updatedProperty);
+                    }
+                    toast.success(`Property ${statusAction.label.toLowerCase()} successfully! ${response.data.message}`);
+                    setTimeout(() => {
+                      navigate(statusAction.route);
+                    }, 1500);
+                  } catch (error: any) {
+                    const errorMessage = error?.response?.data?.message || "Action failed";
+                    toast.error(errorMessage);
+                    console.error("Delete failed:", error);
+                  } finally {
+                    setIsProcessing("");
+                  }
+                }}
+                disabled={isProcessing !== ""}
               >
-                <img src={Icon_Delete} alt="Delete Icon" />
-                <p className="mb-0">Delete</p>
+                <img src={Icon_Delete} alt="Delete" />
+                <p className="mb-0">
+                  {isProcessing === "Delete" ? "Processing..." : "Delete"}
+                </p>
               </button>
+
+              {/* Property Type Specific Status Buttons */}
+              {property?.property?.propertyType === "Rent" && (
+                <button
+                  className={`btn rented-out-btn d-flex align-items-center gap-1 ${
+                    isProcessing === "Rented Out" ? "processing" : ""
+                  } ${property?.property?.status === "Rented Out" ? "active" : ""}`}
+                  onClick={async () => {
+                    const statusAction = statusActionMap["5"];
+                    if (!token) {
+                      toast.error("Authentication token missing");
+                      return;
+                    }
+                    if (isProcessing) {
+                      toast.warning("Please wait, another action is in progress");
+                      return;
+                    }
+                    setIsProcessing("Rented Out");
+                    try {
+                      const response = await axios.put(
+                        `${import.meta.env.VITE_BackEndUrl}/api/adminpermission`,
+                        {
+                          status: statusAction.status,
+                          properties: [
+                            {
+                              type: "commercial",
+                              id: property?.property._id,
+                            },
+                          ],
+                        },
+                        {
+                          headers: {
+                            Authorization: `Bearer ${token}`,
+                            "Content-Type": "application/json",
+                          },
+                        }
+                      );
+                      if (property) {
+                        const updatedProperty = { ...property };
+                        updatedProperty.property.status = statusAction.label;
+                        setProperty(updatedProperty);
+                      }
+                      toast.success(`Property ${statusAction.label.toLowerCase()} successfully! ${response.data.message}`);
+                      setTimeout(() => {
+                        navigate(statusAction.route);
+                      }, 1500);
+                    } catch (error: any) {
+                      const errorMessage = error?.response?.data?.message || "Action failed";
+                      toast.error(errorMessage);
+                      console.error("Rented Out failed:", error);
+                    } finally {
+                      setIsProcessing("");
+                    }
+                  }}
+                  disabled={isProcessing !== ""}
+                >
+                  <img src={Icon_Tick} alt="Rented Out" />
+                  <p className="mb-0">
+                    {isProcessing === "Rented Out" ? "Processing..." : 
+                     property?.property?.status === "Rented Out" ? "Rented Out ✓" : "Mark as Rented"}
+                  </p>
+                </button>
+              )}
+
+              {property?.property?.propertyType === "Lease" && (
+                <button
+                  className={`btn leased-out-btn d-flex align-items-center gap-1 ${
+                    isProcessing === "Leased Out" ? "processing" : ""
+                  } ${property?.property?.status === "Leased Out" ? "active" : ""}`}
+                  onClick={async () => {
+                    const statusAction = statusActionMap["4"];
+                    if (!token) {
+                      toast.error("Authentication token missing");
+                      return;
+                    }
+                    if (isProcessing) {
+                      toast.warning("Please wait, another action is in progress");
+                      return;
+                    }
+                    setIsProcessing("Leased Out");
+                    try {
+                      const response = await axios.put(
+                        `${import.meta.env.VITE_BackEndUrl}/api/adminpermission`,
+                        {
+                          status: statusAction.status,
+                          properties: [
+                            {
+                              type: "commercial",
+                              id: property?.property._id,
+                            },
+                          ],
+                        },
+                        {
+                          headers: {
+                            Authorization: `Bearer ${token}`,
+                            "Content-Type": "application/json",
+                          },
+                        }
+                      );
+                      if (property) {
+                        const updatedProperty = { ...property };
+                        updatedProperty.property.status = statusAction.label;
+                        setProperty(updatedProperty);
+                      }
+                      toast.success(`Property ${statusAction.label.toLowerCase()} successfully! ${response.data.message}`);
+                      setTimeout(() => {
+                        navigate(statusAction.route);
+                      }, 1500);
+                    } catch (error: any) {
+                      const errorMessage = error?.response?.data?.message || "Action failed";
+                      toast.error(errorMessage);
+                      console.error("Leased Out failed:", error);
+                    } finally {
+                      setIsProcessing("");
+                    }
+                  }}
+                  disabled={isProcessing !== ""}
+                >
+                  <img src={Icon_Tick} alt="Leased Out" />
+                  <p className="mb-0">
+                    {isProcessing === "Leased Out" ? "Processing..." : 
+                     property?.property?.status === "Leased Out" ? "Leased Out ✓" : "Mark as Leased"}
+                  </p>
+                </button>
+              )}
+
+              {property?.property?.propertyType === "Sale" && (
+                <button
+                  className={`btn sold-out-btn d-flex align-items-center gap-1 ${
+                    isProcessing === "Sold Out" ? "processing" : ""
+                  } ${property?.property?.status === "Sold Out" ? "active" : ""}`}
+                  onClick={async () => {
+                    const statusAction = statusActionMap["3"];
+                    if (!token) {
+                      toast.error("Authentication token missing");
+                      return;
+                    }
+                    if (isProcessing) {
+                      toast.warning("Please wait, another action is in progress");
+                      return;
+                    }
+                    setIsProcessing("Sold Out");
+                    try {
+                      const response = await axios.put(
+                        `${import.meta.env.VITE_BackEndUrl}/api/adminpermission`,
+                        {
+                          status: statusAction.status,
+                          properties: [
+                            {
+                              type: "commercial",
+                              id: property?.property._id,
+                            },
+                          ],
+                        },
+                        {
+                          headers: {
+                            Authorization: `Bearer ${token}`,
+                            "Content-Type": "application/json",
+                          },
+                        }
+                      );
+                      if (property) {
+                        const updatedProperty = { ...property };
+                        updatedProperty.property.status = statusAction.label;
+                        setProperty(updatedProperty);
+                      }
+                      toast.success(`Property ${statusAction.label.toLowerCase()} successfully! ${response.data.message}`);
+                      setTimeout(() => {
+                        navigate(statusAction.route);
+                      }, 1500);
+                    } catch (error: any) {
+                      const errorMessage = error?.response?.data?.message || "Action failed";
+                      toast.error(errorMessage);
+                      console.error("Sold Out failed:", error);
+                    } finally {
+                      setIsProcessing("");
+                    }
+                  }}
+                  disabled={isProcessing !== ""}
+                >
+                  <img src={Icon_Tick} alt="Sold Out" />
+                  <p className="mb-0">
+                    {isProcessing === "Sold Out" ? "Processing..." : 
+                     property?.property?.status === "Sold Out" ? "Sold Out ✓" : "Mark as Sold"}
+                  </p>
+                </button>
+              )}
             </div>
           </div>
         </div>
