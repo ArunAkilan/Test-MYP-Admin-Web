@@ -1,84 +1,47 @@
-export interface PlotProperty {
-  _id: string;
-  title: string;
-  propertyType: string;
-  plotType: string;
-  description: string;
-  readyToOccupy: boolean;
-  washroom: string;
-  facingDirection: string;
-  totalFloors: number;
-  propertyFloor: number;
-  isDeleted: boolean;
-  createdAt: string;
-  updatedAt: string;
-  status: string;
-  images: string[];
+export interface PlotPropertyResponse {
+  success: boolean;
+  //@ts-ignore
+  property: PlotProperty;
+}
 
-  rent: {
-    rentAmount: number;
-    negotiable: boolean;
-    advanceAmount: number;
-    agreementTiming: string;
-  };
+export interface AmountInfoInterface {
+  amount: number;
+  label: string;
+  showDeposit: boolean;
+  deposit: number;
+  agreement?: string;
+  tenure?: string;
+}
 
-  lease: {
-    leaseAmount: number;
-    negotiable: boolean;
-    leaseTenure: string;
-  };
+export interface StatusInfoInterface {
+  label: string;
+  class: string;
+}
 
-  sale: {
-    saleAmount: number;
-    negotiable: boolean;
-  };
+export interface CoordinatesInterface {
+  latitude?: number;
+  longitude?: number;
+}
 
-  location: {
-    landmark: string;
-    address: string;
-    map: {
-      latitude: number;
-      longitude: number;
-    };
-  };
+export interface TransportDataInterface {
+  busStop: string;
+  airport: string;
+  metro: string;
+  railway: string;
+}
 
-  area: {
-    totalArea: string;
-    carpetArea: string;
-  };
+export interface NegotiableInfoInterface {
+  isNegotiable: boolean;
+  label: string;
+}
 
-  facility: {
-    roadFacility: string;
-    parking: boolean;
-    tilesOnFloor?: boolean;
-    waterFacility: boolean;
-    washRoom: boolean;
-    readyToOccupy: boolean;
-  };
+export interface TimeDisplayInterface {
+  value: string;
+  formatted: string;
+}
 
-  accessibility: {
-    steps: boolean;
-    lift: boolean;
-    ramp: boolean;
-  };
-  availability : {
-    transport: {
-      nearbyBusStop: boolean;
-      nearbyAirport: boolean;
-      nearbyPort: boolean;
-      broadband: boolean;
-    }
-    broadband: boolean;
-    securities: boolean;
-  }
-  propertyOwner: {
-    _id: string;
-    firstName: string;
-    lastName: string;
-    contact: {
-      phone1?: string;
-      email?: string;
-      getUpdates?: boolean;
-    };
-  };
+export interface StatusActionInterface {
+  status: "0" | "1" | "2" | "3" | "4" | "5";
+  label: string;
+  route: string;
 }

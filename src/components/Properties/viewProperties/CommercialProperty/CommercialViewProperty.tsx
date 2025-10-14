@@ -1,6 +1,10 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import { toast } from "react-toastify";
 import { DynamicBreadcrumbs } from "../../../Common/input";
+import ViewCarousel from "../../../Common/ViewCarousel/ViewCarousel";
+import GoogleMapsWrapper from "../../../Common/LocationPicker/GoogleMapWrapper";
 import type { 
   CommercialPropertyResponse,
   AmountInfoInterface,
@@ -12,35 +16,43 @@ import type {
   StatusActionInterface
 } from "./CommercialViewProperty.modal";
 import "./CommercialViewProperty.scss";
+import Icon_edit from "../../../../assets/viewProperty/Icon_edit.png";
+import Icon_Tick from "../../../../assets/viewProperty/Icon_Tick.png";
+import Icon_Deny from "../../../../assets/viewProperty/Icon_Deny.png";
+import Icon_Delete from "../../../../assets/viewProperty/Icon_Delete.png";
 import SqrtImage from "../../../../assets/viewProperty/radix-icons_dimensions.svg";
 import facingImage from "../../../../assets/viewProperty/Icon_Facing.svg";
 import dateImage from "../../../../assets/viewProperty/solar_calendar-outline.svg";
 import footStepImg from "../../../../assets/viewProperty/material-steps.svg";
+import roomImg from "../../../../assets/viewProperty/material-room.svg";
+import furnitureImg from "../../../../assets/viewProperty/streamline-block_shopping-furniture.svg";
+import gamingImg from "../../../../assets/viewProperty/hugeicons_game.svg";
+import mage_electricity from "../../../../assets/viewProperty/mage_electricity.svg";
+import weixin_market from "../../../../assets/viewProperty/weixin-market.svg";
+import equipment_gym from "../../../../assets/viewProperty/hugeicons_equipment-gym-03.svg";
+import local_mall from "../../../../assets/viewProperty/local-mall.svg";
 import Icon_Cleaning from "../../../../assets/viewProperty/Icon_Cleaning.svg";
 import water_full_outline from "../../../../assets/viewProperty/water-full-outline.svg";
 import Icon_Road from "../../../../assets/viewProperty/Icon_Road.svg";
 import Icon_restroom from "../../../../assets/viewProperty/Icon_restroom.svg";
 import Icon_Parking from "../../../../assets/viewProperty/Icon_Parking.svg";
 import Icon_Balcony from "../../../../assets/viewProperty/Icon_Balcony.svg";
+import icon_park_terrace from "../../../../assets/viewProperty/icon-park_terrace.svg";
 import solar_user from "../../../../assets/viewProperty/solar_user.svg";
+import streamline_pets from "../../../../assets/viewProperty/streamline_pets.svg";
+import Icon_Lift from "../../../../assets/viewProperty/Icon_Lift.svg";
+import streamline_flex_network from "../../../../assets/viewProperty/streamline-flex_network.svg";
+import user_security from "../../../../assets/viewProperty/user-security.svg";
 import ramp_up from "../../../../assets/viewProperty/ramp-up.svg";
+import tabler_cricket from "../../../../assets/viewProperty/tabler_cricket.svg";
 import Icon_Bus from "../../../../assets/viewProperty/Icon_Bus.png";
 import ph_airplane from "../../../../assets/viewProperty/ph_airplane-in-flight.png";
 import metro from "../../../../assets/viewProperty/hugeicons_metro.png";
 import light_train from "../../../../assets/viewProperty/light_train.png";
 import proicons_mail from "../../../../assets/viewProperty/proicons_mail.png";
 import solar_phone from "../../../../assets/viewProperty/solar_phone.png";
-import GoogleMapsWrapper from "../../../Common/LocationPicker/GoogleMapWrapper";
 import MapComponent from "../../../Common/LocationPicker/LocationPicker";
-import Icon_edit from "../../../../assets/viewProperty/Icon_edit.png";
-import Icon_Tick from "../../../../assets/viewProperty/Icon_Tick.png";
-import Icon_Deny from "../../../../assets/viewProperty/Icon_Deny.png";
-import Icon_Delete from "../../../../assets/viewProperty/Icon_Delete.png";
 import backIcon from "../../../../assets/dashboardtab/icon-park-outline_down.svg";
-import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-import axios from "axios";
-import ViewCarousel from "../../../Common/ViewCarousel/ViewCarousel";
 import { useLocation } from "react-router-dom";
 
 const CommercialView = () => {
@@ -72,7 +84,7 @@ const CommercialView = () => {
 
   if (!property) return <div className="loading-container">Loading...</div>;
 
-  // Dynamic coordinates processing
+  // Dynamic coordinates processing - NO functions
   const latitudeRaw = property?.property?.location?.map?.latitude;
   const longitudeRaw = property?.property?.location?.map?.longitude;
   const coordinates: CoordinatesInterface = {
@@ -88,7 +100,7 @@ const CommercialView = () => {
       : undefined
   };
 
-  // Dynamic path processing
+  // Dynamic path processing - inline logic
   const pathSegments = location.pathname.split("/");
   const propertyType = pathSegments[1];
   const typeLabel: string = 
@@ -96,7 +108,7 @@ const CommercialView = () => {
     propertyType === "commercial" ? "Commercial TYPE" :
     propertyType === "plot" ? "Plot TYPE" : "PROPERTY TYPE";
 
-  // Dynamic amount information processing
+  // Dynamic amount information processing - NO functions
   const amountInfo: AmountInfoInterface = 
     property?.property?.propertyType === "Rent" ? {
       amount: property?.property?.rent?.rentAmount || 0,
@@ -106,7 +118,7 @@ const CommercialView = () => {
       agreement: property?.property?.rent?.agreementTiming,
     } : property?.property?.propertyType === "Lease" ? {
       amount: property?.property?.lease?.leaseAmount || 0,
-      label: "Lease Amount",
+      label: "Lease Amount", 
       showDeposit: false,
       deposit: 0,
       tenure: property?.property?.lease?.leaseTenure,
@@ -117,21 +129,21 @@ const CommercialView = () => {
       deposit: 0,
     } : { amount: 0, label: "Amount", showDeposit: false, deposit: 0 };
 
-  // Dynamic status information processing
+  // Dynamic status information processing - Shows completion statuses - NO functions
   const statusInfo: StatusInfoInterface = 
-    property?.property?.status === "Approved" ? { label: "Available", class: "available" } :
-    property?.property?.status === "Pending" ? { label: "Under Review", class: "pending" } :
-    property?.property?.status === "Rejected" ? { label: "Rejected", class: "rejected" } :
-    property?.property?.status === "Deleted" ? { label: "Deleted", class: "deleted" } :
     property?.property?.propertyType === "Rent" && property?.property?.status === "Rented Out" ? 
       { label: "Rented Out", class: "rented-out" } :
     property?.property?.propertyType === "Lease" && property?.property?.status === "Leased Out" ? 
       { label: "Leased Out", class: "leased-out" } :
     property?.property?.propertyType === "Sale" && property?.property?.status === "Sold Out" ? 
       { label: "Sold Out", class: "sold-out" } :
-    { label: property?.property?.status || "Unknown", class: "unknown" };
+    property?.property?.status === "Approved" ? { label: "Available", class: "available" } :
+    property?.property?.status === "Pending" ? { label: "Pending Approval", class: "pending" } :
+    property?.property?.status === "Rejected" ? { label: "Rejected", class: "rejected" } :
+    property?.property?.status === "Deleted" ? { label: "Deleted", class: "deleted" } :
+    { label: "Pending Action", class: "pending-action" };
 
-  // Dynamic negotiable information processing
+  // Dynamic negotiable information processing - NO functions
   const negotiableInfo: NegotiableInfoInterface = 
     property?.property?.propertyType === "Rent" ? {
       isNegotiable: property?.property?.rent?.negotiable || false,
@@ -144,7 +156,7 @@ const CommercialView = () => {
       label: property?.property?.sale?.negotiable ? "Yes" : "No"
     } : { isNegotiable: false, label: "No" };
 
-  // Dynamic time display processing
+  // Dynamic time display processing - NO functions
   const agreementTimeDisplay: TimeDisplayInterface = {
     value: amountInfo.agreement || "",
     formatted: !amountInfo.agreement ? "-" :
@@ -163,7 +175,7 @@ const CommercialView = () => {
       `${Number(amountInfo.tenure)} Years`
   };
 
-  // Dynamic transport data processing
+  // Dynamic transport data processing - NO functions
   const transportData: TransportDataInterface = {
     busStop: typeof property?.property?.availability?.transport?.nearbyBusStop === "string"
       ? property.property.availability.transport.nearbyBusStop
@@ -174,17 +186,17 @@ const CommercialView = () => {
     metro: typeof property?.property?.availability?.transport?.nearbyPort === "string"
       ? property.property.availability.transport.nearbyPort
       : property?.property?.availability?.transport?.nearbyPort ? "Available" : "0 KM",
-    railway: "0 KM" // This appears to be static in backend
+    railway: "0 KM"
   };
 
-  // Dynamic status action mapping
+  // Dynamic status action mapping - NO functions
   const statusActionMap: Record<string, StatusActionInterface> = {
-    "0": { status: "0", label: "Rejected", route: "/commercial" },
+    "0": { status: "0", label: "Rejected", route: "/commercial?tab=deleted" },
     "1": { status: "1", label: "Approved", route: "/commercial" },
-    "2": { status: "2", label: "Deleted", route: "/commercial" },
-    "3": { status: "3", label: "Sold Out", route: "/commercial/sold" },
-    "4": { status: "4", label: "Leased Out", route: "/commercial/leased" },
-    "5": { status: "5", label: "Rented Out", route: "/commercial/rented" },
+    "2": { status: "2", label: "Deleted", route: "/commercial?tab=deleted" },
+    "3": { status: "3", label: "Sold Out", route: "/commercial?tab=deleted" },
+    "4": { status: "4", label: "Leased Out", route: "/commercial?tab=deleted" },
+    "5": { status: "5", label: "Rented Out", route: "/commercial?tab=deleted" },
   };
 
   return (
@@ -196,7 +208,7 @@ const CommercialView = () => {
         </button>
         <DynamicBreadcrumbs title={property?.property?.title} />
       </div>
-      
+
       <div className="slick-carousel">
         <ViewCarousel images={property?.property?.images || []} />
       </div>
@@ -208,8 +220,24 @@ const CommercialView = () => {
             <button className={`${property?.property?.propertyType} detail-type`}>
               {property?.property?.propertyType}
             </button>
-            <button className={`detail-status-type ${statusInfo.class}`}>
-              {statusInfo.label}
+            {/* Show completion status based on property type */}
+            <button className={`detail-status-type ${
+              property?.property?.propertyType === "Rent" && property?.property?.status === "Rented Out" ? "rented-out" :
+              property?.property?.propertyType === "Lease" && property?.property?.status === "Leased Out" ? "leased-out" :
+              property?.property?.propertyType === "Sale" && property?.property?.status === "Sold Out" ? "sold-out" :
+              property?.property?.status === "Approved" ? "available" :
+              property?.property?.status === "Pending" ? "pending" :
+              property?.property?.status === "Rejected" ? "rejected" :
+              property?.property?.status === "Deleted" ? "deleted" : "pending"
+            }`}>
+              {property?.property?.propertyType === "Rent" && property?.property?.status === "Rented Out" ? "Rented Out" :
+               property?.property?.propertyType === "Lease" && property?.property?.status === "Leased Out" ? "Leased Out" :
+               property?.property?.propertyType === "Sale" && property?.property?.status === "Sold Out" ? "Sold Out" :
+               property?.property?.status === "Approved" ? "Available" :
+               property?.property?.status === "Pending" ? "Pending Approval" :
+               property?.property?.status === "Rejected" ? "Rejected" :
+               property?.property?.status === "Deleted" ? "Deleted" :
+               "Pending Action"}
             </button>
           </div>
 
@@ -305,12 +333,16 @@ const CommercialView = () => {
         </div>
       </section>
 
+      {/* Property Dimension & Layout Section */}
       {(property?.property?.area?.totalArea ||
+        property?.property?.area?.builtUpArea ||
         property?.property?.area?.carpetArea ||
         property?.property?.facingDirection ||
         property?.property?.createdAt ||
         property?.property?.totalFloors ||
-        property?.property?.propertyFloor) && (
+        property?.property?.propertyFloor ||
+        property?.property?.furnishingType ||
+        property?.property?.rooms) && (
         <section className="midDetails">
           <h3>Property Dimension & Layout</h3>
           <div className="row gap-4 data-detail-row">
@@ -320,6 +352,16 @@ const CommercialView = () => {
                 <span>
                   <img src={SqrtImage} alt="dimension" />
                   {property.property.area.totalArea}
+                </span>
+              </div>
+            )}
+
+            {property?.property?.area?.builtUpArea && (
+              <div className="col-md-2 row-individual-data">
+                <p>BUILTUP AREA</p>
+                <span>
+                  <img src={SqrtImage} alt="dimension" />
+                  {property.property.area.builtUpArea}
                 </span>
               </div>
             )}
@@ -344,6 +386,16 @@ const CommercialView = () => {
               </div>
             )}
 
+            {property?.property?.createdAt && (
+              <div className="col-md-2 row-individual-data">
+                <p>POSTED ON</p>
+                <span>
+                  <img src={dateImage} alt="date" />
+                  {new Date(property?.property?.createdAt).toLocaleDateString("en-GB")}
+                </span>
+              </div>
+            )}
+
             {property?.property?.totalFloors && (
               <div className="col-md-2 row-individual-data">
                 <p>TOTAL FLOORS</p>
@@ -354,7 +406,7 @@ const CommercialView = () => {
               </div>
             )}
 
-            {property?.property?.propertyFloor && (
+            {property?.property?.propertyFloor !== undefined && (
               <div className="col-md-2 row-individual-data">
                 <p>PROPERTY ON</p>
                 <span>
@@ -364,12 +416,22 @@ const CommercialView = () => {
               </div>
             )}
 
-            {property?.property?.createdAt && (
+            {property?.property?.furnishingType && (
               <div className="col-md-2 row-individual-data">
-                <p>POSTED ON</p>
+                <p>FURNISH TYPE</p>
                 <span>
-                  <img src={dateImage} alt="date" />
-                  {new Date(property?.property?.createdAt).toLocaleDateString("en-GB")}
+                  <img src={furnitureImg} alt="Furniture" />
+                  {property.property.furnishingType}
+                </span>
+              </div>
+            )}
+
+            {property?.property?.rooms && (
+              <div className="col-md-2 row-individual-data">
+                <p>ROOMS</p>
+                <span>
+                  <img src={roomImg} alt="room" />
+                  {property.property.rooms}
                 </span>
               </div>
             )}
@@ -377,51 +439,129 @@ const CommercialView = () => {
         </section>
       )}
 
-      {(property?.property?.washroom ||
-        property?.property?.facility?.waterFacility !== undefined ||
-        property?.property?.facility?.roadFacility ||
-        property?.property?.facility?.tilesOnFloor !== undefined ||
-        property?.property?.facility?.parking !== undefined ||
-        property?.property?.readyToOccupy !== undefined) && (
+      {/* Nearby Services & Essentials Section */}
+      {(property?.property?.amenities?.separateEBConnection !== undefined ||
+        property?.property?.amenities?.nearbyMarket !== undefined ||
+        property?.property?.amenities?.nearbyGym !== undefined ||
+        property?.property?.amenities?.nearbyMall !== undefined ||
+        property?.property?.amenities?.nearbyTurf !== undefined ||
+        property?.property?.amenities?.nearbyArena !== undefined) && (
         <section className="midDetails">
-          <h3>Facilities Provided</h3>
+          <h3>Nearby Services & Essentials</h3>
           <div className="row gap-4 data-detail-row">
-            {property?.property?.washroom && (
+            {property?.property?.amenities?.separateEBConnection !== undefined && (
               <div className="col-md-2 row-individual-data">
-                <p>WASHROOM</p>
+                <p>SEPARATE EB CONNECTION</p>
                 <span>
-                  <img src={Icon_restroom} alt="Washroom" />
-                  {property.property.washroom}
+                  <img src={mage_electricity} alt="electricity" />
+                  {property.property.amenities.separateEBConnection ? "Available" : "Not Available"}
+                </span>
+              </div>
+            )}
+
+            {property?.property?.amenities?.nearbyMarket !== undefined && (
+              <div className="col-md-2 row-individual-data">
+                <p>MARKET</p>
+                <span>
+                  <img src={weixin_market} alt="market" />
+                  {property.property.amenities.nearbyMarket ? "Available" : "Not Available"}
+                </span>
+              </div>
+            )}
+
+            {property?.property?.amenities?.nearbyGym !== undefined && (
+              <div className="col-md-2 row-individual-data">
+                <p>GYM</p>
+                <span>
+                  <img src={equipment_gym} alt="gym" />
+                  {property.property.amenities.nearbyGym ? "Available" : "Not Available"}
+                </span>
+              </div>
+            )}
+
+            {property?.property?.amenities?.nearbyMall !== undefined && (
+              <div className="col-md-2 row-individual-data">
+                <p>SHOPPING MALL</p>
+                <span>
+                  <img src={local_mall} alt="mall" />
+                  {property.property.amenities.nearbyMall ? "Available" : "Not Available"}
+                </span>
+              </div>
+            )}
+
+            {property?.property?.amenities?.nearbyTurf !== undefined && (
+              <div className="col-md-2 row-individual-data">
+                <p>TURF</p>
+                <span>
+                  <img src={tabler_cricket} alt="turf" />
+                  {property.property.amenities.nearbyTurf ? "Available" : "Not Available"}
+                </span>
+              </div>
+            )}
+
+            {property?.property?.amenities?.nearbyArena !== undefined && (
+              <div className="col-md-2 row-individual-data">
+                <p>ARENA</p>
+                <span>
+                  <img src={gamingImg} alt="arena" />
+                  {property.property.amenities.nearbyArena ? "Available" : "Not Available"}
+                </span>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Infrastructure & Utilities Section */}
+      {(property?.property?.facility?.maintenance !== undefined ||
+        property?.property?.facility?.waterFacility !== undefined ||
+        property?.property?.facility?.roadFacility !== undefined ||
+        property?.property?.facility?.drainage !== undefined ||
+        property?.property?.facility?.parking !== undefined ||
+        property?.property?.facility?.balcony !== undefined ||
+        property?.property?.facility?.terrace !== undefined ||
+        property?.property?.facility?.washRoom !== undefined ||
+        property?.property?.facility?.tilesOnFloor !== undefined ||
+        property?.property?.facility?.readyToOccupy !== undefined) && (
+        <section className="midDetails">
+          <h3>Infrastructure & Utilities</h3>
+          <div className="row gap-4 data-detail-row">
+            {property?.property?.facility?.maintenance !== undefined && (
+              <div className="col-md-2 row-individual-data">
+                <p>MAINTENANCE</p>
+                <span>
+                  <img src={Icon_Cleaning} alt="maintenance" />
+                  {property.property.facility.maintenance ? "Available" : "Not Available"}
                 </span>
               </div>
             )}
 
             {property?.property?.facility?.waterFacility !== undefined && (
               <div className="col-md-2 row-individual-data">
-                <p>WATER FACILITY</p>
+                <p>WATER SUPPLY</p>
                 <span>
-                  <img src={water_full_outline} alt="Water" />
+                  <img src={water_full_outline} alt="water" />
                   {property.property.facility.waterFacility ? "Available" : "Not Available"}
                 </span>
               </div>
             )}
 
-            {property?.property?.facility?.roadFacility && (
+            {property?.property?.facility?.roadFacility !== undefined && (
               <div className="col-md-2 row-individual-data">
-                <p>ROAD FACILITY</p>
+                <p>ROAD ACCESS</p>
                 <span>
-                  <img src={Icon_Road} alt="Road" />
-                  {property.property.facility.roadFacility}
+                  <img src={Icon_Road} alt="road" />
+                  {property.property.facility.roadFacility ? "Available" : "Not Available"}
                 </span>
               </div>
             )}
 
-            {property?.property?.facility?.tilesOnFloor !== undefined && (
+            {property?.property?.facility?.drainage !== undefined && (
               <div className="col-md-2 row-individual-data">
-                <p>TILES ON FLOOR</p>
+                <p>DRAINAGE</p>
                 <span>
-                  <img src={Icon_Cleaning} alt="Tiles" />
-                  {property.property.facility.tilesOnFloor ? "Available" : "Not Available"}
+                  <img src={Icon_restroom} alt="drainage" />
+                  {property.property.facility.drainage ? "Available" : "Not Available"}
                 </span>
               </div>
             )}
@@ -430,18 +570,58 @@ const CommercialView = () => {
               <div className="col-md-2 row-individual-data">
                 <p>PARKING</p>
                 <span>
-                  <img src={Icon_Parking} alt="Parking" />
+                  <img src={Icon_Parking} alt="parking" />
                   {property.property.facility.parking ? "Available" : "Not Available"}
                 </span>
               </div>
             )}
 
-            {property?.property?.readyToOccupy !== undefined && (
+            {property?.property?.facility?.balcony !== undefined && (
+              <div className="col-md-2 row-individual-data">
+                <p>BALCONY</p>
+                <span>
+                  <img src={Icon_Balcony} alt="balcony" />
+                  {property.property.facility.balcony ? "Available" : "Not Available"}
+                </span>
+              </div>
+            )}
+
+            {property?.property?.facility?.terrace !== undefined && (
+              <div className="col-md-2 row-individual-data">
+                <p>TERRACE</p>
+                <span>
+                  <img src={icon_park_terrace} alt="terrace" />
+                  {property.property.facility.terrace ? "Available" : "Not Available"}
+                </span>
+              </div>
+            )}
+
+            {property?.property?.facility?.washRoom !== undefined && (
+              <div className="col-md-2 row-individual-data">
+                <p>WASHROOM</p>
+                <span>
+                  <img src={Icon_restroom} alt="washroom" />
+                  {property.property.facility.washRoom ? "Available" : "Not Available"}
+                </span>
+              </div>
+            )}
+
+            {property?.property?.facility?.tilesOnFloor !== undefined && (
+              <div className="col-md-2 row-individual-data">
+                <p>TILES ON FLOOR</p>
+                <span>
+                  <img src={Icon_Cleaning} alt="tiles" />
+                  {property.property.facility.tilesOnFloor ? "Available" : "Not Available"}
+                </span>
+              </div>
+            )}
+
+            {property?.property?.facility?.readyToOccupy !== undefined && (
               <div className="col-md-2 row-individual-data">
                 <p>READY TO OCCUPY</p>
                 <span>
-                  <img src={Icon_Balcony} alt="Ready" />
-                  {property.property.readyToOccupy ? "Yes" : "No"}
+                  <img src={Icon_Balcony} alt="ready" />
+                  {property.property.facility.readyToOccupy ? "Yes" : "No"}
                 </span>
               </div>
             )}
@@ -449,9 +629,79 @@ const CommercialView = () => {
         </section>
       )}
 
-      {(property?.property?.accessibility?.steps !== undefined ||
-        property?.property?.accessibility?.lift !== undefined ||
-        property?.property?.accessibility?.ramp !== undefined) && (
+      {/* Occupancy Restrictions Section */}
+      {(property?.property?.restrictions?.guestAllowed !== undefined ||
+        property?.property?.restrictions?.petsAllowed !== undefined ||
+        property?.property?.restrictions?.bachelorsAllowed !== undefined) && (
+        <section className="midDetails">
+          <h3>Occupancy Restrictions</h3>
+          <div className="row gap-4 data-detail-row">
+            {property?.property?.restrictions?.guestAllowed !== undefined && (
+              <div className="col-md-2 row-individual-data">
+                <p>GUESTS</p>
+                <span>
+                  <img src={solar_user} alt="guests" />
+                  {property.property.restrictions.guestAllowed ? "Allowed" : "Not Allowed"}
+                </span>
+              </div>
+            )}
+
+            {property?.property?.restrictions?.petsAllowed !== undefined && (
+              <div className="col-md-2 row-individual-data">
+                <p>PETS</p>
+                <span>
+                  <img src={streamline_pets} alt="pets" />
+                  {property.property.restrictions.petsAllowed ? "Allowed" : "Not Allowed"}
+                </span>
+              </div>
+            )}
+
+            {property?.property?.restrictions?.bachelorsAllowed !== undefined && (
+              <div className="col-md-2 row-individual-data">
+                <p>BACHELORS</p>
+                <span>
+                  <img src={Icon_Lift} alt="bachelors" />
+                  {property.property.restrictions.bachelorsAllowed ? "Allowed" : "Not Allowed"}
+                </span>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Connectivity & Security Features Section */}
+      {(property?.property?.availability?.broadband !== undefined ||
+        property?.property?.availability?.securities !== undefined) && (
+        <section className="midDetails">
+          <h3>Connectivity & Security Features</h3>
+          <div className="row gap-4 data-detail-row">
+            {property?.property?.availability?.broadband !== undefined && (
+              <div className="col-md-2 row-individual-data">
+                <p>BROADBAND</p>
+                <span>
+                  <img src={streamline_flex_network} alt="broadband" />
+                  {property.property.availability.broadband ? "Available" : "Not Available"}
+                </span>
+              </div>
+            )}
+
+            {property?.property?.availability?.securities !== undefined && (
+              <div className="col-md-2 row-individual-data">
+                <p>SECURITY</p>
+                <span>
+                  <img src={user_security} alt="security" />
+                  {property.property.availability.securities ? "Available" : "Not Available"}
+                </span>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Move-In Accessibility Section */}
+      {(property?.property?.accessibility?.ramp !== undefined ||
+        property?.property?.accessibility?.steps !== undefined ||
+        property?.property?.accessibility?.lift !== undefined) && (
         <section className="midDetails">
           <h3>Move-In Accessibility</h3>
           <div className="row gap-4 data-detail-row">
@@ -459,7 +709,7 @@ const CommercialView = () => {
               <div className="col-md-2 row-individual-data">
                 <p>RAMP ACCESS</p>
                 <span>
-                  <img src={ramp_up} alt="Ramp" />
+                  <img src={ramp_up} alt="ramp" />
                   {property.property.accessibility.ramp ? "Available" : "Not Available"}
                 </span>
               </div>
@@ -469,7 +719,7 @@ const CommercialView = () => {
               <div className="col-md-2 row-individual-data">
                 <p>STAIR ACCESS</p>
                 <span>
-                  <img src={footStepImg} alt="Steps" />
+                  <img src={footStepImg} alt="steps" />
                   {property.property.accessibility.steps ? "Available" : "Not Available"}
                 </span>
               </div>
@@ -479,7 +729,7 @@ const CommercialView = () => {
               <div className="col-md-2 row-individual-data">
                 <p>LIFT</p>
                 <span>
-                  <img src={footStepImg} alt="Lift" />
+                  <img src={footStepImg} alt="lift" />
                   {property.property.accessibility.lift ? "Available" : "Not Available"}
                 </span>
               </div>
@@ -585,8 +835,137 @@ const CommercialView = () => {
       <section className="midDetails">
         <div className="area-icon">
           <div className="view-property-icon">
-            <h3>Quick Actions</h3>
+            <h3>Property Actions</h3>
             <div className="view-property-icon-inside">
+              
+              {/* Show approve/deny for pending properties */}
+              {property?.property?.status === "Pending" && (
+                <>
+                  <button
+                    className={`btn approve-btn d-flex align-items-center gap-1 ${
+                      isProcessing === "Approve" ? "processing" : ""
+                    }`}
+                    onClick={async () => {
+                      const statusAction = statusActionMap["1"];
+                      if (!token) {
+                        toast.error("Authentication token missing");
+                        return;
+                      }
+                      if (isProcessing) {
+                        toast.warning("Please wait, another action is in progress");
+                        return;
+                      }
+                      setIsProcessing("Approve");
+                      try {
+                        const response = await axios.put(
+                          `${import.meta.env.VITE_BackEndUrl}/api/adminpermission`,
+                          {
+                            status: statusAction.status,
+                            properties: [
+                              {
+                                type: "commercial",
+                                id: property?.property._id,
+                              },
+                            ],
+                          },
+                          {
+                            headers: {
+                              Authorization: `Bearer ${token}`,
+                              "Content-Type": "application/json",
+                            },
+                          }
+                        );
+                        if (property) {
+                          const updatedProperty = { ...property };
+                          updatedProperty.property.status = statusAction.label;
+                          setProperty(updatedProperty);
+                        }
+                        toast.success(`Property ${statusAction.label.toLowerCase()} successfully! ${response.data.message}`);
+                        setTimeout(() => {
+                          navigate(statusAction.route);
+                        }, 1500);
+                      } catch (error: unknown) {
+                        const errorMessage = axios.isAxiosError(error) 
+                          ? error?.response?.data?.message || "Action failed"
+                          : "Action failed";
+                        toast.error(errorMessage);
+                        console.error("Approve failed:", error);
+                      } finally {
+                        setIsProcessing("");
+                      }
+                    }}
+                    disabled={isProcessing !== ""}
+                  >
+                    <img src={Icon_Tick} alt="Approve" />
+                    <p className="mb-0">
+                      {isProcessing === "Approve" ? "Processing..." : "Approve Property"}
+                    </p>
+                  </button>
+
+                  <button
+                    className={`btn deny-btn d-flex align-items-center gap-1 ${
+                      isProcessing === "Deny" ? "processing" : ""
+                    }`}
+                    onClick={async () => {
+                      const statusAction = statusActionMap["0"];
+                      if (!token) {
+                        toast.error("Authentication token missing");
+                        return;
+                      }
+                      if (isProcessing) {
+                        toast.warning("Please wait, another action is in progress");
+                        return;
+                      }
+                      setIsProcessing("Deny");
+                      try {
+                        const response = await axios.put(
+                          `${import.meta.env.VITE_BackEndUrl}/api/adminpermission`,
+                          {
+                            status: statusAction.status,
+                            properties: [
+                              {
+                                type: "commercial",
+                                id: property?.property._id,
+                              },
+                            ],
+                          },
+                          {
+                            headers: {
+                              Authorization: `Bearer ${token}`,
+                              "Content-Type": "application/json",
+                            },
+                          }
+                        );
+                        if (property) {
+                          const updatedProperty = { ...property };
+                          updatedProperty.property.status = statusAction.label;
+                          setProperty(updatedProperty);
+                        }
+                        toast.success(`Property ${statusAction.label.toLowerCase()} successfully! ${response.data.message}`);
+                        setTimeout(() => {
+                          navigate(statusAction.route);
+                        }, 1500);
+                      } catch (error: unknown) {
+                        const errorMessage = axios.isAxiosError(error) 
+                          ? error?.response?.data?.message || "Action failed"
+                          : "Action failed";
+                        toast.error(errorMessage);
+                        console.error("Deny failed:", error);
+                      } finally {
+                        setIsProcessing("");
+                      }
+                    }}
+                    disabled={isProcessing !== ""}
+                  >
+                    <img src={Icon_Deny} alt="Deny" />
+                    <p className="mb-0">
+                      {isProcessing === "Deny" ? "Processing..." : "Reject Property"}
+                    </p>
+                  </button>
+                </>
+              )}
+
+              {/* Always show edit button */}
               <button
                 className="btn edit-btn d-flex align-items-center gap-1"
                 onClick={() => {
@@ -602,127 +981,10 @@ const CommercialView = () => {
                 disabled={isProcessing !== ""}
               >
                 <img src={Icon_edit} alt="Edit" />
-                <p className="mb-0">Edit</p>
+                <p className="mb-0">Edit Property</p>
               </button>
 
-              <button
-                className={`btn approve-btn d-flex align-items-center gap-1 ${
-                  isProcessing === "Approve" ? "processing" : ""
-                }`}
-                onClick={async () => {
-                  const statusAction = statusActionMap["1"];
-                  if (!token) {
-                    toast.error("Authentication token missing");
-                    return;
-                  }
-                  if (isProcessing) {
-                    toast.warning("Please wait, another action is in progress");
-                    return;
-                  }
-                  setIsProcessing("Approve");
-                  try {
-                    const response = await axios.put(
-                      `${import.meta.env.VITE_BackEndUrl}/api/adminpermission`,
-                      {
-                        status: statusAction.status,
-                        properties: [
-                          {
-                            type: "commercial",
-                            id: property?.property._id,
-                          },
-                        ],
-                      },
-                      {
-                        headers: {
-                          Authorization: `Bearer ${token}`,
-                          "Content-Type": "application/json",
-                        },
-                      }
-                    );
-                    if (property) {
-                      const updatedProperty = { ...property };
-                      updatedProperty.property.status = statusAction.label;
-                      setProperty(updatedProperty);
-                    }
-                    toast.success(`Property ${statusAction.label.toLowerCase()} successfully! ${response.data.message}`);
-                    setTimeout(() => {
-                      navigate(statusAction.route);
-                    }, 1500);
-                  } catch (error: any) {
-                    const errorMessage = error?.response?.data?.message || "Action failed";
-                    toast.error(errorMessage);
-                    console.error("Approve failed:", error);
-                  } finally {
-                    setIsProcessing("");
-                  }
-                }}
-                disabled={isProcessing !== ""}
-              >
-                <img src={Icon_Tick} alt="Approve" />
-                <p className="mb-0">
-                  {isProcessing === "Approve" ? "Processing..." : "Approve"}
-                </p>
-              </button>
-
-              <button
-                className={`btn deny-btn d-flex align-items-center gap-1 ${
-                  isProcessing === "Deny" ? "processing" : ""
-                }`}
-                onClick={async () => {
-                  const statusAction = statusActionMap["0"];
-                  if (!token) {
-                    toast.error("Authentication token missing");
-                    return;
-                  }
-                  if (isProcessing) {
-                    toast.warning("Please wait, another action is in progress");
-                    return;
-                  }
-                  setIsProcessing("Deny");
-                  try {
-                    const response = await axios.put(
-                      `${import.meta.env.VITE_BackEndUrl}/api/adminpermission`,
-                      {
-                        status: statusAction.status,
-                        properties: [
-                          {
-                            type: "commercial",
-                            id: property?.property._id,
-                          },
-                        ],
-                      },
-                      {
-                        headers: {
-                          Authorization: `Bearer ${token}`,
-                          "Content-Type": "application/json",
-                        },
-                      }
-                    );
-                    if (property) {
-                      const updatedProperty = { ...property };
-                      updatedProperty.property.status = statusAction.label;
-                      setProperty(updatedProperty);
-                    }
-                    toast.success(`Property ${statusAction.label.toLowerCase()} successfully! ${response.data.message}`);
-                    setTimeout(() => {
-                      navigate(statusAction.route);
-                    }, 1500);
-                  } catch (error: any) {
-                    const errorMessage = error?.response?.data?.message || "Action failed";
-                    toast.error(errorMessage);
-                    console.error("Deny failed:", error);
-                  } finally {
-                    setIsProcessing("");
-                  }
-                }}
-                disabled={isProcessing !== ""}
-              >
-                <img src={Icon_Deny} alt="Deny" />
-                <p className="mb-0">
-                  {isProcessing === "Deny" ? "Processing..." : "Deny"}
-                </p>
-              </button>
-
+              {/* Always show delete button */}
               <button
                 className={`btn delete-btn d-flex align-items-center gap-1 ${
                   isProcessing === "Delete" ? "processing" : ""
@@ -766,8 +1028,10 @@ const CommercialView = () => {
                     setTimeout(() => {
                       navigate(statusAction.route);
                     }, 1500);
-                  } catch (error: any) {
-                    const errorMessage = error?.response?.data?.message || "Action failed";
+                  } catch (error: unknown) {
+                    const errorMessage = axios.isAxiosError(error) 
+                      ? error?.response?.data?.message || "Action failed"
+                      : "Action failed";
                     toast.error(errorMessage);
                     console.error("Delete failed:", error);
                   } finally {
@@ -778,16 +1042,16 @@ const CommercialView = () => {
               >
                 <img src={Icon_Delete} alt="Delete" />
                 <p className="mb-0">
-                  {isProcessing === "Delete" ? "Processing..." : "Delete"}
+                  {isProcessing === "Delete" ? "Processing..." : "Delete Property"}
                 </p>
               </button>
 
-              {/* Property Type Specific Status Buttons */}
-              {property?.property?.propertyType === "Rent" && (
+              {/* Property Type Specific Status Buttons - Only show if not already in that state */}
+              {property?.property?.propertyType === "Rent" && property?.property?.status !== "Rented Out" && (
                 <button
                   className={`btn rented-out-btn d-flex align-items-center gap-1 ${
                     isProcessing === "Rented Out" ? "processing" : ""
-                  } ${property?.property?.status === "Rented Out" ? "active" : ""}`}
+                  }`}
                   onClick={async () => {
                     const statusAction = statusActionMap["5"];
                     if (!token) {
@@ -827,8 +1091,10 @@ const CommercialView = () => {
                       setTimeout(() => {
                         navigate(statusAction.route);
                       }, 1500);
-                    } catch (error: any) {
-                      const errorMessage = error?.response?.data?.message || "Action failed";
+                    } catch (error: unknown) {
+                      const errorMessage = axios.isAxiosError(error) 
+                        ? error?.response?.data?.message || "Action failed"
+                        : "Action failed";
                       toast.error(errorMessage);
                       console.error("Rented Out failed:", error);
                     } finally {
@@ -839,17 +1105,16 @@ const CommercialView = () => {
                 >
                   <img src={Icon_Tick} alt="Rented Out" />
                   <p className="mb-0">
-                    {isProcessing === "Rented Out" ? "Processing..." : 
-                     property?.property?.status === "Rented Out" ? "Rented Out ✓" : "Mark as Rented"}
+                    {isProcessing === "Rented Out" ? "Processing..." : "Mark as Rented"}
                   </p>
                 </button>
               )}
 
-              {property?.property?.propertyType === "Lease" && (
+              {property?.property?.propertyType === "Lease" && property?.property?.status !== "Leased Out" && (
                 <button
                   className={`btn leased-out-btn d-flex align-items-center gap-1 ${
                     isProcessing === "Leased Out" ? "processing" : ""
-                  } ${property?.property?.status === "Leased Out" ? "active" : ""}`}
+                  }`}
                   onClick={async () => {
                     const statusAction = statusActionMap["4"];
                     if (!token) {
@@ -889,8 +1154,10 @@ const CommercialView = () => {
                       setTimeout(() => {
                         navigate(statusAction.route);
                       }, 1500);
-                    } catch (error: any) {
-                      const errorMessage = error?.response?.data?.message || "Action failed";
+                    } catch (error: unknown) {
+                      const errorMessage = axios.isAxiosError(error) 
+                        ? error?.response?.data?.message || "Action failed"
+                        : "Action failed";
                       toast.error(errorMessage);
                       console.error("Leased Out failed:", error);
                     } finally {
@@ -901,17 +1168,16 @@ const CommercialView = () => {
                 >
                   <img src={Icon_Tick} alt="Leased Out" />
                   <p className="mb-0">
-                    {isProcessing === "Leased Out" ? "Processing..." : 
-                     property?.property?.status === "Leased Out" ? "Leased Out ✓" : "Mark as Leased"}
+                    {isProcessing === "Leased Out" ? "Processing..." : "Mark as Leased"}
                   </p>
                 </button>
               )}
 
-              {property?.property?.propertyType === "Sale" && (
+              {property?.property?.propertyType === "Sale" && property?.property?.status !== "Sold Out" && (
                 <button
                   className={`btn sold-out-btn d-flex align-items-center gap-1 ${
                     isProcessing === "Sold Out" ? "processing" : ""
-                  } ${property?.property?.status === "Sold Out" ? "active" : ""}`}
+                  }`}
                   onClick={async () => {
                     const statusAction = statusActionMap["3"];
                     if (!token) {
@@ -951,8 +1217,10 @@ const CommercialView = () => {
                       setTimeout(() => {
                         navigate(statusAction.route);
                       }, 1500);
-                    } catch (error: any) {
-                      const errorMessage = error?.response?.data?.message || "Action failed";
+                    } catch (error: unknown) {
+                      const errorMessage = axios.isAxiosError(error) 
+                        ? error?.response?.data?.message || "Action failed"
+                        : "Action failed";
                       toast.error(errorMessage);
                       console.error("Sold Out failed:", error);
                     } finally {
@@ -963,8 +1231,7 @@ const CommercialView = () => {
                 >
                   <img src={Icon_Tick} alt="Sold Out" />
                   <p className="mb-0">
-                    {isProcessing === "Sold Out" ? "Processing..." : 
-                     property?.property?.status === "Sold Out" ? "Sold Out ✓" : "Mark as Sold"}
+                    {isProcessing === "Sold Out" ? "Processing..." : "Mark as Sold"}
                   </p>
                 </button>
               )}
