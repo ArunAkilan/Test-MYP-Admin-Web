@@ -101,6 +101,7 @@ function flattenObject(
 // Build payload dynamically based on form state
 function buildPayloadDynamic(formState: PlotFormState): PlotFormState {
   const payload: Partial<PlotFormState> = {};
+  const chips = formState.selectedChips || [];
 
   // owner
   setNested(payload, "propertyOwner.firstName", formState.propertyOwner.firstName.trim());
@@ -192,7 +193,12 @@ function buildPayloadDynamic(formState: PlotFormState): PlotFormState {
   // accessibility – map selected chips → boolean object
   // const restrictions = mapChipsToRestrictions(formState.selectedChips);
   // setNested(payload, "restrictions", restrictions);
-  setNested(payload, "selectedChips", formState.selectedChips || []);
+  // setNested(payload, "selectedChips", formState.selectedChips || []);
+  setNested(payload, "facility.hasWell", chips.includes("Well"));
+setNested(payload, "facility.hasBorewell", chips.includes("Bore Well"));
+setNested(payload, "facility.hasEBConnection", chips.includes("EB Connection"));
+setNested(payload, "facility.hasMotor", chips.includes("Motor"));
+ 
   // misc
   setNested(payload, "status", "Pending");
   // setNested(payload, "hasWell", formState.hasWell || false);
