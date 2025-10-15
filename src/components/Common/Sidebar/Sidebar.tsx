@@ -62,7 +62,6 @@ export default function Sidebar() {
 
    /* React.useEffect(() => {
   const token = localStorage.getItem('token');
-  console.log(`[Tab Switch] Checking token... Current token: ${token}`);
 
   if (!token) {
     console.warn('No token found! Redirecting to login...');
@@ -74,7 +73,6 @@ export default function Sidebar() {
      /*  // Recheck token on every tab change
       React.useEffect(() => {
         const token = localStorage.getItem('token');
-        console.log(`[Tab Switch] Checking token... Current token: ${token}`);
     
         if (token !== 'demo-token') {
           console.warn('Invalid or missing token! Redirecting to login...');

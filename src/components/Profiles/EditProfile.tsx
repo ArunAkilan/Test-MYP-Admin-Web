@@ -13,7 +13,6 @@ function EditProfile() {
     const fetch = async () => {
       const getToken = localStorage.getItem("token");
       const data: any = await getProfileById(id, getToken);
-      console.log(data, "data.data", data.data);
       setForm(data.data);
     };
     fetch();
@@ -41,7 +40,6 @@ function EditProfile() {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     const getToken = localStorage.getItem("token");
-    console.log("getTOken", getToken);
     await updateProfile(id, form, getToken);
     navigate("/allprofile");
   };

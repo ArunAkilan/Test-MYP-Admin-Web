@@ -44,8 +44,8 @@ const ImageCountBadge = styled(Badge)(() => ({
 const Carousel: React.FC<CarouselProps> = ({ images}) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [open, setOpen] = useState(false);
+  //@ts-ignore
   const [direction, setDirection] = useState<"left" | "right">("right");
-  console.log("direction",direction)
 
   const handlePrev = () => {
     setDirection("left");//@ts-ignore

@@ -374,7 +374,6 @@ export const CreatePlotProperty = () => {
   const isEditMode = location.state?.mode === "edit";
   const editData = location.state?.data;
   const editId = location.state?.data?._id;
-  console.log("editid", editId);
   // Update state when in edit mode
   useEffect(() => {
     if (isEditMode && editData) {
