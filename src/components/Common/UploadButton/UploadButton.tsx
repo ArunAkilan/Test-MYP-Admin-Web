@@ -17,8 +17,6 @@ const UploadImageField: React.FC<UploadImageFieldProps> = ({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   setImageData(image);
-  console.log("image", image);
-  console.log("previewUrl", previewUrl);
 
   const validateImage = (file: File): string | null => {
     const validTypes = ["image/jpeg", "image/png", "image/gif"];
@@ -66,7 +64,6 @@ const UploadImageField: React.FC<UploadImageFieldProps> = ({
       setError("Please upload image.");
       return;
     }
-    console.log("Selected Image:", image);
   };
 
   return (

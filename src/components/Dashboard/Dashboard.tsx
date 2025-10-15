@@ -58,7 +58,7 @@ function Home({ properties }: { properties: PropertyType }) {
 
   const location = useLocation();
   const navigate = useNavigate();
- 
+
   //@ts-ignore
   const isFetchingRef = useRef(false);
 
@@ -71,105 +71,118 @@ function Home({ properties }: { properties: PropertyType }) {
     return "all";
   }, [location.pathname]);
 
-const fetchIdRef = useRef(0);
+  const fetchIdRef = useRef(0);
 
-const fetchAllData = async (pageNum: number = 1, statusParam?: string) => {
-  const localFetchId = ++fetchIdRef.current;
-  setLoading(true);
+  const fetchAllData = async (pageNum: number = 1, statusParam?: string) => {
+    const localFetchId = ++fetchIdRef.current;
+    setLoading(true);
 
-  try {
-    const statusToUse = statusParam ?? currentActiveTab;
-    const statusQuery = statusToUse
-      ? `&status=${statusToUse.charAt(0).toUpperCase()}${statusToUse.slice(1)}`
-      : "";
+    try {
+      // const statusToUse = statusParam ?? currentActiveTab;
+      // const statusQuery = statusToUse
+      //   ? `&status=${statusToUse.charAt(0).toUpperCase()}${statusToUse.slice(1)}`
+      //   : "";
 
-    const response = await axios.get(
-      `${import.meta.env.VITE_BackEndUrl}/api/${sideNavTabvalue}?page=${pageNum}&limit=10${statusQuery}`
-    );
-
-    if (localFetchId !== fetchIdRef.current) return;
-
-    const data = response?.data?.data;
-    setResponseData(response?.data);
-
-    const computedTotal =
-      sideNavTabvalue === "all"
-        ? ((data?.residential?.total ?? 0) +
-           (data?.commercial?.total ?? 0) +
-           (data?.plot?.total ?? 0))
-        : (response?.data?.total ?? 0);
-
-    setStatusTotals((prev) => ({
-      ...prev,
-      [statusToUse]: computedTotal,
-    }));
-
-    if (sideNavTabvalue === "all") {
-      const prevResLen = dashboardData.residential.length;
-      const prevComLen = dashboardData.commercial.length;
-      const prevPlotLen = dashboardData.plot.length;
-
-      const newRes = data?.residential?.items ?? [];
-      const newCom = data?.commercial?.items ?? [];
-      const newPlot = data?.plot?.items ?? [];
-
-      const nextResLen = pageNum === 1 ? newRes.length : prevResLen + newRes.length;
-      const nextComLen = pageNum === 1 ? newCom.length : prevComLen + newCom.length;
-      const nextPlotLen = pageNum === 1 ? newPlot.length : prevPlotLen + newPlot.length;
-
-      const loadedSum = nextResLen + nextComLen + nextPlotLen;
-      setHasMore(loadedSum < computedTotal);
-
-      setDashboardData((prev) => ({
-        residential: pageNum === 1 ? newRes : [...prev.residential, ...newRes],
-        commercial: pageNum === 1 ? newCom : [...prev.commercial, ...newCom],
-        plot: pageNum === 1 ? newPlot : [...prev.plot, ...newPlot],
-      }));
-    } else {
-      const singularType = sideNavTabvalue.replace(/s$/, "") as keyof PropertyData;
-      const prevLen = (dashboardData[singularType] as ResidentialProperty[] | undefined)?.length ?? 0;
-      const newItems = Array.isArray(data) ? data : [];
-      const nextLen = pageNum === 1 ? newItems.length : prevLen + newItems.length;
-
-      setHasMore(nextLen < computedTotal);
-
-      setDashboardData((prev) => ({
-        ...prev,
-        [singularType]: pageNum === 1 ? newItems : [...(prev[singularType] || []), ...newItems],
-      }));
-    }
-  } catch (err) {
-    const axiosError = axios.isAxiosError(err) ? err : null;
-    const status = axiosError?.response?.status;
-
-    if (status === 404) {
-      if (sideNavTabvalue === "all") {
-        setDashboardData({
-          residential: [],
-          commercial: [],
-          plot: [],
-        });
-      } else {
-        const singularType = sideNavTabvalue.replace(/s$/, "") as keyof PropertyData;
-        setDashboardData((prev) => ({
-          ...prev,
-          [singularType]: [],
-        }));
+      // const response = await axios.get(
+      //   `${import.meta.env.VITE_BackEndUrl}/api/${sideNavTabvalue}?page=${pageNum}&limit=10${statusQuery}`
+      // );
+      const statusToUse = statusParam ?? currentActiveTab;
+      let statusValue = "";
+      if (statusToUse === "deleted") {
+        statusValue = "Deleted,Rented Out,Leased Out,Sold Out";
+      } else if (statusToUse) {
+        statusValue = `${statusToUse.charAt(0).toUpperCase()}${statusToUse.slice(1)}`;
       }
 
-      setHasMore(false);
+      const statusQuery = statusValue ? `&status=${encodeURIComponent(statusValue)}` : "";
+
+      const response = await axios.get(
+        `${import.meta.env.VITE_BackEndUrl}/api/${sideNavTabvalue}?page=${pageNum}&limit=10${statusQuery}`
+      );
+
+      if (localFetchId !== fetchIdRef.current) return;
+
+      const data = response?.data?.data;
+      setResponseData(response?.data);
+
+      const computedTotal =
+        sideNavTabvalue === "all"
+          ? ((data?.residential?.total ?? 0) +
+            (data?.commercial?.total ?? 0) +
+            (data?.plot?.total ?? 0))
+          : (response?.data?.total ?? 0);
+
       setStatusTotals((prev) => ({
         ...prev,
-        [currentActiveTab]: 0,
+        [statusToUse]: computedTotal,
       }));
-      setResponseData(null);
-    } else {
-      setError(axios.isAxiosError(err) ? err.message : "Unexpected error");
+
+      if (sideNavTabvalue === "all") {
+        const prevResLen = dashboardData.residential.length;
+        const prevComLen = dashboardData.commercial.length;
+        const prevPlotLen = dashboardData.plot.length;
+
+        const newRes = data?.residential?.items ?? [];
+        const newCom = data?.commercial?.items ?? [];
+        const newPlot = data?.plot?.items ?? [];
+
+        const nextResLen = pageNum === 1 ? newRes.length : prevResLen + newRes.length;
+        const nextComLen = pageNum === 1 ? newCom.length : prevComLen + newCom.length;
+        const nextPlotLen = pageNum === 1 ? newPlot.length : prevPlotLen + newPlot.length;
+
+        const loadedSum = nextResLen + nextComLen + nextPlotLen;
+        setHasMore(loadedSum < computedTotal);
+
+        setDashboardData((prev) => ({
+          residential: pageNum === 1 ? newRes : [...prev.residential, ...newRes],
+          commercial: pageNum === 1 ? newCom : [...prev.commercial, ...newCom],
+          plot: pageNum === 1 ? newPlot : [...prev.plot, ...newPlot],
+        }));
+      } else {
+        const singularType = sideNavTabvalue.replace(/s$/, "") as keyof PropertyData;
+        const prevLen = (dashboardData[singularType] as ResidentialProperty[] | undefined)?.length ?? 0;
+        const newItems = Array.isArray(data) ? data : [];
+        const nextLen = pageNum === 1 ? newItems.length : prevLen + newItems.length;
+
+        setHasMore(nextLen < computedTotal);
+
+        setDashboardData((prev) => ({
+          ...prev,
+          [singularType]: pageNum === 1 ? newItems : [...(prev[singularType] || []), ...newItems],
+        }));
+      }
+    } catch (err) {
+      const axiosError = axios.isAxiosError(err) ? err : null;
+      const status = axiosError?.response?.status;
+
+      if (status === 404) {
+        if (sideNavTabvalue === "all") {
+          setDashboardData({
+            residential: [],
+            commercial: [],
+            plot: [],
+          });
+        } else {
+          const singularType = sideNavTabvalue.replace(/s$/, "") as keyof PropertyData;
+          setDashboardData((prev) => ({
+            ...prev,
+            [singularType]: [],
+          }));
+        }
+
+        setHasMore(false);
+        setStatusTotals((prev) => ({
+          ...prev,
+          [currentActiveTab]: 0,
+        }));
+        setResponseData(null);
+      } else {
+        setError(axios.isAxiosError(err) ? err.message : "Unexpected error");
+      }
+    } finally {
+      setLoading(false);
     }
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const totalCount = useMemo(() => {
     if (!responseData) return 0;
@@ -191,51 +204,51 @@ const fetchAllData = async (pageNum: number = 1, statusParam?: string) => {
     }
   }, [responseData, properties]);
 
-const handleScrollLoadMore = useCallback(() => {
-  if (!loading && hasMore) {
-    setPage((prev) => {
-      const nextPage = prev + 1;
-      fetchAllData(nextPage, currentActiveTab);
-      return nextPage;
-    });
-  }
-}, [hasMore, loading, currentActiveTab]);
+  const handleScrollLoadMore = useCallback(() => {
+    if (!loading && hasMore) {
+      setPage((prev) => {
+        const nextPage = prev + 1;
+        fetchAllData(nextPage, currentActiveTab);
+        return nextPage;
+      });
+    }
+  }, [hasMore, loading, currentActiveTab]);
 
 
   // Route change effect: reset lists and totals, fetch first page for default tab
- 
-useEffect(() => {
-  setPage(1);
-  setHasMore(true);
-  setDashboardData({
-    residential: [],
-    commercial: [],
-    plot: [],
-  });
 
-  setStatusTotals({ pending: -1, approved: -1, rejected: -1, deleted: -1 });
-
-  const handleRefresh = () => {
+  useEffect(() => {
     setPage(1);
     setHasMore(true);
-    fetchAllData(1, currentActiveTab);
-  };
+    setDashboardData({
+      residential: [],
+      commercial: [],
+      plot: [],
+    });
 
-  window.addEventListener("refreshTableData", handleRefresh);
-  return () => window.removeEventListener("refreshTableData", handleRefresh);
-}, [sideNavTabvalue]);
+    setStatusTotals({ pending: -1, approved: -1, rejected: -1, deleted: -1 });
+
+    const handleRefresh = () => {
+      setPage(1);
+      setHasMore(true);
+      fetchAllData(1, currentActiveTab);
+    };
+
+    window.addEventListener("refreshTableData", handleRefresh);
+    return () => window.removeEventListener("refreshTableData", handleRefresh);
+  }, [sideNavTabvalue]);
 
   // Tab change effect: fetch data for the selected status without resetting cached totals
-useEffect(() => {
-  setPage(1);
-  setHasMore(true);
-  setDashboardData({
-    residential: [],
-    commercial: [],
-    plot: [],
-  });
-  fetchAllData(1, currentActiveTab);
-}, [currentActiveTab, sideNavTabvalue]);
+  useEffect(() => {
+    setPage(1);
+    setHasMore(true);
+    setDashboardData({
+      residential: [],
+      commercial: [],
+      plot: [],
+    });
+    fetchAllData(1, currentActiveTab);
+  }, [currentActiveTab, sideNavTabvalue]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
