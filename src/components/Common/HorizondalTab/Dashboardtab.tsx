@@ -731,11 +731,38 @@ export default function Dashboardtab({
   };
 
 
-  const handleApply = () => {
-    setIsFiltered(true); // Enable filtered mode
-    fetchFilteredData(currentCheckList, value); // Uses correct API and query logic
-    handleClose(); // Closes the popover
-  };
+const handleApply = () => {
+  setIsFiltered(true);
+  fetchFilteredData(currentCheckList, value);
+  localStorage.setItem("appliedFilters", JSON.stringify({
+    filters: currentCheckList,
+    tabIndex: value
+  }));
+  handleClose();
+};
+
+
+useEffect(() => {
+  const savedFilters = localStorage.getItem("appliedFilters");
+  if (savedFilters) {
+    const { filters, tabIndex } = JSON.parse(savedFilters);
+    setValue(tabIndex);
+    dispatch(setActiveTab(tabIndex));
+    setCurrentCheckList(filters);
+    setIsFiltered(true); // apply filters again
+    fetchFilteredData(filters, tabIndex);
+  } else {
+    // no saved filters
+    setValue(0);
+    dispatch(setActiveTab(0));
+    setIsFiltered(false);
+    setCurrentCheckList([]);
+    const pendingItems = allItems.filter((item) => isMatchingStatus(item.status, "pending"));
+    setTableValues(pendingItems);
+    setCurrentActiveTab("pending");
+  }
+}, [properties]);
+
 
   useEffect(() => {
     if (!isFiltered) {
@@ -770,14 +797,16 @@ export default function Dashboardtab({
   }, [searchQuery, value, isFiltered, allItems]);
 
   // filterResetFunction
-  const filterResetFunction = () => {
-    setCurrentCheckList([]);
-    setIsFiltered(false);
-    fetchFilteredData([], value);  
-    setDrawerOpen(false);
-    setResetCounter((prev) => prev + 1); 
-    if (onReset) onReset();
-  };
+const filterResetFunction = () => {
+  setCurrentCheckList([]);
+  setIsFiltered(false);
+  localStorage.removeItem("appliedFilters"); // <- remove saved filters
+  fetchFilteredData([], value);
+  setDrawerOpen(false);
+  setResetCounter((prev) => prev + 1);
+  if (onReset) onReset();
+};
+
 
   // count function
   const totalsReady = useMemo(() => {
