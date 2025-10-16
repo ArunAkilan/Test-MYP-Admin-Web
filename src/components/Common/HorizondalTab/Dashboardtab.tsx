@@ -239,6 +239,16 @@ export default function Dashboardtab({
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   // const [sortOption, setSortOption] = useState("Newest Property");
 
+  const isMatchingStatus = (itemStatus?: string, tabStatus?: string) => {
+    if (!itemStatus) return false;
+    const s = itemStatus.toLowerCase();
+    const t = (tabStatus ?? "").toLowerCase();
+    if (t === "deleted") {
+      return ["deleted", "rented out", "leased out", "sold out"].includes(s);
+    }
+    return s === t;
+  };
+
 
   const sortOptions = ["Newest", "Oldest", "Highest Price", "Lowest Price"];
 
@@ -327,9 +337,9 @@ export default function Dashboardtab({
     setCurrentCheckList([]);
 
     // CORRECTLY PARSE INITIAL DATA
-    const pendingItems = allItems.filter(
-      (item) => item.status?.toLowerCase() === "pending"
-    );
+    const pendingItems = allItems.filter((item) => isMatchingStatus(item.status, "pending"));
+
+
     setTableValues(pendingItems);
     setCurrentActiveTab("pending");
   }, [properties]);
@@ -343,9 +353,9 @@ export default function Dashboardtab({
 
     // AUTOMATICALLY FILTER FOR NEW TAB
     const newStatus = statusByTab[newValue];
-    const newTabItems = allItems.filter(
-      (item: Property) => item.status?.toLowerCase() === newStatus.toLowerCase()
-    );
+    const newTabItems = allItems.filter((item: Property) => isMatchingStatus(item.status, newStatus));
+
+
     setTableValues(newTabItems);
 
     // Update current active tab state
@@ -743,18 +753,44 @@ export default function Dashboardtab({
 
 
   const handleApply = () => {
-    setIsFiltered(true); // Enable filtered mode
-    fetchFilteredData(currentCheckList, value); // Uses correct API and query logic
-    handleClose(); // Closes the popover
+    setIsFiltered(true);
+    fetchFilteredData(currentCheckList, value);
+    localStorage.setItem("appliedFilters", JSON.stringify({
+      filters: currentCheckList,
+      tabIndex: value
+    }));
+    handleClose();
   };
+   
+   
+  useEffect(() => {
+    const savedFilters = localStorage.getItem("appliedFilters");
+    if (savedFilters) {
+      const { filters, tabIndex } = JSON.parse(savedFilters);
+      setValue(tabIndex);
+      dispatch(setActiveTab(tabIndex));
+      setCurrentCheckList(filters);
+      setIsFiltered(true); // apply filters again
+      fetchFilteredData(filters, tabIndex);
+    } else {
+      // no saved filters
+      setValue(0);
+      dispatch(setActiveTab(0));
+      setIsFiltered(false);
+      setCurrentCheckList([]);
+      const pendingItems = allItems.filter((item) => isMatchingStatus(item.status, "pending"));
+      setTableValues(pendingItems);
+      setCurrentActiveTab("pending");
+    }
+  }, [properties]);
 
   useEffect(() => {
     if (!isFiltered) {
       const status = statusByTab[value];
 
-      let filtered = allItems.filter(
-        (item: Property) => item.status?.toLowerCase() === status.toLowerCase()
-      );
+      let filtered = allItems.filter((item: Property) => isMatchingStatus(item.status, status));
+
+
 
       if (searchQuery.trim()) {
         const search = searchQuery.toLowerCase();
@@ -786,6 +822,7 @@ export default function Dashboardtab({
   const filterResetFunction = () => {
     setCurrentCheckList([]);
     setIsFiltered(false);
+    localStorage.removeItem("appliedFilters"); // <- remove saved filters
     fetchFilteredData([], value);
     setDrawerOpen(false);
     setResetCounter((prev) => prev + 1);
@@ -841,7 +878,7 @@ export default function Dashboardtab({
       ...(data.plot || []),
       ...(data.all || []),
     ];
-    return allItems.filter((item) => item.status?.toLowerCase() === "deleted").length;
+    return allItems.filter((item) => isMatchingStatus(item.status, "deleted")).length;
   }, [data, totalsReady, statusTotals]);
 
   function formatCount(count: number): string {

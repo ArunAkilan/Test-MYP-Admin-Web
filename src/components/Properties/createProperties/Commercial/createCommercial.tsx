@@ -181,7 +181,7 @@ function buildPayloadDynamic(
   // setNested(payload, "images", imageUrls);
 
   // accessibility – map selected chips → boolean object
-  // ✅ Dynamic facility - only set if form values are selected (matching Commercial backend schema)
+  // Dynamic facility - only set if form values are selected (matching Commercial backend schema)
   if (formState.facility.tilesOnFloor === true) {
     setNested(payload, "facility.tilesOnFloor", true);
   }
