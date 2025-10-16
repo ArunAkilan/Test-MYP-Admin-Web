@@ -244,12 +244,54 @@ const PlotView = () => {
 
         <div className="d-flex col-md-6 align-items-start area-facing-detail flex-wrap gap-4">
           <div className="area-facing-detail-inner-div w-100 mt-2">
+            {/* Main Area Display */}
             <div className="text-center">
-              <p className="mb-1 caps">Area</p>
+              <p className="mb-1 caps">Total Area</p>
               <h3 className="mb-1 user-result-data">
-                {property?.property?.area?.totalArea || "-"}
+                {property?.property?.location?.area?.totalArea || "-"}
               </h3>
             </div>
+
+            {/* Plot Length - Only show if exists */}
+            {property?.property?.location?.area?.length && (
+              <>
+                <div className="area-facing-divider"></div>
+                <div className="text-center">
+                  <p className="mb-1 caps">Length</p>
+                  <h3 className="mb-1 user-result-data">
+                    {property.property.location.area.length}
+                  </h3>
+                </div>
+              </>
+            )}
+
+            {/* Plot Width - Only show if exists */}
+            {property?.property?.location?.area?.width && (
+              <>
+                <div className="area-facing-divider"></div>
+                <div className="text-center">
+                  <p className="mb-1 caps">Width</p>
+                  <h3 className="mb-1 user-result-data">
+                    {property.property.location.area.width}
+                  </h3>
+                </div>
+              </>
+            )}
+
+            {/* Plot Acre - Only show if exists */}
+            {property?.property?.location?.area?.acre && (
+              <>
+                <div className="area-facing-divider"></div>
+                <div className="text-center">
+                  <p className="mb-1 caps">Acre</p>
+                  <h3 className="mb-1 user-result-data">
+                    {property.property.location.area.acre} Acres
+                  </h3>
+                </div>
+              </>
+            )}
+
+            {/* Amount Section */}
             <div className="area-facing-divider"></div>
             <div className="text-center">
               <p className="mb-1">Amount</p>
@@ -260,6 +302,8 @@ const PlotView = () => {
                 <p className="text-muted">{amountInfo.label}</p>
               )}
             </div>
+
+            {/* Deposit Amount - Only for Rent/Lease */}
             {amountInfo.showDeposit && (
               <>
                 <div className="area-facing-divider"></div>
@@ -271,6 +315,8 @@ const PlotView = () => {
                 </div>
               </>
             )}
+
+            {/* Agreement Time - Only for Rent */}
             {agreementTimeDisplay.value && (
               <>
                 <div className="area-facing-divider"></div>
@@ -282,6 +328,8 @@ const PlotView = () => {
                 </div>
               </>
             )}
+
+            {/* Lease Tenure - Only for Lease */}
             {tenureTimeDisplay.value && (
               <>
                 <div className="area-facing-divider"></div>
@@ -296,7 +344,7 @@ const PlotView = () => {
           </div>
         </div>
       </section>
-
+      
       <section className="midDetails">
         <h3>Property Overview</h3>
         <div className="row gap-4 data-detail-row">
