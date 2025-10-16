@@ -200,10 +200,10 @@ function a11yProps(index: number) {
 export default function Dashboardtab({
   data,
   properties,
-  onScrollLoadMore,
+  onScrollLoadMore: onScrollLoadMoreProp,
   onScrollChangeParent,
-  loading,
-  hasMore,
+  loading: loadingProp,
+  hasMore: hasMoreProp,
   totalCount,
   onReset,
   onSortChange,
@@ -236,6 +236,12 @@ export default function Dashboardtab({
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [selectedLabel, setSelectedLabel] = useState(selectedSort);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  // Infinite scroll state for filtered mode
+  const [filterPage, setFilterPage] = useState(1);
+  const [filterHasMore, setFilterHasMore] = useState(true);
+  const [filterLoading, setFilterLoading] = useState(false);
+  const [filterTotalCount, setFilterTotalCount] = useState<number | null>(null);
+  const FILTER_PAGE_SIZE = 10;
   // const [sortOption, setSortOption] = useState("Newest Property");
 
   const isMatchingStatus = (itemStatus?: string, tabStatus?: string) => {
@@ -334,6 +340,9 @@ export default function Dashboardtab({
     setValue(0);
     dispatch(setActiveTab(0));
     setIsFiltered(false);
+    setFilterPage(1);
+    setFilterHasMore(true);
+    setFilterLoading(false);
     setCurrentCheckList([]);
 
     // CORRECTLY PARSE INITIAL DATA
@@ -349,6 +358,9 @@ export default function Dashboardtab({
     setValue(newValue);
     dispatch(setActiveTab(newValue));
     setIsFiltered(false);
+    setFilterPage(1);
+    setFilterHasMore(true);
+    setFilterLoading(false);
     setCurrentCheckList([]);
 
     // AUTOMATICALLY FILTER FOR NEW TAB
@@ -442,7 +454,8 @@ export default function Dashboardtab({
   // };
 
   // COMPLETELY FIXED FILTER FUNCTION - All type errors resolved
-  const fetchFilteredData = async (filters: string[], tabIndex: number) => {
+  const fetchFilteredData = async (filters: string[], tabIndex: number, page: number = 1, append: boolean = false) => {
+    setFilterLoading(true);
     try {
       const status = statusByTab[tabIndex];
       const queryParts: string[] = [];
@@ -615,8 +628,8 @@ export default function Dashboardtab({
       }
 
       // Add pagination
-      queryParts.push("page=1");
-      queryParts.push("limit=100");
+      queryParts.push(`page=${page}`);
+      queryParts.push(`limit=${FILTER_PAGE_SIZE}`);
 
       const baseUrl = `${import.meta.env.VITE_BackEndUrl}/api/${endpoint}`;
       const queryString = queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
@@ -627,6 +640,21 @@ export default function Dashboardtab({
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
+
+      // Derive total count for filtered results if available
+      try {
+        let totalForFiltered: number | null = null;
+        if (endpoint === "all") {
+          const d = response?.data?.data;
+          const rT = d?.residential?.total ?? 0;
+          const cT = d?.commercial?.total ?? 0;
+          const pT = d?.plot?.total ?? 0;
+          totalForFiltered = rT + cT + pT;
+        } else {
+          totalForFiltered = typeof response?.data?.total === "number" ? response.data.total : null;
+        }
+        if (totalForFiltered !== null) setFilterTotalCount(totalForFiltered);
+      } catch {}
 
       // RESPONSE PARSING based on your API response structure
       let result: Property[] = [];
@@ -724,7 +752,15 @@ export default function Dashboardtab({
           });
         });
       }
-      setTableValues(result);
+
+      if (append) {
+        setTableValues((prev) => [...prev, ...result]);
+      } else {
+        setTableValues(result);
+      }
+      setFilterHasMore(result.length >= FILTER_PAGE_SIZE);
+      setFilterPage(page);
+      setFilterLoading(false);
 
     } catch (error) {
       console.error("Fetch error:", error);
@@ -734,41 +770,55 @@ export default function Dashboardtab({
         console.error("Request URL:", error.config?.url);
       }
       setTableValues([]);
+      setFilterHasMore(false);
+      setFilterLoading(false);
     }
   };
 
 
-  const handleApply = () => {
-    setIsFiltered(true);
-    fetchFilteredData(currentCheckList, value);
-    localStorage.setItem("appliedFilters", JSON.stringify({
-      filters: currentCheckList,
-      tabIndex: value
-    }));
-    handleClose();
-  };
-   
-   
-  useEffect(() => {
-    const savedFilters = localStorage.getItem("appliedFilters");
-    if (savedFilters) {
-      const { filters, tabIndex } = JSON.parse(savedFilters);
-      setValue(tabIndex);
-      dispatch(setActiveTab(tabIndex));
-      setCurrentCheckList(filters);
-      setIsFiltered(true); // apply filters again
-      fetchFilteredData(filters, tabIndex);
-    } else {
-      // no saved filters
-      setValue(0);
-      dispatch(setActiveTab(0));
-      setIsFiltered(false);
-      setCurrentCheckList([]);
-      const pendingItems = allItems.filter((item) => isMatchingStatus(item.status, "pending"));
-      setTableValues(pendingItems);
-      setCurrentActiveTab("pending");
-    }
-  }, [properties]);
+const handleApply = () => {
+  setIsFiltered(true);
+  setFilterPage(1);
+  setFilterHasMore(true);
+  setFilterTotalCount(null);
+  fetchFilteredData(currentCheckList, value, 1, false);
+  localStorage.setItem("appliedFilters", JSON.stringify({
+    filters: currentCheckList,
+    tabIndex: value
+  }));
+  handleClose();
+};
+
+// Load more for filtered mode
+const handleFilteredLoadMore = React.useCallback(() => {
+  if (filterLoading || !filterHasMore) return;
+  fetchFilteredData(currentCheckList, value, filterPage + 1, true);
+}, [filterLoading, filterHasMore, currentCheckList, value, filterPage]);
+
+
+useEffect(() => {
+  const savedFilters = localStorage.getItem("appliedFilters");
+  if (savedFilters) {
+    const { filters, tabIndex } = JSON.parse(savedFilters);
+    setValue(tabIndex);
+    dispatch(setActiveTab(tabIndex));
+    setCurrentCheckList(filters);
+    setIsFiltered(true); // apply filters again
+    setFilterPage(1);
+    setFilterHasMore(true);
+    fetchFilteredData(filters, tabIndex, 1, false);
+  } else {
+    // no saved filters
+    setValue(0);
+    dispatch(setActiveTab(0));
+    setIsFiltered(false);
+    setCurrentCheckList([]);
+    const pendingItems = allItems.filter((item) => isMatchingStatus(item.status, "pending"));
+    setTableValues(pendingItems);
+    setCurrentActiveTab("pending");
+  }
+}, [properties]);
+
 
   useEffect(() => {
     if (!isFiltered) {
@@ -805,15 +855,19 @@ export default function Dashboardtab({
   }, [searchQuery, value, isFiltered, allItems]);
 
   // filterResetFunction
-  const filterResetFunction = () => {
-    setCurrentCheckList([]);
-    setIsFiltered(false);
-    localStorage.removeItem("appliedFilters"); // <- remove saved filters
-    fetchFilteredData([], value);  
-    setDrawerOpen(false);
-    setResetCounter((prev) => prev + 1); 
-    if (onReset) onReset();
-  };
+const filterResetFunction = () => {
+  setCurrentCheckList([]);
+  setIsFiltered(false);
+  localStorage.removeItem("appliedFilters"); // <- remove saved filters
+  setFilterPage(1);
+  setFilterHasMore(true);
+  setFilterLoading(false);
+  setFilterTotalCount(null);
+  setDrawerOpen(false);
+  setResetCounter((prev) => prev + 1);
+  if (onReset) onReset();
+};
+
 
   // count function
   const totalsReady = useMemo(() => {
@@ -879,6 +933,10 @@ const handleDeletedCount = useMemo((): number => {
     // Always reflect the number of items currently visible for the active tab
     return tableValues.length;
   }, [tableValues]);
+
+  const displayedTotalCount = useMemo(() => {
+    return isFiltered ? (filterTotalCount ?? tableValues.length) : (totalCount ?? tableValues.length);
+  }, [isFiltered, filterTotalCount, tableValues.length, totalCount]);
   // filter drawer
 
   const toggleDrawer =
@@ -929,6 +987,11 @@ const handleDeletedCount = useMemo((): number => {
     onScrollChangeParent(scrollTop);
   };
   const checkListCount = currentCheckList.length;
+
+  // Bind infinite scroll props depending on filter mode
+  const onScrollLoadMore = isFiltered ? handleFilteredLoadMore : (onScrollLoadMoreProp ?? (() => { }));
+  const loading = isFiltered ? filterLoading : (loadingProp ?? false);
+  const hasMore = isFiltered ? filterHasMore : (hasMoreProp ?? false);
 
   //format data
   const formatData: PropertyItem[] = Array.isArray(data)
@@ -1183,7 +1246,7 @@ const handleDeletedCount = useMemo((): number => {
                       <h3>
                         <span className="resultCount">{getResultCount}</span>{" "}
                         {getResultCount === 1 ? "Property" : "Properties"} of
-                        <span className="ms-2">{totalCount}</span>
+                        <span className="ms-2">{displayedTotalCount}</span>
                       </h3>
                     )}
                     {checkListCount !== 0 && (
@@ -1301,7 +1364,7 @@ const handleDeletedCount = useMemo((): number => {
                       <h3>
                         <span className="resultCount">{getResultCount}</span>{" "}
                         {getResultCount === 1 ? "Property" : "Properties"} of
-                        <span className="ms-2">{totalCount}</span>
+                        <span className="ms-2">{displayedTotalCount}</span>
                       </h3>
                     )}
                     {checkListCount !== 0 && (
@@ -1419,7 +1482,7 @@ const handleDeletedCount = useMemo((): number => {
                       <h3>
                         <span className="resultCount">{getResultCount}</span>{" "}
                         {getResultCount === 1 ? "Property" : "Properties"} of
-                        <span className="ms-2">{totalCount}</span>
+                        <span className="ms-2">{displayedTotalCount}</span>
                       </h3>
                     )}
                     {checkListCount !== 0 && (
@@ -1537,7 +1600,7 @@ const handleDeletedCount = useMemo((): number => {
                       <h3>
                         <span className="resultCount">{getResultCount}</span>{" "}
                         {getResultCount === 1 ? "Property" : "Properties"} of
-                        <span className="ms-2">{totalCount}</span>
+                        <span className="ms-2">{displayedTotalCount}</span>
                       </h3>
                     )}
                     {checkListCount !== 0 && (
