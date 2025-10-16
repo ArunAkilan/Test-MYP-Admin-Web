@@ -194,11 +194,21 @@ function buildPayloadDynamic(formState: PlotFormState): PlotFormState {
   // const restrictions = mapChipsToRestrictions(formState.selectedChips);
   // setNested(payload, "restrictions", restrictions);
   // setNested(payload, "selectedChips", formState.selectedChips || []);
-  setNested(payload, "facility.hasWell", chips.includes("Well"));
-setNested(payload, "facility.hasBorewell", chips.includes("Bore Well"));
-setNested(payload, "facility.hasEBConnection", chips.includes("EB Connection"));
-setNested(payload, "facility.hasMotor", chips.includes("Motor"));
- 
+
+  // Dynamic facility - only set if chips are selected
+if (chips.includes("Well")) {
+  setNested(payload, "facility.hasWell", true);
+}
+if (chips.includes("Bore Well")) {
+  setNested(payload, "facility.hasBorewell", true);
+}
+if (chips.includes("EB Connection")) {
+  setNested(payload, "facility.hasEBConnection", true);
+}
+if (chips.includes("Motor")) {
+  setNested(payload, "facility.hasMotor", true);
+}
+
   // misc
   setNested(payload, "status", "Pending");
   // setNested(payload, "hasWell", formState.hasWell || false);
@@ -375,60 +385,67 @@ export const CreatePlotProperty = () => {
   const editData = location.state?.data;
   const editId = location.state?.data?._id;
   // Update state when in edit mode
-  useEffect(() => {
-    if (isEditMode && editData) {
-
-      const expectedPath = `/admin/plot/update/${editId}`;
-    if (window.location.pathname !== expectedPath) {
-      window.history.replaceState(null, "", expectedPath);
+// Update state when in edit mode
+useEffect(() => {
+  if (isEditMode && editData) {
+    // const expectedPath = `/admin/plot/update/${editId}`;
+    // if (window.location.pathname !== expectedPath) {
+    //   window.history.replaceState(null, "", expectedPath);
+    // }
+    
+    setFirstName(editData?.propertyOwner?.firstName || "");
+    setLastName(editData?.propertyOwner?.lastName || "");
+    setEmail(editData?.propertyOwner?.contact?.email || "");
+    setPhone1(editData?.propertyOwner?.contact?.phone1 || "");
+    setPropertyType(editData.propertyType || "Rent");
+    setTitle(editData.title || "");
+    setRentAmount(editData.rent?.rentAmount || 0);
+    setNegotiable(editData.rent?.negotiable || false);
+    setAdvanceAmount(String(editData.rent?.advanceAmount || ""));
+    setLeaseTenure(editData.lease?.leaseTenure || "");
+    setPlotType(editData.plotType || "None");
+    setAddress(editData.location?.address || "");
+    
+    if (editData.location?.map) {
+      setLatitude(editData.location.map.latitude?.toString() || "");
+      setLongitude(editData.location.map.longitude?.toString() || "");
     }
-      setFirstName(editData?.propertyOwner?.firstName || "");
-      setLastName(editData?.propertyOwner?.lastName || "");
-      setEmail(editData?.propertyOwner?.contact?.email || "");
-      setPhone1(editData?.propertyOwner?.contact?.phone1 || "");
-      setPropertyType(editData.propertyType || "Rent");
-      setTitle(editData.title || "");
-      setRentAmount(editData.rent?.rentAmount || 0);
-      setNegotiable(editData.rent?.negotiable || false);
-      setAdvanceAmount(String(editData.rent?.advanceAmount || ""));
-      setLeaseTenure(editData.lease?.leaseTenure || "");
-      setPlotType(editData.plotType || "None");
-      setAddress(editData.location?.address || "");
+    
+    setImages(editData.images?.map((img: string) => ({ name: img })) || []);
+    setTotalArea(editData.location?.area?.totalArea?.replace(" sqft", "") || "");
+    setFacingDirection(editData.facingDirection || "East");
+    setTotalFloors(String(editData.totalFloors || ""));
+    setAcre(String(editData.acre || ""));
+    setPropertyFloor(String(editData.propertyFloor || ""));
 
-      if (editData.location?.map) {
-        setLatitude(editData.location.map.latitude?.toString() || "");
-        setLongitude(editData.location.map.longitude?.toString() || "");
-      }
-
-      setImages((editData.images || []).map((img: string) => ({ name: img })));
-
-
-      setTotalArea(editData.location?.area?.totalArea?.replace(" sqft", "") || "");
-      setFacingDirection(editData.facingDirection || "East");
-      setTotalFloors(String(editData.totalFloors || ""));
-      setAcre(String(editData.acre || ""));
-
-      setPropertyFloor(String(editData.propertyFloor || ""));
-      
-
-      const chips: string[] = [];
-      if (editData.restrictions) {
-        if (editData.restrictions.guestAllowed === false)
-          chips.push("Guests Not Allowed");
-        if (editData.restrictions.petsAllowed === false)
-          chips.push("No Pets Allowed");
-        if (editData.restrictions.bachelorsAllowed === false)
-          chips.push("No Bachelors Allowed");
-      }
-      setSelectedChips(chips);
-      setPropertyDescription(editData.description || "");
+    // UPDATED: Map facility data back to chips properly
+    const chips: string[] = [];
+    
+    // Map restrictions back to chips (if you have them)
+    if (editData.restrictions) {
+      if (editData.restrictions.guestAllowed === false) chips.push("Guests Not Allowed");
+      if (editData.restrictions.petsAllowed === false) chips.push("No Pets Allowed");
+      if (editData.restrictions.bachelorsAllowed === false) chips.push("No Bachelors Allowed");
     }
-  }, [isEditMode, editData]);
+    
+    // Map facility data back to chips
+    if (editData.facility) {
+      if (editData.facility.hasWell === true) chips.push("Well");
+      if (editData.facility.hasBorewell === true) chips.push("Bore Well");
+      if (editData.facility.hasEBConnection === true) chips.push("EB Connection");
+      if (editData.facility.hasMotor === true) chips.push("Motor");
+    }
+    
+    setSelectedChips(chips); // Now includes facility chips
+    setPropertyDescription(editData.description || "");
+  }
+}, [isEditMode, editData]);
 
 
-  const [nearbyTransport, setNearbyTransport] = useState<
-    Record<string, string>
-  >({ "BUS STAND": "0 KM", AIRPORT: "0 KM", METRO: "0 KM", RAILWAY: "0 KM" });
+
+  // const [nearbyTransport, setNearbyTransport] = useState<
+  //   Record<string, string>
+  // >({ "BUS STAND": "0 KM", AIRPORT: "0 KM", METRO: "0 KM", RAILWAY: "0 KM" });
 
   // // Google Maps API loader
   // const { isLoaded } = useJsApiLoader({
@@ -472,7 +489,7 @@ export const CreatePlotProperty = () => {
         info[t.label] = "N/A";
       }
     }
-    setNearbyTransport(info);
+    // setNearbyTransport(info);
   };
 
   // Handle map click to place marker and update lat/lng inputs
@@ -755,7 +772,7 @@ export const CreatePlotProperty = () => {
                     />
 
                     <p className="topInfoAlertP">
-                    <span className="star">*</span> Required Fields – 5 fields must be filled before
+                     Required Fields – 5 fields must be filled before
                       submitting the form.
                     </p>
                   </Alert>
@@ -1164,7 +1181,7 @@ export const CreatePlotProperty = () => {
                       </div>
                     </div>
 
-                    <div className="informationCard">
+                    {/* <div className="informationCard">
                       <label htmlFor="" className="labelName">
                         Nearby Transportation
                       </label>
@@ -1237,7 +1254,7 @@ export const CreatePlotProperty = () => {
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </section>

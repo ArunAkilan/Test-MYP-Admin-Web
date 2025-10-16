@@ -223,7 +223,9 @@ export default function Dashboardtab({
   const [tableValues, setTableValues] = useState<Property[]>([]);
   const [resetCounter, setResetCounter] = useState(0);
   const [alignment, setAlignment] = React.useState("List View");
+   // @ts-ignore
   const [isExpanded, setIsExpanded] = useState(false);
+   // @ts-ignore
   const [searchQuery, setSearchQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<
@@ -235,6 +237,16 @@ export default function Dashboardtab({
   const [selectedLabel, setSelectedLabel] = useState(selectedSort);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   // const [sortOption, setSortOption] = useState("Newest Property");
+
+  const isMatchingStatus = (itemStatus?: string, tabStatus?: string) => {
+    if (!itemStatus) return false;
+    const s = itemStatus.toLowerCase();
+    const t = (tabStatus ?? "").toLowerCase();
+    if (t === "deleted") {
+      return ["deleted", "rented out", "leased out", "sold out"].includes(s);
+    }
+    return s === t;
+  };
 
 
   const sortOptions = ["Newest", "Oldest", "Highest Price", "Lowest Price"];
@@ -316,15 +328,6 @@ export default function Dashboardtab({
     [data]
   );
 
-  const isMatchingStatus = (itemStatus?: string, tabStatus?: string) => {
-    if (!itemStatus) return false;
-    const s = itemStatus.toLowerCase();
-    const t = (tabStatus ?? "").toLowerCase();
-    if (t === "deleted") {
-      return ["deleted", "rented out", "leased out", "sold out"].includes(s);
-    }
-    return s === t;
-  };
 
   // Reset tab state when property type changes
  useEffect(() => {
@@ -335,6 +338,8 @@ export default function Dashboardtab({
 
     // CORRECTLY PARSE INITIAL DATA
     const pendingItems = allItems.filter((item) => isMatchingStatus(item.status, "pending"));
+
+
     setTableValues(pendingItems);
     setCurrentActiveTab("pending");
   }, [properties]);
@@ -349,6 +354,8 @@ export default function Dashboardtab({
     // AUTOMATICALLY FILTER FOR NEW TAB
     const newStatus = statusByTab[newValue];
     const newTabItems = allItems.filter((item: Property) => isMatchingStatus(item.status, newStatus));
+
+
     setTableValues(newTabItems);
 
     // Update current active tab state
@@ -732,16 +739,44 @@ export default function Dashboardtab({
 
 
   const handleApply = () => {
-    setIsFiltered(true); // Enable filtered mode
-    fetchFilteredData(currentCheckList, value); // Uses correct API and query logic
-    handleClose(); // Closes the popover
+    setIsFiltered(true);
+    fetchFilteredData(currentCheckList, value);
+    localStorage.setItem("appliedFilters", JSON.stringify({
+      filters: currentCheckList,
+      tabIndex: value
+    }));
+    handleClose();
   };
+   
+   
+  useEffect(() => {
+    const savedFilters = localStorage.getItem("appliedFilters");
+    if (savedFilters) {
+      const { filters, tabIndex } = JSON.parse(savedFilters);
+      setValue(tabIndex);
+      dispatch(setActiveTab(tabIndex));
+      setCurrentCheckList(filters);
+      setIsFiltered(true); // apply filters again
+      fetchFilteredData(filters, tabIndex);
+    } else {
+      // no saved filters
+      setValue(0);
+      dispatch(setActiveTab(0));
+      setIsFiltered(false);
+      setCurrentCheckList([]);
+      const pendingItems = allItems.filter((item) => isMatchingStatus(item.status, "pending"));
+      setTableValues(pendingItems);
+      setCurrentActiveTab("pending");
+    }
+  }, [properties]);
 
   useEffect(() => {
     if (!isFiltered) {
       const status = statusByTab[value];
 
       let filtered = allItems.filter((item: Property) => isMatchingStatus(item.status, status));
+
+
 
       if (searchQuery.trim()) {
         const search = searchQuery.toLowerCase();
@@ -773,6 +808,7 @@ export default function Dashboardtab({
   const filterResetFunction = () => {
     setCurrentCheckList([]);
     setIsFiltered(false);
+    localStorage.removeItem("appliedFilters"); // <- remove saved filters
     fetchFilteredData([], value);  
     setDrawerOpen(false);
     setResetCounter((prev) => prev + 1); 
@@ -1168,7 +1204,7 @@ const handleDeletedCount = useMemo((): number => {
                   </div>
 
                   <div className="list-panel">
-                    <div className="search">
+                    {/* <div className="search">
                       <input
                         type="search"
                         placeholder="Search Properties"
@@ -1177,7 +1213,7 @@ const handleDeletedCount = useMemo((): number => {
                         disabled
                       />
                       <img src="Search-1.svg" alt="search svg" />
-                    </div>
+                    </div> */}
                     <div className="list-card-toggle">
                       <ToggleButtonGroup
                         color="primary"
@@ -1286,7 +1322,7 @@ const handleDeletedCount = useMemo((): number => {
                   </div>
 
                   <div className="list-panel">
-                    <div
+                    {/* <div
                       onClick={() => setIsExpanded(true)}
                       className={`search ${isExpanded ? "active" : ""}`}
                     >
@@ -1295,7 +1331,7 @@ const handleDeletedCount = useMemo((): number => {
                         src={`${import.meta.env.VITE_BASE_URL}/Search-1.svg`}
                         alt="search svg"
                       />
-                    </div>
+                    </div> */}
                     <div className="list-card-toggle">
                       <ToggleButtonGroup
                         color="primary"
@@ -1404,7 +1440,7 @@ const handleDeletedCount = useMemo((): number => {
                   </div>
 
                   <div className="list-panel">
-                    <div
+                    {/* <div
                       onClick={() => setIsExpanded(true)}
                       className={`search ${isExpanded ? "active" : ""}`}
                     >
@@ -1413,7 +1449,7 @@ const handleDeletedCount = useMemo((): number => {
                         src={`${import.meta.env.VITE_BASE_URL}/Search-1.svg`}
                         alt="search svg"
                       />
-                    </div>
+                    </div> */}
                     <div className="list-card-toggle">
                       <ToggleButtonGroup
                         color="primary"
@@ -1522,13 +1558,13 @@ const handleDeletedCount = useMemo((): number => {
                   </div>
 
                   <div className="list-panel">
-                    <div
+                    {/* <div
                       onClick={() => setIsExpanded(true)}
                       className={`search ${isExpanded ? "active" : ""}`}
                     >
                       <input type="search" placeholder="Search Properties" />
                       <img src="Search-1.svg" alt="search svg" />
-                    </div>
+                    </div> */}
                     <div className="list-card-toggle">
                       <ToggleButtonGroup
                         color="primary"

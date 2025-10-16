@@ -34,7 +34,7 @@ const Login = () => {
       <div className="login-wrapper">
         <div className="login container">
           <div className="image">
-            <img src={`${import.meta.env.VITE_BASE_URL}/PRH_Admin_new.svg`} alt="prh admin image" />
+            <img src={`${import.meta.env.VITE_BASE_URL}/navbar/myp_logo.svg`} width={72} alt="prh admin image" />
           </div>
           <div className="heading container">
             <p>Sign in to your account</p>

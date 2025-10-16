@@ -12,6 +12,17 @@
 .navbar .container {
   justify-content: flex-end !important;
 }
+.disabled-search {
+  position: relative;
+  pointer-events: none; 
+  opacity: 0.6; 
+  cursor: not-allowed;
+}
+
+.disabled-search:hover {
+  cursor: not-allowed;
+}
+
 .header {
   display: flex; 
   align-items: center;
