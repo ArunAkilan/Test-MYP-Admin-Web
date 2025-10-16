@@ -44,8 +44,8 @@ const ImageCountBadge = styled(Badge)(() => ({
 const Carousel: React.FC<CarouselProps> = ({ images}) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [open, setOpen] = useState(false);
+  //@ts-ignore
   const [direction, setDirection] = useState<"left" | "right">("right");
-  console.log("direction",direction)
 
   const handlePrev = () => {
     setDirection("left");//@ts-ignore
@@ -103,7 +103,7 @@ const Carousel: React.FC<CarouselProps> = ({ images}) => {
                   position: "relative",
                 }}
               >
-                <img
+                {/* <img
                   src={img}
                   alt={`Slide ${index + 1}`}
                   style={{
@@ -112,7 +112,18 @@ const Carousel: React.FC<CarouselProps> = ({ images}) => {
                     objectFit: "cover",
                     display: "block",
                   }}
-                />
+                /> */}
+                <Box
+  component="img"
+  src={img}
+  alt={`Slide ${index + 1}`}
+  sx={{
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+    display: 'block',
+  }}
+/>
 
                 {/* Badge for image count */}
                 {index === currentIndex && (

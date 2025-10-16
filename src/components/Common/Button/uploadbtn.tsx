@@ -8,8 +8,6 @@ const ImageField: React.FC = () => {
   const [image, setImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  console.log("image",image)
-  console.log("previewUrl",previewUrl)
 
 
 
@@ -56,7 +54,6 @@ const ImageField: React.FC = () => {
       setError('Please upload image.');
       return;
     }
-    console.log('Selected Image:', image);
   };
 
   return (

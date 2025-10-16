@@ -375,7 +375,6 @@ export const CreateProperty = () => {
   const isEditMode = location.state?.mode === "edit";
   const editData = location.state?.data;
   const editId = location.state?.data?._id;
-  // console.log("editid", location);
 
   // Update state when in edit mode
   useEffect(() => {
@@ -621,7 +620,6 @@ export const CreateProperty = () => {
     setLoading(true); // Backdrop
 
     const validationErrors = validate();
-    console.log("Validation Errors:", validationErrors);
     setErrors(validationErrors);
     if (Object.keys(validationErrors).length > 0) {
       toast.error("Fill all required fields.");
@@ -1134,7 +1132,6 @@ export const CreateProperty = () => {
                                 const place = autocomplete.getPlace();
                                 const lat = place.geometry?.location?.lat();
                                 const lng = place.geometry?.location?.lng();
-                                console.log(place, "respo1");
                                 if (place.formatted_address)
                                   setAddress(place.formatted_address);
                                 if (lat && lng) {
@@ -1151,7 +1148,6 @@ export const CreateProperty = () => {
                                   });
 
                                   if (response.results[0]) {
-                                    console.log(response, "respo");
                                     const selectedAddress =
                                       response.results[0].formatted_address;
                                     setAddress(selectedAddress);

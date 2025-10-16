@@ -49,9 +49,7 @@ export default function AutoCompleteWithSelect() {
                 const allResults: any = [];
                 //let results:any = [];
                 for (const category in response.data.suggestions) {
-                    console.log("category", category);
                     const items = response.data.suggestions[category].slice(0, 7);
-                    console.log("items", items);
                     items.forEach((item: any) => {
                         allResults.push({
                             ...item,
@@ -65,9 +63,7 @@ export default function AutoCompleteWithSelect() {
                     id: item.id,
                     status: item.status
                 }));
-                console.log("resultsssssss", results);
                 setOptions([...results]);
-                console.log("options", options);
             } catch (error) {
                 console.error('API fetch error:', error);
             }
@@ -88,8 +84,8 @@ export default function AutoCompleteWithSelect() {
 
     const navigate = useNavigate();
     const routeName = useLocation();
+    //@ts-ignore
     const handleChange = (event: any, newValue: any, reason: any) => {
-        console.log(newValue, "+++++", event);
         if((newValue !== null && (`/${newValue?.category}`) !== routeName.pathname)){
           navigate(`/${newValue?.category}`);
         }

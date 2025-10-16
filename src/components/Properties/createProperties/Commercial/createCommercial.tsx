@@ -372,7 +372,6 @@ export const CreateCommercialProperty = () => {
   const isEditMode = location.state?.mode === "edit";
   const editData = location.state?.data;
   const editId = location.state?.data?._id;
-  console.log("editid", editId);
 
   // Update state when in edit mode
   useEffect(() => {
@@ -543,7 +542,6 @@ export const CreateCommercialProperty = () => {
     setLoading(true); // Backdrop
 
     const validationErrors = validate();
-    console.log("Validation Errors:", validationErrors);
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length > 0) {

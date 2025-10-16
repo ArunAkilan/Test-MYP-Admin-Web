@@ -33,7 +33,6 @@ export const getProfileById = async (id: any, token: any) => {
 };
 
 export const updateProfile = async (id: any, profileData: any, token: any) => {
-  console.log("tokentokentokentoken",token)
   let resData =  await axios.put(`${BASE_URL}/${id}`,profileData, {
    headers: {
       "Authorization": `Bearer ${token}`, // Add token here

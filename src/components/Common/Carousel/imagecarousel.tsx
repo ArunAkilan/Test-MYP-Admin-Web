@@ -41,7 +41,6 @@ Props) {
   const [popoverAnchorEl, setPopoverAnchorEl] = useState<HTMLElement | null>(
     null
   );
-  console.log("showThumbnails", showThumbnails);
 
   const handlePrev = () => {
     //@ts-ignore
@@ -84,6 +83,7 @@ Props) {
   const handleAction = async (id: string, status: number) => {
     const singularProperty = getSingularProperty();
     try {
+      //@ts-ignore
       const response = await axios.put(
         `${
           import.meta.env.VITE_BackEndUrl
@@ -95,7 +95,6 @@ Props) {
           },
         }
       );
-      console.log("Status updated:", response.data);
     } catch {
       console.error("Failed to update status");
     }

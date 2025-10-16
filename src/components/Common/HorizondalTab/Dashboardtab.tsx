@@ -212,7 +212,6 @@ export default function Dashboardtab({
   setCurrentActiveTab,
   statusTotals,
 }: DashboardtabProps) {
-  console.log("totalCount", totalCount)
   const [isFiltered, setIsFiltered] = useState(false);
   const [currentCheckList, setCurrentCheckList] = useState<string[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -329,8 +328,9 @@ export default function Dashboardtab({
     [data]
   );
 
+
   // Reset tab state when property type changes
-  useEffect(() => {
+ useEffect(() => {
     setValue(0);
     dispatch(setActiveTab(0));
     setIsFiltered(false);
@@ -363,7 +363,6 @@ export default function Dashboardtab({
   };
 
   useEffect(() => {
-    console.log(tableValues, "vvvv");
   }, [tableValues]);
 
   // handleCheckbox
@@ -375,7 +374,6 @@ export default function Dashboardtab({
       return newList;
     });
   };
-  console.log("currentCheckList:", currentCheckList);
 
   // filter function
 
@@ -416,7 +414,6 @@ export default function Dashboardtab({
   //       queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
   //     const fullUrl = `${baseUrl}${queryString}`;
 
-  //     console.log("Final API URL:", fullUrl);
 
   //     const response = await axios.get(fullUrl);
 
@@ -625,17 +622,11 @@ export default function Dashboardtab({
       const queryString = queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
       const fullUrl = baseUrl + queryString;
 
-      console.log("Applied Filters:", filters);
-      console.log("Final API URL:", fullUrl);
-      console.log("Query Parameters:", queryParts);
-
       const response = await axios.get(fullUrl, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-
-      console.log("Raw API Response:", response.data);
 
       // RESPONSE PARSING based on your API response structure
       let result: Property[] = [];
@@ -650,7 +641,6 @@ export default function Dashboardtab({
           const plotItems: Property[] = dataObj.data.plot?.items || [];
 
           result = [...residentialItems, ...commercialItems, ...plotItems];
-          console.log("Combined properties:", result.length);
         }
       } else {
         // For individual endpoints - based on your API schema response
@@ -658,7 +648,6 @@ export default function Dashboardtab({
 
         if (dataObj?.success && dataObj?.data) {
           result = Array.isArray(dataObj.data) ? dataObj.data : [];
-          console.log(`${endpoint} properties:`, result.length);
         }
       }
 
@@ -673,7 +662,6 @@ export default function Dashboardtab({
         result = result.filter((item: Property) => {
           return item.facingDirection !== undefined && facingFilters.includes(item.facingDirection);
         });
-        console.log(`Frontend Facing filter applied for ${endpoint}:`, result.length);
       }
 
       // Filter by Type (Residential/Commercial/Plot)
@@ -736,8 +724,6 @@ export default function Dashboardtab({
           });
         });
       }
-
-      console.log("Final filtered result:", result.length, "properties");
       setTableValues(result);
 
     } catch (error) {
@@ -823,9 +809,9 @@ export default function Dashboardtab({
     setCurrentCheckList([]);
     setIsFiltered(false);
     localStorage.removeItem("appliedFilters"); // <- remove saved filters
-    fetchFilteredData([], value);
+    fetchFilteredData([], value);  
     setDrawerOpen(false);
-    setResetCounter((prev) => prev + 1);
+    setResetCounter((prev) => prev + 1); 
     if (onReset) onReset();
   };
 
@@ -845,8 +831,6 @@ export default function Dashboardtab({
     ];
     return allItems.filter((item) => item.status?.toLowerCase() === "pending").length;
   }, [data, totalsReady, statusTotals]);
-
-  console.log("handlepending", handlePendingCount)
 
   const handleApprovedCount = useMemo((): number => {
     if (totalsReady && statusTotals) return statusTotals.approved;
@@ -870,7 +854,7 @@ export default function Dashboardtab({
     return allItems.filter((item) => item.status?.toLowerCase() === "rejected").length;
   }, [data, totalsReady, statusTotals]);
 
-  const handleDeletedCount = useMemo((): number => {
+const handleDeletedCount = useMemo((): number => {
     if (totalsReady && statusTotals) return statusTotals.deleted;
     const allItems = [
       ...(data.residential || []),
@@ -1025,6 +1009,7 @@ export default function Dashboardtab({
 
   const handleAction = async (id: string, status: number) => {
     try {
+      //@ts-ignore
       const response = await axios.put(
         `${import.meta.env.VITE_BackEndUrl}/api/adminpermission`,
         {
@@ -1042,7 +1027,6 @@ export default function Dashboardtab({
           },
         }
       );
-      console.log("Status updated:", response.data);
     } catch (err) {
       console.error("Failed to update status", err);
     }
@@ -2128,11 +2112,8 @@ const PropertyCardList = ({
   };
 
   const handleEdit = (item: EditableProperty) => {
-    // console.log(item,"start")
     // const singularProperty = getSingularPropertyType();
-    // console.log("type",properties, singularProperty)
 
-    console.log("Editing item:", tabValue, item);
     const singularProperty = getSingularPropertyType();
 
     navigate(`/${singularProperty}/create`, {
@@ -2141,7 +2122,6 @@ const PropertyCardList = ({
         mode: "edit",
       },
     });
-    // console.log("end")
   };
 
   const handleView = (id: string | number) => {
@@ -2164,6 +2144,7 @@ const PropertyCardList = ({
   const handleAction = async (id: string, status: number) => {
     const singularProperty = getSingularPropertyType(); // fix here
     try {
+      //@ts-ignore
       const response = await axios.put(
         `${import.meta.env.VITE_BackEndUrl
         }/api/adminpermission/${singularProperty}/${id}`,
@@ -2174,7 +2155,6 @@ const PropertyCardList = ({
           },
         }
       );
-      console.log("Status updated:", response.data);
     } catch {
       console.error("Failed to update status");
     }

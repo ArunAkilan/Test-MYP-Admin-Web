@@ -17,9 +17,6 @@ const Login = () => {
         password, // changed from otp to password
       });
 
-      console.log("Response from backend:", response.data);
-      console.log("Response keys:", Object.keys(response.data));
-
       if (response.data.token && response.data.profile) {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.profile));

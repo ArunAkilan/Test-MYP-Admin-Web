@@ -117,11 +117,10 @@ function Table({
   onScrollLoadMore,
   loading,
   hasMore,
-
+ //@ts-ignore
   tabType,
   currentActiveTab,
 }: TableProps) {
-  console.log("properties", properties, "tabtype", tabType)
   const containerRef = useRef<HTMLDivElement>(null);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [isBackdropLoading, setIsBackdropLoading] = useState(false);
@@ -130,8 +129,8 @@ function Table({
   );
   const navigate = useNavigate();
   const location = useLocation();
+  //@ts-ignore
   const propertyData = location.state?.data;
-  console.log("propertyData", propertyData);
   //@ts-ignore
   const lastScrollYRef = useRef(0);
   const [sortConfig, setSortConfig] = useState<{
@@ -268,10 +267,8 @@ function Table({
     React.useState<ResidentialProperty | null>(null);
 
   // const handleEdit = (item: ResidentialProperty) => {
-  //   console.log("Editing item:", item);
   //   navigate(`/commercial/create`, { state: { data: item, mode: "edit" } });};
   const handleEdit = (item: any) => {
-    console.log("Editing item:", item);
 
     // Valid types to allow dynamic routing
     const validTypes = ["commercial", "residential", "plot"];
@@ -318,7 +315,6 @@ function Table({
   };
 
   const handleOpenModal = (action: string, item: ResidentialProperty) => {
-    console.log(" Opening modal with action:", action, "on item:", item._id);
     setSelectedAction(action);
     setSelectedItem(item);
     setOpen(true);
@@ -971,7 +967,6 @@ function Table({
                                 }/tabelimg/Eye view.svg`}
                               alt="view"
                               onClick={() => {
-                                console.log("item.id", item._id);
                                 if (item._id) {
                                   handleView(item._id);
                                 }
