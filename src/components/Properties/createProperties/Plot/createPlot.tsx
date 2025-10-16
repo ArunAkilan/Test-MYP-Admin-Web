@@ -385,7 +385,6 @@ export const CreatePlotProperty = () => {
   const editData = location.state?.data;
   const editId = location.state?.data?._id;
   // Update state when in edit mode
-// Update state when in edit mode
 useEffect(() => {
   if (isEditMode && editData) {
     // const expectedPath = `/admin/plot/update/${editId}`;

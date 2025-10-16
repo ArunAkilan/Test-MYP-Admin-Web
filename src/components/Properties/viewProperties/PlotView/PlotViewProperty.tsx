@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { DynamicBreadcrumbs } from "../../../Common/input";
 import ViewCarousel from "../../../Common/ViewCarousel/ViewCarousel";
 import GoogleMapsWrapper from "../../../Common/LocationPicker/GoogleMapWrapper";
-import type { 
+import type {
   PlotPropertyResponse,
   AmountInfoInterface,
   StatusInfoInterface,
@@ -27,9 +27,9 @@ import footStepImg from "../../../../assets/viewProperty/material-steps.svg";
 import Icon_Cleaning from "../../../../assets/viewProperty/Icon_Cleaning.svg";
 import water_full_outline from "../../../../assets/viewProperty/water-full-outline.svg";
 import Icon_Road from "../../../../assets/viewProperty/Icon_Road.svg";
-import Icon_restroom from "../../../../assets/viewProperty/Icon_restroom.svg";
-import Icon_Parking from "../../../../assets/viewProperty/Icon_Parking.svg";
-import Icon_Balcony from "../../../../assets/viewProperty/Icon_Balcony.svg";
+// import Icon_restroom from "../../../../assets/viewProperty/Icon_restroom.svg";
+// import Icon_Parking from "../../../../assets/viewProperty/Icon_Parking.svg";
+// import Icon_Balcony from "../../../../assets/viewProperty/Icon_Balcony.svg";
 import solar_user from "../../../../assets/viewProperty/solar_user.svg";
 import streamline_flex_network from "../../../../assets/viewProperty/streamline-flex_network.svg";
 import user_security from "../../../../assets/viewProperty/user-security.svg";
@@ -80,25 +80,25 @@ const PlotView = () => {
     latitude: typeof latitudeRaw === "number"
       ? latitudeRaw
       : typeof latitudeRaw === "string" && !isNaN(parseFloat(latitudeRaw))
-      ? parseFloat(latitudeRaw)
-      : undefined,
+        ? parseFloat(latitudeRaw)
+        : undefined,
     longitude: typeof longitudeRaw === "number"
       ? longitudeRaw
       : typeof longitudeRaw === "string" && !isNaN(parseFloat(longitudeRaw))
-      ? parseFloat(longitudeRaw)
-      : undefined
+        ? parseFloat(longitudeRaw)
+        : undefined
   };
 
   // Dynamic path processing - inline logic
   const pathSegments = location.pathname.split("/");
   const propertyType = pathSegments[1];
-  const typeLabel: string = 
+  const typeLabel: string =
     propertyType === "residential" ? "Residential TYPE" :
-    propertyType === "commercial" ? "Commercial TYPE" :
-    propertyType === "plot" ? "Plot TYPE" : "PROPERTY TYPE";
+      propertyType === "commercial" ? "Commercial TYPE" :
+        propertyType === "plot" ? "Plot TYPE" : "PROPERTY TYPE";
 
   // Dynamic amount information processing - NO functions
-  const amountInfo: AmountInfoInterface = 
+  const amountInfo: AmountInfoInterface =
     property?.property?.propertyType === "Rent" ? {
       amount: property?.property?.rent?.rentAmount || 0,
       label: "Per Month",
@@ -107,7 +107,7 @@ const PlotView = () => {
       agreement: property?.property?.rent?.agreementTiming,
     } : property?.property?.propertyType === "Lease" ? {
       amount: property?.property?.lease?.leaseAmount || 0,
-      label: "Lease Amount", 
+      label: "Lease Amount",
       showDeposit: false,
       deposit: 0,
       tenure: property?.property?.lease?.leaseTenure,
@@ -119,21 +119,21 @@ const PlotView = () => {
     } : { amount: 0, label: "Amount", showDeposit: false, deposit: 0 };
 
   // Dynamic status information processing - Shows completion statuses - NO functions
-  const statusInfo: StatusInfoInterface = 
-    property?.property?.propertyType === "Rent" && property?.property?.status === "Rented Out" ? 
+  const statusInfo: StatusInfoInterface =
+    property?.property?.propertyType === "Rent" && property?.property?.status === "Rented Out" ?
       { label: "Rented Out", class: "rented-out" } :
-    property?.property?.propertyType === "Lease" && property?.property?.status === "Leased Out" ? 
-      { label: "Leased Out", class: "leased-out" } :
-    property?.property?.propertyType === "Sale" && property?.property?.status === "Sold Out" ? 
-      { label: "Sold Out", class: "sold-out" } :
-    property?.property?.status === "Approved" ? { label: "Available", class: "available" } :
-    property?.property?.status === "Pending" ? { label: "Pending Approval", class: "pending" } :
-    property?.property?.status === "Rejected" ? { label: "Rejected", class: "rejected" } :
-    property?.property?.status === "Deleted" ? { label: "Deleted", class: "deleted" } :
-    { label: "Pending Action", class: "pending-action" };
+      property?.property?.propertyType === "Lease" && property?.property?.status === "Leased Out" ?
+        { label: "Leased Out", class: "leased-out" } :
+        property?.property?.propertyType === "Sale" && property?.property?.status === "Sold Out" ?
+          { label: "Sold Out", class: "sold-out" } :
+          property?.property?.status === "Approved" ? { label: "Available", class: "available" } :
+            property?.property?.status === "Pending" ? { label: "Pending Approval", class: "pending" } :
+              property?.property?.status === "Rejected" ? { label: "Rejected", class: "rejected" } :
+                property?.property?.status === "Deleted" ? { label: "Deleted", class: "deleted" } :
+                  { label: "Pending Action", class: "pending-action" };
 
   // Dynamic negotiable information processing - NO functions
-  const negotiableInfo: NegotiableInfoInterface = 
+  const negotiableInfo: NegotiableInfoInterface =
     property?.property?.propertyType === "Rent" ? {
       isNegotiable: property?.property?.rent?.negotiable || false,
       label: property?.property?.rent?.negotiable ? "Yes" : "No"
@@ -150,18 +150,18 @@ const PlotView = () => {
     value: amountInfo.agreement || "",
     formatted: !amountInfo.agreement ? "-" :
       isNaN(Number(amountInfo.agreement)) ? amountInfo.agreement :
-      Number(amountInfo.agreement) === 12 ? "12 Months" :
-      Number(amountInfo.agreement) === 1 ? "1 Year" :
-      `${Number(amountInfo.agreement)} Years`
+        Number(amountInfo.agreement) === 12 ? "12 Months" :
+          Number(amountInfo.agreement) === 1 ? "1 Year" :
+            `${Number(amountInfo.agreement)} Years`
   };
 
   const tenureTimeDisplay: TimeDisplayInterface = {
     value: amountInfo.tenure || "",
     formatted: !amountInfo.tenure ? "-" :
       isNaN(Number(amountInfo.tenure)) ? amountInfo.tenure :
-      Number(amountInfo.tenure) === 12 ? "12 Months" :
-      Number(amountInfo.tenure) === 1 ? "1 Year" :
-      `${Number(amountInfo.tenure)} Years`
+        Number(amountInfo.tenure) === 12 ? "12 Months" :
+          Number(amountInfo.tenure) === 1 ? "1 Year" :
+            `${Number(amountInfo.tenure)} Years`
   };
 
   // Dynamic transport data processing - NO functions
@@ -210,23 +210,22 @@ const PlotView = () => {
               {property?.property?.propertyType}
             </button>
             {/* Show completion status based on property type */}
-            <button className={`detail-status-type ${
-              property?.property?.propertyType === "Rent" && property?.property?.status === "Rented Out" ? "rented-out" :
-              property?.property?.propertyType === "Lease" && property?.property?.status === "Leased Out" ? "leased-out" :
-              property?.property?.propertyType === "Sale" && property?.property?.status === "Sold Out" ? "sold-out" :
-              property?.property?.status === "Approved" ? "available" :
-              property?.property?.status === "Pending" ? "pending" :
-              property?.property?.status === "Rejected" ? "rejected" :
-              property?.property?.status === "Deleted" ? "deleted" : "pending"
-            }`}>
+            <button className={`detail-status-type ${property?.property?.propertyType === "Rent" && property?.property?.status === "Rented Out" ? "rented-out" :
+                property?.property?.propertyType === "Lease" && property?.property?.status === "Leased Out" ? "leased-out" :
+                  property?.property?.propertyType === "Sale" && property?.property?.status === "Sold Out" ? "sold-out" :
+                    property?.property?.status === "Approved" ? "available" :
+                      property?.property?.status === "Pending" ? "pending" :
+                        property?.property?.status === "Rejected" ? "rejected" :
+                          property?.property?.status === "Deleted" ? "deleted" : "pending"
+              }`}>
               {property?.property?.propertyType === "Rent" && property?.property?.status === "Rented Out" ? "Rented Out" :
-               property?.property?.propertyType === "Lease" && property?.property?.status === "Leased Out" ? "Leased Out" :
-               property?.property?.propertyType === "Sale" && property?.property?.status === "Sold Out" ? "Sold Out" :
-               property?.property?.status === "Approved" ? "Available" :
-               property?.property?.status === "Pending" ? "Pending Approval" :
-               property?.property?.status === "Rejected" ? "Rejected" :
-               property?.property?.status === "Deleted" ? "Deleted" :
-               "Pending Action"}
+                property?.property?.propertyType === "Lease" && property?.property?.status === "Leased Out" ? "Leased Out" :
+                  property?.property?.propertyType === "Sale" && property?.property?.status === "Sold Out" ? "Sold Out" :
+                    property?.property?.status === "Approved" ? "Available" :
+                      property?.property?.status === "Pending" ? "Pending Approval" :
+                        property?.property?.status === "Rejected" ? "Rejected" :
+                          property?.property?.status === "Deleted" ? "Deleted" :
+                            "Pending Action"}
             </button>
           </div>
 
@@ -328,64 +327,64 @@ const PlotView = () => {
         property?.property?.createdAt ||
         property?.property?.totalFloors ||
         property?.property?.propertyFloor) && (
-        <section className="midDetails">
-          <h3>Property Dimension & Layout</h3>
-          <div className="row gap-4 data-detail-row">
-            {property?.property?.area?.totalArea && (
-              <div className="col-md-2 row-individual-data">
-                <p>TOTAL AREA</p>
-                <span>
-                  <img src={SqrtImage} alt="dimension" />
-                  {property.property.area.totalArea}
-                </span>
-              </div>
-            )}
+          <section className="midDetails">
+            <h3>Property Dimension & Layout</h3>
+            <div className="row gap-4 data-detail-row">
+              {property?.property?.area?.totalArea && (
+                <div className="col-md-2 row-individual-data">
+                  <p>TOTAL AREA</p>
+                  <span>
+                    <img src={SqrtImage} alt="dimension" />
+                    {property.property.area.totalArea}
+                  </span>
+                </div>
+              )}
 
-            {property?.property?.facingDirection && (
-              <div className="col-md-2 row-individual-data">
-                <p>FACING</p>
-                <span>
-                  <img src={facingImage} alt="Facing" />
-                  {property.property.facingDirection}
-                </span>
-              </div>
-            )}
+              {property?.property?.facingDirection && (
+                <div className="col-md-2 row-individual-data">
+                  <p>FACING</p>
+                  <span>
+                    <img src={facingImage} alt="Facing" />
+                    {property.property.facingDirection}
+                  </span>
+                </div>
+              )}
 
-            {property?.property?.createdAt && (
-              <div className="col-md-2 row-individual-data">
-                <p>POSTED ON</p>
-                <span>
-                  <img src={dateImage} alt="date" />
-                  {new Date(property?.property?.createdAt).toLocaleDateString("en-GB")}
-                </span>
-              </div>
-            )}
+              {property?.property?.createdAt && (
+                <div className="col-md-2 row-individual-data">
+                  <p>POSTED ON</p>
+                  <span>
+                    <img src={dateImage} alt="date" />
+                    {new Date(property?.property?.createdAt).toLocaleDateString("en-GB")}
+                  </span>
+                </div>
+              )}
 
-            {property?.property?.totalFloors > 0 && (
-              <div className="col-md-2 row-individual-data">
-                <p>TOTAL FLOORS</p>
-                <span>
-                  <img src={footStepImg} alt="Floors" />
-                  {property.property.totalFloors}
-                </span>
-              </div>
-            )}
+              {property?.property?.totalFloors > 0 && (
+                <div className="col-md-2 row-individual-data">
+                  <p>TOTAL FLOORS</p>
+                  <span>
+                    <img src={footStepImg} alt="Floors" />
+                    {property.property.totalFloors}
+                  </span>
+                </div>
+              )}
 
-            {property?.property?.propertyFloor !== undefined && (
-              <div className="col-md-2 row-individual-data">
-                <p>PROPERTY ON</p>
-                <span>
-                  <img src={footStepImg} alt="Floor" />
-                  {property.property.propertyFloor}
-                </span>
-              </div>
-            )}
-          </div>
-        </section>
-      )}
+              {property?.property?.propertyFloor !== undefined && (
+                <div className="col-md-2 row-individual-data">
+                  <p>PROPERTY ON</p>
+                  <span>
+                    <img src={footStepImg} alt="Floor" />
+                    {property.property.propertyFloor}
+                  </span>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
 
       {/* Facilities Provided Section */}
-      {(property?.property?.facility?.washRoom !== undefined ||
+      {/* {(property?.property?.facility?.washRoom !== undefined ||
         property?.property?.facility?.waterFacility !== undefined ||
         property?.property?.facility?.roadFacility !== undefined ||
         property?.property?.facility?.tilesOnFloor !== undefined ||
@@ -455,76 +454,126 @@ const PlotView = () => {
             )}
           </div>
         </section>
-      )}
+      )} */}
+
+      {(property?.property?.facility?.hasWell !== undefined ||
+        property?.property?.facility?.hasBorewell !== undefined ||
+        property?.property?.facility?.hasEBConnection !== undefined ||
+        property?.property?.facility?.hasMotor !== undefined) && (
+          <section className="midDetails">
+            <h3>Facilities Provided</h3>
+            <div className="row gap-4 data-detail-row">
+              {property?.property?.facility?.hasWell !== undefined && (
+                <div className="col-md-2 row-individual-data">
+                  <p>WELL</p>
+                  <span>
+                    <img src={Icon_Cleaning} alt="Well" />
+                    {property.property.facility.hasWell ? "Available" : "Not Available"}
+                  </span>
+                </div>
+              )}
+
+              {property?.property?.facility?.hasBorewell !== undefined && (
+                <div className="col-md-2 row-individual-data">
+                  <p>BOREWELL</p>
+                  <span>
+                    <img src={water_full_outline} alt="Borewell" />
+                    {property.property.facility.hasBorewell ? "Available" : "Not Available"}
+                  </span>
+                </div>
+              )}
+
+              {property?.property?.facility?.hasEBConnection !== undefined && (
+                <div className="col-md-2 row-individual-data">
+                  <p>EB CONNECTION</p>
+                  <span>
+                    <img src={Icon_Road} alt="EB Connection" />
+                    {property.property.facility.hasEBConnection ? "Available" : "Not Available"}
+                  </span>
+                </div>
+              )}
+
+              {property?.property?.facility?.hasMotor !== undefined && (
+                <div className="col-md-2 row-individual-data">
+                  <p>MOTOR</p>
+                  <span>
+                    <img src={water_full_outline} alt="Motor" />
+                    {property.property.facility.hasMotor ? "Available" : "Not Available"}
+                  </span>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
 
       {/* Move-In Accessibility Section */}
       {(property?.property?.accessibility?.ramp !== undefined ||
         property?.property?.accessibility?.steps !== undefined ||
         property?.property?.accessibility?.lift !== undefined) && (
-        <section className="midDetails">
-          <h3>Move-In Accessibility</h3>
-          <div className="row gap-4 data-detail-row">
-            {property?.property?.accessibility?.ramp !== undefined && (
-              <div className="col-md-2 row-individual-data">
-                <p>RAMP ACCESS</p>
-                <span>
-                  <img src={ramp_up} alt="Ramp" />
-                  {property.property.accessibility.ramp ? "Available" : "Not Available"}
-                </span>
-              </div>
-            )}
+          <section className="midDetails">
+            <h3>Move-In Accessibility</h3>
+            <div className="row gap-4 data-detail-row">
+              {property?.property?.accessibility?.ramp !== undefined && (
+                <div className="col-md-2 row-individual-data">
+                  <p>RAMP ACCESS</p>
+                  <span>
+                    <img src={ramp_up} alt="Ramp" />
+                    {property.property.accessibility.ramp ? "Available" : "Not Available"}
+                  </span>
+                </div>
+              )}
 
-            {property?.property?.accessibility?.steps !== undefined && (
-              <div className="col-md-2 row-individual-data">
-                <p>STAIR ACCESS</p>
-                <span>
-                  <img src={footStepImg} alt="Steps" />
-                  {property.property.accessibility.steps ? "Available" : "Not Available"}
-                </span>
-              </div>
-            )}
+              {property?.property?.accessibility?.steps !== undefined && (
+                <div className="col-md-2 row-individual-data">
+                  <p>STAIR ACCESS</p>
+                  <span>
+                    <img src={footStepImg} alt="Steps" />
+                    {property.property.accessibility.steps ? "Available" : "Not Available"}
+                  </span>
+                </div>
+              )}
 
-            {property?.property?.accessibility?.lift !== undefined && (
-              <div className="col-md-2 row-individual-data">
-                <p>LIFT</p>
-                <span>
-                  <img src={footStepImg} alt="Lift" />
-                  {property.property.accessibility.lift ? "Available" : "Not Available"}
-                </span>
-              </div>
-            )}
-          </div>
-        </section>
-      )}
+              {property?.property?.accessibility?.lift !== undefined && (
+                <div className="col-md-2 row-individual-data">
+                  <p>LIFT</p>
+                  <span>
+                    <img src={footStepImg} alt="Lift" />
+                    {property.property.accessibility.lift ? "Available" : "Not Available"}
+                  </span>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
 
       {/* Connectivity & Security Features Section */}
       {(property?.property?.availability?.broadband !== undefined ||
         property?.property?.availability?.securities !== undefined) && (
-        <section className="midDetails">
-          <h3>Connectivity & Security Features</h3>
-          <div className="row gap-4 data-detail-row">
-            {property?.property?.availability?.broadband !== undefined && (
-              <div className="col-md-2 row-individual-data">
-                <p>BROADBAND</p>
-                <span>
-                  <img src={streamline_flex_network} alt="Broadband" />
-                  {property.property.availability.broadband ? "Available" : "Not Available"}
-                </span>
-              </div>
-            )}
+          <section className="midDetails">
+            <h3>Connectivity & Security Features</h3>
+            <div className="row gap-4 data-detail-row">
+              {property?.property?.availability?.broadband !== undefined && (
+                <div className="col-md-2 row-individual-data">
+                  <p>BROADBAND</p>
+                  <span>
+                    <img src={streamline_flex_network} alt="Broadband" />
+                    {property.property.availability.broadband ? "Available" : "Not Available"}
+                  </span>
+                </div>
+              )}
 
-            {property?.property?.availability?.securities !== undefined && (
-              <div className="col-md-2 row-individual-data">
-                <p>SECURITY</p>
-                <span>
-                  <img src={user_security} alt="Security" />
-                  {property.property.availability.securities ? "Available" : "Not Available"}
-                </span>
-              </div>
-            )}
-          </div>
-        </section>
-      )}
+              {property?.property?.availability?.securities !== undefined && (
+                <div className="col-md-2 row-individual-data">
+                  <p>SECURITY</p>
+                  <span>
+                    <img src={user_security} alt="Security" />
+                    {property.property.availability.securities ? "Available" : "Not Available"}
+                  </span>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
 
       <section className="propertyDes">
         <h3 className="mb-4">Description</h3>
@@ -625,14 +674,13 @@ const PlotView = () => {
           <div className="view-property-icon">
             <h3>Property Actions</h3>
             <div className="view-property-icon-inside">
-              
+
               {/* Show approve/deny for pending properties */}
               {property?.property?.status === "Pending" && (
                 <>
                   <button
-                    className={`btn approve-btn d-flex align-items-center gap-1 ${
-                      isProcessing === "Approve" ? "processing" : ""
-                    }`}
+                    className={`btn approve-btn d-flex align-items-center gap-1 ${isProcessing === "Approve" ? "processing" : ""
+                      }`}
                     onClick={async () => {
                       const statusAction = statusActionMap["1"];
                       if (!token) {
@@ -673,7 +721,7 @@ const PlotView = () => {
                           navigate(statusAction.route);
                         }, 1500);
                       } catch (error: unknown) {
-                        const errorMessage = axios.isAxiosError(error) 
+                        const errorMessage = axios.isAxiosError(error)
                           ? error?.response?.data?.message || "Action failed"
                           : "Action failed";
                         toast.error(errorMessage);
@@ -691,9 +739,8 @@ const PlotView = () => {
                   </button>
 
                   <button
-                    className={`btn deny-btn d-flex align-items-center gap-1 ${
-                      isProcessing === "Deny" ? "processing" : ""
-                    }`}
+                    className={`btn deny-btn d-flex align-items-center gap-1 ${isProcessing === "Deny" ? "processing" : ""
+                      }`}
                     onClick={async () => {
                       const statusAction = statusActionMap["0"];
                       if (!token) {
@@ -734,7 +781,7 @@ const PlotView = () => {
                           navigate(statusAction.route);
                         }, 1500);
                       } catch (error: unknown) {
-                        const errorMessage = axios.isAxiosError(error) 
+                        const errorMessage = axios.isAxiosError(error)
                           ? error?.response?.data?.message || "Action failed"
                           : "Action failed";
                         toast.error(errorMessage);
@@ -774,9 +821,8 @@ const PlotView = () => {
 
               {/* Always show delete button */}
               <button
-                className={`btn delete-btn d-flex align-items-center gap-1 ${
-                  isProcessing === "Delete" ? "processing" : ""
-                }`}
+                className={`btn delete-btn d-flex align-items-center gap-1 ${isProcessing === "Delete" ? "processing" : ""
+                  }`}
                 onClick={async () => {
                   const statusAction = statusActionMap["2"];
                   if (!token) {
@@ -817,7 +863,7 @@ const PlotView = () => {
                       navigate(statusAction.route);
                     }, 1500);
                   } catch (error: unknown) {
-                    const errorMessage = axios.isAxiosError(error) 
+                    const errorMessage = axios.isAxiosError(error)
                       ? error?.response?.data?.message || "Action failed"
                       : "Action failed";
                     toast.error(errorMessage);
@@ -837,9 +883,8 @@ const PlotView = () => {
               {/* Property Type Specific Status Buttons - Only show if not already in that state */}
               {property?.property?.propertyType === "Rent" && property?.property?.status !== "Rented Out" && (
                 <button
-                  className={`btn rented-out-btn d-flex align-items-center gap-1 ${
-                    isProcessing === "Rented Out" ? "processing" : ""
-                  }`}
+                  className={`btn rented-out-btn d-flex align-items-center gap-1 ${isProcessing === "Rented Out" ? "processing" : ""
+                    }`}
                   onClick={async () => {
                     const statusAction = statusActionMap["5"];
                     if (!token) {
@@ -880,7 +925,7 @@ const PlotView = () => {
                         navigate(statusAction.route);
                       }, 1500);
                     } catch (error: unknown) {
-                      const errorMessage = axios.isAxiosError(error) 
+                      const errorMessage = axios.isAxiosError(error)
                         ? error?.response?.data?.message || "Action failed"
                         : "Action failed";
                       toast.error(errorMessage);
@@ -900,9 +945,8 @@ const PlotView = () => {
 
               {property?.property?.propertyType === "Lease" && property?.property?.status !== "Leased Out" && (
                 <button
-                  className={`btn leased-out-btn d-flex align-items-center gap-1 ${
-                    isProcessing === "Leased Out" ? "processing" : ""
-                  }`}
+                  className={`btn leased-out-btn d-flex align-items-center gap-1 ${isProcessing === "Leased Out" ? "processing" : ""
+                    }`}
                   onClick={async () => {
                     const statusAction = statusActionMap["4"];
                     if (!token) {
@@ -943,7 +987,7 @@ const PlotView = () => {
                         navigate(statusAction.route);
                       }, 1500);
                     } catch (error: unknown) {
-                      const errorMessage = axios.isAxiosError(error) 
+                      const errorMessage = axios.isAxiosError(error)
                         ? error?.response?.data?.message || "Action failed"
                         : "Action failed";
                       toast.error(errorMessage);
@@ -963,9 +1007,8 @@ const PlotView = () => {
 
               {property?.property?.propertyType === "Sale" && property?.property?.status !== "Sold Out" && (
                 <button
-                  className={`btn sold-out-btn d-flex align-items-center gap-1 ${
-                    isProcessing === "Sold Out" ? "processing" : ""
-                  }`}
+                  className={`btn sold-out-btn d-flex align-items-center gap-1 ${isProcessing === "Sold Out" ? "processing" : ""
+                    }`}
                   onClick={async () => {
                     const statusAction = statusActionMap["3"];
                     if (!token) {
@@ -1006,7 +1049,7 @@ const PlotView = () => {
                         navigate(statusAction.route);
                       }, 1500);
                     } catch (error: unknown) {
-                      const errorMessage = axios.isAxiosError(error) 
+                      const errorMessage = axios.isAxiosError(error)
                         ? error?.response?.data?.message || "Action failed"
                         : "Action failed";
                       toast.error(errorMessage);

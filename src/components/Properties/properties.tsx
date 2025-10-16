@@ -33,7 +33,7 @@ import Cropper from "react-easy-crop";
 import type { Area } from "react-easy-crop";
 import { Button as MuiButton, Modal, Slider } from "@mui/material";
 // import { GOOGLE_MAP_OPTIONS } from "./googleMapsConfig";
-import {GOOGLE_MAP_OPTIONS} from "../Common/googleMapsConfig"
+import { GOOGLE_MAP_OPTIONS } from "../Common/googleMapsConfig"
 
 
 //cropping code ends here
@@ -114,12 +114,26 @@ function buildPayloadDynamic(formState: ResidentialFormState): ResidentialProper
   setNested(payload, "propertyOwner.contact.getUpdates", false);
 
   setNested(payload, "propertyType", formState.propertyType || "Rent");
-  const rentAmount = parseFloat(formState.rent);
-  setNested(payload, "rent.rentAmount", isNaN(rentAmount) ? 0 : rentAmount);
-  setNested(payload, "rent.negotiable", !!formState.negotiable);
-  const advance = parseFloat(formState.advanceAmount);
-  setNested(payload, "rent.advanceAmount", isNaN(advance) ? 0 : advance);
-  
+
+  // Conditional amount handling based on property type
+  if (formState.propertyType === "Rent") {
+    const rentAmount = parseFloat(formState.rent);
+    setNested(payload, "rent.rentAmount", isNaN(rentAmount) ? 0 : rentAmount);
+    setNested(payload, "rent.negotiable", !!formState.negotiable);
+    const advance = parseFloat(formState.advanceAmount);
+    setNested(payload, "rent.advanceAmount", isNaN(advance) ? 0 : advance);
+    setNested(payload, "rent.agreementTiming", formState.leaseTenure || "");
+  } else if (formState.propertyType === "Lease") {
+    const leaseAmount = parseFloat(formState.rent);
+    setNested(payload, "lease.leaseAmount", isNaN(leaseAmount) ? 0 : leaseAmount);
+    setNested(payload, "lease.negotiable", !!formState.negotiable);
+    setNested(payload, "lease.leaseTenure", formState.leaseTenure || "");
+  } else if (formState.propertyType === "Sale") {
+    const saleAmount = parseFloat(formState.rent);
+    setNested(payload, "sale.saleAmount", isNaN(saleAmount) ? 0 : saleAmount);
+    setNested(payload, "sale.negotiable", !!formState.negotiable);
+  }
+
   setNested(payload, "location.landmark", "Near Green Park");
   if (formState.latitude) setNested(payload, "location.map.latitude", parseFloat(formState.latitude));
   if (formState.longitude) setNested(payload, "location.map.longitude", parseFloat(formState.longitude));
@@ -139,7 +153,7 @@ function buildPayloadDynamic(formState: ResidentialFormState): ResidentialProper
   setNested(payload, "restrictions", mapChipsToRestrictions(formState.selectedChips));
 
   // ✅ Dynamic values with CORRECT backend field names:
-  
+
   // Dynamic availability.transport - match backend schema
   if (formState.selectedChips.includes("Near Bus Stop")) {
     setNested(payload, "availability.transport.nearbyBusStop", true);
@@ -150,7 +164,7 @@ function buildPayloadDynamic(formState: ResidentialFormState): ResidentialProper
   if (formState.selectedChips.includes("Near Metro")) {
     setNested(payload, "availability.transport.nearbyPort", true);
   }
-  
+
   // Dynamic availability - match backend schema
   if (formState.selectedChips.includes("Broadband Connection")) {
     setNested(payload, "availability.broadband", true);
@@ -170,7 +184,7 @@ function buildPayloadDynamic(formState: ResidentialFormState): ResidentialProper
     setNested(payload, "facility.roadFacility", true);
   }
   if (formState.selectedChips.includes("Sewage Connection Available")) {
-    setNested(payload, "facility.drainage", true);  // ✅ Correct: drainage
+    setNested(payload, "facility.drainage", true);  // Correct: drainage
   }
   if (formState.selectedChips.includes("Dedicated Parking Available")) {
     setNested(payload, "facility.parking", true);
@@ -383,7 +397,7 @@ export const CreateProperty = () => {
       // if (window.location.pathname !== expectedPath) {
       //   window.history.replaceState(null, "", expectedPath);
       // }
-      
+
       // Set basic property data (keep existing code)
       setFirstName(editData.propertyOwner?.firstName || "");
       setLastName(editData.propertyOwner?.lastName || "");
@@ -394,10 +408,26 @@ export const CreateProperty = () => {
       setAddress(editData.location?.address || "");
       setLatitude(editData.location?.map?.latitude?.toString() || "");
       setLongitude(editData.location?.map?.longitude?.toString() || "");
-      setRent(editData.rent?.rentAmount?.toString() || "");
-      setAdvanceAmount(editData.rent?.advanceAmount?.toString() || "");
-      setLeaseTenure(editData.lease?.leaseTenure || "");
-      setNegotiable(editData.rent?.negotiable || false);
+
+      // Load amounts based on property type
+      if (editData.propertyType === "Rent") {
+        setRent(editData.rent?.rentAmount?.toString() || "");
+        setAdvanceAmount(editData.rent?.advanceAmount?.toString() || "");
+        setLeaseTenure(editData.rent?.agreementTiming || "");
+        setNegotiable(editData.rent?.negotiable || false);
+      } else if (editData.propertyType === "Lease") {
+        setRent(editData.lease?.leaseAmount?.toString() || "");
+        setLeaseTenure(editData.lease?.leaseTenure || "");
+        setNegotiable(editData.lease?.negotiable || false);
+        setAdvanceAmount(""); // Clear advance for lease
+      } else if (editData.propertyType === "Sale") {
+        setRent(editData.sale?.saleAmount?.toString() || "");
+        setNegotiable(editData.sale?.negotiable || false);
+        setAdvanceAmount(""); // Clear advance for sale
+        setLeaseTenure(""); // Clear tenure for sale
+      }
+
+
       setResidentialType(editData.residentialType || "House");
       setfacingDirection(editData.facingDirection || "East");
       setRoomCount(editData.rooms?.replace(" BHK", "") || "1");
@@ -408,22 +438,22 @@ export const CreateProperty = () => {
       setTotalFloors(editData.totalFloors?.toString() || "");
       setPropertyFloor(editData.propertyFloor?.toString() || "");
       setPropertyDescription(editData.description || "");
-  
+
       // ✅ FIXED: Map backend data back to chips properly
       const chips: string[] = [];
-      
+
       // Map restrictions back to chips
       if (editData.restrictions) {
         if (editData.restrictions.guestAllowed === false) chips.push("Guests Not Allowed");
-        if (editData.restrictions.petsAllowed === false) chips.push("No Pets Allowed");  
+        if (editData.restrictions.petsAllowed === false) chips.push("No Pets Allowed");
         if (editData.restrictions.bachelorsAllowed === false) chips.push("No Bachelors Allowed");
       }
-      
+
       // ✅ Map availability back to chips
       if (editData.availability) {
         if (editData.availability.broadband === true) chips.push("Broadband Connection");
         if (editData.availability.securities === true) chips.push("Security");
-        
+
         // Map transport back to chips
         if (editData.availability.transport) {
           if (editData.availability.transport.nearbyBusStop === true) chips.push("Near Bus Stop");
@@ -431,7 +461,7 @@ export const CreateProperty = () => {
           if (editData.availability.transport.nearbyPort === true) chips.push("Near Metro");
         }
       }
-      
+
       // ✅ Map facility back to chips  
       if (editData.facility) {
         if (editData.facility.maintenance === true) chips.push("Regular Maintenance Included");
@@ -442,14 +472,14 @@ export const CreateProperty = () => {
         if (editData.facility.balcony === true) chips.push("Private Balcony Included");
         if (editData.facility.terrace === true) chips.push("Terrace Access");
       }
-      
+
       // ✅ Map accessibility back to chips
       if (editData.accessibility) {
         if (editData.accessibility.ramp === true) chips.push("Ramp Access");
         if (editData.accessibility.steps === true) chips.push("Only via Stairs");
         if (editData.accessibility.lift === true) chips.push("Lift Access");
       }
-      
+
       // ✅ Map amenities back to chips
       if (editData.amenities) {
         if (editData.amenities.separateEBConnection === true) chips.push("Separate Electricity Billing");
@@ -459,27 +489,27 @@ export const CreateProperty = () => {
         if (editData.amenities.nearbyArena === true) chips.push("Sports Arena");
         if (editData.amenities.nearbyMall === true) chips.push("Shopping Mall");
       }
-      
+
       setSelectedChips(chips); // ✅ Now includes all mapped chips
-      
+
       setImages(editData.images?.map((img: string) => ({ name: img })) || []);
-      
+
       setMarkerPosition({
         lat: editData.location?.map?.latitude || defaultCenter.lat,
         lng: editData.location?.map?.longitude || defaultCenter.lng,
       });
-  
+
       // Fetch nearby transport info if lat/lng are available
       if (editData.location?.map?.latitude && editData.location?.map?.longitude) {
         fetchNearbyTransport(editData.location.map.latitude, editData.location.map.longitude);
       }
     }
   }, [isEditMode, editData]);
-  
 
-  const [nearbyTransport, setNearbyTransport] = useState<
-    Record<string, string>
-  >({ "BUS STAND": "0 KM", AIRPORT: "0 KM", METRO: "0 KM", RAILWAY: "0 KM" });
+
+  // const [nearbyTransport, setNearbyTransport] = useState<
+  //   Record<string, string>
+  // >({ "BUS STAND": "0 KM", AIRPORT: "0 KM", METRO: "0 KM", RAILWAY: "0 KM" });
 
   // // Google Maps API loader
   // const { isLoaded } = useJsApiLoader({
@@ -536,7 +566,7 @@ export const CreateProperty = () => {
       )
     );
 
-    setNearbyTransport(info);
+    // setNearbyTransport(info);
   };
 
   // Handle map click to place marker and update lat/lng inputs
@@ -785,7 +815,7 @@ export const CreateProperty = () => {
               <div className="muiBreadcrumbs">
                 {/* Breadcrumb */}
                 <div className="muiBreadcrumbs">
-                  <DynamicBreadcrumbs/>
+                  <DynamicBreadcrumbs />
                   {/* Rest of your page content */}
                 </div>
 
@@ -816,7 +846,7 @@ export const CreateProperty = () => {
                     />
 
                     <p className="topInfoAlertP">
-                    Required Fields – 5 fields must be filled before
+                      Required Fields – 5 fields must be filled before
                       submitting the form.
                     </p>
                   </Alert>
@@ -1211,7 +1241,7 @@ export const CreateProperty = () => {
                       </div>
                     </div>
 
-                    <div className="informationCard">
+                    {/* <div className="informationCard">
                       <label htmlFor="" className="labelName">
                         Nearby Transportation
                       </label>
@@ -1284,7 +1314,7 @@ export const CreateProperty = () => {
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </section>
@@ -2159,7 +2189,7 @@ export const CreateProperty = () => {
                           alt="Guests Not Allowed"
                           src={`${import.meta.env.VITE_BASE_URL}/createProperty/solar_user-linear.svg`}
                           className="avatarImg"
-                          // sx={{ width: 18, height: 18 }}
+                        // sx={{ width: 18, height: 18 }}
                         />
                       }
                       selectedChips={selectedChips}
