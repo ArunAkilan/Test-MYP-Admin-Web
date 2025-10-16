@@ -224,7 +224,9 @@ export default function Dashboardtab({
   const [tableValues, setTableValues] = useState<Property[]>([]);
   const [resetCounter, setResetCounter] = useState(0);
   const [alignment, setAlignment] = React.useState("List View");
+   // @ts-ignore
   const [isExpanded, setIsExpanded] = useState(false);
+   // @ts-ignore
   const [searchQuery, setSearchQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<
@@ -1181,7 +1183,7 @@ export default function Dashboardtab({
                   </div>
 
                   <div className="list-panel">
-                    <div className="search">
+                    {/* <div className="search">
                       <input
                         type="search"
                         placeholder="Search Properties"
@@ -1190,7 +1192,7 @@ export default function Dashboardtab({
                         disabled
                       />
                       <img src="Search-1.svg" alt="search svg" />
-                    </div>
+                    </div> */}
                     <div className="list-card-toggle">
                       <ToggleButtonGroup
                         color="primary"
@@ -1299,7 +1301,7 @@ export default function Dashboardtab({
                   </div>
 
                   <div className="list-panel">
-                    <div
+                    {/* <div
                       onClick={() => setIsExpanded(true)}
                       className={`search ${isExpanded ? "active" : ""}`}
                     >
@@ -1308,7 +1310,7 @@ export default function Dashboardtab({
                         src={`${import.meta.env.VITE_BASE_URL}/Search-1.svg`}
                         alt="search svg"
                       />
-                    </div>
+                    </div> */}
                     <div className="list-card-toggle">
                       <ToggleButtonGroup
                         color="primary"
@@ -1417,7 +1419,7 @@ export default function Dashboardtab({
                   </div>
 
                   <div className="list-panel">
-                    <div
+                    {/* <div
                       onClick={() => setIsExpanded(true)}
                       className={`search ${isExpanded ? "active" : ""}`}
                     >
@@ -1426,7 +1428,7 @@ export default function Dashboardtab({
                         src={`${import.meta.env.VITE_BASE_URL}/Search-1.svg`}
                         alt="search svg"
                       />
-                    </div>
+                    </div> */}
                     <div className="list-card-toggle">
                       <ToggleButtonGroup
                         color="primary"
@@ -1535,13 +1537,13 @@ export default function Dashboardtab({
                   </div>
 
                   <div className="list-panel">
-                    <div
+                    {/* <div
                       onClick={() => setIsExpanded(true)}
                       className={`search ${isExpanded ? "active" : ""}`}
                     >
                       <input type="search" placeholder="Search Properties" />
                       <img src="Search-1.svg" alt="search svg" />
-                    </div>
+                    </div> */}
                     <div className="list-card-toggle">
                       <ToggleButtonGroup
                         color="primary"

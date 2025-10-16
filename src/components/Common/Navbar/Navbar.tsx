@@ -129,7 +129,7 @@ const Header: React.FC<HeaderProps> = ({
         <header className="header  row">
           <div className="logo navbar-brand col-md-3 col-3">
             <Link to="/dashboard">
-              <img src={MainLogo} alt="logo image" />
+              <img src={MainLogo} width={32} alt="logo image" />
             </Link>
           </div>
 
@@ -153,7 +153,9 @@ const Header: React.FC<HeaderProps> = ({
               }`}
             >
               <div className="col-8">
-                <AutoCompleteWithSelect />
+              <div className="disabled-search">
+    <AutoCompleteWithSelect />
+  </div>
               </div>
               <div className="col-4 bell">
                 <img

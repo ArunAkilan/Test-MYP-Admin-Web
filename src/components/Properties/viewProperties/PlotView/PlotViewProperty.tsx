@@ -10,7 +10,7 @@ import type {
   AmountInfoInterface,
   StatusInfoInterface,
   CoordinatesInterface,
-  TransportDataInterface,
+  // TransportDataInterface,
   NegotiableInfoInterface,
   TimeDisplayInterface,
   StatusActionInterface
@@ -34,10 +34,10 @@ import solar_user from "../../../../assets/viewProperty/solar_user.svg";
 import streamline_flex_network from "../../../../assets/viewProperty/streamline-flex_network.svg";
 import user_security from "../../../../assets/viewProperty/user-security.svg";
 import ramp_up from "../../../../assets/viewProperty/ramp-up.svg";
-import Icon_Bus from "../../../../assets/viewProperty/Icon_Bus.png";
-import ph_airplane from "../../../../assets/viewProperty/ph_airplane-in-flight.png";
-import metro from "../../../../assets/viewProperty/hugeicons_metro.png";
-import light_train from "../../../../assets/viewProperty/light_train.png";
+// import Icon_Bus from "../../../../assets/viewProperty/Icon_Bus.png";
+// import ph_airplane from "../../../../assets/viewProperty/ph_airplane-in-flight.png";
+// import metro from "../../../../assets/viewProperty/hugeicons_metro.png";
+// import light_train from "../../../../assets/viewProperty/light_train.png";
 import proicons_mail from "../../../../assets/viewProperty/proicons_mail.png";
 import solar_phone from "../../../../assets/viewProperty/solar_phone.png";
 import MapComponent from "../../../Common/LocationPicker/LocationPicker";
@@ -165,18 +165,18 @@ const PlotView = () => {
   };
 
   // Dynamic transport data processing - NO functions
-  const transportData: TransportDataInterface = {
-    busStop: typeof property?.property?.availability?.transport?.nearbyBusStop === "string"
-      ? property.property.availability.transport.nearbyBusStop
-      : property?.property?.availability?.transport?.nearbyBusStop ? "Available" : "0 KM",
-    airport: typeof property?.property?.availability?.transport?.nearbyAirport === "string"
-      ? property.property.availability.transport.nearbyAirport
-      : property?.property?.availability?.transport?.nearbyAirport ? "Available" : "0 KM",
-    metro: typeof property?.property?.availability?.transport?.nearbyPort === "string"
-      ? property.property.availability.transport.nearbyPort
-      : property?.property?.availability?.transport?.nearbyPort ? "Available" : "0 KM",
-    railway: "0 KM"
-  };
+  // const transportData: TransportDataInterface = {
+  //   busStop: typeof property?.property?.availability?.transport?.nearbyBusStop === "string"
+  //     ? property.property.availability.transport.nearbyBusStop
+  //     : property?.property?.availability?.transport?.nearbyBusStop ? "Available" : "0 KM",
+  //   airport: typeof property?.property?.availability?.transport?.nearbyAirport === "string"
+  //     ? property.property.availability.transport.nearbyAirport
+  //     : property?.property?.availability?.transport?.nearbyAirport ? "Available" : "0 KM",
+  //   metro: typeof property?.property?.availability?.transport?.nearbyPort === "string"
+  //     ? property.property.availability.transport.nearbyPort
+  //     : property?.property?.availability?.transport?.nearbyPort ? "Available" : "0 KM",
+  //   railway: "0 KM"
+  // };
 
   // Dynamic status action mapping - NO functions
   const statusActionMap: Record<string, StatusActionInterface> = {
@@ -361,7 +361,7 @@ const PlotView = () => {
               </div>
             )}
 
-            {property?.property?.totalFloors && (
+            {property?.property?.totalFloors > 0 && (
               <div className="col-md-2 row-individual-data">
                 <p>TOTAL FLOORS</p>
                 <span>
@@ -557,7 +557,7 @@ const PlotView = () => {
                 <p>{property?.property?.location?.map?.longitude}</p>
               </div>
             </div>
-            <div className="transport">
+            {/* <div className="transport">
               <h3 className="Nearby">Nearby Transportation</h3>
               <div className="transport-row row">
                 <div className="busstand col-md-3">
@@ -589,7 +589,7 @@ const PlotView = () => {
                   <p>{transportData.railway}</p>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </section>
