@@ -184,7 +184,7 @@ function buildPayloadDynamic(formState: PlotFormState): PlotFormState {
   // setNested(payload, "propertyFloor", Number(formState.propertyFloor) || 0);
   // setNested(payload, "acre", Number(formState.acre) || 0);
 
-  
+
 
   // images
   // const imageUrls = formState.uploadedImages.map((img) => img.name);
@@ -196,18 +196,18 @@ function buildPayloadDynamic(formState: PlotFormState): PlotFormState {
   // setNested(payload, "selectedChips", formState.selectedChips || []);
 
   // Dynamic facility - only set if chips are selected
-if (chips.includes("Well")) {
-  setNested(payload, "facility.hasWell", true);
-}
-if (chips.includes("Bore Well")) {
-  setNested(payload, "facility.hasBorewell", true);
-}
-if (chips.includes("EB Connection")) {
-  setNested(payload, "facility.hasEBConnection", true);
-}
-if (chips.includes("Motor")) {
-  setNested(payload, "facility.hasMotor", true);
-}
+  if (chips.includes("Well")) {
+    setNested(payload, "facility.hasWell", true);
+  }
+  if (chips.includes("Bore Well")) {
+    setNested(payload, "facility.hasBorewell", true);
+  }
+  if (chips.includes("EB Connection")) {
+    setNested(payload, "facility.hasEBConnection", true);
+  }
+  if (chips.includes("Motor")) {
+    setNested(payload, "facility.hasMotor", true);
+  }
 
   // misc
   setNested(payload, "status", "Pending");
@@ -357,7 +357,9 @@ export const CreatePlotProperty = () => {
   const [editable, setEditable] = useState(true);
 
 
-  const [rentAmount, setRentAmount] = useState<number>(0);
+  const [rentAmount, setRentAmount] = useState<string>("");
+  const [leaseAmount, setLeaseAmount] = useState<string>("");
+  const [saleAmount, setSaleAmount] = useState<string>("");
   const [negotiable, setNegotiable] = useState<boolean>(false);
   const [advanceAmount, setAdvanceAmount] = useState("");
   const [leaseTenure, setLeaseTenure] = useState("");
@@ -372,6 +374,13 @@ export const CreatePlotProperty = () => {
   const [totalFloors, setTotalFloors] = useState("");
   const [propertyFloor, setPropertyFloor] = useState("");
   const [acre, setAcre] = useState("");
+
+  const [length, setLength] = useState("");
+  const [width, setWidth] = useState("");
+
+  const sanitizedTotalArea = totalArea.trim() ? `${totalArea.trim()} sqft` : "";
+  const sanitizedLength = length.trim() ? length.trim() : "";
+  const sanitizedWidth = width.trim() ? width.trim() : "";
   
   const [description, setPropertyDescription] = useState("");
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
@@ -384,63 +393,73 @@ export const CreatePlotProperty = () => {
   const isEditMode = location.state?.mode === "edit";
   const editData = location.state?.data;
   const editId = location.state?.data?._id;
-  // Update state when in edit mode
-useEffect(() => {
-  if (isEditMode && editData) {
-    // const expectedPath = `/admin/plot/update/${editId}`;
-    // if (window.location.pathname !== expectedPath) {
-    //   window.history.replaceState(null, "", expectedPath);
-    // }
-    
-    setFirstName(editData?.propertyOwner?.firstName || "");
-    setLastName(editData?.propertyOwner?.lastName || "");
-    setEmail(editData?.propertyOwner?.contact?.email || "");
-    setPhone1(editData?.propertyOwner?.contact?.phone1 || "");
-    setPropertyType(editData.propertyType || "Rent");
-    setTitle(editData.title || "");
-    setRentAmount(editData.rent?.rentAmount || 0);
-    setNegotiable(editData.rent?.negotiable || false);
-    setAdvanceAmount(String(editData.rent?.advanceAmount || ""));
-    setLeaseTenure(editData.lease?.leaseTenure || "");
-    setPlotType(editData.plotType || "None");
-    setAddress(editData.location?.address || "");
-    
-    if (editData.location?.map) {
-      setLatitude(editData.location.map.latitude?.toString() || "");
-      setLongitude(editData.location.map.longitude?.toString() || "");
-    }
-    
-    setImages(editData.images?.map((img: string) => ({ name: img })) || []);
-    setTotalArea(editData.location?.area?.totalArea?.replace(" sqft", "") || "");
-    setFacingDirection(editData.facingDirection || "East");
-    setTotalFloors(String(editData.totalFloors || ""));
-    setAcre(String(editData.acre || ""));
-    setPropertyFloor(String(editData.propertyFloor || ""));
-
-    // UPDATED: Map facility data back to chips properly
-    const chips: string[] = [];
-    
-    // Map restrictions back to chips (if you have them)
-    if (editData.restrictions) {
-      if (editData.restrictions.guestAllowed === false) chips.push("Guests Not Allowed");
-      if (editData.restrictions.petsAllowed === false) chips.push("No Pets Allowed");
-      if (editData.restrictions.bachelorsAllowed === false) chips.push("No Bachelors Allowed");
-    }
-    
-    // Map facility data back to chips
-    if (editData.facility) {
-      if (editData.facility.hasWell === true) chips.push("Well");
-      if (editData.facility.hasBorewell === true) chips.push("Bore Well");
-      if (editData.facility.hasEBConnection === true) chips.push("EB Connection");
-      if (editData.facility.hasMotor === true) chips.push("Motor");
-    }
-    
-    setSelectedChips(chips); // Now includes facility chips
-    setPropertyDescription(editData.description || "");
-  }
-}, [isEditMode, editData]);
 
 
+  useEffect(() => {
+    if (isEditMode && editData) {
+      console.log("editData (create plot):", editData);
+  
+      // Infer propertyType fallback
+      const inferredType =
+        editData.propertyType ||
+        (editData.rent ? "Rent" : editData.lease ? "Lease" : editData.sale ? "Sale" : "Rent");
+      setPropertyType(inferredType as PropertyType);
+  
+      setFirstName(editData?.propertyOwner?.firstName ?? "");
+      setLastName(editData?.propertyOwner?.lastName ?? "");
+      setEmail(editData?.propertyOwner?.contact?.email ?? "");
+      setPhone1(editData?.propertyOwner?.contact?.phone1 ?? "");
+      setTitle(editData?.title ?? "");
+  
+      // Set rent, lease, sale amounts
+      setRentAmount(String(editData?.rent?.rentAmount ?? ""));
+      setNegotiable(editData?.rent?.negotiable ?? false);
+      setAdvanceAmount(String(editData?.rent?.advanceAmount ?? ""));
+      setLeaseAmount(String(editData?.lease?.leaseAmount ?? ""));
+      setLeaseTenure(editData?.lease?.leaseTenure ?? "");
+      setSaleAmount(String(editData?.sale?.saleAmount ?? ""));
+  
+      // Sanitize and set area fields
+      setTotalArea(editData.location?.area?.totalArea?.replace(" sqft", "") ?? "");
+      setLength(editData.location?.area?.length?.replace(" ft", "") ?? "");
+      setWidth(editData.location?.area?.width?.replace(" ft", "") ?? "");
+      setAcre(String(editData.location?.area?.acre ?? ""));
+  
+      setPlotType(editData?.plotType ?? "None");
+      setAddress(editData?.location?.address ?? "");
+      if (editData.location?.map) {
+        setLatitude(String(editData.location.map.latitude ?? ""));
+        setLongitude(String(editData.location.map.longitude ?? ""));
+      }
+  
+      setImages(
+        (editData.images?.map((img: string) => ({ name: img })) as UploadedImage[]) ?? []
+      );
+  
+      setFacingDirection(editData?.facingDirection ?? "East");
+      setTotalFloors(String(editData?.totalFloors ?? ""));
+      setPropertyFloor(String(editData?.propertyFloor ?? ""));
+  
+      // Chips (facilities and restrictions)
+      const chips: string[] = [];
+      if (editData.restrictions) {
+        if (editData.restrictions.guestAllowed === false) chips.push("Guests Not Allowed");
+        if (editData.restrictions.petsAllowed === false) chips.push("No Pets Allowed");
+        if (editData.restrictions.bachelorsAllowed === false) chips.push("No Bachelors Allowed");
+      }
+      if (editData.facility) {
+        if (editData.facility.hasWell === true) chips.push("Well");
+        if (editData.facility.hasBorewell === true) chips.push("Bore Well");
+        if (editData.facility.hasEBConnection === true) chips.push("EB Connection");
+        if (editData.facility.hasMotor === true) chips.push("Motor");
+      }
+      setSelectedChips(chips);
+  
+      setPropertyDescription(editData?.description ?? "");
+    }
+  }, [isEditMode, editData]);
+  
+  // ...existing code...
 
   // const [nearbyTransport, setNearbyTransport] = useState<
   //   Record<string, string>
@@ -567,19 +586,18 @@ useEffect(() => {
       plotType,
       facingDirection,
       rent: {
-        rentAmount: 0,
-        negotiable: false,
+        rentAmount: Number(rentAmount) || 0,
+        negotiable,
         advanceAmount: Number(advanceAmount) || 0,
         agreementTiming: leaseTenure,
       },
       lease: {
-        leaseAmount: rentAmount || 0,
+        leaseAmount: Number(leaseAmount) || 0,
         negotiable,
         leaseTenure,
       },
-
       sale: {
-        saleAmount: rentAmount || 0,
+        saleAmount: Number(saleAmount) || 0,
         negotiable,
       },
 
@@ -589,16 +607,14 @@ useEffect(() => {
         map: {
           latitude: Number(latitude),
           longitude: Number(longitude),
-
         },
         area: {
-          totalArea: totalArea.toString(),
-          length: "",
-          width: "",
-          acre: 0,
+          totalArea: sanitizedTotalArea,
+          length: sanitizedLength,
+          width: sanitizedWidth,
+          acre: Number(acre) || 0,
         },
       },
-
       images: images.map((img) => img.file),
       uploadedImages: images,
       totalFloors: Number(totalFloors) || 0,
@@ -739,7 +755,7 @@ useEffect(() => {
                 <div className="muiBreadcrumbs">
                   <DynamicBreadcrumbs
                   //  title={isEditMode ? "Update" : "Create"} 
-                   />
+                  />
                   {/* Rest of your page content */}
                 </div>
 
@@ -771,7 +787,7 @@ useEffect(() => {
                     />
 
                     <p className="topInfoAlertP">
-                     Required Fields – 5 fields must be filled before
+                      Required Fields – 5 fields must be filled before
                       submitting the form.
                     </p>
                   </Alert>
@@ -933,8 +949,10 @@ useEffect(() => {
                             id="rentAmount"
                             placeholder="Enter Amount in Rupees (₹)"
                             value={rentAmount}
-                            onChange={(e) => setRentAmount(Number(e.target.value))}
-                          />
+                            onChange={(e) =>
+                              // keep only digits, store as string
+                              setRentAmount(e.target.value.replace(/[^\d]/g, ""))
+                            } />
                         </div>
                         <div className="row">
                           <div className="col-12">
@@ -1001,9 +1019,9 @@ useEffect(() => {
                             type="text"
                             id="leaseAmount"
                             placeholder="Enter Amount in Rupees (₹)"
-                            value={rentAmount}
+                            value={leaseAmount}
                             onChange={(e) =>
-                              setRentAmount(Number(e.target.value))
+                              setLeaseAmount(e.target.value.replace(/[^\d]/g, ""))
                             }
                           />
                         </div>
@@ -1054,9 +1072,9 @@ useEffect(() => {
                             type="text"
                             id="saleAmount"
                             placeholder="Enter Amount in Rupees (₹)"
-                            value={rentAmount}
+                            value={saleAmount}
                             onChange={(e) =>
-                              setRentAmount(Number(e.target.value))
+                              setSaleAmount(e.target.value.replace(/[^\d]/g, ""))
                             }
                           />
                         </div>
@@ -1619,12 +1637,12 @@ useEffect(() => {
                       </label>
                       <InputField
                         type="text"
-                        id="totalFloors"
+                        id="length"
                         placeholder="Enter Length (Ft)"
-                        value={totalFloors}
-                        onChange={(e) => setTotalFloors(e.target.value)}
-                        error={!!errors.totalFloors}
-                        helperText={errors.totalFloors}
+                        value={length}
+                        onChange={(e) => setLength(e.target.value)}
+                        error={!!errors.length}
+                        helperText={errors.length}
                         disabled={!editable}
                       />
                     </div>
@@ -1634,12 +1652,12 @@ useEffect(() => {
                       </label>
                       <InputField
                         type="text"
-                        id="propertyOnFloor"
+                        id="width"
                         placeholder="Enter Width (Ft)"
-                        value={propertyFloor}
-                        onChange={(e) => setPropertyFloor(e.target.value)}
-                        error={!!errors.propertyFloor}
-                        helperText={errors.propertyFloor}
+                        value={width}       // use width state
+                        onChange={(e) => setWidth(e.target.value)}  // update width state
+                        error={!!errors.width}
+                        helperText={errors.width}
                         disabled={!editable}
                       />
                     </div>
