@@ -33,7 +33,7 @@ import Cropper from "react-easy-crop";
 import type { Area } from "react-easy-crop";
 import { Button as MuiButton, Modal, Slider } from "@mui/material";
 // import { GOOGLE_MAP_OPTIONS } from "./googleMapsConfig";
-import {GOOGLE_MAP_OPTIONS} from "../Common/googleMapsConfig"
+import { GOOGLE_MAP_OPTIONS } from "../Common/googleMapsConfig"
 
 
 //cropping code ends here
@@ -103,111 +103,133 @@ const mapChipsToRestrictions = (chips: string[]): Restrictions => {
 };
 
 // Build payload dynamically based on form state
-function buildPayloadDynamic(
-  formState: ResidentialFormState
-): ResidentialProperty {
+function buildPayloadDynamic(formState: ResidentialFormState): ResidentialProperty {
   const payload: Partial<ResidentialProperty> = {};
 
-  // Owner info
+  // Owner info (keep unchanged)
   setNested(payload, "propertyOwner.firstName", (formState.firstName ?? "").trim());
   setNested(payload, "propertyOwner.lastName", (formState.lastName ?? "").trim());
   setNested(payload, "propertyOwner.contact.phone1", (formState.phone1 ?? "").trim());
   setNested(payload, "propertyOwner.contact.email", (formState.email ?? "").trim());
   setNested(payload, "propertyOwner.contact.getUpdates", false);
 
-  setNested(
-    payload,
-    "propertyType",
-    formState.propertyType || "Semi Furnished"
-  );
-  const rentAmount = parseFloat(formState.rent);
-  setNested(payload, "rent.rentAmount", isNaN(rentAmount) ? 0 : rentAmount);
-  setNested(payload, "rent.negotiable", !!formState.negotiable);
-  const advance = parseFloat(formState.advanceAmount);
-  setNested(payload, "rent.advanceAmount", isNaN(advance) ? 0 : advance);
-  // setNested(payload, "rent.leaseTenure", formState.leaseTenure);
+  setNested(payload, "propertyType", formState.propertyType || "Rent");
+
+  // Conditional amount handling based on property type
+  if (formState.propertyType === "Rent") {
+    const rentAmount = parseFloat(formState.rent);
+    setNested(payload, "rent.rentAmount", isNaN(rentAmount) ? 0 : rentAmount);
+    setNested(payload, "rent.negotiable", !!formState.negotiable);
+    const advance = parseFloat(formState.advanceAmount);
+    setNested(payload, "rent.advanceAmount", isNaN(advance) ? 0 : advance);
+    setNested(payload, "rent.agreementTiming", formState.leaseTenure || "");
+  } else if (formState.propertyType === "Lease") {
+    const leaseAmount = parseFloat(formState.rent);
+    setNested(payload, "lease.leaseAmount", isNaN(leaseAmount) ? 0 : leaseAmount);
+    setNested(payload, "lease.negotiable", !!formState.negotiable);
+    setNested(payload, "lease.leaseTenure", formState.leaseTenure || "");
+  } else if (formState.propertyType === "Sale") {
+    const saleAmount = parseFloat(formState.rent);
+    setNested(payload, "sale.saleAmount", isNaN(saleAmount) ? 0 : saleAmount);
+    setNested(payload, "sale.negotiable", !!formState.negotiable);
+  }
+
   setNested(payload, "location.landmark", "Near Green Park");
-  if (formState.latitude)
-    setNested(payload, "location.map.latitude", parseFloat(formState.latitude));
-  if (formState.longitude)
-    setNested(
-      payload,
-      "location.map.longitude",
-      parseFloat(formState.longitude)
-    );
+  if (formState.latitude) setNested(payload, "location.map.latitude", parseFloat(formState.latitude));
+  if (formState.longitude) setNested(payload, "location.map.longitude", parseFloat(formState.longitude));
   setNested(payload, "location.address", formState.address);
   setNested(payload, "area.totalArea", `${formState.totalArea} sqft`);
-  // setNested(payload, "area.length", "50 ft");
-  // setNested(payload, "area.width", "30 ft");
-
-  // const imageUrls = formState.images.map((f) => f.name).filter(Boolean);
-
-  // setNested(payload, "images", imageUrls);
-
-  setNested(payload, "title", formState.title);
-  setNested(
-    payload,
-    "residentialType",
-    formState.residentialType || "Apartment"
-  );
-  setNested(payload, "facingDirection", formState.facingDirection || "East");
-  setNested(payload, "rooms", `${formState.rooms || "1"} BHK`);
-  setNested(
-    payload,
-    "totalFloors",
-    formState.totalFloors ? parseInt(formState.totalFloors) : 0
-  );
-  setNested(
-    payload,
-    "propertyFloor",
-    formState.propertyFloor ? parseInt(formState.propertyFloor) : 0
-  );
-  setNested(
-    payload,
-    "furnishingType",
-    formState.furnishingType?.replace("-", " ")
-  );
-  setNested(payload, "description", formState.description);
   setNested(payload, "area.builtUpArea", `${formState.builtUpArea} sqft`);
   setNested(payload, "area.carpetArea", `${formState.carpetArea} sqft`);
-  setNested(
-    payload,
-    "restrictions",
-    mapChipsToRestrictions(formState.selectedChips)
-  );
-  setNested(payload, "availability", {
-    transport: {
-      nearbyBusStop: false,
-      nearbyAirport: false,
-      nearbyPort: false,
-    },
-    broadband: false,
-    securities: false,
-  });
-  setNested(payload, "facility", {
-    maintenance: false,
-    waterFacility: false,
-    roadFacility: false,
-    drainage: false,
-    parking: false,
-    balcony: false,
-    terrace: false,
-  });
-  setNested(payload, "accessibility", {
-    ramp: false,
-    steps: false,
-    lift: false,
-  });
-  setNested(payload, "amenities", {
-    separateEBConnection: false,
-    nearbyMarket: false,
-    nearbyGym: false,
-    nearbyTurf: false,
-    nearbyArena: false,
-    nearbyMall: false,
-  });
+
+  setNested(payload, "title", formState.title);
+  setNested(payload, "residentialType", formState.residentialType || "Apartment");
+  setNested(payload, "facingDirection", formState.facingDirection || "East");
+  setNested(payload, "rooms", `${formState.rooms || "1"} BHK`);
+  setNested(payload, "totalFloors", formState.totalFloors ? parseInt(formState.totalFloors) : 0);
+  setNested(payload, "propertyFloor", formState.propertyFloor ? parseInt(formState.propertyFloor) : 0);
+  setNested(payload, "furnishingType", formState.furnishingType?.replace("-", " "));
+  setNested(payload, "description", formState.description);
+  setNested(payload, "restrictions", mapChipsToRestrictions(formState.selectedChips));
+
+  // ✅ Dynamic values with CORRECT backend field names:
+
+  // Dynamic availability.transport - match backend schema
+  if (formState.selectedChips.includes("Near Bus Stop")) {
+    setNested(payload, "availability.transport.nearbyBusStop", true);
+  }
+  if (formState.selectedChips.includes("Near Airport")) {
+    setNested(payload, "availability.transport.nearbyAirport", true);
+  }
+  if (formState.selectedChips.includes("Near Metro")) {
+    setNested(payload, "availability.transport.nearbyPort", true);
+  }
+
+  // Dynamic availability - match backend schema
+  if (formState.selectedChips.includes("Broadband Connection")) {
+    setNested(payload, "availability.broadband", true);
+  }
+  if (formState.selectedChips.includes("Security")) {
+    setNested(payload, "availability.securities", true);
+  }
+
+  // ✅ Dynamic facility with CORRECT field names (maintenance, drainage - not maintainance, drinage)
+  if (formState.selectedChips.includes("Regular Maintenance Included")) {
+    setNested(payload, "facility.maintenance", true);  // ✅ Correct: maintenance
+  }
+  if (formState.selectedChips.includes("Water Supply Available")) {
+    setNested(payload, "facility.waterFacility", true);
+  }
+  if (formState.selectedChips.includes("Good Road Access")) {
+    setNested(payload, "facility.roadFacility", true);
+  }
+  if (formState.selectedChips.includes("Sewage Connection Available")) {
+    setNested(payload, "facility.drainage", true);  // Correct: drainage
+  }
+  if (formState.selectedChips.includes("Dedicated Parking Available")) {
+    setNested(payload, "facility.parking", true);
+  }
+  if (formState.selectedChips.includes("Private Balcony Included")) {
+    setNested(payload, "facility.balcony", true);
+  }
+  if (formState.selectedChips.includes("Terrace Access")) {
+    setNested(payload, "facility.terrace", true);
+  }
+
+  // Dynamic accessibility - match backend schema
+  if (formState.selectedChips.includes("Ramp Access")) {
+    setNested(payload, "accessibility.ramp", true);
+  }
+  if (formState.selectedChips.includes("Only via Stairs")) {
+    setNested(payload, "accessibility.steps", true);
+  }
+  if (formState.selectedChips.includes("Lift Access")) {
+    setNested(payload, "accessibility.lift", true);
+  }
+
+  // Dynamic amenities - match backend schema
+  if (formState.selectedChips.includes("Separate Electricity Billing")) {
+    setNested(payload, "amenities.separateEBConnection", true);
+  }
+  if (formState.selectedChips.includes("Public Park")) {
+    setNested(payload, "amenities.nearbyMarket", true);
+  }
+  if (formState.selectedChips.includes("Gym")) {
+    setNested(payload, "amenities.nearbyGym", true);
+  }
+  if (formState.selectedChips.includes("Movie Theater")) {
+    setNested(payload, "amenities.nearbyTurf", true);
+  }
+  if (formState.selectedChips.includes("Sports Arena")) {
+    setNested(payload, "amenities.nearbyArena", true);
+  }
+  if (formState.selectedChips.includes("Shopping Mall")) {
+    setNested(payload, "amenities.nearbyMall", true);
+  }
+
   return payload as ResidentialProperty;
 }
+
 
 export const CreateProperty = () => {
 
@@ -370,13 +392,13 @@ export const CreateProperty = () => {
 
   // Update state when in edit mode
   useEffect(() => {
-    
     if (isEditMode && editData) {
+      // const expectedPath = `/admin/residential/update/${editId}`;
+      // if (window.location.pathname !== expectedPath) {
+      //   window.history.replaceState(null, "", expectedPath);
+      // }
 
-      const expectedPath = `/admin/residential/update/${editId}`;
-      if (window.location.pathname !== expectedPath) {
-        window.history.replaceState(null, "", expectedPath);
-      }
+      // Set basic property data (keep existing code)
       setFirstName(editData.propertyOwner?.firstName || "");
       setLastName(editData.propertyOwner?.lastName || "");
       setEmail(editData.propertyOwner?.contact?.email || "");
@@ -384,11 +406,32 @@ export const CreateProperty = () => {
       setTitle(editData.title || "");
       setPropertyType(editData.propertyType || "Rent");
       setAddress(editData.location?.address || "");
-      // setLatitude(editData.location?.map?.latitude?.toString() || "");
-      // setLongitude(editData.location?.map?.longitude?.toString() || "");
-      setAdvanceAmount(editData.rent?.advanceAmount?.toString() || "");
-      setLeaseTenure(editData.lease?.leaseTenure || "");
-      setNegotiable(editData.rent?.negotiable || false);
+      setLatitude(editData.location?.map?.latitude?.toString() || "");
+      setLongitude(editData.location?.map?.longitude?.toString() || "");
+
+      // Load amounts based on property type
+      if (editData.propertyType === "Rent") {
+        setRent(editData.rent?.rentAmount?.toString() || "");
+        setAdvanceAmount(editData.rent?.advanceAmount?.toString() || "");
+        setLeaseTenure(editData.rent?.agreementTiming || "");
+        setNegotiable(editData.rent?.negotiable || false);
+      } else if (editData.propertyType === "Lease") {
+        setRent(editData.lease?.leaseAmount?.toString() || "");
+        setLeaseTenure(editData.lease?.leaseTenure || "");
+        setNegotiable(editData.lease?.negotiable || false);
+        setAdvanceAmount(""); // Clear advance for lease
+      } else if (editData.propertyType === "Sale") {
+        setRent(editData.sale?.saleAmount?.toString() || "");
+        setNegotiable(editData.sale?.negotiable || false);
+        setAdvanceAmount(""); // Clear advance for sale
+        setLeaseTenure(""); // Clear tenure for sale
+      }
+
+
+      setResidentialType(editData.residentialType || "House");
+      setfacingDirection(editData.facingDirection || "East");
+      setRoomCount(editData.rooms?.replace(" BHK", "") || "1");
+      setFurnishingType(editData.furnishingType || "Unfurnished");
       setTotalArea(editData.area?.totalArea?.replace(" sqft", "") || "");
       setBuiltUpArea(editData.area?.builtUpArea?.replace(" sqft", "") || "");
       setCarpetArea(editData.area?.carpetArea?.replace(" sqft", "") || "");
@@ -396,40 +439,77 @@ export const CreateProperty = () => {
       setPropertyFloor(editData.propertyFloor?.toString() || "");
       setPropertyDescription(editData.description || "");
 
-      // Map restrictions booleans back to chips:
+      // ✅ FIXED: Map backend data back to chips properly
       const chips: string[] = [];
-      if (editData.restrictions) {
-        if (editData.restrictions.guestAllowed === false)
-          chips.push("Guests Not Allowed");
-        if (editData.restrictions.petsAllowed === false)
-          chips.push("No Pets Allowed");
-        if (editData.restrictions.bachelorsAllowed === false)
-          chips.push("No Bachelors Allowed");
-      }
-      setSelectedChips(chips);
 
-      setImages((editData.images || []).map((img: string) => ({ name: img })));
+      // Map restrictions back to chips
+      if (editData.restrictions) {
+        if (editData.restrictions.guestAllowed === false) chips.push("Guests Not Allowed");
+        if (editData.restrictions.petsAllowed === false) chips.push("No Pets Allowed");
+        if (editData.restrictions.bachelorsAllowed === false) chips.push("No Bachelors Allowed");
+      }
+
+      // ✅ Map availability back to chips
+      if (editData.availability) {
+        if (editData.availability.broadband === true) chips.push("Broadband Connection");
+        if (editData.availability.securities === true) chips.push("Security");
+
+        // Map transport back to chips
+        if (editData.availability.transport) {
+          if (editData.availability.transport.nearbyBusStop === true) chips.push("Near Bus Stop");
+          if (editData.availability.transport.nearbyAirport === true) chips.push("Near Airport");
+          if (editData.availability.transport.nearbyPort === true) chips.push("Near Metro");
+        }
+      }
+
+      // ✅ Map facility back to chips  
+      if (editData.facility) {
+        if (editData.facility.maintenance === true) chips.push("Regular Maintenance Included");
+        if (editData.facility.waterFacility === true) chips.push("Water Supply Available");
+        if (editData.facility.roadFacility === true) chips.push("Good Road Access");
+        if (editData.facility.drainage === true) chips.push("Sewage Connection Available");
+        if (editData.facility.parking === true) chips.push("Dedicated Parking Available");
+        if (editData.facility.balcony === true) chips.push("Private Balcony Included");
+        if (editData.facility.terrace === true) chips.push("Terrace Access");
+      }
+
+      // ✅ Map accessibility back to chips
+      if (editData.accessibility) {
+        if (editData.accessibility.ramp === true) chips.push("Ramp Access");
+        if (editData.accessibility.steps === true) chips.push("Only via Stairs");
+        if (editData.accessibility.lift === true) chips.push("Lift Access");
+      }
+
+      // ✅ Map amenities back to chips
+      if (editData.amenities) {
+        if (editData.amenities.separateEBConnection === true) chips.push("Separate Electricity Billing");
+        if (editData.amenities.nearbyMarket === true) chips.push("Public Park");
+        if (editData.amenities.nearbyGym === true) chips.push("Gym");
+        if (editData.amenities.nearbyTurf === true) chips.push("Movie Theater");
+        if (editData.amenities.nearbyArena === true) chips.push("Sports Arena");
+        if (editData.amenities.nearbyMall === true) chips.push("Shopping Mall");
+      }
+
+      setSelectedChips(chips); // ✅ Now includes all mapped chips
+
+      setImages(editData.images?.map((img: string) => ({ name: img })) || []);
 
       setMarkerPosition({
         lat: editData.location?.map?.latitude || defaultCenter.lat,
         lng: editData.location?.map?.longitude || defaultCenter.lng,
       });
+
       // Fetch nearby transport info if lat/lng are available
-      if (
-        editData.location?.map?.latitude &&
-        editData.location?.map?.longitude
-      ) {
-        fetchNearbyTransport(
-          editData.location.map.latitude,
-          editData.location.map.longitude
-        );
+      if (editData.location?.map?.latitude && editData.location?.map?.longitude) {
+        fetchNearbyTransport(editData.location.map.latitude, editData.location.map.longitude);
       }
     }
   }, [isEditMode, editData]);
 
-  const [nearbyTransport, setNearbyTransport] = useState<
-    Record<string, string>
-  >({ "BUS STAND": "0 KM", AIRPORT: "0 KM", METRO: "0 KM", RAILWAY: "0 KM" });
+
+  // const [nearbyTransport, setNearbyTransport] = useState<
+  //   Record<string, string>
+  // >({ "BUS STAND": "0 KM", AIRPORT: "0 KM", METRO: "0 KM", RAILWAY: "0 KM" });
 
   // // Google Maps API loader
   // const { isLoaded } = useJsApiLoader({
@@ -486,7 +566,7 @@ export const CreateProperty = () => {
       )
     );
 
-    setNearbyTransport(info);
+    // setNearbyTransport(info);
   };
 
   // Handle map click to place marker and update lat/lng inputs
@@ -735,7 +815,7 @@ export const CreateProperty = () => {
               <div className="muiBreadcrumbs">
                 {/* Breadcrumb */}
                 <div className="muiBreadcrumbs">
-                  <DynamicBreadcrumbs/>
+                  <DynamicBreadcrumbs />
                   {/* Rest of your page content */}
                 </div>
 
@@ -766,7 +846,7 @@ export const CreateProperty = () => {
                     />
 
                     <p className="topInfoAlertP">
-                    <span className="star">*</span> Required Fields – 5 fields must be filled before
+                      Required Fields – 5 fields must be filled before
                       submitting the form.
                     </p>
                   </Alert>
@@ -1161,7 +1241,7 @@ export const CreateProperty = () => {
                       </div>
                     </div>
 
-                    <div className="informationCard">
+                    {/* <div className="informationCard">
                       <label htmlFor="" className="labelName">
                         Nearby Transportation
                       </label>
@@ -1234,7 +1314,7 @@ export const CreateProperty = () => {
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </section>
@@ -2109,7 +2189,7 @@ export const CreateProperty = () => {
                           alt="Guests Not Allowed"
                           src={`${import.meta.env.VITE_BASE_URL}/createProperty/solar_user-linear.svg`}
                           className="avatarImg"
-                          // sx={{ width: 18, height: 18 }}
+                        // sx={{ width: 18, height: 18 }}
                         />
                       }
                       selectedChips={selectedChips}

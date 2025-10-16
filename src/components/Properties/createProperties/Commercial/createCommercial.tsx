@@ -21,7 +21,7 @@ import type {
   UploadedImage,
   CommercialFormState,
 } from "./createCommercial.modal";
-import type { Restrictions } from "../../../AdminResidencial/AdminResidencial.model";
+// import type { Restrictions } from "../../../AdminResidencial/AdminResidencial.model";
 import {
   GoogleMap,
   Marker,
@@ -95,13 +95,13 @@ function flattenObject(
 }
 
 // Map chips strings to Restrictions object
-const mapChipsToRestrictions = (chips: string[]): Restrictions => {
-  return {
-    guestAllowed: chips.includes("Guests Not Allowed"),
-    petsAllowed: chips.includes("No Pets Allowed"),
-    bachelorsAllowed: chips.includes("No Bachelors Allowed"),
-  };
-};
+// const mapChipsToRestrictions = (chips: string[]): Restrictions => {
+//   return {
+//     guestAllowed: chips.includes("Guests Not Allowed"),
+//     petsAllowed: chips.includes("No Pets Allowed"),
+//     bachelorsAllowed: chips.includes("No Bachelors Allowed"),
+//   };
+// };
 
 // Build payload dynamically based on form state
 function buildPayloadDynamic(
@@ -181,12 +181,30 @@ function buildPayloadDynamic(
   // setNested(payload, "images", imageUrls);
 
   // accessibility – map selected chips → boolean object
-  const restrictions = mapChipsToRestrictions(formState.selectedChips);
-  setNested(payload, "accessibility", {
-    steps: restrictions.bachelorsAllowed,
-    lift: restrictions.guestAllowed,
-    ramp: restrictions.petsAllowed,
-  });
+  // Dynamic facility - only set if form values are selected (matching Commercial backend schema)
+  if (formState.facility.tilesOnFloor === true) {
+    setNested(payload, "facility.tilesOnFloor", true);
+  }
+  if (formState.facility.roadFacility && formState.facility.roadFacility !== "None") {
+    setNested(payload, "facility.roadFacility", formState.facility.roadFacility);
+  }
+  if (formState.facility.parking === true) {
+    setNested(payload, "facility.parking", true);
+  }
+  if (formState.facility.waterFacility === true) {
+    setNested(payload, "facility.waterFacility", true);
+  }
+
+  // Dynamic accessibility - only set if chips are selected (matching Commercial backend schema)
+  if (formState.selectedChips.includes("Only via Stairs")) {
+    setNested(payload, "accessibility.steps", true);
+  }
+  if (formState.selectedChips.includes("Lift Access")) {
+    setNested(payload, "accessibility.lift", true);
+  }
+  if (formState.selectedChips.includes("Ramp Access")) {
+    setNested(payload, "accessibility.ramp", true);
+  }
 
   // misc
   setNested(payload, "washroom", formState.washroom);
@@ -358,10 +376,6 @@ export const CreateCommercialProperty = () => {
   // Update state when in edit mode
   useEffect(() => {
     if (isEditMode && editData) {
-      const expectedPath = `/admin/commercial/update/${editId}`;
-      if (window.location.pathname !== expectedPath) {
-        window.history.replaceState(null, "", expectedPath);
-      }
       setFirstName(editData.propertyOwner?.firstName || "");
       setLastName(editData.propertyOwner?.lastName || "");
       setEmail(editData.propertyOwner?.contact?.email || "");
@@ -369,45 +383,73 @@ export const CreateCommercialProperty = () => {
       setTitle(editData.title || "");
       setPropertyType(editData.propertyType || "Rent");
       setAddress(editData.location?.address || "");
+
       if (editData.location?.map) {
         setLatitude(editData.location.map.latitude?.toString() || "");
         setLongitude(editData.location.map.longitude?.toString() || "");
+        setMarkerPosition({
+          lat: editData.location.map.latitude || defaultCenter.lat,
+          lng: editData.location.map.longitude || defaultCenter.lng,
+        });
       } else {
         setLatitude("");
         setLongitude("");
       }
 
-      setRentAmount(editData.rent?.rentAmount || 0);
-      setAdvanceAmount(editData.rent?.advanceAmount || "");
-      setLeaseTenure(editData.lease?.leaseTenure || "");
-      setNegotiable(editData.rent?.negotiable || false);
+      // ✅ Load amounts based on property type
+      if (editData.propertyType === "Rent") {
+        setRentAmount(editData.rent?.rentAmount || 0);
+        setAdvanceAmount(editData.rent?.advanceAmount?.toString() || "");
+        setLeaseTenure(editData.rent?.agreementTiming || "");
+        setNegotiable(editData.rent?.negotiable || false);
+      } else if (editData.propertyType === "Lease") {
+        setRentAmount(editData.lease?.leaseAmount || 0);
+        setLeaseTenure(editData.lease?.leaseTenure || "");
+        setNegotiable(editData.lease?.negotiable || false);
+        setAdvanceAmount(""); // Clear advance for lease
+      } else if (editData.propertyType === "Sale") {
+        setRentAmount(editData.sale?.saleAmount || 0);
+        setNegotiable(editData.sale?.negotiable || false);
+        setAdvanceAmount(""); // Clear advance for sale
+        setLeaseTenure(""); // Clear tenure for sale
+      }
+
       setTotalArea(editData.area?.totalArea?.replace(" sqft", "") || "");
       setFacingDirection(editData.facingDirection || "East");
       setTotalFloors(editData.totalFloors || "");
       setPropertyFloor(editData.propertyFloor || "");
       setPropertyDescription(editData.description || "");
+      setWashroom(editData.washroom || "None");
+      setReadyToOccupy(editData.readyToOccupy || true);
+      setCommercialType(editData.commercialType || "Shop");
 
-      // Map restrictions booleans back to chips:
+      // Set facility data ONCE (remove duplicates)
+      setTilesOnFloor(editData.facility?.tilesOnFloor || false);
+      setRoadFasicility(editData.facility?.roadFacility || "None");
+      setParking(editData.facility?.parking ? "Available" : "Not Available");
+      setWaterFacility(editData.facility?.waterFacility ? "Available" : "Not Available");
+
+      // Map ALL data back to chips properly
       const chips: string[] = [];
+
+      // Map restrictions to chips (if you have them)
       if (editData.restrictions) {
         if (editData.restrictions.guestAllowed === false) chips.push("Guests Not Allowed");
         if (editData.restrictions.petsAllowed === false) chips.push("No Pets Allowed");
         if (editData.restrictions.bachelorsAllowed === false) chips.push("No Bachelors Allowed");
       }
-      setSelectedChips(chips);
 
+      // Map accessibility data back to chips (this was working)
+      if (editData.accessibility?.steps === true) chips.push("Only via Stairs");
+      if (editData.accessibility?.lift === true) chips.push("Lift Access");
+      if (editData.accessibility?.ramp === true) chips.push("Ramp Access");
+
+      // IMPORTANT: Add any other chip mappings you need
+      // Based on your backend response, you might need to add more chip mappings here
+
+      setSelectedChips(chips);
       setImages((editData.images || []).map((img: string) => ({ name: img })));
-      setMarkerPosition({
-        lat: editData.location?.map?.latitude || defaultCenter.lat,
-        lng: editData.location?.map?.longitude || defaultCenter.lng,
-      });
-      setWashroom(editData.washroom || "None");
-      setRoadFasicility(editData.roadFacility || "None");
-      setReadyToOccupy(editData.readyToOccupy || true);
-      setParking(editData.facility?.parking ? "Available" : "Not Available");
-      setWaterFacility(editData.facility?.waterFacility ? "Available" : "Not Available");
-      setTilesOnFloor(editData.facility?.tilesOnFloor || false);
-      setCommercialType(editData.commercialType || "Shop");
+
       // Set nearby transport if available
       if (editData.location?.map?.latitude && editData.location?.map?.longitude) {
         fetchNearbyTransport(
@@ -419,9 +461,10 @@ export const CreateCommercialProperty = () => {
   }, [isEditMode, editData]);
 
 
-  const [nearbyTransport, setNearbyTransport] = useState<
-    Record<string, string>
-  >({ "BUS STAND": "0 KM", AIRPORT: "0 KM", METRO: "0 KM", RAILWAY: "0 KM" });
+
+  // const [nearbyTransport, setNearbyTransport] = useState<
+  //   Record<string, string>
+  // >({ "BUS STAND": "0 KM", AIRPORT: "0 KM", METRO: "0 KM", RAILWAY: "0 KM" });
 
   // // Google Maps API loader
   // const { isLoaded } = useJsApiLoader({
@@ -465,7 +508,7 @@ export const CreateCommercialProperty = () => {
         info[t.label] = "N/A";
       }
     }
-    setNearbyTransport(info);
+    // setNearbyTransport(info);
   };
 
 
@@ -701,7 +744,7 @@ export const CreateCommercialProperty = () => {
               <div className="muiBreadcrumbs">
                 {/* Breadcrumb */}
                 <div className="muiBreadcrumbs">
-                  <DynamicBreadcrumbs/>
+                  <DynamicBreadcrumbs />
                   {/* Rest of your page content */}
                 </div>
 
@@ -732,7 +775,7 @@ export const CreateCommercialProperty = () => {
                     />
 
                     <p className="topInfoAlertP">
-                    <span className="star">*</span> Required Fields – 5 fields must be filled before
+                      Required Fields – 5 fields must be filled before
                       submitting the form.
                     </p>
                   </Alert>
@@ -1133,7 +1176,7 @@ export const CreateCommercialProperty = () => {
                       </div>
                     </div>
 
-                    <div className="informationCard">
+                    {/* <div className="informationCard">
                       <label htmlFor="" className="labelName">
                         Nearby Transportation
                       </label>
@@ -1206,7 +1249,7 @@ export const CreateCommercialProperty = () => {
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </section>
