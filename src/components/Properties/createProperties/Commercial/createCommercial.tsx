@@ -383,7 +383,7 @@ export const CreateCommercialProperty = () => {
       setTitle(editData.title || "");
       setPropertyType(editData.propertyType || "Rent");
       setAddress(editData.location?.address || "");
-      
+
       if (editData.location?.map) {
         setLatitude(editData.location.map.latitude?.toString() || "");
         setLongitude(editData.location.map.longitude?.toString() || "");
@@ -395,11 +395,25 @@ export const CreateCommercialProperty = () => {
         setLatitude("");
         setLongitude("");
       }
-  
-      setRentAmount(editData.rent?.rentAmount || 0);
-      setAdvanceAmount(editData.rent?.advanceAmount || "");
-      setLeaseTenure(editData.lease?.leaseTenure || "");
-      setNegotiable(editData.rent?.negotiable || false);
+
+      // ✅ Load amounts based on property type
+      if (editData.propertyType === "Rent") {
+        setRentAmount(editData.rent?.rentAmount || 0);
+        setAdvanceAmount(editData.rent?.advanceAmount?.toString() || "");
+        setLeaseTenure(editData.rent?.agreementTiming || "");
+        setNegotiable(editData.rent?.negotiable || false);
+      } else if (editData.propertyType === "Lease") {
+        setRentAmount(editData.lease?.leaseAmount || 0);
+        setLeaseTenure(editData.lease?.leaseTenure || "");
+        setNegotiable(editData.lease?.negotiable || false);
+        setAdvanceAmount(""); // Clear advance for lease
+      } else if (editData.propertyType === "Sale") {
+        setRentAmount(editData.sale?.saleAmount || 0);
+        setNegotiable(editData.sale?.negotiable || false);
+        setAdvanceAmount(""); // Clear advance for sale
+        setLeaseTenure(""); // Clear tenure for sale
+      }
+
       setTotalArea(editData.area?.totalArea?.replace(" sqft", "") || "");
       setFacingDirection(editData.facingDirection || "East");
       setTotalFloors(editData.totalFloors || "");
@@ -408,23 +422,23 @@ export const CreateCommercialProperty = () => {
       setWashroom(editData.washroom || "None");
       setReadyToOccupy(editData.readyToOccupy || true);
       setCommercialType(editData.commercialType || "Shop");
-  
-      // ✅ Set facility data ONCE (remove duplicates)
+
+      // Set facility data ONCE (remove duplicates)
       setTilesOnFloor(editData.facility?.tilesOnFloor || false);
       setRoadFasicility(editData.facility?.roadFacility || "None");
       setParking(editData.facility?.parking ? "Available" : "Not Available");
       setWaterFacility(editData.facility?.waterFacility ? "Available" : "Not Available");
-  
-      // ✅ Map ALL data back to chips properly
+
+      // Map ALL data back to chips properly
       const chips: string[] = [];
-      
+
       // Map restrictions to chips (if you have them)
       if (editData.restrictions) {
         if (editData.restrictions.guestAllowed === false) chips.push("Guests Not Allowed");
         if (editData.restrictions.petsAllowed === false) chips.push("No Pets Allowed");
         if (editData.restrictions.bachelorsAllowed === false) chips.push("No Bachelors Allowed");
       }
-      
+
       // Map accessibility data back to chips (this was working)
       if (editData.accessibility?.steps === true) chips.push("Only via Stairs");
       if (editData.accessibility?.lift === true) chips.push("Lift Access");
@@ -432,10 +446,10 @@ export const CreateCommercialProperty = () => {
 
       // IMPORTANT: Add any other chip mappings you need
       // Based on your backend response, you might need to add more chip mappings here
-  
+
       setSelectedChips(chips);
       setImages((editData.images || []).map((img: string) => ({ name: img })));
-  
+
       // Set nearby transport if available
       if (editData.location?.map?.latitude && editData.location?.map?.longitude) {
         fetchNearbyTransport(
@@ -445,7 +459,7 @@ export const CreateCommercialProperty = () => {
       }
     }
   }, [isEditMode, editData]);
-  
+
 
 
   // const [nearbyTransport, setNearbyTransport] = useState<
