@@ -134,17 +134,17 @@ function buildPayloadDynamic(formState: PlotFormState): PlotFormState {
     setNested(
       payload,
       "lease.leaseAmount",
-      Number(formState.rent.rentAmount) || 0
+      Number(formState.lease.leaseAmount) || 0
     );
-    setNested(payload, "lease.negotiable", formState.rent.negotiable);
+    setNested(payload, "lease.negotiable", formState.lease.negotiable);
     setNested(payload, "lease.leaseTenure", formState.lease.leaseTenure);
   } else if (formState.propertyType === "Sale") {
     setNested(
       payload,
       "sale.saleAmount",
-      Number(formState.rent.rentAmount) || 0
+      Number(formState.sale.saleAmount) || 0
     );
-    setNested(payload, "sale.negotiable", formState.rent.negotiable);
+    setNested(payload, "sale.negotiable", formState.sale.negotiable);
   }
   // location
   setNested(payload, "location.address", formState.location.address);
