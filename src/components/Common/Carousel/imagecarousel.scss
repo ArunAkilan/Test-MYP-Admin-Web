@@ -1,0 +1,67 @@
+.MuiGrid-root.MuiGrid-container {
+    display: flex !important;
+}
+.left-thumbnail-image {
+  flex-direction: column !important;
+    display: flex !important;
+    justify-content: space-around !important;
+}
+.Gallery-button  { 
+  background: none !important;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-bottom: 16px !important;
+}
+.gallery-text {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+  color: #757575;
+  letter-spacing: 0;
+  font-family: "Open Sans";
+}
+.large-screen-wrapper {
+  padding: 0 80px;
+}
+
+.large-screen-header {
+  box-shadow: 4px 8px 16px 0px rgba(138, 182, 229, 0.06),
+   2px 4px 8px 0px rgba(178, 178, 178, 0.04),
+    1px 2px 4px 0px rgba(178, 178, 178, 0.04),
+   0px 1px 2px 0px rgba(178, 178, 178, 0.04)
+}
+.large-screen-header-wrap {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  padding: 0 100px;
+   font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+  color: #2E2E2F;
+  letter-spacing: 0;
+  font-family: "Raleway";
+}
+.large-screen-header p {
+  margin-bottom: 0;
+  padding-left: 24px;
+}
+.checkbox-div .large-screen-checkbox {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 6px;
+  background: #fff;
+}
+.right-delete img {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  padding: 6px;
+  background: #fff;
+  border-radius: 6px;
+}
+.left-single-image {
+  position: relative;
+}

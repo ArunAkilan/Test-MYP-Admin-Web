@@ -1,0 +1,71 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Login Component matches snapshot 1`] = `
+<DocumentFragment>
+  <div>
+    <div
+      class="login-wrapper"
+    >
+      <div
+        class="login container"
+      >
+        <div
+          class="image"
+        >
+          <img
+            alt="prh admin image"
+            src="undefined/PRH_Admin_new.svg"
+          />
+        </div>
+        <div
+          class="heading container"
+        >
+          <p>
+            Sign in to your account
+          </p>
+        </div>
+        <form>
+          <div
+            class="textinput container"
+          >
+            <div
+              class="password input-cmn"
+            >
+              <img
+                alt="phone icon"
+                src="undefined/Icon_Password.svg"
+              />
+              <input
+                placeholder="Phone Number"
+                required=""
+                type="tel"
+                value=""
+              />
+            </div>
+            <div
+              class="email input-cmn"
+            >
+              <img
+                alt="otp icon"
+                src="undefined/Icon_User.svg"
+              />
+              <input
+                placeholder="OTP"
+                required=""
+                type="text"
+                value=""
+              />
+            </div>
+            <button
+              class="signin"
+              type="submit"
+            >
+              Sign in
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;
