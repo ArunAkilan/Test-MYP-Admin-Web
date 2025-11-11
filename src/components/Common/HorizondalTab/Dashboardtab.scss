@@ -1,0 +1,389 @@
+#pending-approval-tab {
+    width: 100%;
+}
+
+#pending-approval-tabs-wrap .MuiTabs-indicator {
+  background: #00BFA6 !important; 
+  height: 4px !important;
+  border-radius: 100px;
+}
+#pending-approval-tabs-wrap button,.new-listing-wrap button {
+    min-height: 48px !important;
+    color: #2E2E2F;
+    font-size: 16px;
+    line-height: 18px;
+    font-weight: 600;
+    letter-spacing: 0px;
+    font-family: 'Raleway';
+    text-transform: capitalize;
+    
+    padding: 12px 0 ;
+}
+#pending-approval-tabs-wrap button:not(:last-child),.new-listing-wrap button {
+    margin-right: 16px;
+}
+#pending-approval-tab  button:hover {
+  background: #F2F6F7;
+}
+#pending-approval-tab button.Mui-selected {
+  color: #214999;
+  font-weight: 700;
+}
+#pending-approval-tabs-wrap button img,.new-listing-wrap button img {
+    width: max-content !important;
+    height: max-content !important;
+    margin-right: 0;
+    padding: 0 6px 0 0px;
+}
+
+.MuiTab-iconWrapper {
+    margin-right: 0 !important;
+}
+.css-19kzrtu {
+  padding: 0 !important;
+}
+.css-1x2b9qw-MuiTabs-root {
+  padding-bottom: 16px !important;
+}
+
+// dashboard tab bottom
+.new-listing-wrap-list .result {
+  color: #81838C;
+}
+.resultCount {
+  color: #2E2E2F;
+}
+// search
+.search {
+  width: min-content;
+}
+.search input  {
+  
+  width: 0% !important;
+  border-radius: 6px;
+  margin-right: 16px;
+  transition: width 0.3s ease;
+}
+.search.active input {
+  width: 200px !important;
+}
+
+.search input:hover,.color-edit button:hover {
+  background: #F2F6F7;
+}
+.search input:hover {
+  border: 1px solid #81838C !important;
+}
+// filter
+.filter-div-wrapper {
+  padding: 24px 24px 0 24px;
+  width: 300px;
+}
+
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  align-items: center;
+}
+.filter-header p {
+  color: #2E2E2F ;
+  font-family: "Raleway";
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+  letter-spacing: 0px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+.apply-reset-btn {
+  display: flex;
+  justify-content: space-between;
+  position: fixed;
+  bottom: 0;
+  background: #fff;
+  padding: 24px 0px;
+}
+
+.genericFilterApplyStyles,.clear-btn {
+  padding: 14px 24px !important;
+  border-radius: 6px !important;      
+  font-size: 16px;    
+  font-weight: 600;
+  font-family: 'Raleway';
+  line-height: 18px !important;
+  letter-spacing: 0;
+  height: 48px !important;
+  display: flex !important;
+  align-items: center;
+}
+.genericFilterApplyStyles {
+   background: #214999 !important;
+   color: #fff !important;
+}
+.genericFilterApplyStyles img {
+  padding-right:  0px;
+}
+.genericFilterApplyStyles:hover {
+      background: #214999;
+}
+.clear-btn {
+  border: none;
+  background: none;
+  margin-right: 16px;
+  color: #214999;
+}
+.new-listing-wrap-list .clear-btn {
+  // margin-left: 10px;
+  color: #214999 !important;
+}
+
+.checklist-list .MuiPaper-elevation {
+  box-shadow: none !important;
+  padding-bottom: 16px;
+}
+.checklist-content-1 {
+  padding-bottom: 16px;
+}
+.checklist-content h6 {
+   font-size: 16px;   
+  font-weight: 600;
+  font-family: 'Raleway';
+    line-height: 18px !important;
+  letter-spacing: 0;
+  color: #2E2E2F;
+}
+
+.label-wrapper label {
+  width: 100%;
+  margin-bottom: 8px;
+}
+.label-wrapper label span {
+  font-size: 14px;      
+  font-weight: 400;
+  font-family: 'Open Sans';
+    line-height: 22px;
+  letter-spacing: 0.1px;
+  color: #55565C;
+  margin-left: 0 !important;
+  padding-left: 0;
+}
+
+.filter-link button {
+  margin-right: 0 !important;
+}
+
+// toggle 
+.list-card-toggle {
+  border: 1px solid #D3DDE7;
+  padding: 6px;
+  border-radius: 8px;
+}
+#pending-approval-tab .list-card-toggle button {
+  margin-right: 0 !important;
+  border-radius: 4px;
+  border: none;
+  min-height: max-content !important;
+  padding: 8px 12px !important;
+}
+.list-card-toggle button.Mui-selected {
+  background: #214999 !important;
+  color: #fff !important;  
+}
+.filtercount {
+  color: #214999 !important;
+}
+
+// cardview 
+.MuiGrid-container {
+  display: inline-block !important;
+}
+.card-view-wrapper {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px; 
+  border: 1px solid #D3DDE7;
+  box-shadow: 0px 0px 2px 0px #B2B2B21A,
+  1px 3px 4px 0px #B2B2B217,
+  2px 3px 5px 0px #B2B2B214,
+  3px 4px 7px 0px #8AB6E51F;
+}
+.card-view-wrapper .col-md-6 {
+  padding: 0;
+}
+.card-view-content.col-md-6 {
+  padding: 16px;
+}
+.card-view-img {
+  position: relative;
+}
+.card-view-img img {
+  width: 100%;
+  height: 100%;
+}
+.card-view-address-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 16px;
+}
+.cardview-address-detail h6 {
+   font-size: 16px;      
+  font-weight: 600;
+  font-family: 'Raleway';
+  line-height: 24px;
+  letter-spacing: 0px;
+  color: #2E2E2F;
+  margin-bottom: 0;
+}
+.cardview-address-detail p {
+   font-size: 14px;      
+  font-weight: 400;
+  font-family: 'Open Sans';
+  line-height: 22px;
+  letter-spacing: 0.1px;
+  color: #81838C;
+  margin-bottom: 0;
+}
+.cardview-rent {
+  background: #E9F5E4;
+  color: #40831F;
+  padding: 3px 8px;
+  font-size: 12px;      
+  font-weight: 400;
+  font-family: 'Open Sans';
+  line-height: 18px;
+  letter-spacing: 0px;
+  border-radius: 100px;
+}
+.cardview-rent-amount {
+  padding-bottom: 16px;
+}
+.rent-amount {
+  color: #2E2E2F;
+  font-size: 22px;      
+  font-weight: 700;
+  font-family: 'Raleway';
+  line-height: 27px;
+  letter-spacing: 0px;
+}
+.month,.cardview-posted-detail span { 
+  font-size: 12px;      
+  font-weight: 400;
+  font-family: 'Open Sans';
+  line-height: 18px;
+  letter-spacing: 0px;
+}
+.month {
+   color: #2E2E2F;
+}
+.cardview-posted-detail {
+  padding-bottom: 16px;
+}
+.cardview-posted-detail span {
+  color: #81838C;
+}
+.card-view-icon-wrapper {
+  display: flex;
+  gap: 24px;
+  padding-bottom: 16px;
+}
+.card-view-icon-wrapper div img {
+  padding: 5px 15px;
+  border-radius: 6px ;
+}
+
+.card-icon-view img {
+   border: 1px solid #757575;
+}
+.card-icon-edit img {
+  border: 1px solid #81838C;
+}
+.card-icon-approve img {
+  background: #214999;
+  border: 1px solid #214999;
+}
+.card-icon-approve img:hover {
+  background: #2C62CC;
+  border: none;
+}
+.card-icon-deny img {
+  border: 1px solid #214999;
+}
+
+.card-icon-delete img {
+  border: 1px solid #FE3D3C;
+}
+.cardview-checkbox {
+  position: absolute;
+  top: 21px;
+  left: 26px;
+}
+
+// PropertyCardList 
+.custom-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom-modal {
+  background-color: #fff;
+  padding: 24px;
+  border-radius: 8px;
+  width: 350px;
+  max-width: 90%;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.confirm-btn {
+  background-color: #4caf50;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cancel-btn {
+  background-color: #f44336;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+@media only screen and (max-width:992px) {
+  .new-listing-wrap-list h3 {
+     padding-bottom: 10px;
+  }
+}
+@media only screen and (max-width:792px) {
+  #pending-approval-tabs-wrap button:not(:last-child), .new-listing-wrap button {
+     margin-right: 16px;
+     padding: 6px 0;
+  }
+}
+@media only screen and (max-width:600px) {
+  #pending-approval-tabs-wrap button, .new-listing-wrap button {
+     font-size: 15px;
+  }
+  .card-view-icon-wrapper {
+    gap: 12px;
+  }
+}
