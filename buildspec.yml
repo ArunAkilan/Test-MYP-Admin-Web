@@ -1,0 +1,55 @@
+version: 0.2
+
+env:
+  variables:
+    AWS_DEFAULT_REGION: ap-south-1
+
+phases:
+  pre_build:
+    commands:
+      - echo "Logging in to Amazon ECR..."
+      - aws --region $AWS_DEFAULT_REGION ecr get-login-password | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - export TIMESTAMP=$(date +%Y%m%d%H%M%S)
+      - export SERVICE_NAME="frontend-admin"
+      - export IMAGE_URI="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$SERVICE_NAME:latest"
+
+  build:
+    commands:
+      - echo "Building Docker image..."
+      - docker build -t $SERVICE_NAME:$TIMESTAMP .
+      - docker tag $SERVICE_NAME:$TIMESTAMP $IMAGE_URI
+
+  post_build:
+    commands:
+      - echo "Pushing Docker image to ECR..."
+      - docker push $IMAGE_URI
+      
+      - echo "Creating deployment artifacts..."
+      - |
+        cat > imagedefinitions.json << EOF
+        [
+          {
+            "name": "$SERVICE_NAME",
+            "imageUri": "$IMAGE_URI"
+          }
+        ]
+        EOF
+      - |
+        echo "Creating appspec.yaml..."
+        cat > appspec.yaml << EOF
+        version: 0.0
+        Resources:
+          - TargetService:
+              Type: AWS::ECS::Service
+              Properties:
+                TaskDefinition: "arn:aws:ecs:$AWS_DEFAULT_REGION:$AWS_ACCOUNT_ID:task-definition/$SERVICE_NAME"
+                LoadBalancerInfo:
+                  ContainerName: "$SERVICE_NAME"
+                  ContainerPort: 80
+        EOF
+
+artifacts:
+  files:
+    - imagedefinitions.json
+    - appspec.yaml
+  name: build-artifacts
