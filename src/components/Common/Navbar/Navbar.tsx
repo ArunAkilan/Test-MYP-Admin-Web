@@ -93,12 +93,12 @@ const Header: React.FC<HeaderProps> = ({
       Authorization: `Bearer ${token}`,
     },
   })
-      .then((res) => setNotifications(res.data.notifications));
+      .then((res) => setNotifications(res.data.notifications || []));
 
     const sock = io(ENDPOINT);
 
     sock.on("notification", (data: Notification) => {
-      setNotifications((prev) => [data, ...prev]);
+      setNotifications((prev) => [data, ...(prev || [])]);
     });
 
     return () => {
