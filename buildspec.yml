@@ -1,0 +1,72 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo "Logging in to Amazon ECR..."
+      - aws --region $AWS_DEFAULT_REGION ecr get-login-password | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - export TIMESTAMP=$(date +%Y%m%d%H%M%S)
+      - export IMAGE_URI="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$SERVICE_NAME:$TIMESTAMP"
+
+  build:
+    commands:
+      - docker build -t $SERVICE_NAME:$TIMESTAMP .
+      - docker tag $SERVICE_NAME:$TIMESTAMP $IMAGE_URI
+
+  post_build:
+    commands:
+      - docker push $IMAGE_URI
+      - printf '[{"name":"%s","imageUri":"%s"}]' "$SERVICE_NAME" "$IMAGE_URI" > imagedefinitions.json
+
+      - |
+        cat > taskdef.json <<EOF
+        {
+          "family": "${SERVICE_NAME}",
+          "networkMode": "awsvpc",
+          "requiresCompatibilities": ["FARGATE"],
+          "cpu": "512",
+          "memory": "1024",
+          "executionRoleArn": "${ECS_TASK_EXECUTION_ROLE_ARN}",
+          "taskRoleArn": "${ECS_TASK_ROLE_ARN}",
+          "containerDefinitions": [
+            {
+              "name": "${SERVICE_NAME}",
+              "image": "${IMAGE_URI}",
+              "essential": true,
+              "portMappings": [{ "hostPort": 80, "containerPort": 80, "protocol": "tcp" }],
+              "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                  "awslogs-group": "/ecs/${SERVICE_NAME}",
+                  "awslogs-region": "${AWS_DEFAULT_REGION}",
+                  "awslogs-stream-prefix": "ecs"
+                }
+              },
+              "environment": [
+                { "name": "NODE_ENV", "value": "${NODE_ENV}" }
+              ]
+            }
+          ]
+        }
+        EOF
+
+      - |
+        cat > appspec.yaml <<EOF
+        version: 0.0
+        Resources:
+          - TargetService:
+              Type: AWS::ECS::Service
+              Properties:
+                TaskDefinition: "<TASK_DEFINITION>"
+                LoadBalancerInfo:
+                  ContainerName: "${SERVICE_NAME}"
+                  ContainerPort: 80
+                PlatformVersion: "LATEST"
+        EOF
+
+artifacts:
+  files:
+    - imagedefinitions.json
+    - taskdef.json
+    - appspec.yaml
+  name: build-artifacts
