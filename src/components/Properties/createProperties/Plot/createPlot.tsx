@@ -36,12 +36,7 @@ import { Button as MuiButton, Modal, Slider } from "@mui/material";
 
 //cropping code ends here
 
-const containerStyle = {
-  width: "100%",
-  height: "360px",
-  borderRadius: "6px",
-  border: "1px solid #D3DDE7",
-};
+
 const defaultCenter = { lat: 11.2419968, lng: 78.8063549 };
 // const GOOGLE_LIBRARIES: (
 //   | "places"
@@ -388,6 +383,8 @@ export const CreatePlotProperty = () => {
   const [showTopInfo, setShowTopInfo] = useState(false);
   const [markerPosition, setMarkerPosition] = useState(defaultCenter);
   const [autocomplete, setAutocomplete] =
+    useState<google.maps.places.Autocomplete | null>(null);
+  const [mapAutocomplete, setMapAutocomplete] =
     useState<google.maps.places.Autocomplete | null>(null);
   const location = useLocation();
   const isEditMode = location.state?.mode === "edit";
@@ -1111,18 +1108,80 @@ export const CreatePlotProperty = () => {
 
                 <div className="row">
                   <div className="col-12 col-md-6 mb-3">
-                    {isLoaded ? (
-                      <GoogleMap
-                        mapContainerStyle={containerStyle}
-                        center={markerPosition}
-                        zoom={15}
-                        onClick={onMapClick}
-                      >
-                        <Marker position={markerPosition} />
-                      </GoogleMap>
-                    ) : (
-                      <p>Loading map...</p>
-                    )}
+                    <div className="position-relative" style={{ height: '379px', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
+                      {isLoaded ? (
+                        <>
+                          {/* Search Bar Overlay */}
+                          <div className="position-absolute" style={{ top: '32px', left: '50%', transform: 'translateX(-50%)', zIndex: 10 }}>
+                            <Autocomplete
+                              onLoad={(autoC) => setMapAutocomplete(autoC)}
+                              onPlaceChanged={async () => {
+                                if (mapAutocomplete) {
+                                  const place = mapAutocomplete.getPlace();
+                                  const lat = place.geometry?.location?.lat();
+                                  const lng = place.geometry?.location?.lng();
+                                  
+                                  if (lat && lng) {
+                                    setLatitude(lat.toFixed(6));
+                                    setLongitude(lng.toFixed(6));
+                                    setMarkerPosition({ lat, lng });
+                                    fetchNearbyTransport(lat, lng);
+                                  }
+
+                                  if (place.formatted_address) {
+                                    setAddress(place.formatted_address);
+                                    setErrors({ ...errors, address: "" });
+                                  }
+                                }
+                              }}
+                            >
+                              <div
+                                className="d-flex align-items-center bg-white"
+                                style={{
+                                  width: '320px',
+                                  height: '48px',
+                                  paddingLeft: '12px',
+                                  paddingRight: '12px',
+                                  borderRadius: '16px',
+                                  boxShadow: '0px 3px 6px rgba(0,0,0,0.1), 0px 10px 20px rgba(0,0,0,0.15)',
+                                  border: '1px solid #FFFFFF'
+                                }}
+                              >
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="me-2">
+                                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#757575"/>
+                                </svg>
+                                <input
+                                  type="text"
+                                  placeholder="Search location..."
+                                  className="flex-grow-1 border-0 outline-0"
+                                  style={{ color: '#757575', fontSize: '14px' }}
+                                />
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="ms-2">
+                                  <circle cx="11" cy="11" r="8" stroke="#757575" strokeWidth="2"/>
+                                  <path d="m21 21-4.35-4.35" stroke="#757575" strokeWidth="2"/>
+                                </svg>
+                              </div>
+                            </Autocomplete>
+                          </div>
+
+                          {/* Google Map */}
+                          <GoogleMap
+                            mapContainerStyle={{ width: '100%', height: '100%' }}
+                            center={markerPosition}
+                            zoom={15}
+                            onClick={onMapClick}
+                          >
+                            <Marker position={markerPosition} />
+                          </GoogleMap>
+                        </>
+                      ) : (
+                        <div className="d-flex justify-content-center align-items-center h-100">
+                          <div className="spinner-border text-primary" role="status">
+                            <span className="visually-hidden">Loading map...</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <div className="col-12 col-md-6 mb-3">
