@@ -36,12 +36,7 @@ import { Button as MuiButton, Modal, Slider } from "@mui/material";
 
 //cropping code ends here
 
-const containerStyle = {
-  width: "100%",
-  height: "360px",
-  borderRadius: "6px",
-  border: "1px solid #D3DDE7",
-};
+
 const defaultCenter = { lat: 11.2419968, lng: 78.8063549 };
 // const GOOGLE_LIBRARIES: (
 //   | "places"
@@ -389,6 +384,8 @@ export const CreatePlotProperty = () => {
   const [markerPosition, setMarkerPosition] = useState(defaultCenter);
   const [autocomplete, setAutocomplete] =
     useState<google.maps.places.Autocomplete | null>(null);
+  const [mapAutocomplete, setMapAutocomplete] =
+    useState<google.maps.places.Autocomplete | null>(null);
   const location = useLocation();
   const isEditMode = location.state?.mode === "edit";
   const editData = location.state?.data;
@@ -510,15 +507,43 @@ export const CreatePlotProperty = () => {
     // setNearbyTransport(info);
   };
 
+  // Geocode function to get address from coordinates
+  const geocodeLatLng = (lat: number, lng: number): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const geocoder = new google.maps.Geocoder();
+      geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+        if (status === "OK" && results && results[0]) {
+          resolve(results[0].formatted_address);
+        } else {
+          reject(`Geocoder failed: ${status}`);
+        }
+      });
+    });
+  };
+
   // Handle map click to place marker and update lat/lng inputs
-  const onMapClick = useCallback((e: google.maps.MapMouseEvent) => {
-    if (e.latLng) {
-      setMarkerPosition({ lat: e.latLng.lat(), lng: e.latLng.lng() });
-      setLatitude(e.latLng.lat().toString());
-      setLongitude(e.latLng.lng().toString());
-      fetchNearbyTransport(e.latLng.lat(), e.latLng.lng());
+  const onMapClick = useCallback(async (e: google.maps.MapMouseEvent) => {
+    if (!e.latLng) return;
+
+    const lat = e.latLng.lat();
+    const lng = e.latLng.lng();
+
+    setLatitude(lat.toFixed(6));
+    setLongitude(lng.toFixed(6));
+    setMarkerPosition({ lat, lng });
+
+    try {
+      const address = await geocodeLatLng(lat, lng);
+      setAddress(address);
+      setErrors({ ...errors, address: "" });
+    } catch (err) {
+      console.error(err);
+      setAddress("");
+      setErrors({ ...errors, address: "Geocoder failed" });
     }
-  }, []);
+
+    fetchNearbyTransport(lat, lng);
+  }, [errors]);
 
   // Validation function
   const validate = (): Record<string, string> => {
@@ -1111,18 +1136,103 @@ export const CreatePlotProperty = () => {
 
                 <div className="row">
                   <div className="col-12 col-md-6 mb-3">
-                    {isLoaded ? (
-                      <GoogleMap
-                        mapContainerStyle={containerStyle}
-                        center={markerPosition}
-                        zoom={15}
-                        onClick={onMapClick}
-                      >
-                        <Marker position={markerPosition} />
-                      </GoogleMap>
-                    ) : (
-                      <p>Loading map...</p>
-                    )}
+                    <div className="position-relative" style={{ height: '379px', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
+                      {isLoaded ? (
+                        <>
+                          {/* Search Bar Overlay */}
+                          <div className="position-absolute" style={{ top: '32px', left: '50%', transform: 'translateX(-50%)', zIndex: 10 }}>
+                            <Autocomplete
+                              onLoad={(autoC) => setMapAutocomplete(autoC)}
+                              onPlaceChanged={async () => {
+                                console.log('Plot Map Autocomplete triggered!');
+                                if (mapAutocomplete) {
+                                  const place = mapAutocomplete.getPlace();
+                                  const lat = place.geometry?.location?.lat();
+                                  const lng = place.geometry?.location?.lng();
+                                  
+                                  if (lat && lng) {
+                                    setLatitude(lat.toFixed(6));
+                                    setLongitude(lng.toFixed(6));
+                                    setMarkerPosition({ lat, lng });
+                                    fetchNearbyTransport(lat, lng);
+                                  }
+
+                                  console.log('Plot Map - Place object:', place);
+                                  console.log('Plot Map - Address components:', place.address_components);
+                                  
+                                  if (place.address_components) {
+                                    const components = place.address_components;
+                                    components.forEach((comp, idx) => {
+                                      console.log(`Plot Map Component ${idx}:`, comp.long_name, comp.types);
+                                    });
+                                    
+                                    const doorNo = components.find(c => c.types.includes('street_number'))?.long_name ||
+                                                 components.find(c => c.types.includes('premise'))?.long_name || '';
+                                    const street = components.find(c => c.types.includes('route'))?.long_name ||
+                                                 components.find(c => c.types.includes('sublocality'))?.long_name || '';
+                                    const city = components.find(c => c.types.includes('locality'))?.long_name ||
+                                               components.find(c => c.types.includes('postal_town'))?.long_name ||
+                                               components.find(c => c.types.includes('administrative_area_level_3'))?.long_name || '';
+                                    const pincode = components.find(c => c.types.includes('postal_code'))?.long_name || '';
+                                    
+                                    console.log('Plot Map Parsed:', { doorNo, street, city, pincode });
+                                    
+                                    const addressParts = [doorNo, street, city, pincode].filter(Boolean);
+                                    setAddress(addressParts.join(', ') || place.formatted_address || '');
+                                    setErrors({ ...errors, address: "" });
+                                  } else {
+                                    setAddress(place.formatted_address || "");
+                                  }
+                                }
+                              }}
+                            >
+                              <div
+                                className="d-flex align-items-center bg-white"
+                                style={{
+                                  width: '320px',
+                                  height: '48px',
+                                  paddingLeft: '12px',
+                                  paddingRight: '12px',
+                                  borderRadius: '16px',
+                                  boxShadow: '0px 3px 6px rgba(0,0,0,0.1), 0px 10px 20px rgba(0,0,0,0.15)',
+                                  border: '1px solid #FFFFFF'
+                                }}
+                              >
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="me-2">
+                                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#757575"/>
+                                </svg>
+                                <input
+                                  type="text"
+                                  placeholder="Search location..."
+                                  className="flex-grow-1 border-0 outline-0"
+                                  style={{ color: '#757575', fontSize: '14px' }}
+                                />
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="ms-2">
+                                  <circle cx="11" cy="11" r="8" stroke="#757575" strokeWidth="2"/>
+                                  <path d="m21 21-4.35-4.35" stroke="#757575" strokeWidth="2"/>
+                                </svg>
+                              </div>
+                            </Autocomplete>
+                          </div>
+
+                          {/* Google Map */}
+                          <GoogleMap
+                            mapContainerStyle={{ width: '100%', height: '100%' }}
+                            center={markerPosition}
+                            zoom={15}
+                            onClick={onMapClick}
+                          >
+                            <Marker position={markerPosition} />
+                          </GoogleMap>
+                        </>
+                      ) : (
+                        <div className="d-flex justify-content-center align-items-center h-100">
+                          <div className="spinner-border text-primary" role="status">
+                            <span className="visually-hidden">Loading map...</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <div className="col-12 col-md-6 mb-3">
@@ -1133,13 +1243,42 @@ export const CreatePlotProperty = () => {
                           <Autocomplete
                             onLoad={(autoC) => setAutocomplete(autoC)}
                             onPlaceChanged={() => {
+                              console.log('Plot Address Autocomplete triggered!');
                               if (autocomplete) {
                                 const place = autocomplete.getPlace();
                                 const lat = place.geometry?.location?.lat();
                                 const lng = place.geometry?.location?.lng();
 
-                                if (place.formatted_address)
-                                  setAddress(place.formatted_address);
+                                console.log('Plot Address - Place object:', place);
+                                console.log('Plot Address - Address components:', place.address_components);
+                                
+                                if (place.address_components) {
+                                  const components = place.address_components;
+                                  components.forEach((comp, idx) => {
+                                    console.log(`Plot Address Component ${idx}:`, comp.long_name, comp.types);
+                                  });
+                                  
+                                  const doorNo = components.find(c => c.types.includes('street_number'))?.long_name ||
+                                               components.find(c => c.types.includes('premise'))?.long_name || '';
+                                  const street = components.find(c => c.types.includes('route'))?.long_name ||
+                                               components.find(c => c.types.includes('sublocality'))?.long_name || '';
+                                  const city = components.find(c => c.types.includes('locality'))?.long_name ||
+                                             components.find(c => c.types.includes('postal_town'))?.long_name ||
+                                             components.find(c => c.types.includes('administrative_area_level_3'))?.long_name || '';
+                                  const pincode = components.find(c => c.types.includes('postal_code'))?.long_name || '';
+                                  
+                                  console.log('Plot Address Parsed:', { doorNo, street, city, pincode });
+                                  
+                                  const addressParts = [doorNo, street, city, pincode].filter(Boolean);
+                                  // If we only have city and pincode, use formatted_address instead
+                                  if (addressParts.length <= 2 && !doorNo && !street) {
+                                    setAddress(place.formatted_address || addressParts.join(', '));
+                                  } else {
+                                    setAddress(addressParts.join(', '));
+                                  }
+                                } else {
+                                  setAddress(place.formatted_address || "");
+                                }
                                 if (lat && lng) {
                                   setLatitude(lat.toFixed(6));
                                   setLongitude(lng.toFixed(6));
