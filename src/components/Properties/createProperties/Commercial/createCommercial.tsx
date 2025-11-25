@@ -509,15 +509,43 @@ export const CreateCommercialProperty = () => {
   };
 
 
+  // Geocode function to get address from coordinates
+  const geocodeLatLng = (lat: number, lng: number): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const geocoder = new google.maps.Geocoder();
+      geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+        if (status === "OK" && results && results[0]) {
+          resolve(results[0].formatted_address);
+        } else {
+          reject(`Geocoder failed: ${status}`);
+        }
+      });
+    });
+  };
+
   // Handle map click to place marker and update lat/lng inputs
-  const onMapClick = useCallback((e: google.maps.MapMouseEvent) => {
-    if (e.latLng) {
-      setMarkerPosition({ lat: e.latLng.lat(), lng: e.latLng.lng() });
-      setLatitude(e.latLng.lat().toString());
-      setLongitude(e.latLng.lng().toString());
-      fetchNearbyTransport(e.latLng.lat(), e.latLng.lng());
+  const onMapClick = useCallback(async (e: google.maps.MapMouseEvent) => {
+    if (!e.latLng) return;
+
+    const lat = e.latLng.lat();
+    const lng = e.latLng.lng();
+
+    setLatitude(lat.toFixed(6));
+    setLongitude(lng.toFixed(6));
+    setMarkerPosition({ lat, lng });
+
+    try {
+      const address = await geocodeLatLng(lat, lng);
+      setAddress(address);
+      setErrors({ ...errors, address: "" });
+    } catch (err) {
+      console.error(err);
+      setAddress("");
+      setErrors({ ...errors, address: "Geocoder failed" });
     }
-  }, []);
+
+    fetchNearbyTransport(lat, lng);
+  }, [errors]);
 
   // Validation function
   const validate = (): Record<string, string> => {
@@ -1095,6 +1123,7 @@ export const CreateCommercialProperty = () => {
                             <Autocomplete
                               onLoad={(autoC) => setMapAutocomplete(autoC)}
                               onPlaceChanged={async () => {
+                                console.log('Commercial Map Autocomplete triggered!');
                                 if (mapAutocomplete) {
                                   const place = mapAutocomplete.getPlace();
                                   const lat = place.geometry?.location?.lat();
@@ -1107,9 +1136,31 @@ export const CreateCommercialProperty = () => {
                                     fetchNearbyTransport(lat, lng);
                                   }
 
-                                  if (place.formatted_address) {
-                                    setAddress(place.formatted_address);
+                                  console.log('Commercial Map - Place object:', place);
+                                  console.log('Commercial Map - Address components:', place.address_components);
+                                  
+                                  if (place.address_components) {
+                                    const components = place.address_components;
+                                    components.forEach((comp, idx) => {
+                                      console.log(`Commercial Map Component ${idx}:`, comp.long_name, comp.types);
+                                    });
+                                    
+                                    const doorNo = components.find(c => c.types.includes('street_number'))?.long_name ||
+                                                 components.find(c => c.types.includes('premise'))?.long_name || '';
+                                    const street = components.find(c => c.types.includes('route'))?.long_name ||
+                                                 components.find(c => c.types.includes('sublocality'))?.long_name || '';
+                                    const city = components.find(c => c.types.includes('locality'))?.long_name ||
+                                               components.find(c => c.types.includes('postal_town'))?.long_name ||
+                                               components.find(c => c.types.includes('administrative_area_level_3'))?.long_name || '';
+                                    const pincode = components.find(c => c.types.includes('postal_code'))?.long_name || '';
+                                    
+                                    console.log('Commercial Map Parsed:', { doorNo, street, city, pincode });
+                                    
+                                    const addressParts = [doorNo, street, city, pincode].filter(Boolean);
+                                    setAddress(addressParts.join(', ') || place.formatted_address || '');
                                     setErrors({ ...errors, address: "" });
+                                  } else {
+                                    setAddress(place.formatted_address || "");
                                   }
                                 }
                               }}
@@ -1171,13 +1222,37 @@ export const CreateCommercialProperty = () => {
                           <Autocomplete
                             onLoad={(autoC) => setAutocomplete(autoC)}
                             onPlaceChanged={() => {
+                              console.log('Commercial Address Autocomplete triggered!');
                               if (autocomplete) {
                                 const place = autocomplete.getPlace();
                                 const lat = place.geometry?.location?.lat();
                                 const lng = place.geometry?.location?.lng();
 
-                                if (place.formatted_address)
-                                  setAddress(place.formatted_address);
+                                console.log('Commercial Address - Place object:', place);
+                                console.log('Commercial Address - Address components:', place.address_components);
+                                
+                                if (place.address_components) {
+                                  const components = place.address_components;
+                                  components.forEach((comp, idx) => {
+                                    console.log(`Commercial Address Component ${idx}:`, comp.long_name, comp.types);
+                                  });
+                                  
+                                  const doorNo = components.find(c => c.types.includes('street_number'))?.long_name ||
+                                               components.find(c => c.types.includes('premise'))?.long_name || '';
+                                  const street = components.find(c => c.types.includes('route'))?.long_name ||
+                                               components.find(c => c.types.includes('sublocality'))?.long_name || '';
+                                  const city = components.find(c => c.types.includes('locality'))?.long_name ||
+                                             components.find(c => c.types.includes('postal_town'))?.long_name ||
+                                             components.find(c => c.types.includes('administrative_area_level_3'))?.long_name || '';
+                                  const pincode = components.find(c => c.types.includes('postal_code'))?.long_name || '';
+                                  
+                                  console.log('Commercial Address Parsed:', { doorNo, street, city, pincode });
+                                  
+                                  const addressParts = [doorNo, street, city, pincode].filter(Boolean);
+                                  setAddress(addressParts.join(', ') || place.formatted_address || '');
+                                } else {
+                                  setAddress(place.formatted_address || "");
+                                }
                                 if (lat && lng) {
                                   setLatitude(lat.toFixed(6));
                                   setLongitude(lng.toFixed(6));
