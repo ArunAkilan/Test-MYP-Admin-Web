@@ -1,6 +1,6 @@
 # admin Docker file
 # Stage 1: Build the React application
-FROM node:22.9.0 AS build
+FROM public.ecr.aws/docker/library/node:22-alpine AS builder
 
 # Set working directory
 WORKDIR /app
@@ -18,11 +18,11 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Serve the React application using nginx
-FROM nginx:alpine
+FROM public.ecr.aws/nginx/nginx:alpine
 
-# Copy the build files from the previous stage
-COPY --from=build /app/dist /usr/share/nginx/html
-COPY --from=build /app/nginx/default.conf /etc/nginx/conf.d
+# Copy the builder files from the previous stage
+COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/nginx/default.conf /etc/nginx/conf.d
 
 # Expose port 80
 EXPOSE 80
