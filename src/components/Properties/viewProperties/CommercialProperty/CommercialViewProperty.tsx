@@ -250,7 +250,19 @@ const CommercialView = () => {
               alt="Location Icon"
               className="me-2"
             />
-            <p className="mb-0">{property?.property?.location?.address}</p>
+            <p className="mb-0">
+              {(() => {
+                const address = property?.property?.location?.address;
+                if (!address) return '-';
+                
+                try {
+                  const parsed = JSON.parse(address);
+                  return `${parsed.doorNo || ''} ${parsed.street || ''}, ${parsed.city || ''} ${parsed.pincode || ''}`.trim();
+                } catch {
+                  return address;
+                }
+              })()}
+            </p>
           </div>
         </div>
 
@@ -757,7 +769,19 @@ const CommercialView = () => {
           <div className="location-detail col-md-6">
             <div className="address">
               <h3>Full Address</h3>
-              <p>{property?.property?.location?.address}</p>
+              <p>
+                {(() => {
+                  const address = property?.property?.location?.address;
+                  if (!address) return '-';
+                  
+                  try {
+                    const parsed = JSON.parse(address);
+                    return `${parsed.doorNo || ''} ${parsed.street || ''}, ${parsed.city || ''} ${parsed.pincode || ''}`.trim();
+                  } catch {
+                    return address;
+                  }
+                })()}
+              </p>
             </div>
             <div className="lat-long row">
               <div className="lat col-md-6">
