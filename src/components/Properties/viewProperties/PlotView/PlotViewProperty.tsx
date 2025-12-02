@@ -279,7 +279,7 @@ const PlotView = () => {
             )}
 
             {/* Plot Acre - Only show if exists */}
-            {property?.property?.location?.area?.acre && (
+            {property?.property?.location?.area?.acre != null && property?.property?.location?.area?.acre !== "" && (
               <>
                 <div className="area-facing-divider"></div>
                 <div className="text-center">
