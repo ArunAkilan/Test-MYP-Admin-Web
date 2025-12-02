@@ -95,6 +95,7 @@ export type ResidentialFormState = {
   leaseTenure: string;
   residentialType: string;
   address: string;
+  landmark: string;
   latitude: string;
   longitude: string;
   images: UploadedImage[];
