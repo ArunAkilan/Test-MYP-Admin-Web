@@ -165,8 +165,6 @@ function buildPayloadDynamic(
 
   // area
   setNested(payload, "area.totalArea", formState.area.totalArea || "0");
-  setNested(payload, "area.builtUpArea", formState.area.builtUpArea || "0");
-  setNested(payload, "area.carpetArea", formState.area.carpetArea || "0");
 
   // floors
   setNested(payload, "totalFloors", Number(formState.totalFloors) || 0);
@@ -1640,7 +1638,7 @@ export const CreateCommercialProperty = () => {
                     />
                   </div>
                   <div className="col-12 col-md-6 mb-3">
-                    <label className="TextLabel" htmlFor="builtUpArea">
+                    <label className="TextLabel" >
                       Facing
                     </label>
                     <InputField

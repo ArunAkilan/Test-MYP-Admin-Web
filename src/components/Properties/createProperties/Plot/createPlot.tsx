@@ -171,7 +171,7 @@ function buildPayloadDynamic(formState: PlotFormState): PlotFormState {
   setNested(
     payload,
     "location.area.width",
-    `${formState.location.area?.width ?? ""} sqft`
+    `${formState.location.area?.width ?? ""}`
   );
   setNested(payload, "location.area.acre", formState.location.area?.acre || 0);
 
