@@ -279,7 +279,7 @@ const PlotView = () => {
             )}
 
             {/* Plot Acre - Only show if exists */}
-            {property?.property?.location?.area?.acre && (
+            {property?.property?.location?.area?.acre != null && property?.property?.location?.area?.acre !== "" && (
               <>
                 <div className="area-facing-divider"></div>
                 <div className="text-center">
@@ -378,12 +378,12 @@ const PlotView = () => {
           <section className="midDetails">
             <h3>Property Dimension & Layout</h3>
             <div className="row gap-4 data-detail-row">
-              {property?.property?.area?.totalArea && (
+              {property?.property?.area?.totalArea && Number(property.property.area.totalArea) > 0 && (
                 <div className="col-md-2 row-individual-data">
                   <p>TOTAL AREA</p>
                   <span>
                     <img src={SqrtImage} alt="dimension" />
-                    {property.property.area.totalArea}
+                    {property.property.area.totalArea} sqft
                   </span>
                 </div>
               )}

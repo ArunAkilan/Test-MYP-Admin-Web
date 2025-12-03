@@ -129,13 +129,13 @@ function buildPayloadDynamic(formState: ResidentialFormState): ResidentialProper
     setNested(payload, "sale.negotiable", !!formState.negotiable);
   }
 
-  setNested(payload, "location.landmark", "Near Green Park");
+  setNested(payload, "location.landmark", formState.landmark || "");
   if (formState.latitude) setNested(payload, "location.map.latitude", parseFloat(formState.latitude));
   if (formState.longitude) setNested(payload, "location.map.longitude", parseFloat(formState.longitude));
   setNested(payload, "location.address", formState.address);
-  setNested(payload, "area.totalArea", `${formState.totalArea} sqft`);
-  setNested(payload, "area.builtUpArea", `${formState.builtUpArea} sqft`);
-  setNested(payload, "area.carpetArea", `${formState.carpetArea} sqft`);
+  setNested(payload, "area.totalArea", formState.totalArea || "0");
+  setNested(payload, "area.builtUpArea", formState.builtUpArea || "0");
+  setNested(payload, "area.carpetArea", formState.carpetArea || "0");
 
   setNested(payload, "title", formState.title);
   setNested(payload, "residentialType", formState.residentialType || "Apartment");
@@ -357,6 +357,7 @@ export const CreateProperty = () => {
   const [leaseTenure, setLeaseTenure] = useState("");
   const [residentialType, setResidentialType] = useState("House");
   const [address, setAddress] = useState("");
+  const [landmark, setLandmark] = useState("");
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
   const [images, setImages] = useState<UploadedImage[]>([]); // For file upload
@@ -403,6 +404,7 @@ export const CreateProperty = () => {
       setTitle(editData.title || "");
       setPropertyType(editData.propertyType || "Rent");
       setAddress(editData.location?.address || "");
+      setLandmark(editData.location?.landmark || "");
       setLatitude(editData.location?.map?.latitude?.toString() || "");
       setLongitude(editData.location?.map?.longitude?.toString() || "");
 
@@ -429,9 +431,9 @@ export const CreateProperty = () => {
       setfacingDirection(editData.facingDirection || "East");
       setRoomCount(editData.rooms?.replace(" BHK", "") || "1");
       setFurnishingType(editData.furnishingType || "Unfurnished");
-      setTotalArea(editData.area?.totalArea?.replace(" sqft", "") || "");
-      setBuiltUpArea(editData.area?.builtUpArea?.replace(" sqft", "") || "");
-      setCarpetArea(editData.area?.carpetArea?.replace(" sqft", "") || "");
+      setTotalArea(editData.area?.totalArea || "0");
+      setBuiltUpArea(editData.area?.builtUpArea || "0");
+      setCarpetArea(editData.area?.carpetArea || "0");
       setTotalFloors(editData.totalFloors?.toString() || "");
       setPropertyFloor(editData.propertyFloor?.toString() || "");
       setPropertyDescription(editData.description || "");
@@ -620,14 +622,7 @@ export const CreateProperty = () => {
     if (!images.length) {
       newErrors.images = "Upload at least one image";
     }
-    if (!totalArea.trim() || isNaN(parseFloat(totalArea)))
-      newErrors.totalArea = "Valid total area is required";
 
-    if (!builtUpArea.trim() || isNaN(parseFloat(builtUpArea)))
-      newErrors.builtUpArea = "Valid built up area is required";
-
-    if (!carpetArea.trim() || isNaN(parseFloat(carpetArea)))
-      newErrors.carpetArea = "Valid carpet area is required";
 
     if (!rooms.trim() || isNaN(parseInt(rooms)))
       newErrors.rooms = "Valid rooms number is required";
@@ -668,6 +663,7 @@ export const CreateProperty = () => {
       leaseTenure,
       residentialType,
       address,
+      landmark,
       latitude,
       longitude,
       images,
@@ -795,9 +791,6 @@ export const CreateProperty = () => {
     title.trim() &&
     address.trim() &&
     images.length > 0 &&
-    totalArea.trim() &&
-    builtUpArea.trim() &&
-    carpetArea.trim() &&
     rooms.trim() &&
     selectedChips.length > 0;
 
@@ -1279,6 +1272,19 @@ export const CreateProperty = () => {
                         )}
                       </div>
 
+                      <div className="col-12 mb-3">
+                        <label className="TextLabel" htmlFor="landmark">
+                          Landmark
+                        </label>
+                        <InputField
+                          type="text"
+                          id="landmark"
+                          placeholder="Enter Nearby Landmark"
+                          value={landmark}
+                          onChange={(e) => setLandmark(e.target.value)}
+                        />
+                      </div>
+
                       <div className="col-6 mb-3">
                         <label className="TextLabel" htmlFor="latitude">
                           Latitude
@@ -1709,7 +1715,7 @@ export const CreateProperty = () => {
                 <div className="OwnerDetailTextField mt-3 row">
                   <div className="col-12 col-md-6 mb-3">
                     <label className="TextLabel" htmlFor="totalArea">
-                      Total Area <span className="star">*</span>
+                      Total Area 
                     </label>
                     <InputField
                       type="text"
@@ -1723,7 +1729,7 @@ export const CreateProperty = () => {
                   </div>
                   <div className="col-12 col-md-6 mb-3">
                     <label className="TextLabel" htmlFor="builtUpArea">
-                      Built Up Area <span className="star">*</span>
+                      Built Up Area 
                     </label>
                     <InputField
                       type="text"
@@ -1738,7 +1744,7 @@ export const CreateProperty = () => {
 
                   <div className="col-12 col-md-6 mb-3">
                     <label className="TextLabel" htmlFor="carpetArea">
-                      Carpet Area <span className="star">*</span>
+                      Carpet Area 
                     </label>
                     <InputField
                       type="text"
@@ -2230,88 +2236,90 @@ export const CreateProperty = () => {
                 </div>
               </section>
 
-              {/* Restrictions Section - No direct validation needed */}
-              <section className="RestrictionsSection mb-4">
-                <div className="ownerTitle">
-                  <h6>
-                    Occupancy Restrictions <span className="star">*</span>
-                  </h6>
-                  <p>
-                    Select any rules about who can stay or live in this property
-                  </p>
-                  {errors.selectedChips && (
-                    <p className="text-danger">{errors.selectedChips}</p>
-                  )}
-                </div>
-
-                <div className="chipField">
-                  <div className="d-flex flex-wrap gap-3">
-                    <InputField
-                      type="chip"
-                      className="input-field"
-                      label="Guests Not Allowed"
-                      icon={
-                        <Avatar
-                          alt="Guests Not Allowed"
-                          src={`${import.meta.env.VITE_BASE_URL}/createProperty/solar_user-linear.svg`}
-                          className="avatarImg"
-                        // sx={{ width: 18, height: 18 }}
-                        />
-                      }
-                      selectedChips={selectedChips}
-                      onChipToggle={(label) => {
-                        setSelectedChips((prev) =>
-                          prev.includes(label)
-                            ? prev.filter((chip) => chip !== label)
-                            : [...prev, label]
-                        );
-                      }}
-                    />
-
-                    <InputField
-                      type="chip"
-                      className="input-field"
-                      label="No Pets Allowed"
-                      icon={
-                        <Avatar
-                          alt="No Pets Allowed"
-                          src={`${import.meta.env.VITE_BASE_URL}/createProperty/streamline_pets-allowed.svg`}
-                          className="avatarImg"
-                        />
-                      }
-                      selectedChips={selectedChips}
-                      onChipToggle={(label) => {
-                        setSelectedChips((prev) =>
-                          prev.includes(label)
-                            ? prev.filter((chip) => chip !== label)
-                            : [...prev, label]
-                        );
-                      }}
-                    />
-
-                    <InputField
-                      type="chip"
-                      className="input-field"
-                      label="No Bachelors Allowed"
-                      icon={
-                        <Avatar
-                          alt="No Bachelors Allowed"
-                          src={`${import.meta.env.VITE_BASE_URL}/createProperty/Icon_Lift (1).svg`}
-                          className="avatarImg"
-                        />
-                      }
-                      selectedChips={selectedChips}
-                      onChipToggle={(label) => {
-                        setSelectedChips((prev) =>
-                          prev.includes(label)
-                            ? prev.filter((chip) => chip !== label)
-                            : [...prev, label]
-                        );
-                      }}
-                    />
+              {/* Restrictions Section - Only show for Rent and Lease properties */}
+              {propertyType !== "Sale" && (
+                <section className="RestrictionsSection mb-4">
+                  <div className="ownerTitle">
+                    <h6>
+                      Occupancy Restrictions <span className="star">*</span>
+                    </h6>
+                    <p>
+                      Select any rules about who can stay or live in this property
+                    </p>
+                    {errors.selectedChips && (
+                      <p className="text-danger">{errors.selectedChips}</p>
+                    )}
                   </div>
-                </div>
-              </section>
+
+                  <div className="chipField">
+                    <div className="d-flex flex-wrap gap-3">
+                      <InputField
+                        type="chip"
+                        className="input-field"
+                        label="Guests Not Allowed"
+                        icon={
+                          <Avatar
+                            alt="Guests Not Allowed"
+                            src={`${import.meta.env.VITE_BASE_URL}/createProperty/solar_user-linear.svg`}
+                            className="avatarImg"
+                          // sx={{ width: 18, height: 18 }}
+                          />
+                        }
+                        selectedChips={selectedChips}
+                        onChipToggle={(label) => {
+                          setSelectedChips((prev) =>
+                            prev.includes(label)
+                              ? prev.filter((chip) => chip !== label)
+                              : [...prev, label]
+                          );
+                        }}
+                      />
+
+                      <InputField
+                        type="chip"
+                        className="input-field"
+                        label="No Pets Allowed"
+                        icon={
+                          <Avatar
+                            alt="No Pets Allowed"
+                            src={`${import.meta.env.VITE_BASE_URL}/createProperty/streamline_pets-allowed.svg`}
+                            className="avatarImg"
+                          />
+                        }
+                        selectedChips={selectedChips}
+                        onChipToggle={(label) => {
+                          setSelectedChips((prev) =>
+                            prev.includes(label)
+                              ? prev.filter((chip) => chip !== label)
+                              : [...prev, label]
+                          );
+                        }}
+                      />
+
+                      <InputField
+                        type="chip"
+                        className="input-field"
+                        label="No Bachelors Allowed"
+                        icon={
+                          <Avatar
+                            alt="No Bachelors Allowed"
+                            src={`${import.meta.env.VITE_BASE_URL}/createProperty/Icon_Lift (1).svg`}
+                            className="avatarImg"
+                          />
+                        }
+                        selectedChips={selectedChips}
+                        onChipToggle={(label) => {
+                          setSelectedChips((prev) =>
+                            prev.includes(label)
+                              ? prev.filter((chip) => chip !== label)
+                              : [...prev, label]
+                          );
+                        }}
+                      />
+                    </div>
+                  </div>
+                </section>
+              )}
 
               {/* Additional Information Section */}
               <section className="AdditionalInfoSection mb-4">

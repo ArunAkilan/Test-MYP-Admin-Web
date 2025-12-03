@@ -143,6 +143,7 @@ function buildPayloadDynamic(formState: PlotFormState): PlotFormState {
   }
   // location
   setNested(payload, "location.address", formState.location.address);
+  setNested(payload, "location.landmark", formState.location.landmark || "");
   if (formState.location.map?.latitude)
     setNested(
       payload,
@@ -160,7 +161,7 @@ function buildPayloadDynamic(formState: PlotFormState): PlotFormState {
   setNested(
     payload,
     "location.area.totalArea",
-    `${formState.location.area?.totalArea ?? ""} sqft`
+    `${formState.location.area?.totalArea ?? ""}`
   );
   setNested(
     payload,
@@ -170,7 +171,7 @@ function buildPayloadDynamic(formState: PlotFormState): PlotFormState {
   setNested(
     payload,
     "location.area.width",
-    `${formState.location.area?.width ?? ""} sqft`
+    `${formState.location.area?.width ?? ""}`
   );
   setNested(payload, "location.area.acre", formState.location.area?.acre || 0);
 
@@ -360,6 +361,7 @@ export const CreatePlotProperty = () => {
   const [leaseTenure, setLeaseTenure] = useState("");
   const [plotType, setPlotType] = useState("None" as PlotType);
   const [address, setAddress] = useState("");
+  const [landmark, setLandmark] = useState("");
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
   const [images, setImages] = useState<UploadedImage[]>([]);
@@ -373,9 +375,9 @@ export const CreatePlotProperty = () => {
   const [length, setLength] = useState("");
   const [width, setWidth] = useState("");
 
-  const sanitizedTotalArea = totalArea.trim() ? `${totalArea.trim()} sqft` : "";
-  const sanitizedLength = length.trim() ? length.trim() : "";
-  const sanitizedWidth = width.trim() ? width.trim() : "";
+  const sanitizedTotalArea = totalArea || "0";
+  const sanitizedLength = length || "0";
+  const sanitizedWidth = width || "0";
   
   const [description, setPropertyDescription] = useState("");
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
@@ -417,13 +419,14 @@ export const CreatePlotProperty = () => {
       setSaleAmount(String(editData?.sale?.saleAmount ?? ""));
   
       // Sanitize and set area fields
-      setTotalArea(editData.location?.area?.totalArea?.replace(" sqft", "") ?? "");
-      setLength(editData.location?.area?.length?.replace(" ft", "") ?? "");
-      setWidth(editData.location?.area?.width?.replace(" ft", "") ?? "");
+      setTotalArea(editData.location?.area?.totalArea ?? "0");
+      setLength(editData.location?.area?.length ?? "0");
+      setWidth(editData.location?.area?.width ?? "0");
       setAcre(String(editData.location?.area?.acre ?? ""));
   
       setPlotType(editData?.plotType ?? "None");
       setAddress(editData?.location?.address ?? "");
+      setLandmark(editData?.location?.landmark ?? "");
       if (editData.location?.map) {
         setLatitude(String(editData.location.map.latitude ?? ""));
         setLongitude(String(editData.location.map.longitude ?? ""));
@@ -628,7 +631,7 @@ export const CreatePlotProperty = () => {
 
       location: {
         address,
-        landmark: "",
+        landmark,
         map: {
           latitude: Number(latitude),
           longitude: Number(longitude),
@@ -1307,6 +1310,19 @@ export const CreatePlotProperty = () => {
                         ) : (
                           <p>Loading autocomplete...</p>
                         )}
+                      </div>
+
+                      <div className="col-12 mb-3">
+                        <label className="TextLabel" htmlFor="landmark">
+                          Landmark
+                        </label>
+                        <InputField
+                          type="text"
+                          id="landmark"
+                          placeholder="Enter Nearby Landmark"
+                          value={landmark}
+                          onChange={(e) => setLandmark(e.target.value)}
+                        />
                       </div>
 
                       <div className="col-6 mb-3">

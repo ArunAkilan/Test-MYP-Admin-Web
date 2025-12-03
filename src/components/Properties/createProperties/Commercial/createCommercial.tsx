@@ -149,6 +149,7 @@ function buildPayloadDynamic(
   }
   // location
   setNested(payload, "location.address", formState.location.address);
+  setNested(payload, "location.landmark", formState.location.landmark || "");
   if (formState.location.map?.latitude)
     setNested(
       payload,
@@ -163,9 +164,7 @@ function buildPayloadDynamic(
     );
 
   // area
-  setNested(payload, "area.totalArea", `${formState.area.totalArea} sqft`);
-  // setNested(payload, "area.builtUpArea", `${formState.area.builtUpArea} sqft`);
-  // setNested(payload, "area.carpetArea", `${formState.area.carpetArea} sqft`);
+  setNested(payload, "area.totalArea", formState.area.totalArea || "0");
 
   // floors
   setNested(payload, "totalFloors", Number(formState.totalFloors) || 0);
@@ -348,6 +347,7 @@ export const CreateCommercialProperty = () => {
   const [leaseTenure, setLeaseTenure] = useState("");
   const [commercialType, setCommercialType] = useState("Shop");
   const [address, setAddress] = useState("");
+  const [landmark, setLandmark] = useState("");
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
   const [images, setImages] = useState<UploadedImage[]>([]);
@@ -380,6 +380,7 @@ export const CreateCommercialProperty = () => {
       setTitle(editData.title || "");
       setPropertyType(editData.propertyType || "Rent");
       setAddress(editData.location?.address || "");
+      setLandmark(editData.location?.landmark || "");
 
       if (editData.location?.map) {
         setLatitude(editData.location.map.latitude?.toString() || "");
@@ -411,7 +412,7 @@ export const CreateCommercialProperty = () => {
         setLeaseTenure(""); // Clear tenure for sale
       }
 
-      setTotalArea(editData.area?.totalArea?.replace(" sqft", "") || "");
+      setTotalArea(editData.area?.totalArea || "0");
       setFacingDirection(editData.facingDirection || "East");
       setTotalFloors(editData.totalFloors || "");
       setPropertyFloor(editData.propertyFloor || "");
@@ -622,6 +623,7 @@ export const CreateCommercialProperty = () => {
       },
       location: {
         address,
+        landmark,
         map: {
           latitude: Number(latitude),
           longitude: Number(longitude),
@@ -1282,6 +1284,19 @@ export const CreateCommercialProperty = () => {
                         )}
                       </div>
 
+                      <div className="col-12 mb-3">
+                        <label className="TextLabel" htmlFor="landmark">
+                          Landmark
+                        </label>
+                        <InputField
+                          type="text"
+                          id="landmark"
+                          placeholder="Enter Nearby Landmark"
+                          value={landmark}
+                          onChange={(e) => setLandmark(e.target.value)}
+                        />
+                      </div>
+
                       <div className="col-6 mb-3">
                         <label className="TextLabel" htmlFor="latitude">
                           Latitude
@@ -1623,7 +1638,7 @@ export const CreateCommercialProperty = () => {
                     />
                   </div>
                   <div className="col-12 col-md-6 mb-3">
-                    <label className="TextLabel" htmlFor="builtUpArea">
+                    <label className="TextLabel" >
                       Facing
                     </label>
                     <InputField
