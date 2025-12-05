@@ -983,8 +983,7 @@ const handleDeletedCount = useMemo((): number => {
     }
 
     setLastScrollY(currentScrollY);
-    //@ts-ignore
-    onScrollChangeParent(scrollTop);
+    onScrollChangeParent?.(scrollTop);
   };
   const checkListCount = currentCheckList.length;
 
