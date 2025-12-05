@@ -138,7 +138,7 @@ function buildPayloadDynamic(formState: ResidentialFormState): ResidentialProper
   setNested(payload, "area.carpetArea", formState.carpetArea || "0");
 
   setNested(payload, "title", formState.title);
-  setNested(payload, "residentialType", formState.residentialType || "Apartment");
+  setNested(payload, "residentialType", formState.residentialType || "House");
   setNested(payload, "facingDirection", formState.facingDirection || "East");
   setNested(payload, "rooms", `${formState.rooms || "1"} BHK`);
   setNested(payload, "totalFloors", formState.totalFloors ? parseInt(formState.totalFloors) : 0);
@@ -948,8 +948,8 @@ export const CreateProperty = () => {
                       <InputField
                         type="dropdown"
                         id="residentialType"
-                        placeholder="Select Direction Facing"
-                        dropdownOptions={["House", "Apartment", "Villa"]}
+                        placeholder="Select Residential Type"
+                        dropdownOptions={["House", "Apartment", "Villa", "Rooms"]}
                         value={residentialType || "House"}
                         onChange={(e) => setResidentialType(e.target.value)}
                       />
