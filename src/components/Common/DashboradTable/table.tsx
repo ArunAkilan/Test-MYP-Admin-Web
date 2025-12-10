@@ -439,6 +439,17 @@ function Table({
       : text;
   };
 
+  const parseAddress = (address: string = ""): string => {
+    if (!address) return "-";
+    try {
+      const parsed = JSON.parse(address);
+      const formatted = `${parsed.doorNo || ""} ${parsed.street || ""}, ${parsed.city || ""} ${parsed.pincode || ""}`.trim();
+      return formatted || address;
+    } catch {
+      return address;
+    }
+  };
+
   const scrollRef = React.useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -912,7 +923,7 @@ function Table({
                           <p
                             data-bs-toggle="tooltip"
                             data-bs-placement="bottom"
-                            title={item?.location?.address}
+                            title={parseAddress(item?.location?.address)}
                           >
                             <img
                               src={`${import.meta.env.VITE_BASE_URL
@@ -920,7 +931,7 @@ function Table({
                               alt="location"
                             />
                             <span className="truncate-text">
-                              {truncateWords(item?.location?.address, 9)}
+                              {truncateWords(parseAddress(item?.location?.address), 9)}
                             </span>
                           </p>
                         </td>
