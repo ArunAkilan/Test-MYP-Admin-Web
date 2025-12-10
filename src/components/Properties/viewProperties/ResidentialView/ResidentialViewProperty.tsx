@@ -279,7 +279,7 @@ const ViewProperty = () => {
             <div className="text-center">
               <p className="mb-1">Amount</p>
               <h3 className="mb-1 user-result-data">
-                ₹{amountInfo.amount.toLocaleString()}
+                ₹{amountInfo.amount.toLocaleString('en-IN')}
               </h3>
               {amountInfo.label && (
                 <p className="text-muted">{amountInfo.label}</p>
@@ -291,7 +291,7 @@ const ViewProperty = () => {
                 <div className="text-center deposit-amount">
                   <p className="mb-1">Deposit Amount</p>
                   <h3 className="mb-1 user-result-data">
-                    ₹{amountInfo.deposit.toLocaleString()}
+                    ₹{amountInfo.deposit.toLocaleString('en-IN')}
                   </h3>
                 </div>
               </>
