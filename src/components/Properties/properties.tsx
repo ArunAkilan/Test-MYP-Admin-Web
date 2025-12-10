@@ -246,6 +246,7 @@ export const CreateProperty = () => {
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
   // Handle file input change & open crop modal
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -338,6 +339,25 @@ export const CreateProperty = () => {
   // Remove image from preview list
   const removeImage = (index: number) => {
     setImages((prevImages) => prevImages.filter((_, i) => i !== index));
+  };
+
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (dropIndex: number) => {
+    if (draggedIndex === null || draggedIndex === dropIndex) return;
+    setImages((prev) => {
+      const newImages = [...prev];
+      const [draggedImage] = newImages.splice(draggedIndex, 1);
+      newImages.splice(dropIndex, 0, draggedImage);
+      return newImages;
+    });
+    setDraggedIndex(null);
   };
 
   // State for form data
@@ -1402,7 +1422,19 @@ export const CreateProperty = () => {
                 <div className={`image-upload-wrapper ${errors.images ? "error-border" : ""}`}>
                   <div className="preview-images d-flex gap-3 mt-2 image-scroll-container">
                     {images.map((img, index) => (
-                      <div key={index} className="choosedImages position-relative">
+                      <div
+                        key={index}
+                        className="choosedImages position-relative"
+                        draggable
+                        onDragStart={() => handleDragStart(index)}
+                        onDragOver={handleDragOver}
+                        onDrop={() => handleDrop(index)}
+                        style={{
+                          opacity: draggedIndex === index ? 0.5 : 1,
+                          cursor: 'grab',
+                          transition: 'opacity 0.2s'
+                        }}
+                      >
                         <img src={img.name} alt={`preview-${index}`} className="preview-img" style={{ cursor: 'pointer' }}
                           onClick={() => setPreviewImage(img.name ?? null)} />
                         <div
