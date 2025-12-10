@@ -568,8 +568,7 @@ function Table({
                       >
                         Property Name
                         <img
-                          src={`${import.meta.env.VITE_BASE_URL
-                            }src/assets/table/arrow-up.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL}/src/assets/table/arrow-up.svg`}
                           alt="arrow"
                           className={
                             sortConfig?.key === "title"
@@ -586,8 +585,7 @@ function Table({
                       >
                         Area
                         <img
-                          src={`${import.meta.env.VITE_BASE_URL
-                            }src/assets/table/arrow-up.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL}/src/assets/table/arrow-up.svg`}
                           alt="arrow"
                           className={
                             sortConfig?.key === "totalArea"
@@ -604,8 +602,7 @@ function Table({
                       >
                         Status
                         <img
-                          src={`${import.meta.env.VITE_BASE_URL
-                            }src/assets/table/arrow-up.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL}/src/assets/table/arrow-up.svg`}
                           alt="arrow"
                           className={
                             sortConfig?.key === "status"
@@ -623,8 +620,7 @@ function Table({
                         >
                           Floors
                           <img
-                            src={`${import.meta.env.VITE_BASE_URL
-                              }src/assets/table/arrow-up.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL}/src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
                               sortConfig?.key === "totalFloors"
@@ -643,8 +639,7 @@ function Table({
                         >
                           Floors
                           <img
-                            src={`${import.meta.env.VITE_BASE_URL
-                              }src/assets/table/arrow-up.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL}/src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
                               sortConfig?.key === "totalFloors"
@@ -663,8 +658,7 @@ function Table({
                         >
                           Floors
                           <img
-                            src={`${import.meta.env.VITE_BASE_URL
-                              }src/assets/table/arrow-up.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL}/src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
                               sortConfig?.key === "totalFloors"
@@ -683,8 +677,7 @@ function Table({
                         >
                           Facing
                           <img
-                            src={`${import.meta.env.VITE_BASE_URL
-                              }src/assets/table/arrow-up.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL}/src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
                               sortConfig?.key === "facingDirection"
@@ -703,8 +696,7 @@ function Table({
                         >
                           Facing
                           <img
-                            src={`${import.meta.env.VITE_BASE_URL
-                              }src/assets/table/arrow-up.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL}/src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
                               sortConfig?.key === "facingDirection"
@@ -723,8 +715,7 @@ function Table({
                         >
                           Facing
                           <img
-                            src={`${import.meta.env.VITE_BASE_URL
-                              }src/assets/table/arrow-up.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL}/src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
                               sortConfig?.key === "facingDirection"
@@ -744,8 +735,7 @@ function Table({
                         >
                           Furnish
                           <img
-                            src={`${import.meta.env.VITE_BASE_URL
-                              }src/assets/table/arrow-up.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL}/src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
                               sortConfig?.key === "furnishingType"
@@ -764,8 +754,7 @@ function Table({
                         >
                           Furnish
                           <img
-                            src={`${import.meta.env.VITE_BASE_URL
-                              }src/assets/table/arrow-up.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL}/src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
                               sortConfig?.key === "furnishingType"
@@ -784,8 +773,7 @@ function Table({
                         >
                           Wahroom
                           <img
-                            src={`${import.meta.env.VITE_BASE_URL
-                              }src/assets/table/arrow-up.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL}/src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
                               sortConfig?.key === "washroom"
@@ -804,8 +792,7 @@ function Table({
                         >
                           Washroom
                           <img
-                            src={`${import.meta.env.VITE_BASE_URL
-                              }src/assets/table/arrow-up.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL}/src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
                               sortConfig?.key === "washroom"
@@ -824,8 +811,7 @@ function Table({
                         >
                           Plot Type
                           <img
-                            src={`${import.meta.env.VITE_BASE_URL
-                              }src/assets/table/arrow-up.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL}/src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
                               sortConfig?.key === "plotType"
@@ -844,8 +830,7 @@ function Table({
                         >
                           Plot Type
                           <img
-                            src={`${import.meta.env.VITE_BASE_URL
-                              }src/assets/table/arrow-up.svg`}
+                            src={`${import.meta.env.VITE_BASE_URL}/src/assets/table/arrow-up.svg`}
                             alt="arrow"
                             className={
                               sortConfig?.key === "plotType"
@@ -863,8 +848,7 @@ function Table({
                       >
                         Type
                         <img
-                          src={`${import.meta.env.VITE_BASE_URL
-                            }src/assets/table/arrow-up.svg`}
+                          src={`${import.meta.env.VITE_BASE_URL}/src/assets/table/arrow-up.svg`}
                           alt="arrow"
                           className={
                             sortConfig?.key === "propertyType"
