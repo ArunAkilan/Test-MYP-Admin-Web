@@ -14,6 +14,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import tickIcon from "../../../assets/table/Icon_Tick.svg";
 import denyIcon from "../../../assets/table/Icon_Deny.svg";
+import arrowIcon from "../../../assets/table/arrow-up.svg";
 import { useLocation, useNavigate } from "react-router-dom";
 // import type { CommercialProperty, PlotProperty} from "./table.model";
 import type {
@@ -568,8 +569,9 @@ function Table({
                       >
                         Property Name
                         <img
-                          src={`${import.meta.env.VITE_BASE_URL}/src/assets/table/arrow-up.svg`}
+                          src={arrowIcon}
                           alt="arrow"
+                          style={{ cursor: "pointer" }}
                           className={
                             sortConfig?.key === "title"
                               ? `sorted-${sortConfig.direction}`
@@ -585,8 +587,9 @@ function Table({
                       >
                         Area
                         <img
-                          src={`${import.meta.env.VITE_BASE_URL}/src/assets/table/arrow-up.svg`}
+                          src={arrowIcon}
                           alt="arrow"
+                          style={{ cursor: "pointer" }}
                           className={
                             sortConfig?.key === "totalArea"
                               ? `sorted-${sortConfig.direction}`
@@ -602,8 +605,9 @@ function Table({
                       >
                         Status
                         <img
-                          src={`${import.meta.env.VITE_BASE_URL}/src/assets/table/arrow-up.svg`}
+                          src={arrowIcon}
                           alt="arrow"
+                          style={{ cursor: "pointer" }}
                           className={
                             sortConfig?.key === "status"
                               ? `sorted-${sortConfig.direction}`
@@ -620,8 +624,9 @@ function Table({
                         >
                           Floors
                           <img
-                            src={`${import.meta.env.VITE_BASE_URL}/src/assets/table/arrow-up.svg`}
+                            src={arrowIcon}
                             alt="arrow"
+                            style={{ cursor: "pointer" }}
                             className={
                               sortConfig?.key === "totalFloors"
                                 ? `sorted-${sortConfig.direction}`
@@ -639,8 +644,9 @@ function Table({
                         >
                           Floors
                           <img
-                            src={`${import.meta.env.VITE_BASE_URL}/src/assets/table/arrow-up.svg`}
+                            src={arrowIcon}
                             alt="arrow"
+                            style={{ cursor: "pointer" }}
                             className={
                               sortConfig?.key === "totalFloors"
                                 ? `sorted-${sortConfig.direction}`
@@ -658,7 +664,7 @@ function Table({
                         >
                           Floors
                           <img
-                            src={`${import.meta.env.VITE_BASE_URL}/src/assets/table/arrow-up.svg`}
+                            src={arrowIcon}
                             alt="arrow"
                             className={
                               sortConfig?.key === "totalFloors"
@@ -677,8 +683,9 @@ function Table({
                         >
                           Facing
                           <img
-                            src={`${import.meta.env.VITE_BASE_URL}/src/assets/table/arrow-up.svg`}
+                            src={arrowIcon}
                             alt="arrow"
+                            style={{ cursor: "pointer" }}
                             className={
                               sortConfig?.key === "facingDirection"
                                 ? `sorted-${sortConfig.direction}`
@@ -696,8 +703,9 @@ function Table({
                         >
                           Facing
                           <img
-                            src={`${import.meta.env.VITE_BASE_URL}/src/assets/table/arrow-up.svg`}
+                            src={arrowIcon}
                             alt="arrow"
+                            style={{ cursor: "pointer" }}
                             className={
                               sortConfig?.key === "facingDirection"
                                 ? `sorted-${sortConfig.direction}`
@@ -715,7 +723,7 @@ function Table({
                         >
                           Facing
                           <img
-                            src={`${import.meta.env.VITE_BASE_URL}/src/assets/table/arrow-up.svg`}
+                            src={arrowIcon}
                             alt="arrow"
                             className={
                               sortConfig?.key === "facingDirection"
@@ -735,8 +743,9 @@ function Table({
                         >
                           Furnish
                           <img
-                            src={`${import.meta.env.VITE_BASE_URL}/src/assets/table/arrow-up.svg`}
+                            src={arrowIcon}
                             alt="arrow"
+                            style={{ cursor: "pointer" }}
                             className={
                               sortConfig?.key === "furnishingType"
                                 ? `sorted-${sortConfig.direction}`
@@ -754,7 +763,7 @@ function Table({
                         >
                           Furnish
                           <img
-                            src={`${import.meta.env.VITE_BASE_URL}/src/assets/table/arrow-up.svg`}
+                            src={arrowIcon}
                             alt="arrow"
                             className={
                               sortConfig?.key === "furnishingType"
@@ -773,8 +782,9 @@ function Table({
                         >
                           Wahroom
                           <img
-                            src={`${import.meta.env.VITE_BASE_URL}/src/assets/table/arrow-up.svg`}
+                            src={arrowIcon}
                             alt="arrow"
+                            style={{ cursor: "pointer" }}
                             className={
                               sortConfig?.key === "washroom"
                                 ? `sorted-${sortConfig.direction}`
@@ -792,7 +802,7 @@ function Table({
                         >
                           Washroom
                           <img
-                            src={`${import.meta.env.VITE_BASE_URL}/src/assets/table/arrow-up.svg`}
+                            src={arrowIcon}
                             alt="arrow"
                             className={
                               sortConfig?.key === "washroom"
@@ -811,8 +821,9 @@ function Table({
                         >
                           Plot Type
                           <img
-                            src={`${import.meta.env.VITE_BASE_URL}/src/assets/table/arrow-up.svg`}
+                            src={arrowIcon}
                             alt="arrow"
+                            style={{ cursor: "pointer" }}
                             className={
                               sortConfig?.key === "plotType"
                                 ? `sorted-${sortConfig.direction}`
@@ -830,7 +841,7 @@ function Table({
                         >
                           Plot Type
                           <img
-                            src={`${import.meta.env.VITE_BASE_URL}/src/assets/table/arrow-up.svg`}
+                            src={arrowIcon}
                             alt="arrow"
                             className={
                               sortConfig?.key === "plotType"
@@ -848,8 +859,9 @@ function Table({
                       >
                         Type
                         <img
-                          src={`${import.meta.env.VITE_BASE_URL}/src/assets/table/arrow-up.svg`}
+                          src={arrowIcon}
                           alt="arrow"
+                          style={{ cursor: "pointer" }}
                           className={
                             sortConfig?.key === "propertyType"
                               ? `sorted-${sortConfig.direction}`
