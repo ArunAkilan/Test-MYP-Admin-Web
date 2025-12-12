@@ -96,8 +96,15 @@ function Home({ properties }: { properties: PropertyType }) {
 
       const statusQuery = statusValue ? `&status=${encodeURIComponent(statusValue)}` : "";
 
+      const token = localStorage.getItem("token");
       const response = await axios.get(
-        `${import.meta.env.VITE_BackEndUrl}/api/${sideNavTabvalue}?page=${pageNum}&limit=10${statusQuery}`
+        `${import.meta.env.VITE_BackEndUrl}/api/${sideNavTabvalue}?page=${pageNum}&limit=10${statusQuery}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
       );
 
       if (localFetchId !== fetchIdRef.current) return;
