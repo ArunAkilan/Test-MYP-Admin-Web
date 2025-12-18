@@ -149,7 +149,7 @@ export default function Notificationtab() {
               </div>
             ) : (
               <ul className="notifyList">
-                {notifications.map((n) => (
+                {notifications?.map((n) => (
                   <li key={n._id}>
                     <div className="d-flex">
                       <b>{formatRole(n.role)}:&nbsp;</b> {n.createdBy}
@@ -170,7 +170,7 @@ export default function Notificationtab() {
       <CustomTabPanel value={value} index={1}>
         <div className="tab-panel-wrapper mt-1">
           <div className="tab-panel">
-            {notifications.filter((n) => n.type === "update").length === 0 ? (
+            {notifications?.filter((n) => n.type === "update").length === 0 ? (
               <div className="pt-5">
                 <img
                   src="icon-park-outline_message.svg"
@@ -188,7 +188,7 @@ export default function Notificationtab() {
             ) : (
               <ul className="notifyList">
                 {notifications
-                  .filter((n) => n.type === "update")
+                  ?.filter((n) => n.type === "update")
                   .map((n) => (
                     <li key={n._id}>
                       <div className="d-flex">
@@ -210,7 +210,7 @@ export default function Notificationtab() {
       <CustomTabPanel value={value} index={2}>
         <div className="tab-panel-wrapper mt-1">
           <div className="tab-panel">
-            {notifications.filter((n) => n.type === "alert").length === 0 ? (
+            {notifications?.filter((n) => n.type === "alert").length === 0 ? (
               <div className="pt-5">
                 <img
                   src="solar_inbox-in-outline.svg"
@@ -228,7 +228,7 @@ export default function Notificationtab() {
             ) : (
               <ul className="notifyList">
                 {notifications
-                  .filter((n) => n.type === "alert")
+                  ?.filter((n) => n.type === "alert")
                   .map((n) => (
                     <li key={n._id}>
                       <div className="d-flex">

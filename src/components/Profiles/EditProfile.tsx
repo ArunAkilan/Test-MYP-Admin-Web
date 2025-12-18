@@ -88,11 +88,14 @@ function EditProfile() {
            <option value="SuperAdmin">Super Admin</option>
           </select>
           
-<input
-  type="text"
-  value="Password"
-  disabled
-/>
+{form.role !== "User" && (
+  <input
+    type="password"
+    name="password"
+    value={form.password || ""}
+    onChange={handleChange}
+  />
+)}
 
 
           <input
