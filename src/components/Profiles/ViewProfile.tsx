@@ -45,8 +45,9 @@ function ViewProfile() {
           <strong>Description:</strong> {profile.description}
         </p>
         <p className="detail">
-          <strong>Location:</strong> Lat {profile.location.map.latitude}, Long{" "}
-          {profile.location.map.longitude}
+          <strong>Location:</strong> {profile.location?.map?.latitude && profile.location?.map?.longitude 
+            ? `Lat ${profile.location.map.latitude}, Long ${profile.location.map.longitude}` 
+            : profile.location?.address || 'N/A'}
         </p>
         </div>
       </div>
