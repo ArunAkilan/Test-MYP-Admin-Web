@@ -62,7 +62,7 @@ if (currentUserRole?.toLowerCase() !== "superadmin") {
   const loadProfiles = async () => {
     setsLoading(true);
     const data = await getAllProfiles();
-    setProfiles(data.data);
+    setProfiles(Array.isArray(data.data) ? data.data : []);
     setsLoading(false);
   };
 
