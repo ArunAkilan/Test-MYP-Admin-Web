@@ -308,9 +308,8 @@ const InputField: React.FC<InputFieldProps> = ({
             type="tel"
             value={typeof value === "string" ? value : ""}
             onChange={(e) => {
-              const newValue = e.target.value;
-              const digitsOnly = newValue.replace(/\D/g, "");
-              if (digitsOnly.length <= 10 && onPhoneChange) {
+              const digitsOnly = e.target.value.replace(/\D/g, "");
+              if (onPhoneChange) {
                 onPhoneChange(digitsOnly);
               }
             }}

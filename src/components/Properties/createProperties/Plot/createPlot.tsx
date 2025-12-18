@@ -575,11 +575,7 @@ export const CreatePlotProperty = () => {
     // Owner Information Validation
     if (!firstName.trim()) newErrors.firstName = "First name is required";
     if (!lastName.trim()) newErrors.lastName = "Last name is required";
-    if (!phone1.trim()) {
-      newErrors.phone1 = "Phone number is required";
-    } else if (!/^\d{10}$/.test(phone1)) {
-      newErrors.phone1 = "Please enter a 10-digit phone number";
-    }
+    if (!phone1.trim()) newErrors.phone1 = "Phone number is required";
 
     if (!propertyType.trim())
       newErrors.propertyType = "Property type is required";
@@ -622,12 +618,15 @@ export const CreatePlotProperty = () => {
     }
 
 
+    // Strip +91 prefix from phone number
+    const cleanedPhone = phone1.replace(/\D/g, "").slice(-10);
+
     // Form is valid, proceed with submission
     const formState: PlotFormState = {
       propertyOwner: {
         firstName,
         lastName,
-        contact: { phone1, email },
+        contact: { phone1: cleanedPhone, email },
       },
       propertyType,
       title,
@@ -917,7 +916,6 @@ export const CreatePlotProperty = () => {
                         onPhoneChange={setPhone1}
                         error={!!errors.phone1}
                         helperText={errors.phone1}
-                        disabled={!editable}
                       />
                     </div>
                   </div>
