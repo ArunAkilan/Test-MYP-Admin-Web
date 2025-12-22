@@ -145,7 +145,11 @@ function buildPayloadDynamic(formState: ResidentialFormState): ResidentialProper
   setNested(payload, "propertyFloor", formState.propertyFloor ? parseInt(formState.propertyFloor) : 0);
   setNested(payload, "furnishingType", formState.furnishingType?.replace("-", " "));
   setNested(payload, "description", formState.description);
-  setNested(payload, "restrictions", mapChipsToRestrictions(formState.selectedChips));
+  
+  // Only set restrictions if propertyType is NOT Sale
+  if (formState.propertyType !== "Sale") {
+    setNested(payload, "restrictions", mapChipsToRestrictions(formState.selectedChips));
+  }
 
   // ✅ Dynamic values with CORRECT backend field names:
 

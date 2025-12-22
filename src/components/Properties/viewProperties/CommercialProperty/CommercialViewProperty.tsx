@@ -621,8 +621,8 @@ const CommercialView = () => {
         </section>
       )}
 
-      {/* Occupancy Restrictions Section */}
-      {(property?.property?.restrictions?.guestAllowed !== undefined ||
+      {/* Occupancy Restrictions Section - Hide for Sale properties */}
+      {property?.property?.propertyType !== "Sale" && (property?.property?.restrictions?.guestAllowed !== undefined ||
         property?.property?.restrictions?.petsAllowed !== undefined ||
         property?.property?.restrictions?.bachelorsAllowed !== undefined) && (
         <section className="midDetails">
