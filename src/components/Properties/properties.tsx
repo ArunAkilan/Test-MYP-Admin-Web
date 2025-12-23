@@ -90,11 +90,12 @@ function flattenObject(
 
 // Map chips strings to Restrictions object
 const mapChipsToRestrictions = (chips: string[]): Restrictions => {
-  return {
-    guestAllowed: chips.includes("Guests Not Allowed"),
-    petsAllowed: chips.includes("No Pets Allowed"),
-    bachelorsAllowed: chips.includes("No Bachelors Allowed"),
+  const restrictions = {
+    guestAllowed: !chips.includes("Guests Not Allowed"),
+    petsAllowed: !chips.includes("No Pets Allowed"),
+    bachelorsAllowed: !chips.includes("No Bachelors Allowed"),
   };
+  return restrictions;
 };
 
 // Build payload dynamically based on form state

@@ -6,6 +6,7 @@ import "./Login.css";
 const Login = () => {
   const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -54,13 +55,20 @@ const Login = () => {
               </div>
 
               <div className="email input-cmn">
-                <img src={`${import.meta.env.VITE_BASE_URL}/Icon_User.svg`} alt="password icon" />
+                <img src={`${import.meta.env.VITE_BASE_URL}/Icon_User.svg`} alt="password icon" className="password-icon-left" />
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Password"
                   required
+                  style={{ paddingRight: '44px' }}
+                />
+                <img 
+                  src={showPassword ? `${import.meta.env.VITE_BASE_URL}/ICON_Eye.svg` : `${import.meta.env.VITE_BASE_URL}/eye-icon.svg`}
+                  alt="toggle password visibility"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="password-icon-right"
                 />
               </div>
 
