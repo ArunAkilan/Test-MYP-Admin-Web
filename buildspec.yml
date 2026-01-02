@@ -6,7 +6,7 @@ phases:
       - echo "Logging in to Amazon ECR..."
       - aws --region $AWS_DEFAULT_REGION ecr get-login-password | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
       - export TIMESTAMP=$(date +%Y%m%d%H%M%S)
-      - export IMAGE_URI="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$SERVICE_NAME:$TIMESTAMP"
+      - export IMAGE_URI="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$REGISTRY_NAME:$TIMESTAMP"
 
   build:
     commands:
@@ -16,12 +16,12 @@ phases:
   post_build:
     commands:
       - docker push $IMAGE_URI
-      - printf '[{"name":"%s","imageUri":"%s"}]' "$SERVICE_NAME" "$IMAGE_URI" > imagedefinitions.json
+      - printf '[{"name":"%s","imageUri":"%s"}]' "$SERVICE_KEY" "$IMAGE_URI" > imagedefinitions.json
 
       - |
         cat > taskdef.json <<EOF
         {
-          "family": "${SERVICE_NAME}",
+          "family": "${SERVICE_KEY}",
           "networkMode": "awsvpc",
           "requiresCompatibilities": ["FARGATE"],
           "cpu": "512",
@@ -30,14 +30,14 @@ phases:
           "taskRoleArn": "${ECS_TASK_ROLE_ARN}",
           "containerDefinitions": [
             {
-              "name": "${SERVICE_NAME}",
+              "name": "${SERVICE_KEY}",
               "image": "${IMAGE_URI}",
               "essential": true,
               "portMappings": [{ "hostPort": 80, "containerPort": 80, "protocol": "tcp" }],
               "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
-                  "awslogs-group": "/ecs/${SERVICE_NAME}",
+                  "awslogs-group": "/ecs/${SERVICE_KEY}",
                   "awslogs-region": "${AWS_DEFAULT_REGION}",
                   "awslogs-stream-prefix": "ecs"
                 }
@@ -59,7 +59,7 @@ phases:
               Properties:
                 TaskDefinition: "<TASK_DEFINITION>"
                 LoadBalancerInfo:
-                  ContainerName: "${SERVICE_NAME}"
+                  ContainerName: "${SERVICE_KEY}"
                   ContainerPort: 80
                 PlatformVersion: "LATEST"
         EOF
